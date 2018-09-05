@@ -2,9 +2,9 @@ import React from 'react';
 import txApi from '../api/txApi';
 import ReactLoading from 'react-loading';
 import ReactPaginate from 'react-paginate';
-import { Redirect } from 'react-router-dom';
 import {TX_COUNT} from '../constants';
 import dateFormatter from '../utils/date';
+import { withRouter } from "react-router-dom";
 
 
 class Transactions extends React.Component {
@@ -15,7 +15,6 @@ class Transactions extends React.Component {
       transactions: [],
       totalPages: 0,
       page: 1,
-      toHash: null,
       loaded: false
     }
 
@@ -48,14 +47,10 @@ class Transactions extends React.Component {
   }
 
   handleClickTr = (hash) => {
-    this.setState({ toHash: hash });
+    this.props.history.push(`/transaction/${hash}`);
   }
 
   render() {
-    if (this.state.toHash) {
-      return <Redirect to={`/transaction/${this.state.toHash}`} />
-    }
-
     const loadPagination = () => {
       if (this.state.transactions.length === 0 || this.state.totalPages === 1) {
         return null;
@@ -121,4 +116,4 @@ class Transactions extends React.Component {
   }
 }
 
-export default Transactions;
+export default withRouter(Transactions);
