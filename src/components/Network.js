@@ -8,29 +8,36 @@ class Network extends React.Component {
     super(props);
 
     this.state = {
-      peers: [],
+      connected_peers: [],
+      known_peers: [],
       loaded: false
     }
   }
 
   componentWillMount() {
     networkApi.getPeers().then((peers) => {
-      this.setState({ peers: peers.connected_peers, loaded: true });
+      this.setState({ connected_peers: peers.connected_peers, known_peers: peers.known_peers, loaded: true });
     }, (e) => {
       // Error in request
       console.log(e);
     });
   }
 
+  isPeerConnected(id) {
+    return this.state.connected_peers.filter((peer) => {
+      return peer.id === id;
+    }).length > 0;
+  }
+
   render() {
     const loadTable = () => {
       return (
-        <table>
+        <table className="table table-striped" id="peer-table">
           <thead>
             <tr>
               <th>ID</th>
-              <th>Address</th>
-              <th>Last message</th>
+              <th>Entrypoint</th>
+              <th>Connected</th>
             </tr>
           </thead>
           <tbody>
@@ -41,12 +48,12 @@ class Network extends React.Component {
     }
 
     const loadTableBody = () => {
-      return this.state.peers.map((peer, idx) => {
+      return this.state.known_peers.map((peer, idx) => {
         return (
           <tr key={peer.id}>
-            <td className="pr-3">{peer.id}</td>
-            <td className="pr-3">{peer.address}</td>
-            <td>{peer.last_message}</td>
+            <td className="pr-3">{peer.id.substring(0, 32)}</td>
+            <td className="pr-3">{peer.entrypoints.length ? peer.entrypoints[0] : ''}</td>
+            <td>{this.isPeerConnected(peer.id) ? 'Yes' : 'No'}</td>
           </tr>
         );
       });
@@ -54,8 +61,7 @@ class Network extends React.Component {
 
     return (
       <div className="tab-content-wrapper">
-        {!this.state.loaded ? <ReactLoading type='spin' color='#0081af' delay={500} /> : null}
-        {this.state.loaded ? loadTable() : null}
+        {!this.state.loaded ? <ReactLoading type='spin' color='#0081af' delay={500} /> : loadTable()}
       </div>
     );
   }
