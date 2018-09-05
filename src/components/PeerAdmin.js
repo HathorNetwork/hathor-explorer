@@ -3,7 +3,7 @@ import Network from './Network';
 import Transactions from './Transactions';
 
 
-class Admin extends React.Component {
+class PeerAdmin extends React.Component {
   render() {
     return (
       <div className="content-wrapper">
@@ -24,4 +24,4 @@ class Admin extends React.Component {
   }
 }
 
-export default Admin;
+export default PeerAdmin;
