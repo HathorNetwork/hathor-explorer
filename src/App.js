@@ -1,8 +1,9 @@
 import React from 'react';
 import { Switch, BrowserRouter as Router, Route } from 'react-router-dom';
-import Admin from './components/Admin';
+import PeerAdmin from './components/PeerAdmin';
 import Wallet from './components/Wallet';
 import Navigation from './components/Navigation';
+import TransactionDetail from './components/TransactionDetail';
 
 class Root extends React.Component {
   render() {
@@ -10,7 +11,8 @@ class Root extends React.Component {
     <Router>
       <Switch>
         <NavigationRoute exact path="/wallet" component={Wallet} />
-        <NavigationRoute exact path="" component={Admin} />
+        <NavigationRoute exact path="/transaction/:id" component={TransactionDetail} />
+        <NavigationRoute exact path="" component={PeerAdmin} />
       </Switch>
     </Router>
     )

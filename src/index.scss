@@ -60,3 +60,15 @@ html, body, #root {
 .page-link:hover {
   color: $darkBlueHover;
 }
+
+#tx-table tbody tr {
+  cursor: pointer;
+}
+
+#peer-table tbody td, #peer-table thead th, #tx-table tbody td, #tx-table thead th {
+  text-align: center;
+}
+
+.tx-data-wrapper label {
+  font-weight: bold;
+}
