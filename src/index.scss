@@ -1,0 +1,24 @@
+/*
+$fa-font-path: "~font-awesome/fonts";
+@import "~font-awesome/scss/font-awesome.scss";
+*/
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  word-wrap: break-word;
+}
+
+.content-wrapper {
+  margin: 2rem auto;
+  max-width: 988px;
+  -webkit-margin-bottom-collapse: separate;
+}
+
+.tab-content-wrapper {
+  padding: 2rem;
+}
+
+.pagination {
+  padding-top: 2rem;
+}
