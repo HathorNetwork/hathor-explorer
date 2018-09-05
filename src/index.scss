@@ -72,3 +72,11 @@ html, body, #root {
 .tx-data-wrapper label {
   font-weight: bold;
 }
+
+div.new-address-wrapper, button.send-tokens{
+  margin-bottom: 1rem;
+}
+
+button.new-address {
+  margin-right: 1rem;
+}
