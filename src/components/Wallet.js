@@ -52,7 +52,7 @@ class Wallet extends React.Component {
     const renderBalance = () => {
       return (
         <div>
-          <p><strong>Balance:</strong> {this.state.balance} hathor{this.state.balance > 1 ? 's' : ''}</p>
+          <p><strong>Balance:</strong> {this.state.balance} hathor{this.state.balance === 1 ? '' : 's'}</p>
         </div>
       );
     }
