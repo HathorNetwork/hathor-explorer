@@ -17,7 +17,7 @@ const walletApi = {
     });
   },
 
-  getNewAddress() {
+  getAddress() {
     return requestClient.get('wallet/address').then((res) => {
       return res.data
     }, (res) => {

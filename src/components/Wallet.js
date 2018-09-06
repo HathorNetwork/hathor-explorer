@@ -15,7 +15,7 @@ class Wallet extends React.Component {
       loaded: false,
     }
 
-    this.getNewAddress = this.getNewAddress.bind(this);
+    this.getAddress = this.getAddress.bind(this);
     this.sendTokens = this.sendTokens.bind(this);
   }
 
@@ -39,8 +39,8 @@ class Wallet extends React.Component {
     this.props.history.push('/wallet/send_tokens');
   }
 
-  getNewAddress() {
-    walletApi.getNewAddress().then((data) => {
+  getAddress() {
+    walletApi.getAddress().then((data) => {
       this.setState({address: data.address})
     }, (e) => {
       // Error in request
@@ -71,7 +71,7 @@ class Wallet extends React.Component {
     const renderAddress = () => {
       return (
         <div className="flex flex-row align-items-center new-address-wrapper">
-          <button className="btn new-address btn-primary" onClick={this.getNewAddress}>Get new address</button>
+          <button className="btn new-address btn-primary" onClick={this.getAddress}>Get address</button>
           <span>{this.state.address}</span>
         </div>
       )
