@@ -23,7 +23,17 @@ const walletApi = {
     }, (res) => {
       throw new Error(res.data.message);
     });
-  }
+  },
+
+  sendTokens(data) {
+    let formData = new FormData();
+    formData.append("data", JSON.stringify(data));
+    return requestClient.post('wallet/send_tokens', formData).then((res) => {
+      return res.data
+    }, (res) => {
+      throw new Error(res.data.message);
+    });
+  },
 };
 
 export default walletApi;

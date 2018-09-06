@@ -16,7 +16,7 @@ class Wallet extends React.Component {
     }
 
     this.getNewAddress = this.getNewAddress.bind(this);
-    this.sendToken = this.sendToken.bind(this);
+    this.sendTokens = this.sendTokens.bind(this);
   }
 
   componentWillMount() {
@@ -35,9 +35,8 @@ class Wallet extends React.Component {
     });
   }
 
-  sendToken() {
-    // TODO Change page
-    console.log('Sending...');
+  sendTokens() {
+    this.props.history.push('/wallet/send_tokens');
   }
 
   getNewAddress() {
