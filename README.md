@@ -4,7 +4,7 @@
 
 ## To Run
 
-`npm start`
+`npm start` and it will start running in the browser in http://localhost:3000
 
 ## Config
 
