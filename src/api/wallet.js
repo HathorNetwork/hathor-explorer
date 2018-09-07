@@ -9,8 +9,9 @@ const walletApi = {
     });
   },
 
-  getHistory() {
-    return requestClient.get('wallet/history').then((res) => {
+  getHistory(page, count) {
+    const data = {page, count};
+    return requestClient.get('wallet/history', {params: data}).then((res) => {
       return res.data
     }, (res) => {
       throw new Error(res.data.message);

@@ -2,6 +2,8 @@ import React from 'react';
 import ReactLoading from 'react-loading';
 import dateFormatter from '../utils/date';
 import walletApi from '../api/wallet';
+import ReactPaginate from 'react-paginate';
+import {WALLET_HISTORY_COUNT} from '../constants';
 
 
 class Wallet extends React.Component {
@@ -13,10 +15,13 @@ class Wallet extends React.Component {
       address: null,
       history: null,
       loaded: false,
+      totalPages: 0,
+      page: 1,
     }
 
     this.getAddress = this.getAddress.bind(this);
     this.sendTokens = this.sendTokens.bind(this);
+    this.getHistoryData = this.getHistoryData.bind(this);
   }
 
   componentWillMount() {
@@ -27,11 +32,24 @@ class Wallet extends React.Component {
       console.log(e);
     });
 
-    walletApi.getHistory().then((data) => {
-      this.setState({history: data.history, loaded: this.state.balance !== null})
+    this.getHistoryData();
+  }
+
+  getHistoryData() {
+    walletApi.getHistory(this.state.page, WALLET_HISTORY_COUNT).then((data) => {
+      this.setState({history: data.history, loaded: this.state.balance !== null, totalPages: data.total_pages})
     }, (e) => {
       // Error in request
       console.log(e);
+    });
+  }
+
+  handlePageClick = (data) => {
+    let selected = data.selected;
+    let page = selected + 1;
+
+    this.setState({ page: page }, () => {
+      this.getHistoryData();
     });
   }
 
@@ -49,6 +67,33 @@ class Wallet extends React.Component {
   }
 
   render() {
+    const loadPagination = () => {
+      if (this.state.history === null || this.state.history.length === 0 || this.state.totalPages === 1) {
+        return null;
+      } else {
+        return (
+          <ReactPaginate previousLabel={"Previous"}
+             nextLabel={"Next"}
+             pageCount={this.state.totalPages}
+             marginPagesDisplayed={1}
+             pageRangeDisplayed={2}
+             onPageChange={this.handlePageClick}
+             containerClassName={"pagination justify-content-center"}
+             subContainerClassName={"pages pagination"}
+             activeClassName={"active"}
+             breakClassName="page-item"
+             breakLabel={<a className="page-link">...</a>}
+             pageClassName="page-item"
+             previousClassName="page-item"
+             nextClassName="page-item"
+             pageLinkClassName="page-link"
+             previousLinkClassName="page-link"
+             nextLinkClassName="page-link"
+             ref={a => this._paginate = a} />
+        );
+      }
+    }
+
     const renderBalance = () => {
       return (
         <div>
@@ -122,6 +167,7 @@ class Wallet extends React.Component {
     return (
       <div className="content-wrapper flex align-items-center">
         {!this.state.loaded ? <ReactLoading type='spin' color='#0081af' delay={500} /> : renderWallet()}
+        {loadPagination()}
       </div>
     );
   }
