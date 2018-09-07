@@ -148,7 +148,7 @@ class Wallet extends React.Component {
       return this.state.history.map((tx, idx) => {
         return (
           <tr key={tx.tx_id + tx.index}>
-            <td>{tx.from_tx_id ? tx.from_tx_id.substring(0,32) : tx.tx_id.substring(0,32)}</td>
+            <td>{tx.from_tx_id ? tx.from_tx_id.substring(0,32) : tx.tx_id.substring(0,32)}<br/>{tx.from_tx_id ? tx.from_tx_id.substring(32,64) : tx.tx_id.substring(32,64)}</td>
             <td>{dateFormatter.parseTimestamp(tx.timestamp)}</td>
             <td>{tx.index}{tx.from_index}</td>
             <td>{tx.value}</td>
