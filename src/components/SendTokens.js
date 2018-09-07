@@ -56,7 +56,7 @@ class SendTokens extends React.Component {
 
   send() {
     walletApi.sendTokens(this.getData()).then((response) => {
-      console.log(response);
+      this.props.history.push('/wallet');
     }, (e) => {
       // Error in request
       console.log(e);
