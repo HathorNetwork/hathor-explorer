@@ -81,7 +81,7 @@ class Wallet extends React.Component {
       return (
         <div className="flex">
           <strong>Transaction history</strong>
-          <table className="table table-striped">
+          <table className="table table-striped" id="wallet-history">
             <thead>
               <tr>
                 <th>ID</th>
@@ -102,12 +102,12 @@ class Wallet extends React.Component {
     const renderHistoryData = () => {
       return this.state.history.map((tx, idx) => {
         return (
-          <tr key={tx.tx_id}>
-            <td>{tx.tx_id}</td>
+          <tr key={tx.tx_id + tx.index}>
+            <td>{tx.from_tx_id ? tx.from_tx_id.substring(0,32) : tx.tx_id.substring(0,32)}</td>
             <td>{dateFormatter.parseTimestamp(tx.timestamp)}</td>
-            <td>{tx.index}</td>
+            <td>{tx.index}{tx.from_index}</td>
             <td>{tx.value}</td>
-            <td>{tx.spent ? 'Yes' : 'No'}</td>
+            <td>{tx.from_tx_id ? tx.tx_id.substring(0,32) : ''}</td>
           </tr>
         );
       });
