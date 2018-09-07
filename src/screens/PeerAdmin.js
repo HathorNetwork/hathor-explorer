@@ -1,6 +1,6 @@
 import React from 'react';
-import Network from './Network';
-import Transactions from './Transactions';
+import Network from '../components/Network';
+import Transactions from '../components/Transactions';
 
 
 class PeerAdmin extends React.Component {

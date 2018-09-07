@@ -1,10 +1,10 @@
 import React from 'react';
 import { Switch, BrowserRouter as Router, Route } from 'react-router-dom';
-import PeerAdmin from './components/PeerAdmin';
-import Wallet from './components/Wallet';
-import SendTokens from './components/SendTokens';
+import PeerAdmin from './screens/PeerAdmin';
+import Wallet from './screens/Wallet';
+import SendTokens from './screens/SendTokens';
 import Navigation from './components/Navigation';
-import TransactionDetail from './components/TransactionDetail';
+import TransactionDetail from './screens/TransactionDetail';
 
 class Root extends React.Component {
   render() {
