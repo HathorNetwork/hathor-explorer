@@ -2,7 +2,7 @@ import React from 'react';
 import ReactLoading from 'react-loading';
 import dateFormatter from '../utils/date';
 import walletApi from '../api/wallet';
-import ReactPaginate from 'react-paginate';
+import HathorPaginate from '../components/HathorPaginate';
 import {WALLET_HISTORY_COUNT} from '../constants';
 
 
@@ -72,24 +72,8 @@ class Wallet extends React.Component {
         return null;
       } else {
         return (
-          <ReactPaginate previousLabel={"Previous"}
-             nextLabel={"Next"}
-             pageCount={this.state.totalPages}
-             marginPagesDisplayed={1}
-             pageRangeDisplayed={2}
-             onPageChange={this.handlePageClick}
-             containerClassName={"pagination justify-content-center"}
-             subContainerClassName={"pages pagination"}
-             activeClassName={"active"}
-             breakClassName="page-item"
-             breakLabel={<a className="page-link">...</a>}
-             pageClassName="page-item"
-             previousClassName="page-item"
-             nextClassName="page-item"
-             pageLinkClassName="page-link"
-             previousLinkClassName="page-link"
-             nextLinkClassName="page-link"
-             ref={a => this._paginate = a} />
+          <HathorPaginate pageCount={this.state.totalPages}
+            onPageChange={this.handlePageClick} />
         );
       }
     }
