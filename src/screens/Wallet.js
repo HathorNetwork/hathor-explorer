@@ -1,9 +1,8 @@
 import React from 'react';
 import ReactLoading from 'react-loading';
-import dateFormatter from '../utils/date';
+import WalletHistory from '../components/WalletHistory';
+import WalletBalance from '../components/WalletBalance';
 import walletApi from '../api/wallet';
-import HathorPaginate from '../components/HathorPaginate';
-import {WALLET_HISTORY_COUNT} from '../constants';
 
 
 class Wallet extends React.Component {
@@ -11,50 +10,28 @@ class Wallet extends React.Component {
     super(props);
 
     this.state = {
-      balance: null,
       address: null,
-      history: null,
-      loaded: false,
-      totalPages: 0,
-      page: 1,
+      historyLoaded: false,
+      balanceLoaded: false,
     }
 
     this.getAddress = this.getAddress.bind(this);
     this.sendTokens = this.sendTokens.bind(this);
-    this.getHistoryData = this.getHistoryData.bind(this);
-  }
-
-  componentWillMount() {
-    walletApi.getBalance().then((data) => {
-      this.setState({balance: data.balance, loaded: this.state.history !== null})
-    }, (e) => {
-      // Error in request
-      console.log(e);
-    });
-
-    this.getHistoryData();
-  }
-
-  getHistoryData() {
-    walletApi.getHistory(this.state.page, WALLET_HISTORY_COUNT).then((data) => {
-      this.setState({history: data.history, loaded: this.state.balance !== null, totalPages: data.total_pages})
-    }, (e) => {
-      // Error in request
-      console.log(e);
-    });
-  }
-
-  handlePageClick = (data) => {
-    let selected = data.selected;
-    let page = selected + 1;
-
-    this.setState({ page: page }, () => {
-      this.getHistoryData();
-    });
+    this.historyLoaded = this.historyLoaded.bind(this);
+    this.balanceLoaded = this.balanceLoaded.bind(this);
   }
 
   sendTokens() {
     this.props.history.push('/wallet/send_tokens');
+  }
+
+  historyLoaded() {
+    this.setState({historyLoaded: true});
+  }
+
+  balanceLoaded() {
+    console.log('AHA')
+    this.setState({balanceLoaded: true});
   }
 
   getAddress() {
@@ -67,32 +44,13 @@ class Wallet extends React.Component {
   }
 
   render() {
-    const loadPagination = () => {
-      if (this.state.history === null || this.state.history.length === 0 || this.state.totalPages === 1) {
-        return null;
-      } else {
-        return (
-          <HathorPaginate pageCount={this.state.totalPages}
-            onPageChange={this.handlePageClick} />
-        );
-      }
-    }
-
-    const renderBalance = () => {
-      return (
-        <div>
-          <p><strong>Balance:</strong> {this.state.balance} hathor{this.state.balance === 1 ? '' : 's'}</p>
-        </div>
-      );
-    }
-
     const renderWallet = () => {
       return (
         <div>
-          {renderBalance()}
+          <WalletBalance loaded={this.balanceLoaded} />
           {renderAddress()}
           {renderSendTokensBtn()}
-          {renderHistory()}
+          <WalletHistory loaded={this.historyLoaded} />
         </div>
       );
     }
@@ -106,42 +64,6 @@ class Wallet extends React.Component {
       )
     }
 
-    const renderHistory = () => {
-      return (
-        <div className="flex">
-          <strong>Transaction history</strong>
-          <table className="table table-striped" id="wallet-history">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Date</th>
-                <th>Index</th>
-                <th>Value</th>
-                <th>Spent</th>
-              </tr>
-            </thead>
-            <tbody>
-              {renderHistoryData()}
-            </tbody>
-          </table>
-        </div>
-      );
-    }
-
-    const renderHistoryData = () => {
-      return this.state.history.map((tx, idx) => {
-        return (
-          <tr key={tx.tx_id + tx.index}>
-            <td>{tx.from_tx_id ? tx.from_tx_id.substring(0,32) : tx.tx_id.substring(0,32)}<br/>{tx.from_tx_id ? tx.from_tx_id.substring(32,64) : tx.tx_id.substring(32,64)}</td>
-            <td>{dateFormatter.parseTimestamp(tx.timestamp)}</td>
-            <td>{tx.index}{tx.from_index}</td>
-            <td>{tx.value}</td>
-            <td>{tx.from_tx_id ? tx.tx_id.substring(0,32) : ''}</td>
-          </tr>
-        );
-      });
-    }
-
     const renderSendTokensBtn = () => {
       return (
         <button className="btn send-tokens btn-primary" onClick={this.sendTokens}>Send tokens</button>
@@ -150,8 +72,8 @@ class Wallet extends React.Component {
 
     return (
       <div className="content-wrapper flex align-items-center">
-        {!this.state.loaded ? <ReactLoading type='spin' color='#0081af' delay={500} /> : renderWallet()}
-        {loadPagination()}
+        {(this.state.historyLoaded && this.state.balanceLoaded) ? null : <ReactLoading type='spin' color='#0081af' delay={500} />}
+        {renderWallet()}
       </div>
     );
   }
