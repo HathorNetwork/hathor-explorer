@@ -3,6 +3,9 @@ $fa-font-path: "~font-awesome/fonts";
 @import "~font-awesome/scss/font-awesome.scss";
 */
 
+$darkBlue: #0273a0;
+$darkBlueHover: #0081af;
+
 html, body, #root {
   height: 100%;
   width: 100%;
@@ -15,10 +18,69 @@ html, body, #root {
   -webkit-margin-bottom-collapse: separate;
 }
 
+.main-nav {
+  background-color: $darkBlue;
+}
+
+.main-nav nav {
+  max-width: 988px;
+  margin: 0 auto;
+  padding: 0.5rem 0;
+}
+
+.main-nav > nav a {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.main-nav > nav a.active {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.nav-tabs a, .nav-tabs a:hover {
+  color: $darkBlue;
+}
+
 .tab-content-wrapper {
   padding: 2rem;
 }
 
 .pagination {
   padding-top: 2rem;
+}
+
+.page-item.active .page-link {
+  background-color: $darkBlue;
+  border-color: $darkBlue;
+}
+
+.page-link {
+  color: $darkBlue;
+}
+
+.page-link:hover {
+  color: $darkBlueHover;
+}
+
+#tx-table tbody tr {
+  cursor: pointer;
+}
+
+#peer-table tbody td, #peer-table thead th, #tx-table tbody td, #tx-table thead th, #wallet-history tbody td, #wallet-history thead th {
+  text-align: center;
+}
+
+.tx-data-wrapper label {
+  font-weight: bold;
+}
+
+div.new-address-wrapper, button.send-tokens{
+  margin-bottom: 1rem;
+}
+
+button.new-address {
+  margin-right: 1rem;
+}
+
+#formSendTokens .outputs-wrapper input, #formSendTokens .inputs-wrapper input {
+  margin-right: 1rem;
 }

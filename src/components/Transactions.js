@@ -1,8 +1,10 @@
 import React from 'react';
 import txApi from '../api/txApi';
 import ReactLoading from 'react-loading';
-import ReactPaginate from 'react-paginate';
+import HathorPaginate from '../components/HathorPaginate';
 import {TX_COUNT} from '../constants';
+import dateFormatter from '../utils/date';
+import { withRouter } from "react-router-dom";
 
 
 class Transactions extends React.Component {
@@ -17,6 +19,7 @@ class Transactions extends React.Component {
     }
 
     this.handlePageClick = this.handlePageClick.bind(this);
+    this.handleClickTr = this.handleClickTr.bind(this);
     this.getData = this.getData.bind(this);
   }
 
@@ -26,7 +29,6 @@ class Transactions extends React.Component {
 
   getData = () => {
     txApi.getTransactions(this.state.page, TX_COUNT).then((data) => {
-      console.log(data);
       this.setState({ transactions: data.transactions, loaded: true, totalPages: data.total_pages });
     }, (e) => {
       // Error in request
@@ -44,41 +46,30 @@ class Transactions extends React.Component {
     });
   }
 
+  handleClickTr = (hash) => {
+    this.props.history.push(`/transaction/${hash}`);
+  }
+
   render() {
     const loadPagination = () => {
       if (this.state.transactions.length === 0 || this.state.totalPages === 1) {
         return null;
       } else {
         return (
-          <ReactPaginate previousLabel={"Previous"}
-             nextLabel={"Next"}
-             pageCount={this.state.totalPages}
-             marginPagesDisplayed={1}
-             pageRangeDisplayed={2}
-             onPageChange={this.handlePageClick}
-             containerClassName={"pagination justify-content-center"}
-             subContainerClassName={"pages pagination"}
-             activeClassName={"active"}
-             breakClassName="page-item"
-             breakLabel={<a className="page-link">...</a>}
-             pageClassName="page-item"
-             previousClassName="page-item"
-             nextClassName="page-item"
-             pageLinkClassName="page-link"
-             previousLinkClassName="page-link"
-             nextLinkClassName="page-link"
-             ref={a => this._paginate = a} />
+          <HathorPaginate pageCount={this.state.totalPages}
+            onPageChange={this.handlePageClick} />
         );
       }
     }
 
     const loadTable = () => {
       return (
-        <table>
+        <table className="table table-striped" id="tx-table">
           <thead>
             <tr>
               <th>Hash</th>
               <th>Timestamp</th>
+              <th>Type</th>
             </tr>
           </thead>
           <tbody>
@@ -91,9 +82,10 @@ class Transactions extends React.Component {
     const loadTableBody = () => {
       return this.state.transactions.map((tx, idx) => {
         return (
-          <tr key={tx.hash}>
+          <tr key={tx.hash} onClick={(e) => this.handleClickTr(tx.hash)}>
             <td className="pr-3">{tx.hash}</td>
-            <td className="pr-3">{tx.timestamp}</td>
+            <td className="pr-3">{dateFormatter.parseTimestamp(tx.timestamp)}</td>
+            <td className="pr-3">{tx.inputs.length ? 'Tx' : 'Block'}</td>
           </tr>
         );
       });
@@ -101,12 +93,11 @@ class Transactions extends React.Component {
 
     return (
       <div className="tab-content-wrapper">
-        {!this.state.loaded ? <ReactLoading type='spin' color='#0081af' delay={500} /> : null}
-        {this.state.loaded ? loadTable() : null}
+        {!this.state.loaded ? <ReactLoading type='spin' color='#0081af' delay={500} /> : loadTable()}
         {loadPagination()}
       </div>
     );
   }
 }
 
-export default Transactions;
+export default withRouter(Transactions);
