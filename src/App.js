@@ -5,6 +5,8 @@ import Wallet from './screens/Wallet';
 import SendTokens from './screens/SendTokens';
 import Navigation from './components/Navigation';
 import TransactionDetail from './screens/TransactionDetail';
+import DecodeTx from './screens/DecodeTx';
+import PushTx from './screens/PushTx';
 
 class Root extends React.Component {
   render() {
@@ -14,6 +16,8 @@ class Root extends React.Component {
         <NavigationRoute exact path="/wallet/send_tokens" component={SendTokens} />
         <NavigationRoute exact path="/wallet" component={Wallet} />
         <NavigationRoute exact path="/transaction/:id" component={TransactionDetail} />
+        <NavigationRoute exact path="/push-tx" component={PushTx} />
+        <NavigationRoute exact path="/decode-tx" component={DecodeTx} />
         <NavigationRoute exact path="" component={PeerAdmin} />
       </Switch>
     </Router>

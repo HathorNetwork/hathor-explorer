@@ -84,3 +84,13 @@ button.new-address {
 #formSendTokens .outputs-wrapper input, #formSendTokens .inputs-wrapper input {
   margin-right: 1rem;
 }
+
+.tx-input-wrapper textarea {
+  margin: 1rem 0;
+}
+
+.tx-input-wrapper button {
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  width: 160px;
+}
