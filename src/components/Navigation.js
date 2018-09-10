@@ -15,6 +15,12 @@ class Navigation extends React.Component {
               <li className="nav-item">
                 <NavLink to="/wallet/" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Wallet</NavLink>
               </li>
+              <li className="nav-item">
+                <NavLink to="/decode-tx/" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Decode Tx</NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink to="/push-tx/" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Push Tx</NavLink>
+              </li>
             </ul>
           </div>
         </nav>
