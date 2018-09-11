@@ -1,5 +1,6 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
+import logo from '../assets/images/hathor-white-logo.png';
 
 
 class Navigation extends React.Component {
@@ -7,6 +8,9 @@ class Navigation extends React.Component {
     return (
       <div className="main-nav">
         <nav className="navbar navbar-expand-lg navbar-dark">
+          <Link className="navbar-brand" to="/" href="/">
+            <img src={logo} alt="" />
+          </Link>
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav mr-auto">
               <li className="nav-item">
