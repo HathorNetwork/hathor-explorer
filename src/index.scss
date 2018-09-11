@@ -73,12 +73,20 @@ html, body, #root {
   font-weight: bold;
 }
 
-div.new-address-wrapper, button.send-tokens{
+div.new-address-wrapper, button.send-tokens {
   margin-bottom: 1rem;
 }
 
 button.new-address {
   margin-right: 1rem;
+}
+
+div.new-address-wrapper span {
+  margin-right: 1rem;
+}
+
+div.new-address-wrapper canvas {
+  cursor: pointer;
 }
 
 #formSendTokens .outputs-wrapper input, #formSendTokens .inputs-wrapper input {
@@ -98,4 +106,18 @@ button.new-address {
 .main-nav > nav .navbar-brand > img {
   height: 40px;
   width: auto;
+}
+
+#qrCodeModal .download-qrcode {
+  margin-top: 1rem;
+}
+
+i.pointer {
+  cursor: pointer;
+}
+
+.hathor-alert {
+  position: fixed !important;
+  right: 1rem;
+  bottom: 1rem;
 }

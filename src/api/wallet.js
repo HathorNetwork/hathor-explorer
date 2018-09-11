@@ -18,8 +18,8 @@ const walletApi = {
     });
   },
 
-  getAddress() {
-    return requestClient.get('wallet/address').then((res) => {
+  getAddress(data) {
+    return requestClient.get('wallet/address', {params: data}).then((res) => {
       return res.data
     }, (res) => {
       throw new Error(res.data.message);
