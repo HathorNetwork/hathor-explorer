@@ -13,7 +13,6 @@ class WalletBalance extends React.Component {
 
   componentWillMount() {
     walletApi.getBalance().then((data) => {
-      console.log('UHU');
       this.setState({balance: data.balance})
       this.props.loaded();
     }, (e) => {

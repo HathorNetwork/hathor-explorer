@@ -57,7 +57,7 @@ class WalletHistory extends React.Component {
       return (
         <div className="flex">
           <strong>Transaction history</strong>
-          <table className="table table-striped" id="wallet-history">
+          <table className="mt-3 table table-striped" id="wallet-history">
             <thead>
               <tr>
                 <th>ID</th>

@@ -2,7 +2,7 @@ import React from 'react';
 import ReactLoading from 'react-loading';
 import WalletHistory from '../components/WalletHistory';
 import WalletBalance from '../components/WalletBalance';
-import walletApi from '../api/wallet';
+import WalletAddress from '../components/WalletAddress';
 
 
 class Wallet extends React.Component {
@@ -10,15 +10,16 @@ class Wallet extends React.Component {
     super(props);
 
     this.state = {
-      address: null,
+      addressLoaded: null,
+      newAddress: false,
       historyLoaded: false,
       balanceLoaded: false,
     }
 
-    this.getAddress = this.getAddress.bind(this);
     this.sendTokens = this.sendTokens.bind(this);
     this.historyLoaded = this.historyLoaded.bind(this);
     this.balanceLoaded = this.balanceLoaded.bind(this);
+    this.addressLoaded = this.addressLoaded.bind(this);
   }
 
   sendTokens() {
@@ -30,38 +31,27 @@ class Wallet extends React.Component {
   }
 
   balanceLoaded() {
-    console.log('AHA')
     this.setState({balanceLoaded: true});
   }
 
-  getAddress() {
-    walletApi.getAddress().then((data) => {
-      this.setState({address: data.address})
-    }, (e) => {
-      // Error in request
-      console.log(e);
-    });
+  addressLoaded() {
+    this.setState({addressLoaded: true});
   }
 
   render() {
     const renderWallet = () => {
       return (
         <div>
-          <WalletBalance loaded={this.balanceLoaded} />
-          {renderAddress()}
-          {renderSendTokensBtn()}
-          <WalletHistory loaded={this.historyLoaded} />
+          <div className="d-flex flex-row align-items-center justify-content-between">
+            <div className="d-flex flex-column align-items-start justify-content-between">
+              <WalletBalance loaded={this.balanceLoaded} />
+              {renderSendTokensBtn()}
+            </div>
+            <WalletAddress loaded={this.addressLoaded} />
+          </div>
+            <WalletHistory loaded={this.historyLoaded} />
         </div>
       );
-    }
-
-    const renderAddress = () => {
-      return (
-        <div className="flex flex-row align-items-center new-address-wrapper">
-          <button className="btn new-address btn-primary" onClick={this.getAddress}>Get address</button>
-          <span>{this.state.address}</span>
-        </div>
-      )
     }
 
     const renderSendTokensBtn = () => {
@@ -69,10 +59,10 @@ class Wallet extends React.Component {
         <button className="btn send-tokens btn-primary" onClick={this.sendTokens}>Send tokens</button>
       );
     }
-
+    
     return (
       <div className="content-wrapper flex align-items-center">
-        {(this.state.historyLoaded && this.state.balanceLoaded) ? null : <ReactLoading type='spin' color='#0081af' delay={500} />}
+        {(this.state.historyLoaded && this.state.balanceLoaded && this.state.addressLoaded) ? null : <ReactLoading type='spin' color='#0081af' delay={500} />}
         {renderWallet()}
       </div>
     );
