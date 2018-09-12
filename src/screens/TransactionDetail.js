@@ -14,14 +14,24 @@ class TransactionDetail extends React.Component {
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
+    this.getTx();
+  }
+
+  getTx() {
     txApi.getTransaction(this.props.match.params.id).then((data) => {
-      console.log(data);
+      // TODO handle error in case tx does not exist
       this.setState({ transaction: data, loaded: true });
     }, (e) => {
       // Error in request
       console.log(e);
     });
+  }
+
+  componentDidUpdate() {
+    if (this.state.transaction === null || this.state.transaction.hash !== this.props.match.params.id) {
+      this.getTx();
+    }
   }
 
   render() {

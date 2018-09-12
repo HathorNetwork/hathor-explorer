@@ -2,7 +2,10 @@ import React from 'react';
 import dateFormatter from '../utils/date';
 import walletApi from '../api/wallet';
 import HathorPaginate from '../components/HathorPaginate';
-import {WALLET_HISTORY_COUNT} from '../constants';
+import { WALLET_HISTORY_COUNT } from '../constants';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import HathorAlert from './HathorAlert';
+import helpers from '../utils/helpers';
 
 
 class WalletHistory extends React.Component {
@@ -41,6 +44,13 @@ class WalletHistory extends React.Component {
     });
   }
 
+  copied(text, result) {
+    if (result) {
+      // If copied with success
+      helpers.showAlert('alert-copied', 1000);
+    }
+  }
+
   render() {
     const loadPagination = () => {
       if (this.state.history === null || this.state.history.length === 0 || this.state.totalPages === 1) {
@@ -64,7 +74,7 @@ class WalletHistory extends React.Component {
                 <th>Date</th>
                 <th>Index</th>
                 <th>Value</th>
-                <th>Spent</th>
+                <th>State</th>
               </tr>
             </thead>
             <tbody>
@@ -80,11 +90,25 @@ class WalletHistory extends React.Component {
       return this.state.history.map((tx, idx) => {
         return (
           <tr key={tx.tx_id + tx.index}>
-            <td>{tx.from_tx_id ? tx.from_tx_id.substring(0,32) : tx.tx_id.substring(0,32)}<br/>{tx.from_tx_id ? tx.from_tx_id.substring(32,64) : tx.tx_id.substring(32,64)}</td>
+            <td>
+              <a target="_blank" href={`/transaction/${tx.from_tx_id ? tx.from_tx_id : tx.tx_id}`}>{tx.from_tx_id ? tx.from_tx_id.substring(0,32) : tx.tx_id.substring(0,32)}...</a>
+              <CopyToClipboard text={tx.from_tx_id ? tx.from_tx_id : tx.tx_id} onCopy={this.copied}>
+                <i className="fa fa-clone pointer ml-1" title="Copy to clipboard"></i>
+              </CopyToClipboard>
+            </td>
             <td>{dateFormatter.parseTimestamp(tx.timestamp)}</td>
             <td>{tx.index}{tx.from_index}</td>
-            <td>{tx.value}</td>
-            <td>{tx.from_tx_id ? tx.tx_id.substring(0,32) : ''}</td>
+            <td className={tx.from_tx_id ? "spent-tx" : ""}>{tx.value}</td>
+            <td>
+              {tx.from_tx_id ?
+                <div>
+                  <a href={`/transaction/${tx.tx_id}`} target="_blank">Spent</a> 
+                  <CopyToClipboard text={tx.tx_id} onCopy={this.copied}>
+                    <i className="fa fa-clone pointer ml-1" title="Copy hash to clipboard"></i>
+                  </CopyToClipboard>
+                </div>
+              : ''}
+            </td>
           </tr>
         );
       });
@@ -93,6 +117,7 @@ class WalletHistory extends React.Component {
     return (
       <div className="content-wrapper flex align-items-center">
         {renderHistory()}
+        <HathorAlert id="alert-copied" text="Copied to clipboard!" type="success" />
       </div>
     );
   }

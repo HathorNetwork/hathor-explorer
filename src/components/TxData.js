@@ -8,7 +8,7 @@ class TxData extends React.Component {
     const renderInputs = (inputs) => {
       return inputs.map((input, idx) => {
         return (
-          <li key={input.tx_id}>{input.tx_id} ({input.index})</li>
+          <li key={input.tx_id}><a target="_blank" href={`/transaction/${input.tx_id}`}>{input.tx_id}</a> ({input.index})</li>
         );
       });
     }
@@ -24,7 +24,7 @@ class TxData extends React.Component {
     const renderParents = (parents) => {
       return parents.map((parent, idx) => {
         return (
-          <li key={parent}>{parent}</li>
+          <li key={parent}><a target="_blank" href={`/transaction/${parent}`}>{parent}</a></li>
         );
       });
     }
