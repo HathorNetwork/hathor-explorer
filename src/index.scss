@@ -93,6 +93,10 @@ div.new-address-wrapper canvas {
   margin-right: 1rem;
 }
 
+#formSendTokens .checkbox-wrapper {
+  margin-bottom: 1rem;
+}
+
 .tx-input-wrapper textarea {
   margin: 1rem 0;
 }
@@ -120,4 +124,16 @@ i.pointer {
   position: fixed !important;
   right: 1rem;
   bottom: 1rem;
+}
+
+.navigation-search i {
+  color: #fff;
+}
+
+.navigation-search input {
+  border: none;
+}
+
+#wallet-history .spent-tx {
+  text-decoration: line-through;
 }

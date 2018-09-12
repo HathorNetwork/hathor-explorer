@@ -17,7 +17,7 @@ class DecodeTx extends React.Component {
 
   buttonClicked() {
     txApi.decodeTx(this.child.refs.txInput.value).then((data) => {
-      console.log(data);
+      // TODO handle error in case tx does not exist
       this.setState({ transaction: data.transaction });
     }, (e) => {
       // Error in request

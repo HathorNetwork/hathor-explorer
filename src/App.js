@@ -1,6 +1,7 @@
 import React from 'react';
 import { Switch, BrowserRouter as Router, Route } from 'react-router-dom';
 import PeerAdmin from './screens/PeerAdmin';
+import TransactionList from './screens/TransactionList';
 import Wallet from './screens/Wallet';
 import SendTokens from './screens/SendTokens';
 import Navigation from './components/Navigation';
@@ -18,6 +19,7 @@ class Root extends React.Component {
         <NavigationRoute exact path="/transaction/:id" component={TransactionDetail} />
         <NavigationRoute exact path="/push-tx" component={PushTx} />
         <NavigationRoute exact path="/decode-tx" component={DecodeTx} />
+        <NavigationRoute exact path="/transactions" component={TransactionList} />
         <NavigationRoute exact path="" component={PeerAdmin} />
       </Switch>
     </Router>

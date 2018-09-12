@@ -3,6 +3,7 @@ import walletApi from '../api/wallet';
 import QRCode from 'qrcode.react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import helpers from '../utils/helpers';
+import HathorAlert from './HathorAlert';
 
 
 class WalletAddress extends React.Component {
@@ -70,12 +71,7 @@ class WalletAddress extends React.Component {
     return (
       <div>
         {this.state.loaded ? renderAddress() : null}
-        <div id="alert-copied" className="hathor-alert alert alert-success alert-dismissible fade col-10 col-sm-3" role="alert">
-          Copied to clipboard!
-          <button type="button" className="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
+        <HathorAlert id="alert-copied" text="Copied to clipboard!" type="success" />
       </div>
     );
   }

@@ -42,14 +42,18 @@ class SendTokens extends React.Component {
       }
     });
 
-    $('.inputs-wrapper .input-group').each(function(idx) {
-      let tx_id = $(this).find('.input-id').val();
-      let index = $(this).find('.input-index').val();
+    const noInputs = this.refs.noInputs.checked;
 
-      if (tx_id && index) {
-        data['inputs'].push({'tx_id': tx_id, 'index': index});
-      }
-    });
+    if (!noInputs) {
+      $('.inputs-wrapper .input-group').each(function(idx) {
+        let tx_id = $(this).find('.input-id').val();
+        let index = $(this).find('.input-index').val();
+
+        if (tx_id && index) {
+          data['inputs'].push({'tx_id': tx_id, 'index': index});
+        }
+      });
+    }
 
     return data;
   }
@@ -61,6 +65,15 @@ class SendTokens extends React.Component {
       // Error in request
       console.log(e);
     });
+  }
+
+  handleCheckboxChange(e) {
+    const value = e.target.checked;
+    if (value) {
+      $('.inputs-wrapper').hide(400);
+    } else {
+      $('.inputs-wrapper').show(400);
+    }
   }
 
   render() {
@@ -75,7 +88,13 @@ class SendTokens extends React.Component {
               <button type="button" className="btn btn-primary" onClick={this.moreOutput}>+</button>
             </div>
           </div>
-          <div className="inputs-wrapper">
+          <div className="form-check checkbox-wrapper">
+            <input className="form-check-input" type="checkbox" defaultChecked="true" ref="noInputs" id="noInputs" onChange={this.handleCheckboxChange} />
+            <label className="form-check-label" htmlFor="noInputs">
+              Choose inputs automatically
+            </label>
+          </div>
+          <div className="inputs-wrapper" style={{display: 'none'}}>
             <label htmlFor="inputs">Inputs</label>
             <div className="input-group mb-3">
               <input type="text" placeholder="Tx id" className="form-control input-id col-4" />
