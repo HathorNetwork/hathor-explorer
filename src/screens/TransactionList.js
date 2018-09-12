@@ -1,5 +1,4 @@
 import React from 'react';
-import Network from '../components/Network';
 import Transactions from '../components/Transactions';
 
 
