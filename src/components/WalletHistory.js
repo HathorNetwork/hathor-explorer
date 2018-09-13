@@ -35,6 +35,40 @@ class WalletHistory extends React.Component {
     });
   }
 
+  outputSpent(data) {
+    var history = this.state.history;
+    history = history.map((el) => {
+      if (el.tx_id === data.from_tx_id && el.from_tx_id === undefined) {
+        el.from_tx_id = data.from_tx_id;
+        el.tx_id = data.tx_id;
+        el.timestamp = data.timestamp;
+        return el;
+      } else {
+        return el;
+      }
+    });
+
+    this.setState({ history });
+  }
+
+  newOutput(data, total) {
+    // XXX What should we do if user is not in page 1??
+    // XXX Should we keep the same for him?
+    if (this.state.page !== 1) return;
+    // First we calculate the new total pages
+    const totalPages = Math.ceil(total / WALLET_HISTORY_COUNT);
+    var history = this.state.history;
+    // We remove the last history element in the page if we already have the max
+    if (history.length === WALLET_HISTORY_COUNT) {
+      history.pop();
+    }
+    // Then we add the new on in the first position
+    history.splice(0, 0, data);
+    
+    // Finally we update the state again
+    this.setState({ history, totalPages });
+  }
+
   handlePageClick = (data) => {
     let selected = data.selected;
     let page = selected + 1;
@@ -89,7 +123,7 @@ class WalletHistory extends React.Component {
     const renderHistoryData = () => {
       return this.state.history.map((tx, idx) => {
         return (
-          <tr key={tx.tx_id + tx.index}>
+          <tr key={`${tx.tx_id}${tx.index}${tx.from_tx_id}`}>
             <td>
               <a target="_blank" href={`/transaction/${tx.from_tx_id ? tx.from_tx_id : tx.tx_id}`}>{tx.from_tx_id ? tx.from_tx_id.substring(0,32) : tx.tx_id.substring(0,32)}...</a>
               <CopyToClipboard text={tx.from_tx_id ? tx.from_tx_id : tx.tx_id} onCopy={this.copied}>

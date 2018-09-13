@@ -1,14 +1,35 @@
 import React from 'react';
 import walletApi from '../api/wallet';
 import $ from 'jquery';
+import helpers from '../utils/helpers';
+import WalletAuthModal from '../components/WalletAuthModal';
 
 
 class SendTokens extends React.Component {
   constructor(props) {
     super(props);
+    
+    this.state = {
+      locked: null
+    }
 
     this.send = this.send.bind(this);
     this.moreOutput = this.moreOutput.bind(this);
+    this.unlock = this.unlock.bind(this);
+    this.lock = this.lock.bind(this);
+  }
+
+  componentDidMount() {
+    helpers.checkWalletLock(this.unlock, this.lock);
+  }
+
+  lock() {
+    this.setState({ locked: true });
+    $("#walletAuthModal").modal('show');
+  }
+
+  unlock() {
+    this.setState({ locked: false });
   }
 
   moreOutput() {
@@ -77,8 +98,14 @@ class SendTokens extends React.Component {
   }
 
   render() {
-    return (
-      <div className="content-wrapper flex align-items-center">
+    const renderLockedPage = () => {
+      return (
+        <p>Your wallet is locked. Refresh your page to unlock it.</p>
+      );
+    }
+
+    const renderUnlockedPage = () => {
+      return (
         <form id="formSendTokens">
           <div className="outputs-wrapper">
             <label>Outputs</label>
@@ -104,6 +131,14 @@ class SendTokens extends React.Component {
           </div>
           <button type="button" className="btn btn-primary" onClick={this.send}>Send Tokens</button>
         </form>
+      );
+    }
+
+    return (
+      <div className="content-wrapper flex align-items-center">
+        {this.state.locked === true ? renderLockedPage() : null}
+        {this.state.locked === false ? renderUnlockedPage() : null}
+        <WalletAuthModal unlock={this.unlock} />
       </div>
     );
   }

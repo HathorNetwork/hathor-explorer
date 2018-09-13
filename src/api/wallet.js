@@ -35,6 +35,24 @@ const walletApi = {
       throw new Error(res.data.message);
     });
   },
+
+  checkLock() {
+    return requestClient.get('wallet/auth').then((res) => {
+      return res.data
+    }, (res) => {
+      throw new Error(res.data.message);
+    });
+  },
+
+  unlock(password) {
+    let formData = new FormData();
+    formData.append('password', password);
+    return requestClient.post('wallet/auth', formData).then((res) => {
+      return res.data
+    }, (res) => {
+      throw new Error(res.data.message);
+    });
+  }
 };
 
 export default walletApi;

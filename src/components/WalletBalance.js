@@ -9,16 +9,22 @@ class WalletBalance extends React.Component {
     this.state = {
       balance: null
     }
+
+    this.updateBalance = this.updateBalance.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     walletApi.getBalance().then((data) => {
-      this.setState({balance: data.balance})
+      this.updateBalance(data.balance);
       this.props.loaded();
     }, (e) => {
       // Error in request
       console.log(e);
     });
+  }
+
+  updateBalance(balance) {
+    this.setState({balance})
   }
 
   render() {

@@ -3,6 +3,11 @@ import ReactLoading from 'react-loading';
 import WalletHistory from '../components/WalletHistory';
 import WalletBalance from '../components/WalletBalance';
 import WalletAddress from '../components/WalletAddress';
+import { WS_URL } from '../constants';
+import HathorAlert from '../components/HathorAlert';
+import helpers from '../utils/helpers';
+import WalletAuthModal from '../components/WalletAuthModal';
+import $ from 'jquery';
 
 
 class Wallet extends React.Component {
@@ -10,16 +15,76 @@ class Wallet extends React.Component {
     super(props);
 
     this.state = {
-      addressLoaded: null,
       newAddress: false,
       historyLoaded: false,
       balanceLoaded: false,
+      addressLoaded: false,
+      warning: null,
+      locked: null,
     }
 
     this.sendTokens = this.sendTokens.bind(this);
     this.historyLoaded = this.historyLoaded.bind(this);
     this.balanceLoaded = this.balanceLoaded.bind(this);
     this.addressLoaded = this.addressLoaded.bind(this);
+    this.unlock = this.unlock.bind(this);
+    this.lock = this.lock.bind(this);
+
+    this.ws = null;
+  }
+
+  componentDidMount() {
+    this.ws = new WebSocket(WS_URL)
+    this.ws.onmessage = (event) => {
+      this.handleWebsocket(JSON.parse(event.data));
+    }
+
+    helpers.checkWalletLock(this.unlock, this.lock);
+  }
+
+  lock() {
+    this.setState({ locked: true });
+    $("#walletAuthModal").modal('show');
+  }
+
+  unlock() {
+    this.setState({ locked: false });
+  }
+
+  updateBalance(balance) {
+    if (this.balanceNode) {
+      this.balanceNode.updateBalance(balance);
+    }
+  }
+
+  newOutput(output, total) {
+    if (this.historyNode) {
+      this.historyNode.newOutput(output, total);
+    }
+  }
+
+  outputSpent(spent) {
+    if (this.historyNode) {
+      this.historyNode.outputSpent(spent);
+    }
+  }
+
+  keysWarning(keysCount) {
+    const warnMessage = `${keysCount} new keys were generated! Backup your wallet`;
+    this.setState({ warning: warnMessage })
+    helpers.showAlert('alert-warning', 5000);
+  }
+
+  handleWebsocket(wsData) {
+    if (wsData.type === 'wallet:balance_updated') {
+      this.updateBalance(wsData.balance);
+    } else if (wsData.type === 'wallet:output_received') {
+      this.newOutput(wsData.output, wsData.total);
+    } else if (wsData.type === 'wallet:output_spent') {
+      this.outputSpent(wsData.output_spent);
+    } else if (wsData.type === 'wallet:keys_generated') {
+      this.keysWarning(wsData.keys_count);
+    }
   }
 
   sendTokens() {
@@ -44,12 +109,12 @@ class Wallet extends React.Component {
         <div>
           <div className="d-flex flex-row align-items-center justify-content-between">
             <div className="d-flex flex-column align-items-start justify-content-between">
-              <WalletBalance loaded={this.balanceLoaded} />
+              <WalletBalance ref={(node) => { this.balanceNode = node; }} loaded={this.balanceLoaded} />
               {renderSendTokensBtn()}
             </div>
             <WalletAddress loaded={this.addressLoaded} />
           </div>
-            <WalletHistory loaded={this.historyLoaded} />
+          <WalletHistory ref={(node) => { this.historyNode = node; }} loaded={this.historyLoaded} />
         </div>
       );
     }
@@ -59,11 +124,28 @@ class Wallet extends React.Component {
         <button className="btn send-tokens btn-primary" onClick={this.sendTokens}>Send tokens</button>
       );
     }
+
+    const renderUnlockedWallet = () => {
+      return (
+        <div>
+          {(this.state.historyLoaded && this.state.balanceLoaded && this.state.addressLoaded) ? null : <ReactLoading type='spin' color='#0081af' delay={500} />}
+          {renderWallet()}
+          {this.state.warning ? <HathorAlert id="alert-warning" text={this.state.warning} type="warning" /> : null}
+        </div>
+      );
+    }
+
+    const renderLockedWallet = () => {
+      return (
+        <p>Your wallet is locked. Refresh your page to unlock it.</p>
+      );
+    }
     
     return (
-      <div className="content-wrapper flex align-items-center">
-        {(this.state.historyLoaded && this.state.balanceLoaded && this.state.addressLoaded) ? null : <ReactLoading type='spin' color='#0081af' delay={500} />}
-        {renderWallet()}
+      <div className="content-wrapper">
+        {this.state.locked === true ? renderLockedWallet() : null}
+        {this.state.locked === false ? renderUnlockedWallet() : null}
+        <WalletAuthModal unlock={this.unlock} />
       </div>
     );
   }
