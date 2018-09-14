@@ -37,7 +37,7 @@ class TransactionDetail extends React.Component {
   render() {
     return (
       <div className="flex align-items-center content-wrapper">
-        {!this.state.loaded ? <ReactLoading type='spin' color='#0081af' delay={500} /> : <TxData transaction={this.state.transaction} />}
+        {!this.state.loaded ? <ReactLoading type='spin' color='#0081af' delay={500} /> : <TxData transaction={this.state.transaction} showRaw={true} />}
       </div>
     );
   }

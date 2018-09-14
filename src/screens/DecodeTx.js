@@ -29,7 +29,7 @@ class DecodeTx extends React.Component {
     return (
       <div className="content-wrapper">
         <TxTextInput ref={(node) => {this.child = node;}} buttonClicked={this.buttonClicked} action='Decode tx' otherAction='push' link='/push-tx/' helpText='Write your transaction in hex value and click the button to get a human value description' />
-        {this.state.transaction ? <TxData transaction={this.state.transaction} /> : null}
+        {this.state.transaction ? <TxData transaction={this.state.transaction} showRaw={false} /> : null}
       </div>
     );
   }
