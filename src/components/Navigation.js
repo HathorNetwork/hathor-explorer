@@ -3,6 +3,7 @@ import { NavLink, Link } from 'react-router-dom';
 import logo from '../assets/images/hathor-white-logo.png';
 import HathorAlert from './HathorAlert';
 import helpers from '../utils/helpers';
+import { BASE_URL } from '../constants';
 
 
 class Navigation extends React.Component {
@@ -59,6 +60,9 @@ class Navigation extends React.Component {
               </li>
               <li className="nav-item">
                 <NavLink to="/push-tx/" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Push Tx</NavLink>
+              </li>
+              <li className="nav-item">
+                <Link to={`${BASE_URL}graphviz/`} target="_blank" className="nav-link">Graph</Link>
               </li>
             </ul>
             <div className="navbar-right d-flex flex-row align-items-center navigation-search">
