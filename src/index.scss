@@ -137,3 +137,12 @@ i.pointer {
 #wallet-history .spent-tx {
   text-decoration: line-through;
 }
+
+tr.tr-title {
+  background-color: rgba(0,0,0,0.05);
+  cursor: default !important;
+}
+
+tr.tr-title td {
+  font-weight: bold;
+}

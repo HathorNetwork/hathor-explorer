@@ -14,7 +14,7 @@ class Network extends React.Component {
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     networkApi.getPeers().then((peers) => {
       this.setState({ connected_peers: peers.connected_peers, known_peers: peers.known_peers, loaded: true });
     }, (e) => {

@@ -18,7 +18,7 @@ class WalletAddress extends React.Component {
     this.getNewAddress = this.getNewAddress.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.requestAddress({new: false});
   }
 
