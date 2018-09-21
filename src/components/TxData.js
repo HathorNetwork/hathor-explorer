@@ -63,7 +63,7 @@ class TxData extends React.Component {
       return (
         <div className="tx-data-wrapper">
           <div><label>Hash:</label> {this.props.transaction.hash}</div>
-          <div><label>Type:</label> {this.props.transaction.inputs.length > 0 ? 'Tx' : 'Block'}</div>
+          <div><label>Type:</label> {helpers.getTxType(this.props.transaction)}</div>
           <div><label>Time:</label> {dateFormatter.parseTimestamp(this.props.transaction.timestamp)}</div>
           <div><label>Nonce:</label> {this.props.transaction.nonce}</div>
           <div><label>Weight:</label> {this.props.transaction.weight}</div>

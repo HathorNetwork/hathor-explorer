@@ -9,16 +9,24 @@ class DecodeTx extends React.Component {
     super(props);
 
     this.state = {
-      transaction: null
+      transaction: null,
+      success: null
     }
 
     this.buttonClicked = this.buttonClicked.bind(this);
   }
 
+  txDecoded(data) {
+    if (data.success) {
+      this.setState({ transaction: data.transaction, success: true });
+    } else {
+      this.setState({ success: false, transaction: null });
+    }
+  }
+
   buttonClicked() {
     txApi.decodeTx(this.child.refs.txInput.value).then((data) => {
-      // TODO handle error in case tx does not exist
-      this.setState({ transaction: data.transaction });
+      this.txDecoded(data);
     }, (e) => {
       // Error in request
       console.log(e);
@@ -30,6 +38,7 @@ class DecodeTx extends React.Component {
       <div className="content-wrapper">
         <TxTextInput ref={(node) => {this.child = node;}} buttonClicked={this.buttonClicked} action='Decode tx' otherAction='push' link='/push-tx/' helpText='Write your transaction in hex value and click the button to get a human value description' />
         {this.state.transaction ? <TxData transaction={this.state.transaction} showRaw={false} /> : null}
+        {this.state.success === false ? <p className="text-danger">Could not decode this data to a transaction</p> : null}
       </div>
     );
   }

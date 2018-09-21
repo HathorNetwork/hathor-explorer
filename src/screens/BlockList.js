@@ -2,14 +2,14 @@ import React from 'react';
 import Transactions from '../components/Transactions';
 
 
-class TransactionList extends React.Component {
+class BlockList extends React.Component {
   render() {
     return (
       <div className="content-wrapper">
-        <Transactions type="tx" />
+        <Transactions type="block" />
       </div>
     );
   }
 }
 
-export default TransactionList;
+export default BlockList;

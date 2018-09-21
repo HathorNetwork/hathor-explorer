@@ -21,7 +21,7 @@ class WalletHistory extends React.Component {
     this.getHistoryData = this.getHistoryData.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.getHistoryData();
   }
 
@@ -36,7 +36,7 @@ class WalletHistory extends React.Component {
   }
 
   outputSpent(data) {
-    var history = this.state.history;
+    let history = this.state.history;
     history = history.map((el) => {
       if (el.tx_id === data.from_tx_id && el.from_tx_id === undefined) {
         el.from_tx_id = data.from_tx_id;
@@ -57,13 +57,10 @@ class WalletHistory extends React.Component {
     if (this.state.page !== 1) return;
     // First we calculate the new total pages
     const totalPages = Math.ceil(total / WALLET_HISTORY_COUNT);
-    var history = this.state.history;
-    // We remove the last history element in the page if we already have the max
-    if (history.length === WALLET_HISTORY_COUNT) {
-      history.pop();
-    }
-    // Then we add the new on in the first position
-    history.splice(0, 0, data);
+
+    let history = this.state.history;
+
+    history = helpers.updateListWs(history, data, WALLET_HISTORY_COUNT);
     
     // Finally we update the state again
     this.setState({ history, totalPages });

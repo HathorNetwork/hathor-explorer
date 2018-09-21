@@ -10,7 +10,8 @@ class TransactionDetail extends React.Component {
 
     this.state = {
       transaction: null,
-      loaded: false
+      loaded: false,
+      success: null,
     }
   }
 
@@ -18,26 +19,41 @@ class TransactionDetail extends React.Component {
     this.getTx();
   }
 
+  txReceived(data) {
+    if (data.success) {
+      this.setState({ transaction: data.tx, loaded: true, success: true });
+    } else {
+      this.setState({ loaded: true, success: false, transaction: null });
+    }
+  }
+
   getTx() {
     txApi.getTransaction(this.props.match.params.id).then((data) => {
-      // TODO handle error in case tx does not exist
-      this.setState({ transaction: data, loaded: true });
+      this.txReceived(data);
     }, (e) => {
       // Error in request
       console.log(e);
     });
   }
 
-  componentDidUpdate() {
-    if (this.state.transaction === null || this.state.transaction.hash !== this.props.match.params.id) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.props.match.params.id !== prevProps.match.params.id) {
       this.getTx();
     }
   }
 
   render() {
+    const renderTx = () => {
+      return (
+        <div>
+          {this.state.transaction ? <TxData transaction={this.state.transaction} showRaw={true} /> : <p className="text-danger">Transaction with hash {this.props.match.params.id} not found</p>}
+        </div>
+      );
+    }
+
     return (
       <div className="flex align-items-center content-wrapper">
-        {!this.state.loaded ? <ReactLoading type='spin' color='#0081af' delay={500} /> : <TxData transaction={this.state.transaction} showRaw={true} />}
+        {!this.state.loaded ? <ReactLoading type='spin' color='#0081af' delay={500} /> : renderTx()}
       </div>
     );
   }
