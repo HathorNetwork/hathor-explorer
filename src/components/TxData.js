@@ -46,9 +46,20 @@ class TxData extends React.Component {
     const renderOutputs = (outputs) => {
       return outputs.map((output, idx) => {
         return (
-          <li key={idx}>{output.value} -> {output.script}</li>
+          <li key={idx}>
+            {output.value} -> {output.decoded ? renderDecodedScript(output.decoded) : `${output.script} (unknown script)` }
+          </li>
         );
       });
+    }
+
+    const renderDecodedScript = (decoded) => {
+      switch (decoded.type) {
+        case 'P2PKH':
+          return `${decoded.address} [P2PKH]`;
+        default:
+          return 'Unable to decode';
+      }
     }
 
     const renderParents = (parents) => {
