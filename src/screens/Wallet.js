@@ -6,8 +6,8 @@ import WalletAddress from '../components/WalletAddress';
 import { WS_URL } from '../constants';
 import HathorAlert from '../components/HathorAlert';
 import helpers from '../utils/helpers';
-import WalletAuthModal from '../components/WalletAuthModal';
-import $ from 'jquery';
+import WalletAuth from '../components/WalletAuth';
+import walletApi from '../api/wallet';
 
 
 class Wallet extends React.Component {
@@ -19,6 +19,7 @@ class Wallet extends React.Component {
       historyLoaded: false,
       balanceLoaded: false,
       addressLoaded: false,
+      lockDisabled: false,
       warning: null,
       locked: null,
     }
@@ -29,6 +30,7 @@ class Wallet extends React.Component {
     this.addressLoaded = this.addressLoaded.bind(this);
     this.unlock = this.unlock.bind(this);
     this.lock = this.lock.bind(this);
+    this.willLockWallet = this.willLockWallet.bind(this);
 
     this.ws = null;
   }
@@ -44,7 +46,6 @@ class Wallet extends React.Component {
 
   lock() {
     this.setState({ locked: true });
-    $("#walletAuthModal").modal('show');
   }
 
   unlock() {
@@ -91,6 +92,20 @@ class Wallet extends React.Component {
     this.props.history.push('/wallet/send_tokens');
   }
 
+  willLockWallet() {
+    this.setState({ lockDisabled: true }, () => {
+      walletApi.lock().then((res) => {
+        this.setState({ lockDisabled: false });
+        if (res.success) {
+          this.lock();
+        }
+      }, (e) => {
+        // Error in request
+        console.log(e);
+      });
+    })
+  }
+
   historyLoaded() {
     this.setState({historyLoaded: true});
   }
@@ -110,7 +125,7 @@ class Wallet extends React.Component {
           <div className="d-flex flex-row align-items-center justify-content-between">
             <div className="d-flex flex-column align-items-start justify-content-between">
               <WalletBalance ref={(node) => { this.balanceNode = node; }} loaded={this.balanceLoaded} />
-              {renderSendTokensBtn()}
+              {renderBtns()}
             </div>
             <WalletAddress loaded={this.addressLoaded} />
           </div>
@@ -119,9 +134,12 @@ class Wallet extends React.Component {
       );
     }
 
-    const renderSendTokensBtn = () => {
+    const renderBtns = () => {
       return (
-        <button className="btn send-tokens btn-primary" onClick={this.sendTokens}>Send tokens</button>
+        <div>
+          <div><button className="btn send-tokens btn-primary" onClick={this.sendTokens}>Send tokens</button></div>
+          <div><button className="btn send-tokens btn-primary" onClick={this.willLockWallet} disabled={this.state.lockDisabled}>Lock wallet</button></div>
+        </div>
       );
     }
 
@@ -137,7 +155,7 @@ class Wallet extends React.Component {
 
     const renderLockedWallet = () => {
       return (
-        <p>Your wallet is locked. Refresh your page to unlock it.</p>
+        <WalletAuth unlock={this.unlock} />
       );
     }
     
@@ -145,7 +163,6 @@ class Wallet extends React.Component {
       <div className="content-wrapper">
         {this.state.locked === true ? renderLockedWallet() : null}
         {this.state.locked === false ? renderUnlockedWallet() : null}
-        <WalletAuthModal unlock={this.unlock} />
       </div>
     );
   }

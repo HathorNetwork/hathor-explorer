@@ -37,7 +37,7 @@ const walletApi = {
   },
 
   checkLock() {
-    return requestClient.get('wallet/auth').then((res) => {
+    return requestClient.get('wallet/state').then((res) => {
       return res.data
     }, (res) => {
       throw new Error(res.data.message);
@@ -47,7 +47,15 @@ const walletApi = {
   unlock(password) {
     let formData = new FormData();
     formData.append('password', password);
-    return requestClient.post('wallet/auth', formData).then((res) => {
+    return requestClient.post('wallet/unlock', formData).then((res) => {
+      return res.data
+    }, (res) => {
+      throw new Error(res.data.message);
+    });
+  },
+
+  lock() {
+    return requestClient.post('wallet/lock').then((res) => {
       return res.data
     }, (res) => {
       throw new Error(res.data.message);
