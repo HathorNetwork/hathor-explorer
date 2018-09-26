@@ -2,7 +2,7 @@ import React from 'react';
 import walletApi from '../api/wallet';
 import $ from 'jquery';
 import helpers from '../utils/helpers';
-import WalletAuthModal from '../components/WalletAuthModal';
+import WalletAuth from '../components/WalletAuth';
 
 
 class SendTokens extends React.Component {
@@ -25,7 +25,6 @@ class SendTokens extends React.Component {
 
   lock() {
     this.setState({ locked: true });
-    $("#walletAuthModal").modal('show');
   }
 
   unlock() {
@@ -100,7 +99,7 @@ class SendTokens extends React.Component {
   render() {
     const renderLockedPage = () => {
       return (
-        <p>Your wallet is locked. Refresh your page to unlock it.</p>
+        <WalletAuth unlock={this.unlock} />
       );
     }
 
@@ -138,7 +137,6 @@ class SendTokens extends React.Component {
       <div className="content-wrapper flex align-items-center">
         {this.state.locked === true ? renderLockedPage() : null}
         {this.state.locked === false ? renderUnlockedPage() : null}
-        <WalletAuthModal unlock={this.unlock} />
       </div>
     );
   }
