@@ -3,11 +3,11 @@ import ReactLoading from 'react-loading';
 import WalletHistory from '../components/WalletHistory';
 import WalletBalance from '../components/WalletBalance';
 import WalletAddress from '../components/WalletAddress';
-import { WS_URL } from '../constants';
 import HathorAlert from '../components/HathorAlert';
 import helpers from '../utils/helpers';
 import WalletAuth from '../components/WalletAuth';
 import walletApi from '../api/wallet';
+import WebSocketHandler from '../WebSocketHandler';
 
 
 class Wallet extends React.Component {
@@ -23,60 +23,51 @@ class Wallet extends React.Component {
       warning: null,
       locked: null,
     }
-
-    this.sendTokens = this.sendTokens.bind(this);
-    this.historyLoaded = this.historyLoaded.bind(this);
-    this.balanceLoaded = this.balanceLoaded.bind(this);
-    this.addressLoaded = this.addressLoaded.bind(this);
-    this.unlock = this.unlock.bind(this);
-    this.lock = this.lock.bind(this);
-    this.willLockWallet = this.willLockWallet.bind(this);
-
-    this.ws = null;
   }
 
   componentDidMount() {
-    this.ws = new WebSocket(WS_URL)
-    this.ws.onmessage = (event) => {
-      this.handleWebsocket(JSON.parse(event.data));
-    }
-
     helpers.checkWalletLock(this.unlock, this.lock);
+
+    WebSocketHandler.on('wallet', this.handleWebsocket);
   }
 
-  lock() {
+  componentWillUnmount() {
+    WebSocketHandler.removeListener('wallet', this.handleWebsocket);
+  }
+
+  lock = () => {
     this.setState({ locked: true });
   }
 
-  unlock() {
+  unlock = () => {
     this.setState({ locked: false });
   }
 
-  updateBalance(balance) {
+  updateBalance = (balance) => {
     if (this.balanceNode) {
       this.balanceNode.updateBalance(balance);
     }
   }
 
-  newOutput(output, total) {
+  newOutput = (output, total) => {
     if (this.historyNode) {
       this.historyNode.newOutput(output, total);
     }
   }
 
-  outputSpent(spent) {
+  outputSpent = (spent) => {
     if (this.historyNode) {
       this.historyNode.outputSpent(spent);
     }
   }
 
-  keysWarning(keysCount) {
+  keysWarning = (keysCount) => {
     const warnMessage = `${keysCount} new keys were generated! Backup your wallet`;
     this.setState({ warning: warnMessage })
     helpers.showAlert('alert-warning', 5000);
   }
 
-  handleWebsocket(wsData) {
+  handleWebsocket = (wsData) => {
     if (wsData.type === 'wallet:balance_updated') {
       this.updateBalance(wsData.balance);
     } else if (wsData.type === 'wallet:output_received') {
@@ -88,11 +79,11 @@ class Wallet extends React.Component {
     }
   }
 
-  sendTokens() {
+  sendTokens = () => {
     this.props.history.push('/wallet/send_tokens');
   }
 
-  willLockWallet() {
+  willLockWallet = () => {
     this.setState({ lockDisabled: true }, () => {
       walletApi.lock().then((res) => {
         this.setState({ lockDisabled: false });
@@ -106,15 +97,15 @@ class Wallet extends React.Component {
     })
   }
 
-  historyLoaded() {
+  historyLoaded = () => {
     this.setState({historyLoaded: true});
   }
 
-  balanceLoaded() {
+  balanceLoaded = () => {
     this.setState({balanceLoaded: true});
   }
 
-  addressLoaded() {
+  addressLoaded = () => {
     this.setState({addressLoaded: true});
   }
 

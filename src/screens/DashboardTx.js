@@ -2,8 +2,8 @@ import React from 'react';
 import txApi from '../api/txApi';
 import {DASHBOARD_BLOCKS_COUNT, DASHBOARD_TX_COUNT} from '../constants';
 import TxRow from '../components/TxRow';
-import { WS_URL } from '../constants';
 import helpers from '../utils/helpers';
+import WebSocketHandler from '../WebSocketHandler';
 
 
 class DashboardTx extends React.Component {
@@ -14,9 +14,6 @@ class DashboardTx extends React.Component {
       transactions: [],
       blocks: []
     }
-
-    this.updateData = this.updateData.bind(this);
-    this.ws = null;
   }
 
   componentDidMount() {
@@ -27,37 +24,38 @@ class DashboardTx extends React.Component {
       console.log(e);
     });
 
-    this.ws = new WebSocket(WS_URL)
-    this.ws.onmessage = (event) => {
-      this.handleWebsocket(JSON.parse(event.data));
-    }
+    WebSocketHandler.on('network', this.handleWebsocket);
   }
 
-  handleWebsocket(wsData) {
+  componentWillUnmount() {
+    WebSocketHandler.removeListener('network', this.handleWebsocket);
+  }
+
+  handleWebsocket = (wsData) => {
     if (wsData.type === 'network:new_tx_accepted') {
       this.updateListWs(wsData);
     }
   }
 
-  updateListWs(tx) {
+  updateListWs = (tx) => {
     if (tx.is_block) {
       let blocks = this.state.blocks;
 
       blocks = helpers.updateListWs(blocks, tx, DASHBOARD_BLOCKS_COUNT);
-    
+
       // Finally we update the state again
       this.setState({ blocks });
     } else {
       let transactions = this.state.transactions;
 
       transactions = helpers.updateListWs(transactions, tx, DASHBOARD_TX_COUNT);
-    
+
       // Finally we update the state again
       this.setState({ transactions });
     }
   }
 
-  updateData(transactions, blocks) {
+  updateData = (transactions, blocks) => {
     this.setState({ transactions, blocks });
   }
 

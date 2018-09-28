@@ -46,7 +46,11 @@ const helpers = {
         return 'Block';
       }
     }
-  }
+  },
+
+  roundFloat(n) {
+    return Math.round(n*100)/100
+  },
 }
 
 export default helpers;

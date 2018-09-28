@@ -77,7 +77,8 @@ class TxData extends React.Component {
           <div><label>Type:</label> {helpers.getTxType(this.props.transaction)}</div>
           <div><label>Time:</label> {dateFormatter.parseTimestamp(this.props.transaction.timestamp)}</div>
           <div><label>Nonce:</label> {this.props.transaction.nonce}</div>
-          <div><label>Weight:</label> {this.props.transaction.weight}</div>
+          <div><label>Weight:</label> {helpers.roundFloat(this.props.transaction.weight)}</div>
+          <div><label>Accumulated weight:</label> {helpers.roundFloat(this.props.transaction.accumulated_weight)}</div>
           <div><label>Height:</label> {this.props.transaction.height}</div>
           <div>
             <label>Inputs:</label>

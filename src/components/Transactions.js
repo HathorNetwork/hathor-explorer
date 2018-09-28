@@ -4,7 +4,7 @@ import ReactLoading from 'react-loading';
 import {TX_COUNT} from '../constants';
 import TxRow from './TxRow';
 import helpers from '../utils/helpers';
-import { WS_URL } from '../constants';
+import WebSocketHandler from '../WebSocketHandler';
 
 
 class Transactions extends React.Component {
@@ -19,33 +19,25 @@ class Transactions extends React.Component {
       hasAfter: false,
       hasBefore: false,
     }
-
-    this.previousClicked = this.previousClicked.bind(this);
-    this.nextClicked = this.nextClicked.bind(this);
-    this.getData = this.getData.bind(this);
-    this.handleDataFetched = this.handleDataFetched.bind(this);
-
-    this.ws = null;
   }
 
   componentDidMount() {
     this.getData(true, null, '');
 
-    this.ws = new WebSocket(WS_URL)
-    // TODO Handle onClose and onError events
-    // TODO Handle also socket reconnection when timeout or lost connection to server
-    this.ws.onmessage = (event) => {
-      this.handleWebsocket(JSON.parse(event.data));
-    }
+    WebSocketHandler.on('network', this.handleWebsocket);
   }
 
-  handleWebsocket(wsData) {
+  componentWillUnmount() {
+    WebSocketHandler.removeListener('network', this.handleWebsocket);
+  }
+
+  handleWebsocket = (wsData) => {
     if (wsData.type === 'network:new_tx_accepted') {
       this.updateListWs(wsData);
     }
   }
 
-  updateListWs(tx) {
+  updateListWs = (tx) => {
     // We only add new tx/blocks if it's the first page
     if (!this.state.hasBefore && ((tx.is_block && this.props.type === 'block') || (!tx.is_block && this.props.type === 'tx'))) {
       let transactions = this.state.transactions;
@@ -60,7 +52,7 @@ class Transactions extends React.Component {
     }
   }
 
-  handleDataFetched(data, first, page) {
+  handleDataFetched = (data, first, page) => {
     // Handle differently if is the first GET response we receive
     // page indicates if was clicked 'previous' or 'next'
     // Set first and last hash of the transactions
@@ -98,12 +90,12 @@ class Transactions extends React.Component {
     });
   }
 
-  previousClicked(e) {
+  previousClicked = (e) => {
     e.preventDefault();
     this.getData(false, this.state.firstHash, 'previous');
   }
 
-  nextClicked(e) {
+  nextClicked = (e) => {
     e.preventDefault();
     this.getData(false, this.state.lastHash, 'next');
   }
