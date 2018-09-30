@@ -5,7 +5,7 @@ import WalletBalance from '../components/WalletBalance';
 import WalletAddress from '../components/WalletAddress';
 import HathorAlert from '../components/HathorAlert';
 import helpers from '../utils/helpers';
-import WalletAuth from '../components/WalletAuth';
+import WalletUnlock from '../components/WalletUnlock';
 import walletApi from '../api/wallet';
 import WebSocketHandler from '../WebSocketHandler';
 
@@ -15,6 +15,7 @@ class Wallet extends React.Component {
     super(props);
 
     this.state = {
+      walletType: '',
       newAddress: false,
       historyLoaded: false,
       balanceLoaded: false,
@@ -26,13 +27,17 @@ class Wallet extends React.Component {
   }
 
   componentDidMount() {
-    helpers.checkWalletLock(this.unlock, this.lock);
+    helpers.checkWalletLock(this.unlock, this.lock, this.setType);
 
     WebSocketHandler.on('wallet', this.handleWebsocket);
   }
 
   componentWillUnmount() {
     WebSocketHandler.removeListener('wallet', this.handleWebsocket);
+  }
+
+  setType = (type) => {
+    this.setState({ walletType: type })
   }
 
   lock = () => {
@@ -61,10 +66,19 @@ class Wallet extends React.Component {
     }
   }
 
-  keysWarning = (keysCount) => {
-    const warnMessage = `${keysCount} new keys were generated! Backup your wallet`;
-    this.setState({ warning: warnMessage })
+  showWarning = (message) => {
+    this.setState({ warning: message })
     helpers.showAlert('alert-warning', 5000);
+  }
+
+  backupKeysWarning = (keysCount) => {
+    const warnMessage = `${keysCount} new keys were generated! Backup your wallet`;
+    this.showWarning(warnMessage);
+  }
+
+  gapLimitWarning = () => {
+    const warnMessage = 'You have achieved the limit of unused addresses in sequence. Use this one to generate more.';
+    this.showWarning(warnMessage);
   }
 
   handleWebsocket = (wsData) => {
@@ -75,7 +89,9 @@ class Wallet extends React.Component {
     } else if (wsData.type === 'wallet:output_spent') {
       this.outputSpent(wsData.output_spent);
     } else if (wsData.type === 'wallet:keys_generated') {
-      this.keysWarning(wsData.keys_count);
+      this.backupKeysWarning(wsData.keys_count);
+    } else if (wsData.type === 'wallet:gap_limit') {
+      this.gapLimitWarning();
     }
   }
 
@@ -143,16 +159,10 @@ class Wallet extends React.Component {
         </div>
       );
     }
-
-    const renderLockedWallet = () => {
-      return (
-        <WalletAuth unlock={this.unlock} />
-      );
-    }
     
     return (
       <div className="content-wrapper">
-        {this.state.locked === true ? renderLockedWallet() : null}
+        {this.state.locked === true ? <WalletUnlock walletType={this.state.walletType} unlock={this.unlock}/> : null}
         {this.state.locked === false ? renderUnlockedWallet() : null}
       </div>
     );

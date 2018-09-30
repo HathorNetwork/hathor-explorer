@@ -37,7 +37,7 @@ class WalletBalance extends React.Component {
     }
 
     return (
-      <div className="content-wrapper flex align-items-center">
+      <div className="flex align-items-center">
         {renderBalance()}
       </div>
     );
