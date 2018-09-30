@@ -54,13 +54,26 @@ const walletApi = {
     });
   },
 
+  unlockHD(words, passphrase) {
+    let formData = new FormData();
+    if (words) {
+      formData.append('words', words);
+    }
+    formData.append('passphrase', passphrase);
+    return requestClient.post('wallet/unlock', formData).then((res) => {
+      return res.data
+    }, (res) => {
+      throw new Error(res.data.message);
+    });
+  },
+
   lock() {
     return requestClient.post('wallet/lock').then((res) => {
       return res.data
     }, (res) => {
       throw new Error(res.data.message);
     });
-  }
+  },
 };
 
 export default walletApi;

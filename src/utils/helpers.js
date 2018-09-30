@@ -11,8 +11,9 @@ const helpers = {
     }, duration);
   },
 
-  checkWalletLock(unlock, lock) {
+  checkWalletLock(unlock, lock, setType) {
     walletApi.checkLock().then((data) => {
+      setType(data.type)
       if (!data.is_locked) {
         unlock();
       } else {

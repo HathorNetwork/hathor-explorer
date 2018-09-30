@@ -2,7 +2,7 @@ import React from 'react';
 import walletApi from '../api/wallet';
 import $ from 'jquery';
 import helpers from '../utils/helpers';
-import WalletAuth from '../components/WalletAuth';
+import WalletUnlock from '../components/WalletUnlock';
 
 
 class SendTokens extends React.Component {
@@ -10,17 +10,23 @@ class SendTokens extends React.Component {
     super(props);
     
     this.state = {
-      locked: null
+      locked: null,
+      walletType: ''
     }
 
     this.send = this.send.bind(this);
     this.moreOutput = this.moreOutput.bind(this);
     this.unlock = this.unlock.bind(this);
     this.lock = this.lock.bind(this);
+    this.setType = this.setType.bind(this);
   }
 
   componentDidMount() {
-    helpers.checkWalletLock(this.unlock, this.lock);
+    helpers.checkWalletLock(this.unlock, this.lock, this.setType);
+  }
+
+  setType(type) {
+    this.setState({ walletType: type });
   }
 
   lock() {
@@ -97,12 +103,6 @@ class SendTokens extends React.Component {
   }
 
   render() {
-    const renderLockedPage = () => {
-      return (
-        <WalletAuth unlock={this.unlock} />
-      );
-    }
-
     const renderUnlockedPage = () => {
       return (
         <form id="formSendTokens">
@@ -135,7 +135,7 @@ class SendTokens extends React.Component {
 
     return (
       <div className="content-wrapper flex align-items-center">
-        {this.state.locked === true ? renderLockedPage() : null}
+        {this.state.locked === true ? <WalletUnlock walletType={this.state.walletType} unlock={this.unlock}/> : null}
         {this.state.locked === false ? renderUnlockedPage() : null}
       </div>
     );
