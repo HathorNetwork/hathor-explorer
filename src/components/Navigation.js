@@ -44,6 +44,9 @@ class Navigation extends React.Component {
           <Link className="navbar-brand" to="/" href="/">
             <img src={logo} alt="" />
           </Link>
+          <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span className="navbar-toggler-icon" />
+          </button>
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav mr-auto">
               <li className="nav-item">
@@ -66,7 +69,7 @@ class Navigation extends React.Component {
               </li>
             </ul>
             <div className="navbar-right d-flex flex-row align-items-center navigation-search">
-              <input className="form-control mr-sm-2" type="search" placeholder="Search tx" aria-label="Search" ref="txSearch" onKeyUp={this.handleKeyUp} />
+              <input className="form-control mr-2" type="search" placeholder="Search tx" aria-label="Search" ref="txSearch" onKeyUp={this.handleKeyUp} />
               <i className="fa fa-search pointer" onClick={this.search}></i>
             </div>
           </div>
