@@ -10,10 +10,16 @@ class DecodeTx extends React.Component {
 
     this.state = {
       transaction: null,
-      success: null
+      success: null,
+      dataToDecode: '',
     }
 
     this.buttonClicked = this.buttonClicked.bind(this);
+    this.handleChangeData = this.handleChangeData.bind(this);
+  }
+
+  handleChangeData(e) {
+    this.setState({ dataToDecode: e.target.value });
   }
 
   txDecoded(data) {
@@ -25,7 +31,7 @@ class DecodeTx extends React.Component {
   }
 
   buttonClicked() {
-    txApi.decodeTx(this.child.refs.txInput.value).then((data) => {
+    txApi.decodeTx(this.state.dataToDecode).then((data) => {
       this.txDecoded(data);
     }, (e) => {
       // Error in request
@@ -36,7 +42,7 @@ class DecodeTx extends React.Component {
   render() {
     return (
       <div className="content-wrapper">
-        <TxTextInput ref={(node) => {this.child = node;}} buttonClicked={this.buttonClicked} action='Decode tx' otherAction='push' link='/push-tx/' helpText='Write your transaction in hex value and click the button to get a human value description' />
+        <TxTextInput ref={(node) => {this.child = node;}} onChange={this.handleChangeData} buttonClicked={this.buttonClicked} action='Decode tx' otherAction='push' link='/push-tx/' helpText='Write your transaction in hex value and click the button to get a human value description' />
         {this.state.transaction ? <TxData transaction={this.state.transaction} showRaw={false} /> : null}
         {this.state.success === false ? <p className="text-danger">Could not decode this data to a transaction</p> : null}
       </div>

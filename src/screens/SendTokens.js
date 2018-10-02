@@ -11,7 +11,8 @@ class SendTokens extends React.Component {
     
     this.state = {
       locked: null,
-      walletType: ''
+      walletType: '',
+      errorMessage: ''
     }
 
     this.send = this.send.bind(this);
@@ -85,8 +86,13 @@ class SendTokens extends React.Component {
   }
 
   send() {
+    this.setState({ errorMessage: '' });
     walletApi.sendTokens(this.getData()).then((response) => {
-      this.props.history.push('/wallet');
+      if (response.success) {
+        this.props.history.push('/wallet');
+      } else {
+        this.setState({ errorMessage: response.message });
+      }
     }, (e) => {
       // Error in request
       console.log(e);
@@ -105,31 +111,34 @@ class SendTokens extends React.Component {
   render() {
     const renderUnlockedPage = () => {
       return (
-        <form id="formSendTokens">
-          <div className="outputs-wrapper">
-            <label>Outputs</label>
-            <div className="input-group mb-3">
-              <input type="text" placeholder="Address" className="form-control output-address col-4" />
-              <input type="text" placeholder="Value" className="form-control output-value col-4" />
-              <button type="button" className="btn btn-primary" onClick={this.moreOutput}>+</button>
+        <div>
+          <form id="formSendTokens">
+            <div className="outputs-wrapper">
+              <label>Outputs</label>
+              <div className="input-group mb-3">
+                <input type="text" placeholder="Address" className="form-control output-address col-4" />
+                <input type="text" placeholder="Value" className="form-control output-value col-4" />
+                <button type="button" className="btn btn-primary" onClick={this.moreOutput}>+</button>
+              </div>
             </div>
-          </div>
-          <div className="form-check checkbox-wrapper">
-            <input className="form-check-input" type="checkbox" defaultChecked="true" ref="noInputs" id="noInputs" onChange={this.handleCheckboxChange} />
-            <label className="form-check-label" htmlFor="noInputs">
-              Choose inputs automatically
-            </label>
-          </div>
-          <div className="inputs-wrapper" style={{display: 'none'}}>
-            <label htmlFor="inputs">Inputs</label>
-            <div className="input-group mb-3">
-              <input type="text" placeholder="Tx id" className="form-control input-id col-4" />
-              <input type="text" placeholder="Index" className="form-control input-index col-4" />
-              <button type="button" className="btn btn-primary" onClick={this.moreInput}>+</button>
+            <div className="form-check checkbox-wrapper">
+              <input className="form-check-input" type="checkbox" defaultChecked="true" ref="noInputs" id="noInputs" onChange={this.handleCheckboxChange} />
+              <label className="form-check-label" htmlFor="noInputs">
+                Choose inputs automatically
+              </label>
             </div>
-          </div>
-          <button type="button" className="btn btn-primary" onClick={this.send}>Send Tokens</button>
-        </form>
+            <div className="inputs-wrapper" style={{display: 'none'}}>
+              <label htmlFor="inputs">Inputs</label>
+              <div className="input-group mb-3">
+                <input type="text" placeholder="Tx id" className="form-control input-id col-4" />
+                <input type="text" placeholder="Index" className="form-control input-index col-4" />
+                <button type="button" className="btn btn-primary" onClick={this.moreInput}>+</button>
+              </div>
+            </div>
+            <button type="button" className="btn btn-primary" onClick={this.send}>Send Tokens</button>
+          </form>
+          <p className="text-danger mt-3">{this.state.errorMessage}</p>
+        </div>
       );
     }
 
