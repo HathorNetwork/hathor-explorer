@@ -39,8 +39,8 @@ const txApi = {
     });
   },
 
-  pushTx(hex_tx) {
-    const data = {hex_tx}
+  pushTx(hex_tx, force) {
+    const data = {hex_tx, force}
     return requestClient.get(`push_tx`, {params: data}).then((res) => {
       return res.data
     }, (res) => {
