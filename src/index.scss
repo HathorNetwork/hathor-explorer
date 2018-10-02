@@ -146,3 +146,17 @@ tr.tr-title {
 tr.tr-title td {
   font-weight: bold;
 }
+
+@media (max-width: 992px) {
+  .content-wrapper {
+    margin: 2rem;
+  }
+
+  .navbar-nav li.nav-item {
+    padding: 0rem 1rem;
+  }
+
+  .navbar-right {
+    padding: 0.5rem 1rem;
+  }
+}
