@@ -10,6 +10,7 @@ import DecodeTx from './screens/DecodeTx';
 import PushTx from './screens/PushTx';
 import TransactionList from './screens/TransactionList';
 import BlockList from './screens/BlockList';
+import Dag from './screens/Dag';
 
 class Root extends React.Component {
   render() {
@@ -24,6 +25,7 @@ class Root extends React.Component {
         <NavigationRoute exact path="/dashboard-tx" component={DashboardTx} />
         <NavigationRoute exact path="/transactions" component={TransactionList} />
         <NavigationRoute exact path="/blocks" component={BlockList} />
+        <NavigationRoute exact path="/dag" component={Dag} />
         <NavigationRoute exact path="" component={PeerAdmin} />
       </Switch>
     </Router>

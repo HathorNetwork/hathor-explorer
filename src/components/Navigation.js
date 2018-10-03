@@ -65,6 +65,9 @@ class Navigation extends React.Component {
                 <NavLink to="/push-tx/" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Push Tx</NavLink>
               </li>
               <li className="nav-item">
+                <NavLink to="/dag/" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>DAG</NavLink>
+              </li>
+              <li className="nav-item">
                 <Link to={`${BASE_URL}graphviz/`} target="_blank" className="nav-link">Graph</Link>
               </li>
             </ul>
