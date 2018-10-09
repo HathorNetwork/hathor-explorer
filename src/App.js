@@ -11,8 +11,38 @@ import PushTx from './screens/PushTx';
 import TransactionList from './screens/TransactionList';
 import BlockList from './screens/BlockList';
 import Dag from './screens/Dag';
+import Dashboard from './screens/Dashboard';
+import WebSocketHandler from './WebSocketHandler';
+import { dashboardUpdate } from "./actions/index";
+import { connect } from "react-redux";
+
+
+const mapDispatchToProps = dispatch => {
+  return {
+    dashboardUpdate: data => dispatch(dashboardUpdate(data))
+  };
+};
+
 
 class Root extends React.Component {
+  componentDidMount() {
+    WebSocketHandler.on('dashboard', this.handleWebsocket);
+  }
+
+  componentWillUnmount() {
+    WebSocketHandler.removeListener('dashboard', this.handleWebsocket);
+  }
+
+  handleWebsocket = (wsData) => {
+    if (wsData.type === 'dashboard:metrics') {
+      this.updateWithWs(wsData);
+    }
+  }
+
+  updateWithWs = (data) => {
+    this.props.dashboardUpdate({ transactions: data.transactions, blocks: data.blocks });
+  }
+
   render() {
     return (
     <Router>
@@ -26,7 +56,8 @@ class Root extends React.Component {
         <NavigationRoute exact path="/transactions" component={TransactionList} />
         <NavigationRoute exact path="/blocks" component={BlockList} />
         <NavigationRoute exact path="/dag" component={Dag} />
-        <NavigationRoute exact path="" component={PeerAdmin} />
+        <NavigationRoute exact path="/network" component={PeerAdmin} />
+        <NavigationRoute exact path="" component={Dashboard} />
       </Switch>
     </Router>
     )
@@ -39,4 +70,4 @@ const NavigationRoute = ({ component: Component, ...rest }) => (
   )} />
 )
 
-export default Root;
+export default connect(null, mapDispatchToProps)(Root);

@@ -1,0 +1,1 @@
+export const dashboardUpdate = data => ({ type: "dashboard_update", payload: data });
