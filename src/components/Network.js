@@ -16,7 +16,12 @@ class Network extends React.Component {
 
   componentDidMount() {
     networkApi.getPeers().then((peers) => {
-      this.setState({ connected_peers: peers.connected_peers, known_peers: peers.known_peers, loaded: true });
+      this.setState({
+        connected_peers: peers.connections.connected_peers,
+        known_peers: peers.known_peers,
+        dag: peers.dag,
+        loaded: true
+      });
     }, (e) => {
       // Error in request
       console.log(e);
@@ -29,33 +34,100 @@ class Network extends React.Component {
     }).length > 0;
   }
 
+  getConnection(id) {
+    for (const conn of this.state.connected_peers) {
+      if (conn.id === id) {
+        return conn;
+      }
+    }
+    return null;
+  }
+
   render() {
     const loadTable = () => {
       return (
-        <table className="table table-striped" id="peer-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Entrypoint</th>
-              <th>Connected</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loadTableBody()}
-          </tbody>
-        </table>
+        loadTableBody()
       );
     }
 
+    const renderDisconnected = (peer) => {
+        return (
+          <div key={peer.id} style={{marginBottom: "30px"}} className={"card bg-light border-danger"}>
+            <h6 className="card-header">
+              {peer.id}
+              <span className="float-right">
+                <span className="badge badge-danger">Disconnected</span>
+              </span>
+            </h6>
+            {peer.entrypoints.length > 0
+            ? (<div className="card-body">
+                {peer.entrypoints.join(", ")}
+              </div>) 
+            : ''}
+          </div>
+        );
+    };
+
+    const renderConnected = (peer, conn) => {
+        let uptime = Math.floor(conn.uptime);
+        const days = Math.floor(uptime / 3600 / 24);
+        uptime = uptime % (3600 * 24);
+        const hours = Math.floor(uptime / 3600);
+        uptime = uptime % 3600;
+        const minutes = Math.floor(uptime / 60);
+        uptime = uptime % 60;
+        const seconds = uptime;
+        const pad = (n) => (Math.abs(n) >= 10 ? n : '0' + n);
+        const uptime_str = days + ' days, ' + pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
+
+        const sync = conn.plugins["node-sync-timestamp"];
+        const first_timestamp = this.state.dag.first_timestamp;
+        const latest_timestamp = this.state.dag.latest_timestamp;
+        const delta = latest_timestamp - first_timestamp;
+        const synced_percent = 100 * (sync.synced_timestamp - first_timestamp) / delta;
+        let general_percent = (100 * (sync.latest_timestamp - first_timestamp) / delta) - synced_percent;
+        if (general_percent > 100) {
+          general_percent = 100;
+        }
+
+        return (
+          <div key={peer.id} style={{marginBottom: "30px"}} className={"card bg-light border-success"}>
+            <h6 className="card-header">
+              {peer.id}
+              <span className="float-right">
+                <span className="badge badge-success">Connected</span>
+              </span>
+            </h6>
+            <div className="card-body">
+              Uptime: {uptime_str}<br />
+              Version: {conn.app_version}<br />
+              Address: {conn.address}<br />
+              Entrypoints: {peer.entrypoints.join(", ")}
+            </div>
+            <ul className="list-group list-group-flush">
+              <li className="list-group-item">
+                <div>
+                  Latest timestamp: {new Date(sync.latest_timestamp * 1000).toString()}
+                </div>
+                <div className="progress">
+                  <div className="progress-bar bg-success" style={{width: synced_percent + "%"}}></div>
+                  <div className="progress-bar bg-warning" style={{width: general_percent + "%"}}></div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        );
+    };
+
     const loadTableBody = () => {
       return this.state.known_peers.map((peer, idx) => {
-        return (
-          <tr key={peer.id}>
-            <td className="pr-3">{peer.id.substring(0, 32)}</td>
-            <td className="pr-3">{peer.entrypoints.length ? peer.entrypoints[0] : ''}</td>
-            <td>{this.isPeerConnected(peer.id) ? 'Yes' : 'No'}</td>
-          </tr>
-        );
+        const conn = this.getConnection(peer.id);
+        const isConnected = !!conn;
+        if (isConnected) {
+          return renderConnected(peer, conn);
+        } else {
+          return renderDisconnected(peer);
+        }
       });
     }
 
