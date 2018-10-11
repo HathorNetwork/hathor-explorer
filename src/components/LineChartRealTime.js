@@ -77,12 +77,6 @@ class LineChartRealTime extends React.Component {
         .attr("transform",
               "translate(" + margin.left + "," + margin.top + ")");
 
-    // Add the valueline path.
-    this.path = svg.append("path")
-        .data([this.props.data])
-        .attr("class", "line")
-        .attr("d", this.chartLine);
-
     // Add the X Axis
     this.xAxis = svg.append("g")
         .attr("transform", "translate(0," + this.height + ")")
@@ -102,6 +96,12 @@ class LineChartRealTime extends React.Component {
     this.xGrid = svg.append("g")
       .attr("class", "grid")
       .attr("transform", "translate(0," + this.height + ")")
+
+    // Add the valueline path.
+    this.path = svg.append("path")
+        .data([this.props.data])
+        .attr("class", "line")
+        .attr("d", this.chartLine);
 
     this.chart = svg;
   }
