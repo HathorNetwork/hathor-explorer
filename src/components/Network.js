@@ -3,6 +3,24 @@ import networkApi from '../api/networkApi';
 import ReactLoading from 'react-loading';
 
 
+function ts_to_string(timestamp) {
+  return new Date(timestamp * 1000).toString();
+}
+
+function uptime_format(uptime) {
+    uptime = Math.floor(uptime);
+    const days = Math.floor(uptime / 3600 / 24);
+    uptime = uptime % (3600 * 24);
+    const hours = Math.floor(uptime / 3600);
+    uptime = uptime % 3600;
+    const minutes = Math.floor(uptime / 60);
+    uptime = uptime % 60;
+    const seconds = uptime;
+    const pad = (n) => (Math.abs(n) >= 10 ? n : '0' + n);
+    const uptime_str = days + ' days, ' + pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
+    return uptime_str;
+}
+
 class Network extends React.Component {
   constructor(props) {
     super(props);
@@ -19,6 +37,7 @@ class Network extends React.Component {
       this.setState({
         connected_peers: peers.connections.connected_peers,
         known_peers: peers.known_peers,
+        server: peers.server,
         dag: peers.dag,
         loaded: true
       });
@@ -46,7 +65,17 @@ class Network extends React.Component {
   render() {
     const loadTable = () => {
       return (
-        loadTableBody()
+        <div>
+          <div className="card text-white bg-dark" style={{marginBottom: "30px"}}>
+            <div className="card-body">
+              Id: {this.state.server.id}<br />
+              Uptime: {uptime_format(this.state.server.uptime)}<br />
+              Version: {this.state.server.app_version}<br />
+              Latest timestamp: {ts_to_string(this.state.dag.latest_timestamp)}<br />
+            </div>
+          </div>
+          {loadTableBody()}
+        </div>
       );
     }
 
