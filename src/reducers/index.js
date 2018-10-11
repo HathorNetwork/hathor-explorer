@@ -22,7 +22,7 @@ const rootReducer = (state = initialState, action) => {
         const beforeLastData = data[data.length - 2];
         const timeDiff = beforeLastData.time - newData.time;
         const txDiff = beforeLastData.transactions - newData.transactions;
-        newData['txRate'] = txDiff / timeDiff;
+        newData['txRate'] = Math.max(0, txDiff / timeDiff);
       }
       return Object.assign({}, state, {data: data});
     default:
