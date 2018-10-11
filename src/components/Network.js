@@ -37,7 +37,7 @@ class Network extends React.Component {
 
   componentDidMount() {
     this.loadData();
-    this.loadTimer = setInterval(this.loadData, 5000);
+    this.loadTimer = setInterval(this.loadData, 1000);
   }
 
   loadData() {
