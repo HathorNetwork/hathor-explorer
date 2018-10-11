@@ -107,6 +107,7 @@ class Network extends React.Component {
             <ul className="list-group list-group-flush">
               <li className="list-group-item">
                 <div>
+                  Synced timestamp: {new Date(sync.synced_timestamp * 1000).toString()}<br />
                   Latest timestamp: {new Date(sync.latest_timestamp * 1000).toString()}
                 </div>
                 <div className="progress">
