@@ -28,22 +28,36 @@ class Network extends React.Component {
     this.state = {
       connected_peers: [],
       known_peers: [],
-      loaded: false
+      loaded: false,
+      isLoading: false
     }
+
+    this.loadData = this.loadData.bind(this);
   }
 
   componentDidMount() {
-    networkApi.getPeers().then((peers) => {
-      this.setState({
-        connected_peers: peers.connections.connected_peers,
-        known_peers: peers.known_peers,
-        server: peers.server,
-        dag: peers.dag,
-        loaded: true
+    this.loadData();
+    this.loadTimer = setInterval(this.loadData, 5000);
+  }
+
+  loadData() {
+    if (this.state.isLoading) return;
+
+    this.setState({ isLoading: true }, () => {
+      networkApi.getPeers().then((peers) => {
+        this.setState({
+          connected_peers: peers.connections.connected_peers,
+          known_peers: peers.known_peers,
+          server: peers.server,
+          dag: peers.dag,
+          loaded: true,
+          isLoading: false
+        });
+      }, (e) => {
+        // Error in request
+        console.log(e);
+        this.setState({ isLoading: false });
       });
-    }, (e) => {
-      // Error in request
-      console.log(e);
     });
   }
 
@@ -65,7 +79,7 @@ class Network extends React.Component {
   render() {
     const loadTable = () => {
       return (
-        <div>
+        <div style={{width: "100%"}}>
           <div className="card text-white bg-dark" style={{marginBottom: "30px"}}>
             <div className="card-body">
               Id: {this.state.server.id}<br />
@@ -162,7 +176,8 @@ class Network extends React.Component {
     }
 
     return (
-      <div className="tab-content-wrapper">
+      <div className="tab-content-wrapper d-flex flex-column align-items-end">
+        {this.state.loaded ? <button className='btn btn-primary mb-3' onClick={this.loadData}>Reload data</button> : null}
         {!this.state.loaded ? <ReactLoading type='spin' color='#0081af' delay={500} /> : loadTable()}
       </div>
     );
