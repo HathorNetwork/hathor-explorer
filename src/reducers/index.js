@@ -7,10 +7,7 @@ const initialState = {
 const rootReducer = (state = initialState, action) => {
   switch (action.type) {
     case 'dashboard_update':
-      let data = [];
-      state.data.map((metric, index) => {
-        return data.push(metric);
-      });
+      let data = state.data.slice(0);
       let newData = action.payload;
       newData['date'] = new Date(newData.time*1000);
       data.push(action.payload);
