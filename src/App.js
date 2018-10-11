@@ -40,7 +40,7 @@ class Root extends React.Component {
   }
 
   updateWithWs = (data) => {
-    this.props.dashboardUpdate({ transactions: data.transactions, blocks: data.blocks });
+    this.props.dashboardUpdate({ ...data });
   }
 
   render() {

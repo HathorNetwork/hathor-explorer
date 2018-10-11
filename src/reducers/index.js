@@ -1,13 +1,21 @@
+import { DASHBOARD_CHART_TIME } from '../constants';
+
 const initialState = {
-    transactions: 0,
-    blocks: 0,
+  data: []
 };
 
 const rootReducer = (state = initialState, action) => {
   switch (action.type) {
     case 'dashboard_update':
-      console.log(action);
-      return { ...state, ...action.payload };
+      let data = [];
+      state.data.map((metric, index) => {
+        return data.push(metric);
+      });
+      let newData = action.payload;
+      newData['date'] = new Date(newData.time*1000);
+      data.push(action.payload);
+      if (data.length > DASHBOARD_CHART_TIME) data.shift();
+      return Object.assign({}, state, {data: data});
     default:
       return state;
   }
