@@ -27,9 +27,8 @@ const walletApi = {
   },
 
   sendTokens(data) {
-    let formData = new FormData();
-    formData.append("data", JSON.stringify(data));
-    return requestClient.post('wallet/send_tokens', formData).then((res) => {
+    const postData = {data};
+    return requestClient.post('wallet/send_tokens', postData).then((res) => {
       return res.data
     }, (res) => {
       throw new Error(res.data.message);
@@ -45,9 +44,8 @@ const walletApi = {
   },
 
   unlock(password) {
-    let formData = new FormData();
-    formData.append('password', password);
-    return requestClient.post('wallet/unlock', formData).then((res) => {
+    const postData = {password};
+    return requestClient.post('wallet/unlock', postData).then((res) => {
       return res.data
     }, (res) => {
       throw new Error(res.data.message);
@@ -55,12 +53,11 @@ const walletApi = {
   },
 
   unlockHD(words, passphrase) {
-    let formData = new FormData();
+    let postData = {passphrase};
     if (words) {
-      formData.append('words', words);
+      postData['words'] = words;
     }
-    formData.append('passphrase', passphrase);
-    return requestClient.post('wallet/unlock', formData).then((res) => {
+    return requestClient.post('wallet/unlock', postData).then((res) => {
       return res.data
     }, (res) => {
       throw new Error(res.data.message);
