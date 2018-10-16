@@ -21,7 +21,7 @@ class LineChartRealTime extends React.Component {
   componentDidUpdate(prevProps) {
     if (!this.chart && this.props.data.length) {
       this.initChart();
-    } else if (this.chart) {
+    } else if (this.chart && !document.hidden) {
       this.chart.datum(this.props.data).call(this.updateChart);
     }
   }
