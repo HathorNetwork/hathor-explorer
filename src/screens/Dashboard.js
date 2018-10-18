@@ -14,7 +14,7 @@ class Dashboard extends React.Component {
   }
 
   getYTxRate(d) {
-    return d.txRate;
+    return d.txRate.toFixed(2);
   }
 
   getYTx(d) {
@@ -25,12 +25,22 @@ class Dashboard extends React.Component {
     return d.blocks;
   }
 
+  getYHashRate(d) {
+    return d.hash_rate.toFixed(2);
+  }
+
+  getYPeers(d) {
+    return d.peers;
+  }
+
   render() {
     return (
       <div className="content-wrapper">
-        <LineChartRealTime data={this.props.data} getX={this.getXData} getY={this.getYTxRate} title="Tx Rate"/>
+        <LineChartRealTime data={this.props.data} getX={this.getXData} getY={this.getYTxRate} unit="tx/s" title="Tx Rate"/>
         <LineChartRealTime data={this.props.data} getX={this.getXData} getY={this.getYTx} title="Transactions" />
         <LineChartRealTime data={this.props.data} getX={this.getXData} getY={this.getYBlock} title="Blocks"/>
+        <LineChartRealTime data={this.props.data} getX={this.getXData} getY={this.getYHashRate} unit="hashes/s" title="Hash Rate"/>
+        <LineChartRealTime data={this.props.data} getX={this.getXData} getY={this.getYPeers} title="Peers"/>
       </div>
     );
   }

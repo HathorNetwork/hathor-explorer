@@ -6,6 +6,8 @@ import { DASHBOARD_CHART_TIME } from '../constants';
   'date': Date object,
   'transactions': int,
   'blocks': int,
+  'hash_rate': float (hash/s),
+  'peers': int,
   'txRate': float (tx/s),
   'time': float (timestamp), 
   'type': 'dashboard:metrics',
