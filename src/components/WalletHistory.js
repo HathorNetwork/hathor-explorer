@@ -120,7 +120,7 @@ class WalletHistory extends React.Component {
     const renderHistoryData = () => {
       return this.state.history.map((tx, idx) => {
         return (
-          <tr key={`${tx.tx_id}${tx.index}${tx.from_tx_id}`}>
+          <tr key={`${tx.tx_id}${tx.index}${tx.from_tx_id}${tx.from_index}`}>
             <td>
               <a target="_blank" href={`/transaction/${tx.from_tx_id ? tx.from_tx_id : tx.tx_id}`}>{tx.from_tx_id ? tx.from_tx_id.substring(0,32) : tx.tx_id.substring(0,32)}...</a>
               <CopyToClipboard text={tx.from_tx_id ? tx.from_tx_id : tx.tx_id} onCopy={this.copied}>
