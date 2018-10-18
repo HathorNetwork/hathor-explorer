@@ -38,7 +38,7 @@ class TxData extends React.Component {
     const renderInputs = (inputs) => {
       return inputs.map((input, idx) => {
         return (
-          <li key={input.tx_id}><a target="_blank" href={`/transaction/${input.tx_id}`}>{input.tx_id}</a> ({input.index})</li>
+          <li key={`${input.tx_id}${input.index}`}><a target="_blank" href={`/transaction/${input.tx_id}`}>{input.tx_id}</a> ({input.index})</li>
         );
       });
     }
