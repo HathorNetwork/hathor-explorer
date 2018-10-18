@@ -28,7 +28,7 @@ class LineChartRealTime extends React.Component {
 
   getYDomain() {
     // When min domain is not set, the min yAxis will be 0.8*min_value because otherwise the begining of the chart would look like 0
-    const minDomain = this.props.yDomain[0] ? this.props.yDomain[0] : parseInt(min(this.props.data, (d) => { return this.props.getY(d); })*0.8);
+    const minDomain = this.props.yDomain[0] ? this.props.yDomain[0] : parseInt(min(this.props.data, (d) => { return this.props.getY(d); })*0.8, 10);
     const maxDomain = this.props.yDomain[1] ? this.props.yDomain[1] : max(this.props.data, (d) => { return this.props.getY(d); });
     return [minDomain, maxDomain];
   }
