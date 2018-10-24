@@ -2,7 +2,6 @@ import React from 'react';
 import walletApi from '../api/wallet';
 import QRCode from 'qrcode.react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import helpers from '../utils/helpers';
 import HathorAlert from './HathorAlert';
 
 
@@ -16,6 +15,7 @@ class WalletAddress extends React.Component {
     }
 
     this.getNewAddress = this.getNewAddress.bind(this);
+    this.copied = this.copied.bind(this);
   }
 
   componentDidMount() {
@@ -47,7 +47,7 @@ class WalletAddress extends React.Component {
   copied(text, result) {
     if (result) {
       // If copied with success
-      helpers.showAlert('alert-copied', 1000);
+      this.refs.alertCopied.show(1000);
     }
   }
 
@@ -71,7 +71,7 @@ class WalletAddress extends React.Component {
     return (
       <div>
         {this.state.loaded ? renderAddress() : null}
-        <HathorAlert id="alert-copied" text="Copied to clipboard!" type="success" />
+        <HathorAlert ref="alertCopied" text="Copied to clipboard!" type="success" />
       </div>
     );
   }

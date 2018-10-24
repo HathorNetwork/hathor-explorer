@@ -85,15 +85,17 @@ class DashboardTx extends React.Component {
 
     return (
       <div className="content-wrapper">
-        <table className="table" id="tx-table">
-          <thead>
-            <tr>
-              <th>Hash</th>
-              <th>Timestamp</th>
-            </tr>
-          </thead>
-          {renderTableBody()}
-        </table>
+        <div className="table-responsive">
+          <table className="table" id="tx-table">
+            <thead>
+              <tr>
+                <th>Hash</th>
+                <th>Timestamp</th>
+              </tr>
+            </thead>
+            {renderTableBody()}
+          </table>
+        </div>
       </div>
     );
   }

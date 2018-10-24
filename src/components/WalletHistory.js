@@ -19,6 +19,7 @@ class WalletHistory extends React.Component {
     }
 
     this.getHistoryData = this.getHistoryData.bind(this);
+    this.copied = this.copied.bind(this);
   }
 
   componentDidMount() {
@@ -78,7 +79,7 @@ class WalletHistory extends React.Component {
   copied(text, result) {
     if (result) {
       // If copied with success
-      helpers.showAlert('alert-copied', 1000);
+      this.refs.alertCopied.show(1000);
     }
   }
 
@@ -96,22 +97,24 @@ class WalletHistory extends React.Component {
 
     const renderHistory = () => {
       return (
-        <div className="flex">
+        <div className="d-flex flex-column">
           <strong>Transaction history</strong>
-          <table className="mt-3 table table-striped" id="wallet-history">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Date</th>
-                <th>Index</th>
-                <th>Value</th>
-                <th>State</th>
-              </tr>
-            </thead>
-            <tbody>
-              {renderHistoryData()}
-            </tbody>
-          </table>
+          <div className="table-responsive">
+            <table className="mt-3 table table-striped" id="wallet-history">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Date</th>
+                  <th>Index</th>
+                  <th>Value</th>
+                  <th>State</th>
+                </tr>
+              </thead>
+              <tbody>
+                {renderHistoryData()}
+              </tbody>
+            </table>
+          </div>
           {loadPagination()}
         </div>
       );
@@ -148,7 +151,7 @@ class WalletHistory extends React.Component {
     return (
       <div className="content-wrapper flex align-items-center">
         {renderHistory()}
-        <HathorAlert id="alert-copied" text="Copied to clipboard!" type="success" />
+        <HathorAlert ref="alertCopied" text="Copied to clipboard!" type="success" />
       </div>
     );
   }

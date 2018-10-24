@@ -24,6 +24,8 @@ class Wallet extends React.Component {
       warning: null,
       locked: null,
     }
+
+    this.showWarning = this.showWarning.bind(this);
   }
 
   componentDidMount() {
@@ -68,7 +70,7 @@ class Wallet extends React.Component {
 
   showWarning = (message) => {
     this.setState({ warning: message })
-    helpers.showAlert('alert-warning', 5000);
+    this.refs.alertWarning.show(5000);
   }
 
   backupKeysWarning = (keysCount) => {
@@ -129,10 +131,19 @@ class Wallet extends React.Component {
     const renderWallet = () => {
       return (
         <div>
-          <div className="d-flex flex-row align-items-center justify-content-between">
+          <div className="d-none d-sm-flex flex-row align-items-center justify-content-between">
             <div className="d-flex flex-column align-items-start justify-content-between">
               <WalletBalance ref={(node) => { this.balanceNode = node; }} loaded={this.balanceLoaded} />
-              {renderBtns()}
+              {renderBtns("d-flex flex-column")}
+            </div>
+            <WalletAddress loaded={this.addressLoaded} />
+          </div>
+          <div className="d-sm-none d-flex flex-column align-items-center justify-content-between">
+            <div className="d-flex flex-column align-items-center justify-content-between">
+              <WalletBalance ref={(node) => { this.balanceNode = node; }} loaded={this.balanceLoaded} />
+              <div className="d-flex flex-row align-items-center">
+                {renderBtns("d-flex")}
+              </div>
             </div>
             <WalletAddress loaded={this.addressLoaded} />
           </div>
@@ -141,11 +152,11 @@ class Wallet extends React.Component {
       );
     }
 
-    const renderBtns = () => {
+    const renderBtns = (wrapperClass) => {
       return (
-        <div>
+        <div className={wrapperClass}>
           <div><button className="btn send-tokens btn-primary" onClick={this.sendTokens}>Send tokens</button></div>
-          <div><button className="btn send-tokens btn-primary" onClick={this.willLockWallet} disabled={this.state.lockDisabled}>Lock wallet</button></div>
+          <div><button className="btn btn-primary" onClick={this.willLockWallet} disabled={this.state.lockDisabled}>Lock wallet</button></div>
         </div>
       );
     }
@@ -155,7 +166,7 @@ class Wallet extends React.Component {
         <div>
           {(this.state.historyLoaded && this.state.balanceLoaded && this.state.addressLoaded) ? null : <ReactLoading type='spin' color='#0081af' delay={500} />}
           {renderWallet()}
-          {this.state.warning ? <HathorAlert id="alert-warning" text={this.state.warning} type="warning" /> : null}
+          {this.state.warning ? <HathorAlert ref="alertWarning" text={this.state.warning} type="warning" /> : null}
         </div>
       );
     }

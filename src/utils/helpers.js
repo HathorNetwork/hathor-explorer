@@ -1,16 +1,7 @@
-import $ from 'jquery';
 import walletApi from '../api/wallet';
 import { GENESIS_BLOCK, GENESIS_TX } from '../constants';
 
 const helpers = {
-  showAlert(id, duration) {
-    const el = $(`#${id}`);
-    el.addClass('show');
-    setTimeout(() => {
-      el.removeClass('show');
-    }, duration);
-  },
-
   checkWalletLock(unlock, lock, setType) {
     walletApi.checkLock().then((data) => {
       setType(data.type)
