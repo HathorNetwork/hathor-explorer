@@ -118,17 +118,19 @@ class Transactions extends React.Component {
 
     const loadTable = () => {
       return (
-        <table className="table table-striped" id="tx-table">
-          <thead>
-            <tr>
-              <th>Hash</th>
-              <th>Timestamp</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loadTableBody()}
-          </tbody>
-        </table>
+        <div className="table-responsive">
+          <table className="table table-striped" id="tx-table">
+            <thead>
+              <tr>
+                <th>Hash</th>
+                <th>Timestamp</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loadTableBody()}
+            </tbody>
+          </table>
+        </div>
       );
     }
 

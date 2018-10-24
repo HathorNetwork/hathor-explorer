@@ -13,6 +13,8 @@ class TxData extends React.Component {
     this.state = {
       raw: false
     }
+
+    this.copied = this.copied.bind(this);
   }
 
   toggleRaw(e) {
@@ -29,7 +31,7 @@ class TxData extends React.Component {
   copied(text, result) {
     if (result) {
       // If copied with success
-      helpers.showAlert('alert-copied', 1000);
+      this.refs.alertCopied.show(1000);
     }
   }
 
@@ -120,7 +122,7 @@ class TxData extends React.Component {
     return (
       <div>
         {loadTxData()}
-        <HathorAlert id="alert-copied" text="Copied to clipboard!" type="success" />
+        <HathorAlert ref="alertCopied" text="Copied to clipboard!" type="success" />
       </div>
     );
   }

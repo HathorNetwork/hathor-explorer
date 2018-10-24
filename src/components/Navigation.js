@@ -2,7 +2,6 @@ import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import logo from '../assets/images/hathor-white-logo.png';
 import HathorAlert from './HathorAlert';
-import helpers from '../utils/helpers';
 import { BASE_URL } from '../constants';
 
 
@@ -34,7 +33,7 @@ class Navigation extends React.Component {
   }
 
   showError() {
-    helpers.showAlert('alert-error', 3000);
+    this.refs.alertError.show(3000);
   }
 
   render() {
@@ -77,7 +76,7 @@ class Navigation extends React.Component {
             </div>
           </div>
         </nav>
-        <HathorAlert id="alert-error" text="Invalid hash format" type="danger" />
+        <HathorAlert ref="alertError" text="Invalid hash format" type="danger" />
       </div>
     );
   }

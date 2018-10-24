@@ -14,8 +14,17 @@ class LineChartRealTime extends React.Component {
 
     this.initChart = this.initChart.bind(this);
     this.updateChart = this.updateChart.bind(this);
+    this.resizeChart = this.resizeChart.bind(this);
 
     this.chart = null;
+  }
+
+  componentDidMount() {
+    window.addEventListener("resize", this.resizeChart);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.resizeChart);
   }
 
   componentDidUpdate(prevProps) {
@@ -59,9 +68,17 @@ class LineChartRealTime extends React.Component {
     }
   }
 
+  resizeChart() {
+    if (this.chart) {
+      this.chart.remove();
+      this.initChart();
+    }
+  }
+
   initChart() {
+    const maxWidth = Math.min(960, this.refs.chartWrapper.offsetWidth);
     const margin = {top: 20, right: 20, bottom: 30, left: 50};
-    const width = 960 - margin.left - margin.right;
+    const width = maxWidth - margin.left - margin.right;
     this.height = 200 - margin.top - margin.bottom;
 
     // set the ranges
@@ -115,7 +132,7 @@ class LineChartRealTime extends React.Component {
 
   render() {
     return (
-      <div>
+      <div ref="chartWrapper" className="d-flex flex-column">
         <p><strong>{this.props.title}: {(this.props.data && this.props.data.length) ? this.props.getY(this.props.data[this.props.data.length - 1]) : ''} {this.props.unit}</strong></p>
         <svg ref={node => this.node = node} />
       </div>

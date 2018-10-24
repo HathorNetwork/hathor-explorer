@@ -75,6 +75,7 @@ html, body, #root {
 
 div.new-address-wrapper, button.send-tokens {
   margin-bottom: 1rem;
+  margin-right: 1rem;
 }
 
 button.new-address {
@@ -205,4 +206,12 @@ svg.svg-wrapper {
 
 .grid path {
   stroke-width: 0;
+}
+
+.hathor-alert {
+  display: none;
+}
+
+.hathor-alert.show {
+  display: block !important;
 }
