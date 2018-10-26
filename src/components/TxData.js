@@ -72,9 +72,87 @@ class TxData extends React.Component {
       });
     }
 
+    const renderConflicts = () => {
+      const renderListWithLinks = (hashes) => {
+        if (hashes.length === 0) {
+          return;
+        }
+        if (hashes.length === 1) {
+          const h = hashes[0];
+          return <a className="text-dark" target="_blank" href={`/transaction/${h}`}>{h}</a>;
+        }
+        const v = hashes.map((h) => <li key={h}><a className="text-dark" target="_blank" href={`/transaction/${h}`}>{h}</a></li>)
+        return (<ul>
+          {v}
+        </ul>)
+      }
+
+      if (!this.props.transaction.voided_by) {
+        if (!this.props.transaction.conflict_with) {
+          // there are conflicts, but it is not voided
+          return (
+            <div className="alert alert-success">
+              <h4 className="alert-heading mb-0">This transaction is valid.</h4>
+            </div>
+          )
+        }
+
+        if (this.props.transaction.conflict_with) {
+          // there are conflicts, but it is not voided
+          return (
+            <div className="alert alert-success">
+              <h4 className="alert-heading">This transaction is valid.</h4>
+              <p>
+                Although there is a double-spending transaction, this transaction has the highest accumulated weight and is valid.
+              </p>
+              <hr />
+              <p className="mb-0">
+                <span>Transactions double spending the same outputs as this transaction: </span>
+                {renderListWithLinks(this.props.transaction.conflict_with)}
+              </p>
+            </div>
+          );
+        }
+        return;
+      }
+
+      if (!this.props.transaction.conflict_with) {
+        // it is voided, but there is no conflict
+        return (
+          <div className="alert alert-danger">
+            <h4 class="alert-heading">This transaction is voided and <strong>NOT</strong> valid.</h4>
+            <p>
+              This transaction is verifying (directly or indirectly) a voided double-spending transaction, hence it is voided as well.
+            </p>
+            <p className="mb-0">
+              <span>This transaction is voided because of these transactions: </span>
+              {renderListWithLinks(this.props.transaction.voided_by)}
+            </p>
+          </div>
+        )
+      }
+
+      // it is voided, and there is a conflict
+      return (
+        <div className="alert alert-danger">
+          <h4 class="alert-heading">This transaction is <strong>NOT</strong> valid.</h4>
+          <p>
+            <span>It is voided by: </span>
+            {renderListWithLinks(this.props.transaction.voided_by)}
+          </p>
+          <hr />
+          <p className="mb-0">
+            <span>Conflict with: </span>
+            {renderListWithLinks(this.props.transaction.conflict_with)}
+          </p>
+        </div>
+      )
+    }
+
     const loadTxData = () => {
       return (
         <div className="tx-data-wrapper">
+          {this.props.showConflicts ? renderConflicts() : ''}
           <div><label>Hash:</label> {this.props.transaction.hash}</div>
           <div><label>Type:</label> {helpers.getTxType(this.props.transaction)}</div>
           <div><label>Time:</label> {dateFormatter.parseTimestamp(this.props.transaction.timestamp)}</div>
