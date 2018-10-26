@@ -46,7 +46,7 @@ class TransactionDetail extends React.Component {
     const renderTx = () => {
       return (
         <div>
-          {this.state.transaction ? <TxData transaction={this.state.transaction} showRaw={true} /> : <p className="text-danger">Transaction with hash {this.props.match.params.id} not found</p>}
+          {this.state.transaction ? <TxData transaction={this.state.transaction} showRaw={true} showConflicts={true} /> : <p className="text-danger">Transaction with hash {this.props.match.params.id} not found</p>}
         </div>
       );
     }
