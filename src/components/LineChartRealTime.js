@@ -17,6 +17,7 @@ class LineChartRealTime extends React.Component {
     this.resizeChart = this.resizeChart.bind(this);
 
     this.chart = null;
+    this.chartLines = [];
   }
 
   componentDidMount() {
@@ -37,8 +38,13 @@ class LineChartRealTime extends React.Component {
 
   getYDomain() {
     // When min domain is not set, the min yAxis will be 0.8*min_value because otherwise the begining of the chart would look like 0
-    const minDomain = this.props.yDomain[0] ? this.props.yDomain[0] : parseInt(min(this.props.data, (d) => { return this.props.getY(d); })*0.8, 10);
-    const maxDomain = this.props.yDomain[1] ? this.props.yDomain[1] : max(this.props.data, (d) => { return this.props.getY(d); });
+    const minDomain = this.props.yDomain[0] ?
+                      this.props.yDomain[0] :
+                      parseInt(min(this.props.data, (d) => { return min(this.props.getY(d)); })*0.8, 10);
+
+    const maxDomain = this.props.yDomain[1] ?
+                      this.props.yDomain[1] :
+                      max(this.props.data, (d) => { return max(this.props.getY(d)); });
     return [minDomain, maxDomain];
   }
 
@@ -48,9 +54,11 @@ class LineChartRealTime extends React.Component {
 
     this.yAxis.call(axisLeft(this.y))
 
-    this.path.data([this.props.data])
-      .attr("class", "line")
-      .attr("d", this.chartLine);
+    for (let chartLine of this.chartLines) {
+      chartLine["path"].data([this.props.data])
+        .attr("class", "line")
+        .attr("d", chartLine['line']);
+    }
 
     this.xGrid.call(axisBottom(this.x).ticks(7)
       .tickSize(-this.height)
@@ -89,11 +97,6 @@ class LineChartRealTime extends React.Component {
     this.x.domain(extent(this.props.data, (d) => { return this.props.getX(d); }));
     this.y.domain(this.getYDomain());
 
-    // define the line
-    this.chartLine = line()
-        .x((d) => { return this.x(this.props.getX(d)); })
-        .y((d) => { return this.y(this.props.getY(d)); });
-
     var svg = select(this.node)
         .attr("width", width + margin.left + margin.right)
         .attr("height", this.height + margin.top + margin.bottom)
@@ -121,19 +124,38 @@ class LineChartRealTime extends React.Component {
       .attr("class", "grid")
       .attr("transform", "translate(0," + this.height + ")")
 
-    // Add the valueline path.
-    this.path = svg.append("path")
-        .data([this.props.data])
-        .attr("class", "line")
-        .attr("d", this.chartLine);
+    for (let i=0; i<this.props.getY(this.props.data[0]).length; i++) {
+      // define the line
+      let chartLine = line()
+          .x((d) => { return this.x(this.props.getX(d)); })
+          .y((d) => { return this.y(this.props.getY(d)[i]); });
+
+      // Add the valueline path.
+      let path = svg.append("path")
+          .data([this.props.data])
+          .attr("class", "line")
+          .style("stroke", this.props.colors[i])
+          .attr("d", chartLine);
+
+      this.chartLines.push({"path": path, "line": chartLine});
+    }
 
     this.chart = svg;
   }
 
   render() {
+    const renderTitles = () => {
+      const data = this.props.getY(this.props.data[this.props.data.length - 1]);
+      return data.map((d, index) => {
+        return (
+          <p key={index} style={{color: this.props.colors[index]}}>{this.props.title[index]}: {d} {this.props.unit}</p>
+        );
+      });
+    }
+
     return (
       <div ref="chartWrapper" className="d-flex flex-column">
-        <p><strong>{this.props.title}: {(this.props.data && this.props.data.length) ? this.props.getY(this.props.data[this.props.data.length - 1]) : ''} {this.props.unit}</strong></p>
+        <div>{(this.props.data && this.props.data.length) ? renderTitles() : ''}</div>
         <svg ref={node => this.node = node} />
       </div>
     );
@@ -153,6 +175,8 @@ class LineChartRealTime extends React.Component {
 LineChartRealTime.defaultProps = {
   yDomain: [null, null],
   unit: '',
+  stacked: false,
+  colors: ['steelBlue'],
 }
 
 export default LineChartRealTime;
