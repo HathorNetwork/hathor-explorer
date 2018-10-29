@@ -159,14 +159,10 @@ svg.svg-wrapper {
 }
 
 .svg-wrapper circle {
-  fill: steelBlue;
-  stroke: steelBlue;
   fill-opacity: 0.5;
 }
 
 .svg-wrapper rect {
-  fill: orange;
-  stroke: orange;
   fill-opacity: 0.5;
 }
 
@@ -194,7 +190,6 @@ svg.svg-wrapper {
 
 .line {
   fill: none;
-  stroke: steelblue;
   stroke-width: 2px;
 }
 
