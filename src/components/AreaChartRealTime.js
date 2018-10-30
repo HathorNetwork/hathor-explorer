@@ -1,20 +1,20 @@
 import React from 'react';
-import { line } from 'd3-shape';
+import { area } from 'd3-shape';
 import D3ChartRealTime from './D3ChartRealTime';
 
 
-class LineChartRealTime extends React.Component {
+class AreaChartRealTime extends React.Component {
   getChartModel(xValue, getX, yValue, getY, index, height) {
-    return line()
+    return area()
           .x((d) => { return xValue(getX(d)); })
-          .y((d) => { return yValue(getY(d)[index]); });
+          .y0((d) => { return index === 0 ? height : yValue(getY(d)[index-1]) })
+          .y1((d) => { return yValue(getY(d)[index]); })
   }
 
   getPath(svg, data, colors, chart, index) {
     return svg.append("path")
-          .data([data])
-          .attr("class", "line")
-          .style("stroke", colors[index])
+          .datum(data)
+          .style("fill", (d) => {return colors[index]})
           .attr("d", chart);
   }
 
@@ -23,4 +23,4 @@ class LineChartRealTime extends React.Component {
   }
 }
 
-export default LineChartRealTime;
+export default AreaChartRealTime;
