@@ -31,11 +31,23 @@ class Wallet extends React.Component {
   componentDidMount() {
     helpers.checkWalletLock(this.unlock, this.lock, this.setType);
 
+    this.getInitialBalance();
+
     WebSocketHandler.on('wallet', this.handleWebsocket);
   }
 
   componentWillUnmount() {
     WebSocketHandler.removeListener('wallet', this.handleWebsocket);
+  }
+
+  getInitialBalance() {
+    walletApi.getBalance().then((data) => {
+      this.updateBalance(data.balance);
+      this.balanceLoaded();
+    }, (e) => {
+      // Error in request
+      console.log(e);
+    });
   }
 
   setType = (type) => {
@@ -51,9 +63,7 @@ class Wallet extends React.Component {
   }
 
   updateBalance = (balance) => {
-    if (this.balanceNode) {
-      this.balanceNode.updateBalance(balance);
-    }
+    this.setState({ balance });
   }
 
   newOutput = (output, total) => {
@@ -133,14 +143,14 @@ class Wallet extends React.Component {
         <div>
           <div className="d-none d-sm-flex flex-row align-items-center justify-content-between">
             <div className="d-flex flex-column align-items-start justify-content-between">
-              <WalletBalance ref={(node) => { this.balanceNode = node; }} loaded={this.balanceLoaded} />
+              <WalletBalance balance={this.state.balance} />
               {renderBtns("d-flex flex-column")}
             </div>
             <WalletAddress loaded={this.addressLoaded} />
           </div>
           <div className="d-sm-none d-flex flex-column align-items-center justify-content-between">
             <div className="d-flex flex-column align-items-center justify-content-between">
-              <WalletBalance ref={(node) => { this.balanceNode = node; }} loaded={this.balanceLoaded} />
+              <WalletBalance balance={this.state.balance} />
               <div className="d-flex flex-row align-items-center">
                 {renderBtns("d-flex")}
               </div>
