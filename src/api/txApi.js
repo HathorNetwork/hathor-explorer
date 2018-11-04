@@ -9,10 +9,11 @@ const txApi = {
     });
   },
 
-  getTransactions(type, count, hash, page) {
+  getTransactions(type, count, timestamp, hash, page) {
     /*
      type: 'block' or 'tx' -> if we are getting txs or blocks
      count: int -> how many objects we want
+     timestamp (optional): int -> timestamp reference for the pagination (works together with 'page' parameter)
      hash (optional): str -> hash reference for the pagination (works together with 'page' parameter)
      page (optional): 'previous' or 'next' -> if 'previous', we get the objects before the hash reference
                                    if 'next', we get the objects after the hash reference
@@ -20,6 +21,7 @@ const txApi = {
     const data = {type, count};
     if (hash) {
       data['hash'] = hash;
+      data['timestamp'] = timestamp;
       data['page'] = page;
     }
     return this.getTransactionBase(data);

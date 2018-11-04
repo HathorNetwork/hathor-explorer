@@ -14,7 +14,9 @@ class Transactions extends React.Component {
     this.state = {
       transactions: [],
       firstHash: null,
+      firstTimestamp: null,
       lastHash: null,
+      lastTimestamp: null,
       loaded: false,
       hasAfter: false,
       hasBefore: false,
@@ -22,7 +24,7 @@ class Transactions extends React.Component {
   }
 
   componentDidMount() {
-    this.getData(true, null, '');
+    this.getData(true, null, null, '');
 
     WebSocketHandler.on('network', this.handleWebsocket);
   }
@@ -45,10 +47,12 @@ class Transactions extends React.Component {
       transactions = helpers.updateListWs(transactions, tx, TX_COUNT);
 
       let firstHash = transactions[0].hash;
+      let firstTimestamp = transactions[0].timestamp;
       let lastHash = transactions[transactions.length-1].hash;
+      let lastTimestamp = transactions[transactions.length-1].timestamp;
 
       // Finally we update the state again
-      this.setState({ transactions, hasAfter, firstHash, lastHash });
+      this.setState({ transactions, hasAfter, firstHash, lastHash, firstTimestamp, lastTimestamp });
     }
   }
 
@@ -58,9 +62,13 @@ class Transactions extends React.Component {
     // Set first and last hash of the transactions
     let firstHash = null;
     let lastHash = null;
+    let firstTimestamp = null;
+    let lastTimestamp = null;
     if (data.transactions.length) {
       firstHash = data.transactions[0].hash;
       lastHash = data.transactions[data.transactions.length-1].hash;
+      firstTimestamp = data.transactions[0].timestamp;
+      lastTimestamp = data.transactions[data.transactions.length-1].timestamp;
     }
 
     let hasAfter = false;
@@ -78,11 +86,11 @@ class Transactions extends React.Component {
       }
     }
 
-    this.setState({ transactions: data.transactions, loaded: true, firstHash, lastHash, hasAfter, hasBefore });
+    this.setState({ transactions: data.transactions, loaded: true, firstHash, lastHash, firstTimestamp, lastTimestamp, hasAfter, hasBefore });
   }
 
-  getData = (first, hash, page) => {
-    txApi.getTransactions(this.props.type, TX_COUNT, hash, page).then((data) => {
+  getData = (first, timestamp, hash, page) => {
+    txApi.getTransactions(this.props.type, TX_COUNT, timestamp, hash, page).then((data) => {
       this.handleDataFetched(data, first, page);
     }, (e) => {
       // Error in request
@@ -92,12 +100,12 @@ class Transactions extends React.Component {
 
   previousClicked = (e) => {
     e.preventDefault();
-    this.getData(false, this.state.firstHash, 'previous');
+    this.getData(false, this.state.firstTimestamp, this.state.firstHash, 'previous');
   }
 
   nextClicked = (e) => {
     e.preventDefault();
-    this.getData(false, this.state.lastHash, 'next');
+    this.getData(false, this.state.lastTimestamp, this.state.lastHash, 'next');
   }
 
   render() {
