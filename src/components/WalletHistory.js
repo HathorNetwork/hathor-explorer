@@ -132,7 +132,7 @@ class WalletHistory extends React.Component {
             </td>
             <td>{dateFormatter.parseTimestamp(tx.timestamp)}</td>
             <td>{tx.index}{tx.from_index}</td>
-            <td className={tx.from_tx_id ? "spent-tx" : ""}>{tx.value}</td>
+            <td className={tx.from_tx_id ? "spent-tx" : ""}>{helpers.prettyValue(tx.value)}</td>
             <td>
               {tx.from_tx_id ?
                 <div>

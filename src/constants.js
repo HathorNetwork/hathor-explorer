@@ -29,3 +29,5 @@ export const GENESIS_TX = [
 ]
 
 export const DASHBOARD_CHART_TIME = 200;
+
+export const DECIMAL_PLACES = 2;

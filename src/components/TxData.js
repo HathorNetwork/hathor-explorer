@@ -49,7 +49,7 @@ class TxData extends React.Component {
       return outputs.map((output, idx) => {
         return (
           <li key={idx}>
-            {output.value} -> {output.decoded ? renderDecodedScript(output.decoded) : `${output.script} (unknown script)` }
+            {helpers.prettyValue(output.value)} -> {output.decoded ? renderDecodedScript(output.decoded) : `${output.script} (unknown script)` }
           </li>
         );
       });
