@@ -210,3 +210,43 @@ svg.svg-wrapper {
 .hathor-alert.show {
   display: block !important;
 }
+
+#graph {
+  border: 1px solid;
+}
+
+#graph .tx, #graph .block {
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+#graph .link {
+  stroke: #666;
+  stroke-width: 0.2px;
+}
+
+#graph .tx .tx-text, #graph .block .block-text {
+  stroke-width: 0px;
+  font-size: 4px;
+}
+
+.tooltip {
+  position: absolute;
+  background-color: white;
+  max-width: 200px;
+  height: auto;
+  padding: 1px;
+  border-style: solid;
+  border-radius: 4px;
+  border-width: 1px;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, .5);
+  pointer-events: none;
+}
+
+#graph {
+  margin-top: 24px;
+}
+
+.dagWrapper {
+  width: 100%;
+}
