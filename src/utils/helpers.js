@@ -1,5 +1,5 @@
 import walletApi from '../api/wallet';
-import { GENESIS_BLOCK, GENESIS_TX } from '../constants';
+import { GENESIS_BLOCK, GENESIS_TX, DECIMAL_PLACES } from '../constants';
 
 const helpers = {
   checkWalletLock(unlock, lock, setType) {
@@ -43,6 +43,10 @@ const helpers = {
   roundFloat(n) {
     return Math.round(n*100)/100
   },
+
+  prettyValue(value) {
+    return (value/10**DECIMAL_PLACES).toFixed(DECIMAL_PLACES);
+  }
 }
 
 export default helpers;

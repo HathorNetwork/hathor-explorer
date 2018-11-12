@@ -3,6 +3,7 @@ import walletApi from '../api/wallet';
 import $ from 'jquery';
 import helpers from '../utils/helpers';
 import WalletUnlock from '../components/WalletUnlock';
+import { DECIMAL_PLACES } from '../constants';
 
 
 class SendTokens extends React.Component {
@@ -42,7 +43,7 @@ class SendTokens extends React.Component {
     const htmlOutput = `
       <div class="input-group mb-3">
         <input type="text" placeholder="Address" class="form-control output-address col-4" />
-        <input type="text" placeholder="Value" class="form-control output-value col-4" />
+        <input type="number" step="${helpers.prettyValue(1)}" placeholder="${helpers.prettyValue(0)}" class="form-control output-value col-4" />
       </div>
     `
     $('.outputs-wrapper').append($(htmlOutput));
@@ -65,7 +66,7 @@ class SendTokens extends React.Component {
       let value = $(this).find('.output-value').val();
 
       if (address && value) {
-        data['outputs'].push({'address': address, 'value': value});
+        data['outputs'].push({'address': address, 'value': parseInt(value*(10**DECIMAL_PLACES), 10)});
       }
     });
 
@@ -117,7 +118,7 @@ class SendTokens extends React.Component {
               <label>Outputs</label>
               <div className="input-group mb-3">
                 <input type="text" placeholder="Address" className="form-control output-address col-4" />
-                <input type="text" placeholder="Value" className="form-control output-value col-4" />
+                <input type="number" step={helpers.prettyValue(1)} placeholder={helpers.prettyValue(0)} class="form-control output-value col-4" />
                 <button type="button" className="btn btn-primary" onClick={this.moreOutput}>+</button>
               </div>
             </div>
