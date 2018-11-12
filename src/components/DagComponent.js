@@ -1,206 +1,431 @@
 import React from 'react';
-import { scaleLinear } from 'd3-scale';
-// eslint-disable-next-line
-import { transition } from 'd3-transition';
-// eslint-disable-next-line
-import { select, selectAll, enter, exit } from 'd3-selection';
-import { getMax } from '../screens/Dag';
+import { select, event } from 'd3-selection';
+import { zoom, zoomIdentity } from 'd3-zoom';
 
-// y component of the blocks. In d3, y is 0 on top and grows to the bottom,
-// so this indicates the distance from the top of the svg element
-const Y_BLOCKS = 80;
-
-// Possible positions of the transactions, relative to Y_BLOCKS
-const Y_TXS = [-30, 30, -60, 60]
-
-// Maximum and minimum sizes of the transaction circle radius. The
-// exact value is calculated in getRadius()
-const RADIUS_MIN = 4;
-const RADIUS_MAX = 10;
+// TODO
+// Remove old tx/block to release memory
+// Timestamp of blocks should go together with tx?
+// (A block and a tx with the same timestamp should appear in the same vertical line?)
+// Blocks are now in one horizontal line only, we are not considering block fork
 
 
 class DagComponent extends React.Component {
+  constructor(props) {
+    super(props);
+
+    // Tx circle radius and color
+    this.txRadius = 8;
+    this.txColor = "steelblue";
+
+    // Block rectangle width, height and color
+    this.blockWidth = 20;
+    this.blockHeight = 10;
+    this.blockColor = "darkgoldenrod";
+
+    // X distance between txs and blocks
+    this.txMargin = 40;
+
+    // X to start showing blocks and txs
+    this.startBlockX = this.txMargin;
+    this.startTxX = 2 * this.txMargin;
+
+    // Svg height
+    this.height = 600;
+
+    // Y position of blocks
+    this.blockY = this.height / 2;
+
+    // Last tx timestamp showed in the dag and the index
+    this.currentTimestamp = null;
+    this.currentTimestampIndex = 0;
+
+    // All graph data (txs and blocks) and its links
+    this.graph = {};
+    this.links = [];
+
+    // Tx and block indexes
+    this.indexTx = -1;
+    this.indexBlock = 0;
+
+    // Transform X, Y and Scale to hold last change when zooming of translating
+    this.lastZoomX = 0;
+    this.lastZoomY = 0;
+    this.lastZoomScale = 1;
+
+    this.newTxs = this.newTxs.bind(this);
+    this.newBlocks = this.newBlocks.bind(this);
+    this.newLinks = this.newLinks.bind(this);
+    this.fade = this.fade.bind(this);
+    this.zoomed = this.zoomed.bind(this);
+    this.getTxY = this.getTxY.bind(this);
+    this.translateGraph = this.translateGraph.bind(this);
+    this.createTooltip = this.createTooltip.bind(this);
+    this.removeTooltip = this.removeTooltip.bind(this);
+    this.moveTooltip = this.moveTooltip.bind(this);
+  }
+
   componentDidMount() {
-    const canvas = this.node.getBoundingClientRect();
-    this.yIndex = 0;
-    this.xStart = 50;
-    this.xEnd = canvas.width - 50;
-    this.createDag(this.props.blocks, this.props.txs);
+    this.tooltip = select(".tooltip")
+      .style("opacity", 0);
+
+    this.drawGraph();
   }
 
-  componentDidUpdate() {
-    this.updateDag(this.props.blocks, this.props.txs, this.props.max);
+  getTxY() {
+    // We show same timestamp tx in a vertical axis alternating top and bottom from the block line
+    let signal = this.currentTimestampIndex % 2 === 0 ? -1 : 1;
+    let multiplier = Math.floor(this.currentTimestampIndex / 2) + 1;
+    return this.height / 2 + signal * multiplier * this.txMargin;
   }
 
-  txId = (tx) => {
-    return tx.hash;
-  }
-
-  /*
-   * Used to add info about a block/tx form screen (usually on mouseover event)
-   */
-  updateInfo = (d) => {
-    const div = document.getElementById("tx-info");
-
-    let p = document.createElement("p");
-    let t = document.createTextNode(`Id: ${d.hash}`);
-    p.appendChild(t);
-    div.appendChild(p);
-
-    p = document.createElement("p");
-    t = document.createTextNode(`Timestamp: ${d.timestamp}`);
-    p.appendChild(t);
-    div.appendChild(p);
-
-    p = document.createElement("p");
-    t = document.createTextNode(`Weight: ${d.weight}`);
-    p.appendChild(t);
-    div.appendChild(p);
-  }
-
-
-  /*
-   * Used to remove info about a block/tx form screen (usually on mouseout event)
-   */
-  removeInfo = () => {
-    const div = document.getElementById("tx-info");
-    while (div.lastChild) {
-      div.removeChild(div.lastChild);
-    }
-  }
-
-  newScale = (min, max) => {
-    return scaleLinear()
-      .domain([min, max])
-      .range([this.xStart, this.xEnd]);
-  }
-
-  /*
-   * The tx and block sizes adapt to the time window, restricted 
-   * to minimum and maximum values
-   */
-  getRadius = (interval) => {
-    const radius = Math.round(900/interval);
-    if (radius > RADIUS_MAX) {
-      return RADIUS_MAX;
-    } else if (radius < RADIUS_MIN) {
-      return RADIUS_MIN;
+  newData(data, isBlock, initialData) {
+    /*
+     Called for every new block or tx that arrives
+     data: object with tx/block data
+     isBlock: boolean saying if it's block or tx
+     initialData: boolean saying if this is from the first draw or from the websocket
+     */
+    let x = null;
+    if (isBlock) {
+      // Calculate new x value to add this block
+      x = this.startBlockX + this.indexBlock * this.txMargin;
+      let graphData = {
+        "id": data.hash,
+        "isBlock": true,
+        "x": x,
+        "y": this.blockY,
+        "links": [],
+        "timestamp": data.timestamp
+      };
+      this.graph[data.hash] = graphData;
+      let newLinks = [];
+      for (let parent of data.parents) {
+        // Validate if parent is in the data, otherwise no need to add a link
+        if (this.graph.hasOwnProperty(parent)) {
+          // Creating link for each parent
+          let linkData = {
+            "source": {
+              "id": data.hash,
+              "x": x + this.blockWidth / 2,
+              "y": this.blockY + this.blockHeight / 2
+            },
+            "target": {
+              "id": parent,
+              "x": this.graph[parent].x + (this.graph[parent].isBlock ? this.blockWidth / 2 : 0),
+              "y": this.graph[parent].y + (this.graph[parent].isBlock ? this.blockHeight / 2 : 0)
+            }
+          };
+          this.links.push(linkData);
+          newLinks.push(linkData);
+          this.graph[parent]["links"].push(data.hash);
+          this.graph[data.hash]["links"].push(parent);
+        } 
+      }
+      // Add new links to graph
+      this.newLinks(newLinks);
+      // Add new block to graph
+      this.newBlocks([this.graph[data.hash]]);
+      this.indexBlock += 1;
     } else {
-      return radius;
+      // Verify if it's the same timestamp as the last one
+      if (data.timestamp === this.currentTimestamp) {
+        this.currentTimestampIndex += 1;
+      } else {
+        this.currentTimestamp = data.timestamp;
+        this.currentTimestampIndex = 0;
+        this.indexTx += 1;
+      }
+      // Calculate new x value to add this tx
+      x = this.startTxX + this.indexTx * this.txMargin;
+      let graphData = {
+        "id": data.hash,
+        "isBlock": false,
+        "x": x,
+        "y": this.getTxY(),
+        "links": [],
+        "timestamp": data.timestamp
+      };
+      this.graph[data.hash] = graphData;
+      let newLinks = [];
+      for (let parent of data.parents) {
+        // Validate if parent is in the data, otherwise no need to add a link
+        if (this.graph.hasOwnProperty(parent)) {
+          // Creating link for each parent
+          let linkData = {
+            "source": {
+              "id": data.hash,
+              "x": x,
+              "y": this.getTxY()
+            },
+            "target": {
+              "id": parent,
+              "x": this.graph[parent].x,
+              "y": this.graph[parent].y
+            }
+          };
+          this.links.push(linkData);
+          this.graph[parent]["links"].push(data.hash);
+          this.graph[data.hash]["links"].push(parent);
+          newLinks.push(linkData);
+        }
+      }
+      // Adding new links to the graph
+      this.newLinks(newLinks);
+      // Adding new tx to the graph
+      this.newTxs([this.graph[data.hash]]);
+    }
+
+    if (!initialData) {
+      // Translate graph if new element is added in a place that is not appearing
+      // In the case of first draw we translate only after adding all elements
+      this.translateGraph(x);
+    }
+    return x;
+  }
+
+  translateGraph(x) {
+    // Translate the graph to show the last added element
+    // Get diff from last x to the one that is being added
+    let diff = x - ((this.width - this.txMargin) / this.lastZoomScale - this.lastZoomX);
+    if (diff > 0) {
+      // If diff > 0, means that it's not appearing, so we translate the graph
+      this.gDraw
+      .transition()
+      .duration(300)
+      .call( this.zoomCall.transform, zoomIdentity.scale(this.lastZoomScale).translate(this.lastZoomX - diff, this.lastZoomY / this.lastZoomScale) );
+      // Save new X zoom
+      this.lastZoomX -= diff;
     }
   }
 
+  newLinks(links) {
+    // Add new links to the svg
+    this.gLinks
+      .selectAll()
+      .data(links)
+      .enter().append("g")
+      .attr("class", "link")
+      .append("line")
+      .attr("x1", function(d) { return d.source.x; })
+      .attr("y1", function(d) { return d.source.y; })
+      .attr("x2", function(d) { return d.target.x; })
+      .attr("y2", function(d) { return d.target.y; });
 
-  /*
-   * Responsible for updating the drawing when new txs/blocks are sent by this component's
-   * parent, usually when a new tx arrives on the websocket. For both blocks and
-   * transactions, does the following:
-   * 1. Remove elements that are not present anymore;
-   * 2. Move elements that are already on the graph to ther new X position,
-   * using the newScale function;
-   * 3. Add the new elements to the beginning of the graph;
-   */
-  updateDag = (blocks, txs) => {
-    const node = this.node;
-    const max = getMax(blocks, txs);
-    const min = max - this.props.timeframe;
-    const scale = this.newScale(min, max);
-
-    let blocksObj = select(node)
-      .select('g.blocks')
-      .selectAll('.block')
-      .data(blocks, this.txId);
-    blocksObj.exit().remove();
-    blocksObj.transition()
-      .duration(300)
-      .attr('class', 'block')
-      .attr('x', (d) => {return scale(d.timestamp) - this.txRadius})
-    blocksObj.enter().append('rect')
-      .attr('class', 'block')
-      .attr('x', (d) => {return scale(d.timestamp) - this.txRadius})
-      .attr('y', Y_BLOCKS - this.txRadius)
-      .on("mouseover", (d, i) => {this.updateInfo(d)})
-      .on("mouseout", () => {this.removeInfo()})
-      .transition()
-      .duration(600)
-      .attr('width', this.blockSize)
-      .attr('height', this.blockSize);
-
-    let txsObj = select(node)
-      .select('g.txs')
-      .selectAll('.tx')
-      .data(txs, this.txId);
-    txsObj.exit().remove();
-    txsObj.transition()
-      .duration(200)
-      .attr('class', 'tx')
-      .attr('cx', (d) => {return scale(d.timestamp)})
-    txsObj.enter().append('circle')
-      .attr('class', 'tx')
-      .attr('cx', (d) => {return scale(d.timestamp)})
-      .attr('cy', (d) => {this.yIndex = (++this.yIndex) % 4; return Y_BLOCKS + Y_TXS[this.yIndex]})
-      .on("mouseover", (d, i) => {this.updateInfo(d)})
-      .on("mouseout", () => {this.removeInfo()})
-      .transition()
-      .duration(300)
-      .attr('r', this.txRadius);
+    this.link = this.gLinks.selectAll('line');
   }
 
-  /*
-   * Called whenever DagComponent is mounted. This draws the initial line and populates
-   * drawings with initial blocks/txs.
-   */
-  createDag = (blocks, txs) => {
-    const node = this.node;
-    const max = getMax(blocks, txs);
-    const min = max - this.props.timeframe;
-    const scale = this.newScale(min, max);
-    this.txRadius = this.getRadius(this.props.timeframe);
-    this.blockSize = 2 * this.txRadius;
-
-    //create axis lines
-    select(node).append('line')
-        .attr("x1", this.xStart)
-        .attr("y1", Y_BLOCKS)
-        .attr("x2", this.xEnd)
-        .attr("y2", Y_BLOCKS)
-
-    //blocks
-    select(node).append('g').attr('class', 'blocks')
-      .selectAll('.block')
-      .data(blocks, this.txId)
+  newTxs(txs) {
+    // Add new txs to the svg
+    
+    // Add g auxiliar element
+    var tx = this.gTxs
+      .selectAll()
+      .data(txs)
       .enter()
-      .append('rect')
-      .attr('class', 'block')
-      .attr('x', (d) => {return scale(d.timestamp) - this.txRadius})
-      .attr('y', Y_BLOCKS - this.txRadius)
-      .attr('width', this.blockSize)
-      .attr('height', this.blockSize)
-      .on("mouseover", (d, i) => {this.updateInfo(d)})
-      .on("mouseout", () => {this.removeInfo()});
+      .filter(function(d){ return !d.isBlock; })
+      .append("g")
+      .attr("class", "tx")
 
-    //txs
-    select(node).append('g').attr('class', 'txs')
-      .selectAll('.tx')
-      .data(txs, this.txId)
+    // Add circle with tx data
+    tx.append("circle")
+      .attr("r", this.txRadius)
+      .attr("fill", this.txColor)
+      .attr("cx", (d) => { return d.x})
+      .attr("cy", (d) => { return d.y})
+
+    // Mouseover event to show/move/remove tooltip
+    tx.on('mouseover.tooltip', (d) => {
+      this.createTooltip(d);
+    })
+    .on('mouseover.fade', this.fade(0.1))
+    .on("mouseout.tooltip", () => {
+      this.removeTooltip();
+    })
+    .on('mouseout.fade', this.fade(1))
+    .on("mousemove", () => {
+      this.moveTooltip();
+    })
+
+    // Add text to show tx info
+    tx
+    .append("text")
+    .append("tspan")
+    .attr("class", "tx-text")
+    .attr("text-anchor", "middle")
+    .attr("alignment-baseline", "central")
+    .attr("x", (d) => { return d.x})
+    .attr("y", (d) => { return d.y})
+    .text(function(d) { return d.id.substring(0,4); });
+
+    this.tx = this.gTxs.selectAll('circle');
+  }
+
+  newBlocks(blocks) {
+    // Add new blocks to the svg
+    
+    // Create g auxiliar element
+    var block = this.gBlocks
+      .selectAll()
+      .data(blocks)
       .enter()
-      .append('circle')
-      .attr('class', 'tx')
-      .attr('cx', (d) => {return scale(d.timestamp)})
-      .attr('cy', () => {this.yIndex = (++this.yIndex) % 4; return Y_BLOCKS + Y_TXS[this.yIndex]})
-      .attr('r', this.txRadius)
-      .on("mouseover", (d, i) => {this.updateInfo(d)})
-      .on("mouseout", () => {this.removeInfo()});
+      .filter(function(d){ return d.isBlock; })
+      .append("g")
+      .attr("class", "block")
+
+    // Add tooltip events
+    block.on('mouseover.tooltip', (d) => {
+      this.createTooltip(d);
+    })
+    .on('mouseover.fade', this.fade(0.1))
+    .on("mouseout.tooltip", () => {
+      this.removeTooltip();
+    })
+    .on('mouseout.fade', this.fade(1))
+    .on("mousemove", () => {
+      this.moveTooltip();
+    })
+      
+    // Add rectangle with block data
+    block.append("rect")
+      .attr("fill", this.blockColor)
+      .attr("width", this.blockWidth)
+      .attr("height", this.blockHeight)
+      .attr("x", (d) => {return d.x})
+      .attr("y", (d) => {return d.y})
+
+    // Add text to show block info
+    block.filter(function(d){return d.isBlock; })
+    .append("text")
+    .append("tspan")
+    .attr("class", "block-text")
+    .attr("text-anchor", "middle")
+    .attr("alignment-baseline", "central")
+    .attr("x", (d) => { return d.x + this.blockWidth / 2})
+    .attr("y", (d) => { return d.y + this.blockHeight / 2})
+    .text(function(d) { return d.id.substring(0,4); });
+
+    this.block = this.gBlocks.selectAll('rect');
+  }
+
+  drawGraph() {
+    // Setting svg width depending on the window size
+    this.width = Math.min(960, this.refs.dagWrapper.offsetWidth);
+
+    // Create svg and auxiliar g elements
+    this.svg = select('svg')
+      .attr('width', this.width)
+      .attr('height', this.height);
+
+    this.gMain = this.svg.append('g')
+      .classed('g-main', true);
+
+    this.gMain.append('rect')
+      .attr('width', this.width)
+      .attr('height', this.height)
+      .style('fill', 'white');
+
+    this.gDraw = this.gMain.append('g');
+
+    this.gLinks = this.gDraw.append('g');
+    this.gTxs = this.gDraw.append('g');
+    this.gBlocks = this.gDraw.append('g');
+
+    // Adding zoom handler
+    this.zoomCall = zoom()
+      .on('zoom', this.zoomed)
+
+    this.gMain.call(this.zoomCall);
+
+    // Handle initial data translating in the end to last X
+    let maxX = 0;
+
+    for(let tx of this.props.txs) {
+      let newX = this.newData(tx, false, true);
+      maxX = Math.max(maxX, newX);
+    }
+
+    for(let block of this.props.blocks) {
+      let newX = this.newData(block, true, true);
+      maxX = Math.max(maxX, newX);
+    }
+
+    this.translateGraph(maxX);
+  }
+
+  fade(opacity) {
+    // On mouseover in an element we fade the ones that are not connected
+    return d => {
+      if (this.tx) {
+        this.tx.style('stroke-opacity', function (o) {
+          const thisOpacity = (d.links.indexOf(o.id) > -1 || d.id === o.id) ? 1 : opacity;
+          this.setAttribute('fill-opacity', thisOpacity);
+          return thisOpacity;
+        });
+      }
+
+      if (this.block) {
+        this.block.style('stroke-opacity', function (o) {
+          const thisOpacity = (d.links.indexOf(o.id) > -1 || d.id === o.id) ? 1 : opacity;
+          this.setAttribute('fill-opacity', thisOpacity);
+          return thisOpacity;
+        });
+      }
+
+      if (this.link) {
+        let linkOpacity = opacity === 1 ? 1 : 0;
+        this.link.style('stroke-opacity', o => {return ((o.source.id === d.id) || (o.target.id === d.id) ? 1 : linkOpacity)});
+      }
+    };
+  }
+
+  zoomed() {
+    // TODO
+    // I am blocking zoom in right now because I was having a bug to auto translate when zoomed in
+    if (event.transform.k > 1) {
+      event.transform.x = this.lastZoomX;
+      event.transform.y = this.lastZoomY;
+      event.transform.k = this.lastZoomScale;
+      return;
+    }
+    this.gDraw.attr('transform', event.transform);
+    // Save current zoom for later use
+    this.lastZoomX = event.transform.x;
+    this.lastZoomY = event.transform.y;
+    this.lastZoomScale = event.transform.k;
+    // We need to update the __zoom property so we can combine the mouse zoom with the automatic transition
+    this.gMain.node().__zoom = event.transform;
+  }
+
+  createTooltip(data) {
+    // Create tooltip on mouse over in a block or tx to show their info
+    this.tooltip.transition()
+      .duration(300)
+      .style("opacity", 1);
+    this.tooltip.html("<strong>Hash:</strong>" + data.id + "<br/><strong>Timestamp: </strong>" + data.timestamp)
+      .style("left", (event.pageX) + "px")
+      .style("top", (event.pageY + 10) + "px");
+  }
+
+  removeTooltip() {
+    // Remove tooltip when mouse out in a block or tx
+    this.tooltip.transition()
+      .duration(100)
+      .style("opacity", 0);
+  }
+
+  moveTooltip() {
+    // Move tooltip when mouse move in a block or tx
+    this.tooltip.style("left", (event.pageX) + "px")
+      .style("top", (event.pageY + 10) + "px");
   }
 
   render() {
     return (
-      <div>
-        <svg className="svg-wrapper mt-5" ref={node => this.node = node}>
-        </svg>
-        <div id="tx-info"></div>
+      <div ref="dagWrapper" className="dagWrapper">
+        <svg id="graph" />
+        <div className="tooltip"></div>
       </div>
-    )
+    );
   }
 }
 

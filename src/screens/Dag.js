@@ -82,7 +82,7 @@ class Dag extends React.Component {
       _blocks.sort((a, b) => {return a.timestamp - b.timestamp})
       if (this.state.txs) {
         const [blocks, txs] = this.filterArrays(_blocks, this.state.txs);
-        this.setState({ blocks , txs});
+        this.setState({ blocks, txs });
         WebSocketHandler.on('network', this.handleWebsocket);
       } else {
         this.setState({ blocks: _blocks });
@@ -99,7 +99,7 @@ class Dag extends React.Component {
       _txs.sort((a, b) => {return a.timestamp - b.timestamp})
       if (this.state.blocks) {
         const [blocks, txs] = this.filterArrays(this.state.blocks, _txs);
-        this.setState({ blocks , txs});
+        this.setState({ blocks, txs });
         WebSocketHandler.on('network', this.handleWebsocket);
       } else {
         this.setState({ txs: _txs });
@@ -127,6 +127,7 @@ class Dag extends React.Component {
         } else {
           txs = [...this.state.txs, wsData];
         }
+        this.dag.newData(wsData, wsData.is_block, false);
         const [newBlocks, newTxs] = this.filterArrays(blocks, txs);
         this.setState({
           blocks: newBlocks,
@@ -138,23 +139,15 @@ class Dag extends React.Component {
 
   handlePause = (e) => {
     if (this.state.isPaused) {
-      if (this.pausedBlocks.length === 0
-        && this.pausedTxs.length === 0) {
-        this.setState({isPaused: false});
-        return;
+      for (let tx of this.pausedTxs) {
+        this.dag.newData(tx, false, false);
       }
-      let blocks = this.state.blocks;
-      let txs = this.state.txs;
-      blocks = [...this.state.blocks, ...this.pausedBlocks];
-      txs = [...this.state.txs, ...this.pausedTxs];
+      for (let block of this.pausedBlocks) {
+        this.dag.newData(block, true, false);
+      }
+      this.setState({isPaused: false});
       this.pausedBlocks = [];
       this.pausedTxs = [];
-      const [newBlocks, newTxs] = this.filterArrays(blocks, txs);
-      this.setState({
-        blocks: newBlocks,
-        txs: newTxs,
-        isPaused: false,
-      });
     } else {
       this.setState({isPaused: true});
     }
@@ -182,19 +175,21 @@ class Dag extends React.Component {
 
   render() {
     return (
-      <div className="flex align-items-center content-wrapper dag-visualizer">
+      <div className="d-flex align-items-start flex-column content-wrapper dag-visualizer">
         <button className="btn btn-secondary mr-5" onClick={this.handlePause} >
           {this.state.isPaused ? 'Play' : 'Pause'}
         </button>
-        <label htmlFor="timeframe" className="ml-5 mr-3">Timeframe (in seconds):</label>
-        <input type="number" id="timeframe" name="timeframe" min="0" 
-               value={this.state.inputTimeframe} onChange={this.handleTimeframeChange}
-        />
-        <button className="btn btn-secondary ml-3" onClick={this.handleReset}>
-          Reset
-        </button>
+        <div className="d-flex align-items-center mt-3">
+          <label htmlFor="timeframe" className="mr-3">Timeframe (in seconds):</label>
+          <input type="number" id="timeframe" name="timeframe" min="0" 
+                 value={this.state.inputTimeframe} onChange={this.handleTimeframeChange}
+          />
+          <button className="btn btn-secondary ml-3" onClick={this.handleReset}>
+            Reset
+          </button>
+        </div>
         {(this.state.blocks && this.state.txs) 
-          && <DagComponent blocks={this.state.blocks} txs={this.state.txs} timeframe={this.timeframe} />}
+          && <DagComponent ref={node => this.dag = node} blocks={this.state.blocks} txs={this.state.txs} timeframe={this.timeframe} />}
       </div>
     );
   }
