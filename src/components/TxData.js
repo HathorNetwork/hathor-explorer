@@ -72,21 +72,33 @@ class TxData extends React.Component {
       });
     }
 
-    const renderConflicts = () => {
-      const renderListWithLinks = (hashes) => {
-        if (hashes.length === 0) {
-          return;
-        }
-        if (hashes.length === 1) {
-          const h = hashes[0];
-          return <a className="text-dark" target="_blank" href={`/transaction/${h}`}>{h}</a>;
-        }
-        const v = hashes.map((h) => <li key={h}><a className="text-dark" target="_blank" href={`/transaction/${h}`}>{h}</a></li>)
-        return (<ul>
-          {v}
-        </ul>)
+    const renderListWithLinks = (hashes) => {
+      if (hashes.length === 0) {
+        return;
       }
+      if (hashes.length === 1) {
+        const h = hashes[0];
+        return <a className="text-dark" target="_blank" href={`/transaction/${h}`}>{h}</a>;
+      }
+      const v = hashes.map((h) => <li key={h}><a className="text-dark" target="_blank" href={`/transaction/${h}`}>{h}</a></li>)
+      return (<ul>
+        {v}
+      </ul>)
+    }
 
+    const renderTwins = () => {
+      if (!this.props.transaction.twins) {
+        return;
+      } else {
+        return <p>This transaction has twin transaction{this.props.transaction.twins.length > 1 ? 's' : ''}: {renderListWithLinks(this.props.transaction.twins)}</p>
+      }
+    }
+
+    const renderConflicts = () => {
+      let twins = this.props.transaction.twins ? this.props.transaction.twins : [];
+      let conflictNotTwin = this.props.transaction.conflict_with ?
+                            this.props.transaction.conflict_with.filter(hash => twins.indexOf(hash) < 0) :
+                            []
       if (!this.props.transaction.voided_by) {
         if (!this.props.transaction.conflict_with) {
           // there are conflicts, but it is not voided
@@ -106,10 +118,12 @@ class TxData extends React.Component {
                 Although there is a double-spending transaction, this transaction has the highest accumulated weight and is valid.
               </p>
               <hr />
-              <p className="mb-0">
-                <span>Transactions double spending the same outputs as this transaction: </span>
-                {renderListWithLinks(this.props.transaction.conflict_with)}
-              </p>
+              {conflictNotTwin.length > 0 &&
+                <p className="mb-0">
+                  <span>Transactions double spending the same outputs as this transaction: </span>
+                  {renderListWithLinks(conflictNotTwin)}
+                </p>}
+              {renderTwins()}
             </div>
           );
         }
@@ -141,10 +155,12 @@ class TxData extends React.Component {
             {renderListWithLinks(this.props.transaction.voided_by)}
           </p>
           <hr />
-          <p className="mb-0">
-            <span>Conflict with: </span>
-            {renderListWithLinks(this.props.transaction.conflict_with)}
-          </p>
+          {conflictNotTwin.length > 0 &&
+            <p className="mb-0">
+              <span>Conflicts with: </span>
+              {renderListWithLinks(conflictNotTwin)}
+            </p>}
+          {renderTwins()}
         </div>
       )
     }
