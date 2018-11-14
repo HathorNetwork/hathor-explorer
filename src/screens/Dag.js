@@ -31,6 +31,7 @@ class Dag extends React.Component {
       txs: null,            // array of txs to show on graph
       isPaused: false,      // whether we should update the graph on realtime
       inputTimeframe: 60,   // the time window to display
+      throttled: false, // if tx/block messages are being throttled because it reached the flow limit
     }
 
     // blocks received while visualization is paused
@@ -134,6 +135,8 @@ class Dag extends React.Component {
           txs: newTxs,
         });
       }
+
+      this.setState({ throttled: wsData.throttled });
     }
   }
 
@@ -188,6 +191,7 @@ class Dag extends React.Component {
             Reset
           </button>
         </div>
+        {this.state.throttled && <div className="mt-3 text-warning">The graph is not 100% correct because it has reached the flow limit, so we are showing only a limited amount of transactions and blocks</div>}
         {(this.state.blocks && this.state.txs) 
           && <DagComponent ref={node => this.dag = node} blocks={this.state.blocks} txs={this.state.txs} timeframe={this.timeframe} />}
       </div>

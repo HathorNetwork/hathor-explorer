@@ -7,6 +7,8 @@ import { zoom, zoomIdentity } from 'd3-zoom';
 // Timestamp of blocks should go together with tx?
 // (A block and a tx with the same timestamp should appear in the same vertical line?)
 // Blocks are now in one horizontal line only, we are not considering block fork
+// When we have a better control of timestamp in the graph we should change
+// the throttle background to cover a timestamp region and not a tx/block
 
 
 class DagComponent extends React.Component {
@@ -52,6 +54,9 @@ class DagComponent extends React.Component {
     this.lastZoomY = 0;
     this.lastZoomScale = 1;
 
+    // Throttle background
+    this.throttleBackground = {'size': 2*this.txRadius + this.txMargin, 'color': '#eee'};
+
     this.newTxs = this.newTxs.bind(this);
     this.newBlocks = this.newBlocks.bind(this);
     this.newLinks = this.newLinks.bind(this);
@@ -62,6 +67,7 @@ class DagComponent extends React.Component {
     this.createTooltip = this.createTooltip.bind(this);
     this.removeTooltip = this.removeTooltip.bind(this);
     this.moveTooltip = this.moveTooltip.bind(this);
+    this.addThrottleBackground = this.addThrottleBackground.bind(this);
   }
 
   componentDidMount() {
@@ -179,6 +185,10 @@ class DagComponent extends React.Component {
       // Translate graph if new element is added in a place that is not appearing
       // In the case of first draw we translate only after adding all elements
       this.translateGraph(x);
+    }
+
+    if (data.throttled) {
+      this.addThrottleBackground([this.graph[data.hash]]);
     }
     return x;
   }
@@ -307,6 +317,20 @@ class DagComponent extends React.Component {
     this.block = this.gBlocks.selectAll('rect');
   }
 
+  addThrottleBackground(data) {
+    this.gThrottleBg
+      .selectAll()
+      .data(data)
+      .enter().append("g")
+      .attr("class", "throttle-bg") 
+      .append("rect")
+      .attr("fill", this.throttleBackground.color)
+      .attr("width", this.throttleBackground.size)
+      .attr("height", this.throttleBackground.size)
+      .attr("x", (d) => {return d.x - this.throttleBackground.size / 2})
+      .attr("y", (d) => {return d.y - this.throttleBackground.size / 2})
+  }
+
   drawGraph() {
     // Setting svg width depending on the window size
     this.width = Math.min(960, this.refs.dagWrapper.offsetWidth);
@@ -326,6 +350,7 @@ class DagComponent extends React.Component {
 
     this.gDraw = this.gMain.append('g');
 
+    this.gThrottleBg = this.gDraw.append('g');
     this.gLinks = this.gDraw.append('g');
     this.gTxs = this.gDraw.append('g');
     this.gBlocks = this.gDraw.append('g');
