@@ -40,6 +40,15 @@ html, body, #root {
   color: $darkBlue;
 }
 
+.version-wrapper {
+  padding-left: 1rem;
+}
+
+.version-wrapper span {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+}
+
 .tab-content-wrapper {
   padding: 2rem;
 }
@@ -109,7 +118,7 @@ div.new-address-wrapper canvas {
 }
 
 .main-nav > nav .navbar-brand > img {
-  height: 40px;
+  height: 38px;
   width: auto;
 }
 

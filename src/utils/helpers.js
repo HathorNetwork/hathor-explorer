@@ -1,5 +1,5 @@
 import walletApi from '../api/wallet';
-import { GENESIS_BLOCK, GENESIS_TX, DECIMAL_PLACES } from '../constants';
+import { GENESIS_BLOCK, GENESIS_TX, DECIMAL_PLACES, MIN_API_VERSION } from '../constants';
 
 const helpers = {
   checkWalletLock(unlock, lock, setType) {
@@ -46,6 +46,33 @@ const helpers = {
 
   prettyValue(value) {
     return (value/10**DECIMAL_PLACES).toFixed(DECIMAL_PLACES);
+  },
+
+  isVersionAllowed(version) {
+    // Verifies if the version in parameter is allowed to make requests to the API backend
+    // We check with our min api version
+    if (version.includes('beta') !== MIN_API_VERSION.includes('beta')) {
+      // If one version is beta and the other is not, it's not allowed to use it
+      return false;
+    }
+
+    // Clean the version string to have an array of integers
+    // Check for each value if the version is allowed
+    let versionTestArr = this.getCleanVersionArray(version);
+    let minVersionArr = this.getCleanVersionArray(MIN_API_VERSION);
+    for (let i=0; i<minVersionArr.length; i++) {
+      if (minVersionArr[i] > versionTestArr[i]) {
+        return false;
+      } else if (minVersionArr[i] < versionTestArr[i]) {
+        return true;
+      }
+    }
+
+    return true;
+  },
+
+  getCleanVersionArray(version) {
+    return version.replace(/[^\d.]/g, '').split('.');
   }
 }
 

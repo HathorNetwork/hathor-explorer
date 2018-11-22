@@ -12,21 +12,37 @@ import TransactionList from './screens/TransactionList';
 import BlockList from './screens/BlockList';
 import Dag from './screens/Dag';
 import Dashboard from './screens/Dashboard';
+import VersionError from './screens/VersionError';
 import WebSocketHandler from './WebSocketHandler';
-import { dashboardUpdate } from "./actions/index";
+import { dashboardUpdate, isVersionAllowedUpdate } from "./actions/index";
 import { connect } from "react-redux";
+import versionApi from './api/version';
+import helpers from './utils/helpers';
 
 
 const mapDispatchToProps = dispatch => {
   return {
-    dashboardUpdate: data => dispatch(dashboardUpdate(data))
+    dashboardUpdate: data => dispatch(dashboardUpdate(data)),
+    isVersionAllowedUpdate: data => dispatch(isVersionAllowedUpdate(data)),
   };
+};
+
+
+const mapStateToProps = (state) => {
+  return { isVersionAllowed: state.isVersionAllowed };
 };
 
 
 class Root extends React.Component {
   componentDidMount() {
     WebSocketHandler.on('dashboard', this.handleWebsocket);
+
+    versionApi.getVersion().then((data) => {
+      this.props.isVersionAllowedUpdate({allowed: helpers.isVersionAllowed(data.version)});
+    }, (e) => {
+      // Error in request
+      console.log(e);
+    });
   }
 
   componentWillUnmount() {
@@ -44,23 +60,30 @@ class Root extends React.Component {
   }
 
   render() {
-    return (
-    <Router>
-      <Switch>
-        <NavigationRoute exact path="/wallet/send_tokens" component={SendTokens} />
-        <NavigationRoute exact path="/wallet" component={Wallet} />
-        <NavigationRoute exact path="/transaction/:id" component={TransactionDetail} />
-        <NavigationRoute exact path="/push-tx" component={PushTx} />
-        <NavigationRoute exact path="/decode-tx" component={DecodeTx} />
-        <NavigationRoute exact path="/dashboard-tx" component={DashboardTx} />
-        <NavigationRoute exact path="/transactions" component={TransactionList} />
-        <NavigationRoute exact path="/blocks" component={BlockList} />
-        <NavigationRoute exact path="/dag" component={Dag} />
-        <NavigationRoute exact path="/network" component={PeerAdmin} />
-        <NavigationRoute exact path="" component={Dashboard} />
-      </Switch>
-    </Router>
-    )
+    if (this.props.isVersionAllowed === undefined) {
+      // Waiting for version
+      return null;
+    } else if (!this.props.isVersionAllowed) {
+      return <VersionError />;
+    } else {
+      return (
+      <Router>
+        <Switch>
+          <NavigationRoute exact path="/wallet/send_tokens" component={SendTokens} />
+          <NavigationRoute exact path="/wallet" component={Wallet} />
+          <NavigationRoute exact path="/transaction/:id" component={TransactionDetail} />
+          <NavigationRoute exact path="/push-tx" component={PushTx} />
+          <NavigationRoute exact path="/decode-tx" component={DecodeTx} />
+          <NavigationRoute exact path="/dashboard-tx" component={DashboardTx} />
+          <NavigationRoute exact path="/transactions" component={TransactionList} />
+          <NavigationRoute exact path="/blocks" component={BlockList} />
+          <NavigationRoute exact path="/dag" component={Dag} />
+          <NavigationRoute exact path="/network" component={PeerAdmin} />
+          <NavigationRoute exact path="" component={Dashboard} />
+        </Switch>
+      </Router>
+      )
+    }
   }
 }
 
@@ -70,4 +93,4 @@ const NavigationRoute = ({ component: Component, ...rest }) => (
   )} />
 )
 
-export default connect(null, mapDispatchToProps)(Root);
+export default connect(mapStateToProps, mapDispatchToProps)(Root);
