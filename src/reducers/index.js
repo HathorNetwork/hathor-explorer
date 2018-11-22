@@ -14,10 +14,12 @@ import { DASHBOARD_CHART_TIME } from '../constants';
   'time': float (timestamp), 
   'type': 'dashboard:metrics',
   }
+  'isVersionAllowed': if the backend API version is allowed for this admin (boolean)
 */
 
 const initialState = {
-  data: []
+  data: [],
+  isVersionAllowed: undefined,
 };
 
 const rootReducer = (state = initialState, action) => {
@@ -43,6 +45,8 @@ const rootReducer = (state = initialState, action) => {
         }
       }
       return Object.assign({}, state, {data: data});
+    case 'is_version_allowed_update':
+      return Object.assign({}, state, {isVersionAllowed: action.payload.allowed});
     default:
       return state;
   }
