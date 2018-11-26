@@ -4,6 +4,7 @@ import $ from 'jquery';
 import helpers from '../utils/helpers';
 import dateFormatter from '../utils/date';
 import WalletUnlock from '../components/WalletUnlock';
+import ReactLoading from 'react-loading';
 import { DECIMAL_PLACES } from '../constants';
 
 
@@ -17,6 +18,7 @@ class SendTokens extends React.Component {
       errorMessage: '',
       outputCount: 1,
       inputCount: 1,
+      loading: false,
     }
 
     this.send = this.send.bind(this);
@@ -101,18 +103,19 @@ class SendTokens extends React.Component {
   }
 
   send() {
-    this.setState({ errorMessage: '' });
     let data = this.getData();
     if (data) {
+      this.setState({ errorMessage: '', loading: true });
       walletApi.sendTokens(this.getData()).then((response) => {
         if (response.success) {
           this.props.history.push('/wallet');
         } else {
-          this.setState({ errorMessage: response.message });
+          this.setState({ errorMessage: response.message, loading: false });
         }
       }, (e) => {
         // Error in request
         console.log(e);
+        this.setState({ loading: false });
       });
     }
   }
@@ -200,10 +203,20 @@ class SendTokens extends React.Component {
       );
     }
 
+    const isLoading = () => {
+      return (
+        <div className="d-flex flex-row">
+          <p className="mr-3">Please, wait while we solve the proof of work and propagate the transaction</p>
+          <ReactLoading type='spin' color='#0081af' width={24} height={24} delay={200} />
+        </div>
+      )
+    }
+
     return (
       <div className="content-wrapper flex align-items-center">
         {this.state.locked === true ? <WalletUnlock walletType={this.state.walletType} unlock={this.unlock}/> : null}
         {this.state.locked === false ? renderUnlockedPage() : null}
+        {this.state.loading ? isLoading() : null}
       </div>
     );
   }
