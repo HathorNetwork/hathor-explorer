@@ -2,6 +2,7 @@ import React from 'react';
 import walletApi from '../api/wallet';
 import $ from 'jquery';
 import helpers from '../utils/helpers';
+import dateFormatter from '../utils/date';
 import WalletUnlock from '../components/WalletUnlock';
 import { DECIMAL_PLACES } from '../constants';
 
@@ -13,11 +14,14 @@ class SendTokens extends React.Component {
     this.state = {
       locked: null,
       walletType: '',
-      errorMessage: ''
+      errorMessage: '',
+      outputCount: 1,
+      inputCount: 1,
     }
 
     this.send = this.send.bind(this);
     this.moreOutput = this.moreOutput.bind(this);
+    this.moreInput = this.moreInput.bind(this);
     this.unlock = this.unlock.bind(this);
     this.lock = this.lock.bind(this);
     this.setType = this.setType.bind(this);
@@ -40,35 +44,45 @@ class SendTokens extends React.Component {
   }
 
   moreOutput() {
-    const htmlOutput = `
-      <div class="input-group mb-3">
-        <input type="text" placeholder="Address" class="form-control output-address col-4" />
-        <input type="number" step="${helpers.prettyValue(1)}" placeholder="${helpers.prettyValue(0)}" class="form-control output-value col-4" />
-      </div>
-    `
-    $('.outputs-wrapper').append($(htmlOutput));
+    let newCount = this.state.outputCount + 1;
+    this.setState({ outputCount: newCount });
   }
 
   moreInput() {
-    const htmlInput = `
-      <div class="input-group mb-3">
-          <input type="text" placeholder="Tx id" class="form-control input-id col-4" />
-          <input type="text" placeholder="Index" class="form-control input-index col-4" />
-      </div>
-    `
-    $('.inputs-wrapper').append($(htmlInput));
+    let newCount = this.state.inputCount + 1;
+    this.setState({ inputCount: newCount });
   }
 
-  getData() {
+  getData = () => {
     let data = {'outputs': [], 'inputs': []};
+    let _this = this;
+    let error = false;
     $('.outputs-wrapper .input-group').each(function(index) {
       let address = $(this).find('.output-address').val();
       let value = $(this).find('.output-value').val();
 
       if (address && value) {
-        data['outputs'].push({'address': address, 'value': parseInt(value*(10**DECIMAL_PLACES), 10)});
+        var dataOutput = {'address': address, 'value': parseInt(value*(10**DECIMAL_PLACES), 10)};
+
+        let hasTimelock = $(this).find('.has-timelock').prop('checked');
+        if (hasTimelock) {
+          let timelock = $(this).find('.output-timelock').val()
+          if (!timelock) {
+            _this.setState({ errorMessage: 'You need to fill a complete date and time' });
+            error = true
+            return;
+          }
+          let timestamp = dateFormatter.dateToTimestamp(new Date(timelock));
+          dataOutput['timelock'] = timestamp;
+        }
+
+        data['outputs'].push(dataOutput);
       }
     });
+
+    if (error) {
+      return null;
+    }
 
     const noInputs = this.refs.noInputs.checked;
 
@@ -88,16 +102,19 @@ class SendTokens extends React.Component {
 
   send() {
     this.setState({ errorMessage: '' });
-    walletApi.sendTokens(this.getData()).then((response) => {
-      if (response.success) {
-        this.props.history.push('/wallet');
-      } else {
-        this.setState({ errorMessage: response.message });
-      }
-    }, (e) => {
-      // Error in request
-      console.log(e);
-    });
+    let data = this.getData();
+    if (data) {
+      walletApi.sendTokens(this.getData()).then((response) => {
+        if (response.success) {
+          this.props.history.push('/wallet');
+        } else {
+          this.setState({ errorMessage: response.message });
+        }
+      }, (e) => {
+        // Error in request
+        console.log(e);
+      });
+    }
   }
 
   handleCheckboxChange(e) {
@@ -109,18 +126,62 @@ class SendTokens extends React.Component {
     }
   }
 
+  handleCheckboxTimelockChange(e) {
+    const value = e.target.checked;
+    if (value) {
+      $(e.target).parent().next().show(400);
+    } else {
+      $(e.target).parent().next().hide(400);
+    }
+  }
+
+  onDateChange = (date) => {
+    this.setState({ date });
+  }
+
   render() {
+    const renderOutputs = () => {
+      let outputs = [];
+      for (let i=0; i<this.state.outputCount; i++) {
+        outputs.push(
+          <div className="input-group mb-3" key={i}>
+            <input type="text" placeholder="Address" className="form-control output-address col-4" />
+            <input type="number" step={helpers.prettyValue(1)} placeholder={helpers.prettyValue(0)} className="form-control output-value col-2" />
+            <div className="form-check mr-3 d-flex flex-column justify-content-center">
+              <input className="form-check-input mt-0 has-timelock" type="checkbox" onChange={this.handleCheckboxTimelockChange}/>
+              <label className="form-check-label">
+                Time lock
+              </label>
+            </div>
+            <input type="datetime-local" placeholder="Date and time in GMT" step="1" className="form-control output-timelock col-3" style={{display: 'none'}}/>
+            {i === 0 ? <button type="button" className="btn btn-primary" onClick={this.moreOutput}>+</button> : null}
+          </div>
+        )
+      }
+      return outputs;
+    }
+
+    const renderInputs = () => {
+      let inputs = [];
+      for (let i=0; i<this.state.inputCount; i++) {
+        inputs.push(
+          <div className="input-group mb-3" key={i}>
+            <input type="text" placeholder="Tx id" className="form-control input-id col-4" />
+            <input type="text" placeholder="Index" className="form-control input-index col-4" />
+            {i === 0 ? <button type="button" className="btn btn-primary" onClick={this.moreInput}>+</button> : null}
+          </div>
+        )
+      }
+      return inputs;
+    }
+
     const renderUnlockedPage = () => {
       return (
         <div>
           <form id="formSendTokens">
             <div className="outputs-wrapper">
               <label>Outputs</label>
-              <div className="input-group mb-3">
-                <input type="text" placeholder="Address" className="form-control output-address col-4" />
-                <input type="number" step={helpers.prettyValue(1)} placeholder={helpers.prettyValue(0)} class="form-control output-value col-4" />
-                <button type="button" className="btn btn-primary" onClick={this.moreOutput}>+</button>
-              </div>
+              {renderOutputs()}
             </div>
             <div className="form-check checkbox-wrapper">
               <input className="form-check-input" type="checkbox" defaultChecked="true" ref="noInputs" id="noInputs" onChange={this.handleCheckboxChange} />
@@ -130,11 +191,7 @@ class SendTokens extends React.Component {
             </div>
             <div className="inputs-wrapper" style={{display: 'none'}}>
               <label htmlFor="inputs">Inputs</label>
-              <div className="input-group mb-3">
-                <input type="text" placeholder="Tx id" className="form-control input-id col-4" />
-                <input type="text" placeholder="Index" className="form-control input-index col-4" />
-                <button type="button" className="btn btn-primary" onClick={this.moreInput}>+</button>
-              </div>
+              {renderInputs()}
             </div>
             <button type="button" className="btn btn-primary" onClick={this.send}>Send Tokens</button>
           </form>

@@ -21,6 +21,10 @@ const dateFormatter = {
     const uptime_str = days + ' days, ' + pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
     return uptime_str;
   },
+
+  dateToTimestamp(date) {
+    return Math.floor(date.getTime() / 1000);
+  }
 };
 
 

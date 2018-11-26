@@ -58,10 +58,19 @@ class TxData extends React.Component {
     const renderDecodedScript = (decoded) => {
       switch (decoded.type) {
         case 'P2PKH':
-          return `${decoded.address} [P2PKH]`;
+          return renderP2PKH(decoded);
         default:
           return 'Unable to decode';
       }
+    }
+
+    const renderP2PKH = (decoded) => {
+      var ret = decoded.address;
+      if (decoded.timelock) {
+        ret = `${ret} | Locked until ${dateFormatter.parseTimestamp(decoded.timelock)}`
+      }
+      ret = `${ret} [P2PKH]`;
+      return ret;
     }
 
     const renderParents = (parents) => {
