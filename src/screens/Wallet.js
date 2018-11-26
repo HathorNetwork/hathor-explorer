@@ -78,6 +78,12 @@ class Wallet extends React.Component {
     }
   }
 
+  historyUpdated = () => {
+    if (this.historyNode) {
+      this.historyNode.getHistoryData();
+    }
+  }
+
   showWarning = (message) => {
     this.setState({ warning: message })
     this.refs.alertWarning.show(5000);
@@ -104,6 +110,8 @@ class Wallet extends React.Component {
       this.backupKeysWarning(wsData.keys_count);
     } else if (wsData.type === 'wallet:gap_limit') {
       this.gapLimitWarning();
+    } else if (wsData.type === 'wallet:history_updated') {
+      this.historyUpdated();
     }
   }
 
