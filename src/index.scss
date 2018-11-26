@@ -144,7 +144,7 @@ i.pointer {
   border: none;
 }
 
-#wallet-history .spent-tx {
+#wallet-history .spent-tx, #wallet-history .voided {
   text-decoration: line-through;
 }
 

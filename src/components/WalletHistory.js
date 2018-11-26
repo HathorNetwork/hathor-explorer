@@ -125,23 +125,25 @@ class WalletHistory extends React.Component {
         return (
           <tr key={`${tx.tx_id}${tx.index}${tx.from_tx_id}${tx.from_index}`}>
             <td>
-              <a target="_blank" href={`/transaction/${tx.from_tx_id ? tx.from_tx_id : tx.tx_id}`}>{tx.from_tx_id ? tx.from_tx_id.substring(0,32) : tx.tx_id.substring(0,32)}...</a>
+              <a className={tx.voided && !tx.from_tx_id ? 'voided' : ''} target="_blank" href={`/transaction/${tx.from_tx_id ? tx.from_tx_id : tx.tx_id}`}>{tx.from_tx_id ? tx.from_tx_id.substring(0,32) : tx.tx_id.substring(0,32)}...</a>
               <CopyToClipboard text={tx.from_tx_id ? tx.from_tx_id : tx.tx_id} onCopy={this.copied}>
                 <i className="fa fa-clone pointer ml-1" title="Copy to clipboard"></i>
               </CopyToClipboard>
             </td>
             <td>{dateFormatter.parseTimestamp(tx.timestamp)}</td>
             <td>{tx.index}{tx.from_index}</td>
-            <td className={tx.from_tx_id ? "spent-tx" : ""}>{helpers.prettyValue(tx.value)}</td>
+            <td className={tx.from_tx_id && !tx.voided ? "spent-tx" : ""}>{helpers.prettyValue(tx.value)}</td>
             <td>
               {tx.from_tx_id ?
                 <div>
-                  <a href={`/transaction/${tx.tx_id}`} target="_blank">Spent</a> 
+                  <a className={tx.voided ? 'voided' : ''} href={`/transaction/${tx.tx_id}`} target="_blank">
+                    Spent {tx.voided ? '(Voided)' : ''}
+                  </a> 
                   <CopyToClipboard text={tx.tx_id} onCopy={this.copied}>
                     <i className="fa fa-clone pointer ml-1" title="Copy hash to clipboard"></i>
                   </CopyToClipboard>
                 </div>
-              : ''}
+              : (tx.voided ? 'Voided' : '')}
             </td>
           </tr>
         );
