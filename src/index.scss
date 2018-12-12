@@ -18,6 +18,18 @@ html, body, #root {
   -webkit-margin-bottom-collapse: separate;
 }
 
+.d-flex-1 {
+  flex-grow: 1;
+}
+
+.d-flex-2 {
+  flex-grow: 2;
+}
+
+.d-flex-3 {
+  flex-grow: 3;
+}
+
 .main-nav {
   background-color: $darkBlue;
 }
@@ -38,6 +50,14 @@ html, body, #root {
 
 .nav-tabs a, .nav-tabs a:hover {
   color: $darkBlue;
+}
+
+.dropdown-menu a.nav-link {
+  color: #212529 !important;
+}
+
+#navbarDropdown {
+  cursor: pointer;
 }
 
 .version-wrapper {
@@ -99,7 +119,7 @@ div.new-address-wrapper canvas {
   cursor: pointer;
 }
 
-#formSendTokens .outputs-wrapper input, #formSendTokens .inputs-wrapper input {
+#formSendTokens .outputs-wrapper input, #formSendTokens .inputs-wrapper input, #formSendTokens .wrapper input {
   margin-right: 1rem;
 }
 

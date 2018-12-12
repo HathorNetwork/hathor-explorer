@@ -60,6 +60,8 @@ class TxData extends React.Component {
         case 'P2PKH':
         case 'MultiSig':
           return renderP2PKHorMultiSig(decoded);
+        case 'NanoContractMatchValues':
+          return renderNanoContractMatchValues(decoded);
         default:
           return 'Unable to decode';
       }
@@ -71,6 +73,11 @@ class TxData extends React.Component {
         ret = `${ret} | Locked until ${dateFormatter.parseTimestamp(decoded.timelock)}`
       }
       ret = `${ret} [${decoded.type}]`;
+      return ret;
+    }
+
+    const renderNanoContractMatchValues = (decoded) => {
+      const ret = `Match values (nano contract), oracle id: ${decoded.oracle_data_id} hash: ${decoded.oracle_pubkey_hash}`;
       return ret;
     }
 
