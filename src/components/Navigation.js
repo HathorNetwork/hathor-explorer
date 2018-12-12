@@ -61,16 +61,18 @@ class Navigation extends React.Component {
                 <NavLink to="/wallet/" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Wallet</NavLink>
               </li>
               <li className="nav-item">
-                <NavLink to="/decode-tx/" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Decode Tx</NavLink>
+                <NavLink to="/wallet/nano-contracts" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Nano Contracts</NavLink>
               </li>
-              <li className="nav-item">
-                <NavLink to="/push-tx/" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Push Tx</NavLink>
-              </li>
-              <li className="nav-item">
-                <NavLink to="/dag/" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>DAG</NavLink>
-              </li>
-              <li className="nav-item">
-                <Link to={`${BASE_URL}graphviz/`} target="_blank" className="nav-link">Graph</Link>
+              <li className="nav-item dropdown">
+                <a className="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Tools
+                </a>
+                <div className="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <NavLink to="/decode-tx/" exact className="nav-link">Decode Tx</NavLink>
+                  <NavLink to="/push-tx/" exact className="nav-link">Push Tx</NavLink>
+                  <NavLink to="/dag/" exact className="nav-link">DAG</NavLink>
+                  <Link to={`${BASE_URL}graphviz/`} target="_blank" className="nav-link">Graph</Link>
+                </div>
               </li>
             </ul>
             <div className="navbar-right d-flex flex-row align-items-center navigation-search">

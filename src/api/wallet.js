@@ -71,6 +71,48 @@ const walletApi = {
       throw new Error(res.data.message);
     });
   },
+
+  createNanoContract(data) {
+    return requestClient.post('wallet/nano-contract/match-value', data).then((res) => {
+      return res.data
+    }, (res) => {
+      throw new Error(res.data.message);
+    });
+  },
+
+  updateNanoContract(data) {
+    return requestClient.put('wallet/nano-contract/match-value', data).then((res) => {
+      return res.data
+    }, (res) => {
+      throw new Error(res.data.message);
+    });
+  },
+
+  decodeNanoContract(hex_tx) {
+    const data = {hex_tx}
+    return requestClient.get('wallet/nano-contract/decode', {params: data}).then((res) => {
+      return res.data
+    }, (res) => {
+      throw new Error(res.data.message);
+    });
+  },
+
+  executeNanoContract(data) {
+    return requestClient.post('wallet/nano-contract/execute', data).then((res) => {
+      return res.data
+    }, (res) => {
+      throw new Error(res.data.message);
+    });
+  },
+
+  signTx(data) {
+    return requestClient.get('wallet/sign_tx', {params: data}).then((res) => {
+      return res.data
+    }, (res) => {
+      throw new Error(res.data.message);
+    });
+  },
+
 };
 
 export default walletApi;
