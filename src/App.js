@@ -2,8 +2,6 @@ import React from 'react';
 import { Switch, BrowserRouter as Router, Route } from 'react-router-dom';
 import PeerAdmin from './screens/PeerAdmin';
 import DashboardTx from './screens/DashboardTx';
-import Wallet from './screens/Wallet';
-import SendTokens from './screens/SendTokens';
 import Navigation from './components/Navigation';
 import TransactionDetail from './screens/TransactionDetail';
 import DecodeTx from './screens/DecodeTx';
@@ -14,9 +12,6 @@ import Dag from './screens/Dag';
 import Dashboard from './screens/Dashboard';
 import VersionError from './screens/VersionError';
 import WebSocketHandler from './WebSocketHandler';
-import NanoContractsCreate from './screens/NanoContractsCreate';
-import NanoContractsDecode from './screens/NanoContractsDecode';
-import NanoContractsExecute from './screens/NanoContractsExecute';
 import { dashboardUpdate, isVersionAllowedUpdate } from "./actions/index";
 import { connect } from "react-redux";
 import versionApi from './api/version';
@@ -72,11 +67,6 @@ class Root extends React.Component {
       return (
       <Router>
         <Switch>
-          <NavigationRoute exact path="/wallet/send_tokens" component={SendTokens} />
-          <NavigationRoute exact path="/wallet" component={Wallet} />
-          <NavigationRoute exact path="/wallet/nano-contracts" component={NanoContractsDecode} />
-          <NavigationRoute exact path="/wallet/nano-contracts-create" component={NanoContractsCreate} />
-          <NavigationRoute exact path="/wallet/nano-contracts-execute" component={NanoContractsExecute} />
           <NavigationRoute exact path="/transaction/:id" component={TransactionDetail} />
           <NavigationRoute exact path="/push-tx" component={PushTx} />
           <NavigationRoute exact path="/decode-tx" component={DecodeTx} />

@@ -57,12 +57,6 @@ class Navigation extends React.Component {
               <li className="nav-item">
                 <NavLink to="/dashboard-tx" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Transactions</NavLink>
               </li>
-              <li className="nav-item">
-                <NavLink to="/wallet/" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Wallet</NavLink>
-              </li>
-              <li className="nav-item">
-                <NavLink to="/wallet/nano-contracts" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Nano Contracts</NavLink>
-              </li>
               <li className="nav-item dropdown">
                 <a className="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Tools

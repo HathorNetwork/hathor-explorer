@@ -13,8 +13,6 @@ export const WS_URL = tmp_ws_url;
 
 export const TX_COUNT = 10;
 
-export const WALLET_HISTORY_COUNT = 10;
-
 export const DASHBOARD_BLOCKS_COUNT = 6;
 
 export const DASHBOARD_TX_COUNT = 6;
