@@ -94,7 +94,7 @@ html, body, #root {
   cursor: pointer;
 }
 
-#peer-table tbody td, #peer-table thead th, #tx-table tbody td, #tx-table thead th, #wallet-history tbody td, #wallet-history thead th {
+#peer-table tbody td, #peer-table thead th, #tx-table tbody td, #tx-table thead th {
   text-align: center;
 }
 
@@ -162,10 +162,6 @@ i.pointer {
 
 .navigation-search input {
   border: none;
-}
-
-#wallet-history .spent-tx, #wallet-history .voided {
-  text-decoration: line-through;
 }
 
 tr.tr-title {

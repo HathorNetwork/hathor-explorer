@@ -1,21 +1,6 @@
-import walletApi from '../api/wallet';
 import { GENESIS_BLOCK, GENESIS_TX, DECIMAL_PLACES, MIN_API_VERSION } from '../constants';
 
 const helpers = {
-  checkWalletLock(unlock, lock, setType) {
-    walletApi.checkLock().then((data) => {
-      setType(data.type)
-      if (!data.is_locked) {
-        unlock();
-      } else {
-        lock();
-      }
-    }, (e) => {
-      // Error in request
-      console.log(e);
-    });
-  },
-
   updateListWs(list, newEl, max) {
     // We remove the last element if we already have the max
     if (list.length === max) {
