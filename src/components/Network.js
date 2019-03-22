@@ -149,7 +149,7 @@ class Network extends React.Component {
 
     return (
       <div className="d-flex flex-column align-items-end">
-        {this.state.loaded ? <button className='btn btn-primary mb-3' onClick={this.loadData}>Reload data</button> : null}
+        {this.state.loaded ? <button className='btn btn-hathor mb-3' onClick={this.loadData}>Reload data</button> : null}
         {!this.state.loaded ? <ReactLoading type='spin' color='#0081af' delay={500} /> : loadTable()}
       </div>
     );

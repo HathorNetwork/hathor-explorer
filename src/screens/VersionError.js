@@ -49,7 +49,7 @@ class VersionError extends React.Component {
         <div className="content-wrapper">
           <p>Your API backend version is not compatible with this admin. We expect at least the version {MIN_API_VERSION}</p>
           <p>Please update you API version and try again</p>
-          <button className="btn btn-primary" onClick={this.versionUpdated}>Try again</button>
+          <button className="btn btn-hathor" onClick={this.versionUpdated}>Try again</button>
         </div>
       </div>
     );
