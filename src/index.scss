@@ -12,6 +12,14 @@ html, body, #root {
   word-wrap: break-word;
 }
 
+a {
+  color: $darkBlue;
+}
+
+a:hover {
+  color: $darkBlueHover;
+}
+
 .content-wrapper {
   margin: 2rem auto;
   max-width: 988px;
@@ -274,4 +282,16 @@ svg.svg-wrapper {
 
 .dagWrapper {
   width: 100%;
+}
+
+.btn-hathor {
+  background-color: $darkBlue;
+  border-color: $darkBlue;
+  color: white;
+}
+
+.btn-hathor:hover, .btn-hathor:active, .btn-hathor:visited, .btn-hathor:not(:disabled):not(.disabled):active {
+  background-color: $darkBlueHover;
+  border-color: $darkBlueHover;
+  color: white;
 }
