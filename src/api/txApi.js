@@ -58,6 +58,24 @@ const txApi = {
       throw new Error(res.data.message);
     });
   },
+
+  /*
+   * Call api to get confirmation data of a tx
+   *
+   * @params {string} id Transaction hash in hex
+   *
+   * @return {Promise}
+   * @memberof TransactionApi
+   * @inner
+   */
+  getConfirmationData(id) {
+    const data = {id};
+    return requestClient.get(`transaction_acc_weight`, {params: data}).then((res) => {
+      return res.data;
+    }, (res) => {
+      return Promise.reject(res);
+    });
+  },
 };
 
 export default txApi;
