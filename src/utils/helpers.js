@@ -58,7 +58,27 @@ const helpers = {
 
   getCleanVersionArray(version) {
     return version.replace(/[^\d.]/g, '').split('.');
-  }
+  },
+
+  /*
+   * Returns the right string depending on the quantity (plural or singular)
+   *
+   * @param {number} quantity Value considered to check plural or singular
+   * @param {string} singular String to be returned in case of singular
+   * @param {string} plural String to be returned in case of plural
+   *
+   * @return {string} plural or singular
+   * @memberof Helpers
+   * @inner
+   *
+   */
+  plural(quantity, singular, plural) {
+    if (quantity === 1) {
+      return singular;
+    } else {
+      return plural;
+    }
+  },
 }
 
 export default helpers;
