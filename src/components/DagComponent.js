@@ -92,6 +92,7 @@ class DagComponent extends React.Component {
      initialData: boolean saying if this is from the first draw or from the websocket
      */
     let x = null;
+    const parents = data.parents || [];
     if (isBlock) {
       // Calculate new x value to add this block
       x = this.startBlockX + this.indexBlock * this.txMargin;
@@ -105,7 +106,7 @@ class DagComponent extends React.Component {
       };
       this.graph[data.tx_id] = graphData;
       let newLinks = [];
-      for (let parent of data.parents) {
+      for (let parent of parents) {
         // Validate if parent is in the data, otherwise no need to add a link
         if (this.graph.hasOwnProperty(parent)) {
           // Creating link for each parent
@@ -153,7 +154,7 @@ class DagComponent extends React.Component {
       };
       this.graph[data.tx_id] = graphData;
       let newLinks = [];
-      for (let parent of data.parents) {
+      for (let parent of parents) {
         // Validate if parent is in the data, otherwise no need to add a link
         if (this.graph.hasOwnProperty(parent)) {
           // Creating link for each parent
