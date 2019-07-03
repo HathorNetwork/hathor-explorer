@@ -25,6 +25,10 @@ const helpers = {
     }
   },
 
+  isBlock(tx) {
+    return this.getTxType(tx) === 'Block';
+  },
+
   roundFloat(n) {
     return Math.round(n*100)/100
   },
@@ -78,6 +82,21 @@ const helpers = {
     } else {
       return plural;
     }
+  },
+
+  /**
+   * Returns a string with the short version of the id of a transaction
+   * Returns {first12Chars}...{last12Chars}
+   *
+   * @param {string} hash Transaction ID to be shortened
+   *
+   * @return {string}
+   * @memberof Helpers
+   * @inner
+   *
+   */
+  getShortHash(hash) {
+    return `${hash.substring(0,12)}...${hash.substring(52,64)}`;
   },
 }
 

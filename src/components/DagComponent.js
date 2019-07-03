@@ -96,14 +96,14 @@ class DagComponent extends React.Component {
       // Calculate new x value to add this block
       x = this.startBlockX + this.indexBlock * this.txMargin;
       let graphData = {
-        "id": data.hash,
+        "id": data.tx_id,
         "isBlock": true,
         "x": x,
         "y": this.blockY,
         "links": [],
         "timestamp": data.timestamp
       };
-      this.graph[data.hash] = graphData;
+      this.graph[data.tx_id] = graphData;
       let newLinks = [];
       for (let parent of data.parents) {
         // Validate if parent is in the data, otherwise no need to add a link
@@ -111,7 +111,7 @@ class DagComponent extends React.Component {
           // Creating link for each parent
           let linkData = {
             "source": {
-              "id": data.hash,
+              "id": data.tx_id,
               "x": x + this.blockWidth / 2,
               "y": this.blockY + this.blockHeight / 2
             },
@@ -123,14 +123,14 @@ class DagComponent extends React.Component {
           };
           this.links.push(linkData);
           newLinks.push(linkData);
-          this.graph[parent]["links"].push(data.hash);
-          this.graph[data.hash]["links"].push(parent);
+          this.graph[parent]["links"].push(data.tx_id);
+          this.graph[data.tx_id]["links"].push(parent);
         } 
       }
       // Add new links to graph
       this.newLinks(newLinks);
       // Add new block to graph
-      this.newBlocks([this.graph[data.hash]]);
+      this.newBlocks([this.graph[data.tx_id]]);
       this.indexBlock += 1;
     } else {
       // Verify if it's the same timestamp as the last one
@@ -144,14 +144,14 @@ class DagComponent extends React.Component {
       // Calculate new x value to add this tx
       x = this.startTxX + this.indexTx * this.txMargin;
       let graphData = {
-        "id": data.hash,
+        "id": data.tx_id,
         "isBlock": false,
         "x": x,
         "y": this.getTxY(),
         "links": [],
         "timestamp": data.timestamp
       };
-      this.graph[data.hash] = graphData;
+      this.graph[data.tx_id] = graphData;
       let newLinks = [];
       for (let parent of data.parents) {
         // Validate if parent is in the data, otherwise no need to add a link
@@ -159,7 +159,7 @@ class DagComponent extends React.Component {
           // Creating link for each parent
           let linkData = {
             "source": {
-              "id": data.hash,
+              "id": data.tx_id,
               "x": x,
               "y": this.getTxY()
             },
@@ -170,15 +170,15 @@ class DagComponent extends React.Component {
             }
           };
           this.links.push(linkData);
-          this.graph[parent]["links"].push(data.hash);
-          this.graph[data.hash]["links"].push(parent);
+          this.graph[parent]["links"].push(data.tx_id);
+          this.graph[data.tx_id]["links"].push(parent);
           newLinks.push(linkData);
         }
       }
       // Adding new links to the graph
       this.newLinks(newLinks);
       // Adding new tx to the graph
-      this.newTxs([this.graph[data.hash]]);
+      this.newTxs([this.graph[data.tx_id]]);
     }
 
     if (!initialData) {
@@ -188,7 +188,7 @@ class DagComponent extends React.Component {
     }
 
     if (data.throttled) {
-      this.addThrottleBackground([this.graph[data.hash]]);
+      this.addThrottleBackground([this.graph[data.tx_id]]);
     }
     return x;
   }

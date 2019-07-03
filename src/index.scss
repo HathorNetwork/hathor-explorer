@@ -295,3 +295,34 @@ svg.svg-wrapper {
   border-color: $darkBlueHover;
   color: white;
 }
+
+.bordered-wrapper {
+  flex-basis: 100%;
+}
+
+.bordered-wrapper > div {
+  width: 100%;
+  border: 2px solid #eee;
+  border-bottom: 0px;
+}
+
+.bordered-wrapper > div:first-child {
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.bordered-wrapper > div:last-child {
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  border-bottom: 2px solid #eee;
+}
+
+.common-div > div {
+  padding: 0.8rem;
+}
+
+.important-div > div {
+  text-align: center;
+  font-size: 1.3rem;
+  padding: 1rem;
+}
