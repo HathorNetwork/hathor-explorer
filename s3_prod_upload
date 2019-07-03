@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec aws s3 sync --delete ./build/ s3://hathor-testnet-public-explorer
