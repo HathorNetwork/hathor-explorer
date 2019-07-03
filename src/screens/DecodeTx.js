@@ -1,36 +1,75 @@
 import React from 'react';
 import TxTextInput from '../components/TxTextInput';
 import TxData from '../components/TxData';
+import helpers from '../utils/helpers';
 import txApi from '../api/txApi';
 
 
+/**
+ * Screen used to decode a transaction and show its detail
+ *
+ * @memberof Screens
+ */
 class DecodeTx extends React.Component {
-  constructor(props) {
-    super(props);
+  /**
+   * transaction {Object} Decoded transaction
+   * success {boolean} If had success decoding transaction on the server
+   * dataToDecode {string} Text written by the user as the serialized transaction to be decoded
+   * meta {Object} Metadata of decoded transaction received from the server
+   * spentOutputs {Object} Spent outputs of decoded transaction received from the server
+   * confirmationData {Object} Confirmation data of decoded transaction received from the server
+   */
+  state = {
+    transaction: null,
+    success: null,
+    dataToDecode: '',
+    meta: null,
+    spentOutputs: null,
+    confirmationData: null,
+  };
 
-    this.state = {
-      transaction: null,
-      success: null,
-      dataToDecode: '',
-    }
-
-    this.buttonClicked = this.buttonClicked.bind(this);
-    this.handleChangeData = this.handleChangeData.bind(this);
-  }
-
-  handleChangeData(e) {
+  /**
+   * Method called after change on the text area with the encoded hexadecimal
+   *
+   * @param {Object} e Event called when changing input
+   */
+  handleChangeData = (e) => {
     this.setState({ dataToDecode: e.target.value });
   }
 
-  txDecoded(data) {
+  /**
+   * This method is called after transaction was decoded, then shows its details on the screen
+   *
+   * @param {Object} data Transaction decoded
+   */
+  txDecoded = (data) => {
     if (data.success) {
-      this.setState({ transaction: data.transaction, success: true });
+      this.setState({ transaction: data.tx, meta: data.meta, spentOutputs: data.spent_outputs, loaded: true, success: true });
+      if (!helpers.isBlock(data.tx)) {
+        this.getConfirmationData();
+      }
     } else {
-      this.setState({ success: false, transaction: null });
+      this.setState({ success: false, transaction: null, confirmationData: null, meta: null, spentOutputs: null });
     }
   }
 
-  buttonClicked() {
+  /**
+   * Get data from accumulated weight of the decoded transaction
+   */
+  getConfirmationData = () => {
+    txApi.getConfirmationData(this.state.transaction.hash).then((data) => {
+      this.setState({ confirmationData: data });
+    }, (e) => {
+      // Error in request
+      console.log(e);
+    });
+  }
+
+
+  /**
+   * Called after the 'Decode' button is clicked, so sends hexadecimal to server to be decoded
+   */
+  buttonClicked = () => {
     txApi.decodeTx(this.state.dataToDecode).then((data) => {
       this.txDecoded(data);
     }, (e) => {
@@ -42,8 +81,8 @@ class DecodeTx extends React.Component {
   render() {
     return (
       <div className="content-wrapper">
-        <TxTextInput ref={(node) => {this.child = node;}} onChange={this.handleChangeData} buttonClicked={this.buttonClicked} action='Decode tx' otherAction='push' link='/push-tx/' helpText='Write your transaction in hex value and click the button to get a human value description' />
-        {this.state.transaction ? <TxData transaction={this.state.transaction} showRaw={false} /> : null}
+        <TxTextInput onChange={this.handleChangeData} buttonClicked={this.buttonClicked} action='Decode tx' otherAction='push' link='/push-tx/' helpText='Write your transaction in hex value and click the button to get a human value description' />
+        {this.state.transaction ? <TxData transaction={this.state.transaction} showRaw={false} confirmationData={this.state.confirmationData} spentOutputs={this.state.spentOutputs} meta={this.state.meta} showConflicts={false} showGraphs={true} /> : null}
         {this.state.success === false ? <p className="text-danger">Could not decode this data to a transaction</p> : null}
       </div>
     );

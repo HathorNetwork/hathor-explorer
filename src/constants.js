@@ -1,6 +1,6 @@
-export const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:8080/";
+export const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:8080/v1a/";
 
-let tmp_ws_url = process.env.REACT_APP_WS_URL || "ws://127.0.0.1:8080/ws/";
+let tmp_ws_url = process.env.REACT_APP_WS_URL || "ws://127.0.0.1:8080/v1a/ws/";
 if (!(tmp_ws_url.startsWith('ws:') || tmp_ws_url.startsWith('wss:'))) {
   if (tmp_ws_url.startsWith('/')) {
     tmp_ws_url = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + tmp_ws_url;
@@ -40,3 +40,13 @@ export const MAX_GRAPH_LEVEL = 1
 // Token maks
 // First bit in the index byte indicates whether it's an authority output
 export const TOKEN_AUTHORITY_MASK = 0b10000000
+
+/**
+ * Hathor token config
+ */
+export const HATHOR_TOKEN_CONFIG = {'name': 'Hathor', 'symbol': 'HTR', 'uid': '00'};
+
+/**
+ * Hathor token default index
+ */
+export const HATHOR_TOKEN_INDEX = 0;

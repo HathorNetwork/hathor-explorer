@@ -78,7 +78,7 @@ class DashboardTx extends React.Component {
     const renderRows = (elements) => {
       return elements.map((tx, idx) => {
         return (
-          <TxRow key={tx.hash} tx={tx} />
+          <TxRow key={tx.tx_id} tx={tx} />
         );
       });
     }

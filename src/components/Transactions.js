@@ -46,9 +46,9 @@ class Transactions extends React.Component {
       let hasAfter = (this.state.hasAfter || (transactions.length === TX_COUNT && !this.state.hasAfter))
       transactions = helpers.updateListWs(transactions, tx, TX_COUNT);
 
-      let firstHash = transactions[0].hash;
+      let firstHash = transactions[0].tx_id;
       let firstTimestamp = transactions[0].timestamp;
-      let lastHash = transactions[transactions.length-1].hash;
+      let lastHash = transactions[transactions.length-1].tx_id;
       let lastTimestamp = transactions[transactions.length-1].timestamp;
 
       // Finally we update the state again
@@ -65,8 +65,8 @@ class Transactions extends React.Component {
     let firstTimestamp = null;
     let lastTimestamp = null;
     if (data.transactions.length) {
-      firstHash = data.transactions[0].hash;
-      lastHash = data.transactions[data.transactions.length-1].hash;
+      firstHash = data.transactions[0].tx_id;
+      lastHash = data.transactions[data.transactions.length-1].tx_id;
       firstTimestamp = data.transactions[0].timestamp;
       lastTimestamp = data.transactions[data.transactions.length-1].timestamp;
     }
@@ -145,7 +145,7 @@ class Transactions extends React.Component {
     const loadTableBody = () => {
       return this.state.transactions.map((tx, idx) => {
         return (
-          <TxRow key={tx.hash} tx={tx} />
+          <TxRow key={tx.tx_id} tx={tx} />
         );
       });
     }
