@@ -65,7 +65,6 @@ class Navigation extends React.Component {
                   <NavLink to="/decode-tx/" exact className="nav-link">Decode Tx</NavLink>
                   <NavLink to="/push-tx/" exact className="nav-link">Push Tx</NavLink>
                   <NavLink to="/dag/" exact className="nav-link">DAG</NavLink>
-                  <Link to={`${BASE_URL}graphviz/`} target="_blank" className="nav-link">Graph</Link>
                 </div>
               </li>
             </ul>
