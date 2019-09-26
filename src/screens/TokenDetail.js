@@ -165,7 +165,7 @@ class TokenDetail extends React.Component {
     const renderTokenInfo = () => {
       return (
         <div>
-          <p className="mt-3 mb-2"><strong>Total supply: </strong>{hathorLib.helpers.prettyValue(this.state.totalSupply)}</p>
+          <p className="mt-3 mb-2"><strong>Total supply: </strong>{hathorLib.helpers.prettyValue(this.state.totalSupply)} {this.state.token.symbol}</p>
           <p className="mt-2 mb-2"><strong>Can mint: </strong>{this.state.canMint ? <i className="fa fa-check ml-1" title="Can mint"></i> : <i className="fa fa-close ml-1" title="Can't mint"></i>}</p>
           <p className="mt-2 mb-4"><strong>Can melt: </strong>{this.state.canMelt ? <i className="fa fa-check ml-1" title="Can melt"></i> : <i className="fa fa-close ml-1" title="Can't melt"></i>}</p>
         </div>
