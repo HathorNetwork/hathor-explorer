@@ -137,7 +137,7 @@ class TokenDetail extends React.Component {
    */
   updateListData = (timestamp, hash, page) => {
     const promise = new Promise((resolve, reject) => {
-      hathorLib.walletApi.getTokenHistory(this.state.paramUID, 2, hash, timestamp, page, (response) => {
+      hathorLib.walletApi.getTokenHistory(this.state.paramUID, TX_COUNT, hash, timestamp, page, (response) => {
         resolve(response);
       });
     });
