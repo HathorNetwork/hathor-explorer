@@ -3,7 +3,6 @@ import { NavLink, Link } from 'react-router-dom';
 import logo from '../assets/images/hathor-white-logo.png';
 import HathorAlert from './HathorAlert';
 import Version from './Version';
-import { BASE_URL } from '../constants';
 
 
 class Navigation extends React.Component {

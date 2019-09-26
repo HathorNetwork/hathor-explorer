@@ -326,3 +326,27 @@ svg.svg-wrapper {
   font-size: 1.3rem;
   padding: 1rem;
 }
+
+.config-string-wrapper, .token-manage-wrapper {
+  padding: 1rem;
+  border: 1px solid #ddd;
+}
+
+.config-string-wrapper span {
+  width: 300px;
+  text-align: center;
+}
+
+.token-detail-top {
+  padding-bottom: 6rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.token-name {
+  font-size: 1.5rem;
+}
+
+.token-wrapper i {
+  font-size: 1.2rem;
+  color: rgba(0,0,0,0.5);
+}
