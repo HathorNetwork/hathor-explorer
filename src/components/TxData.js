@@ -11,6 +11,7 @@ import helpers from '../utils/helpers';
 import dateFormatter from '../utils/date';
 import txApi from '../api/txApi';
 import { BASE_URL, HATHOR_TOKEN_INDEX, HATHOR_TOKEN_CONFIG } from '../constants';
+import hathorLib from '@hathor/wallet-lib';
 
 
 /**
@@ -25,6 +26,9 @@ class TxData extends React.Component {
    * tokens {Array} tokens contained in this transaction
    */
   state = { raw: false, children: false, tokens: [] };
+
+  // Array of token uid that was already found to show the symbol
+  tokensFound = [];
 
   componentDidMount = () => {
     this.calculateTokens();
@@ -76,12 +80,20 @@ class TxData extends React.Component {
     const tokens = [];
     for (const output of this.props.transaction.outputs) {
       if (transaction.isAuthorityOutput(output)) continue;
-      this.checkToken(tokens, output.decoded.token_data);
+      const tokenData = this.checkToken(output.decoded.token_data);
+
+      if (tokenData) {
+        tokens.push(tokenData);
+      }
     }
 
     for (const input of this.props.transaction.inputs) {
       if (transaction.isAuthorityOutput(input)) continue;
-      this.checkToken(tokens, input.decoded.token_data);
+      const tokenData = this.checkToken(input.decoded.token_data);
+
+      if (tokenData) {
+        tokens.push(tokenData);
+      }
     }
 
     this.setState({ tokens });
@@ -90,29 +102,23 @@ class TxData extends React.Component {
   /**
    * Checks if token was already added and if it's a known token, then add it
    *
-   * @param {Array} tokens Array of already added tokens
    * @param {number} tokenData Represents the index of the token in this transaction
+   * @return {Object} Token config object with {uid, name, symbol}
    */
-  checkToken = (tokens, tokenData) => {
-    if (tokenData === HATHOR_TOKEN_INDEX) {
+  checkToken = (tokenData) => {
+    if (tokenData === hathorLib.constants.HATHOR_TOKEN_INDEX) {
       return;
     }
 
-    const tokenUID = this.props.transaction.tokens[tokenData - 1];
-    // Get token unknown index
-    let unknownCount = 1;
-    for (const token of tokens) {
-      if (token.uid === tokenUID) {
-        return;
-      }
+    const tokenConfig = this.props.transaction.tokens[tokenData - 1];
 
-      if (token.unknown) {
-        unknownCount += 1;
-      }
+    if (this.tokensFound.find((uid) => uid === tokenConfig.uid) !== undefined) {
+      // Already found this token
+      return;
     }
 
-    const symbol = `UNK${unknownCount}`;
-    tokens.push({uid: tokenUID, name: `Unknown ${unknownCount}`, symbol, unknown: true});
+    this.tokensFound.push(tokenConfig.uid);
+    return tokenConfig;
   }
 
   /**
@@ -166,8 +172,8 @@ class TxData extends React.Component {
     if (tokenData === HATHOR_TOKEN_INDEX) {
       return HATHOR_TOKEN_CONFIG.symbol;
     }
-    const tokenUID = this.props.transaction.tokens[tokenData - 1];
-    return this.getSymbol(tokenUID);
+    const tokenConfig = this.props.transaction.tokens[tokenData - 1];
+    return tokenConfig.symbol;
   }
 
   /**
@@ -187,6 +193,14 @@ class TxData extends React.Component {
   }
 
   render() {
+    const renderBlockOrTransaction = () => {
+      if (hathorLib.helpers.isBlock(this.props.transaction)) {
+        return 'block';
+      } else {
+        return 'transaction';
+      }
+    }
+
     const renderInputs = (inputs) => {
       return inputs.map((input, idx) => {
         return (
@@ -288,7 +302,7 @@ class TxData extends React.Component {
           // there are conflicts, but it is not voided
           return (
             <div className="alert alert-success">
-              <h4 className="alert-heading mb-0">This {helpers.getTxType(this.props.transaction).toLowerCase()} is valid.</h4>
+              <h4 className="alert-heading mb-0">This {renderBlockOrTransaction()} is valid.</h4>
             </div>
           )
         }
@@ -297,7 +311,7 @@ class TxData extends React.Component {
           // there are conflicts, but it is not voided
           return (
             <div className="alert alert-success">
-              <h4 className="alert-heading">This {helpers.getTxType(this.props.transaction).toLowerCase()} is valid.</h4>
+              <h4 className="alert-heading">This {renderBlockOrTransaction()} is valid.</h4>
               <p>
                 Although there is a double-spending transaction, this transaction has the highest accumulated weight and is valid.
               </p>
@@ -318,12 +332,12 @@ class TxData extends React.Component {
         // it is voided, but there is no conflict
         return (
           <div className="alert alert-danger">
-            <h4 className="alert-heading">This {helpers.getTxType(this.props.transaction).toLowerCase()} is voided and <strong>NOT</strong> valid.</h4>
+            <h4 className="alert-heading">This {renderBlockOrTransaction()} is voided and <strong>NOT</strong> valid.</h4>
             <p>
-              This {helpers.getTxType(this.props.transaction).toLowerCase()} is verifying (directly or indirectly) a voided double-spending transaction, hence it is voided as well.
+              This {renderBlockOrTransaction()} is verifying (directly or indirectly) a voided double-spending transaction, hence it is voided as well.
             </p>
             <div className="mb-0">
-              <span>This {helpers.getTxType(this.props.transaction).toLowerCase()} is voided because of these transactions: </span>
+              <span>This {renderBlockOrTransaction()} is voided because of these transactions: </span>
               {renderListWithLinks(this.props.meta.voided_by, true)}
             </div>
           </div>
@@ -333,7 +347,7 @@ class TxData extends React.Component {
       // it is voided, and there is a conflict
       return (
         <div className="alert alert-danger">
-          <h4 className="alert-heading">This {helpers.getTxType(this.props.transaction).toLowerCase()} is <strong>NOT</strong> valid.</h4>
+          <h4 className="alert-heading">This {renderBlockOrTransaction()} is <strong>NOT</strong> valid.</h4>
           <div>
             <span>It is voided by: </span>
             {renderListWithLinks(this.props.meta.voided_by, true)}
@@ -379,10 +393,17 @@ class TxData extends React.Component {
     }
 
     const renderTokenList = () => {
+      const renderTokenUID = (token) => {
+        if (token.uid === hathorLib.constants.HATHOR_TOKEN_CONFIG.uid) {
+          return token.uid;
+        } else {
+          return <Link to={`/token_detail/${token.uid}`}>{token.uid}</Link>
+        }
+      }
       const tokens = this.state.tokens.map((token) => {
         return (
           <div key={token.uid}>
-            <span>{token.name} <strong>({token.symbol})</strong> | {token.uid}</span>
+            <span>{token.name} <strong>({token.symbol})</strong> | {renderTokenUID(token)}</span>
           </div>
         );
       });
@@ -431,19 +452,19 @@ class TxData extends React.Component {
       return (
         <div className="tx-data-wrapper">
           {this.props.showConflicts ? renderConflicts() : ''}
-          <div><label>{helpers.isBlock(this.props.transaction) ? 'Block' : 'Transaction'} ID:</label> {this.props.transaction.hash}</div>
+          <div><label>{hathorLib.helpers.isBlock(this.props.transaction) ? 'Block' : 'Transaction'} ID:</label> {this.props.transaction.hash}</div>
           <div className="d-flex flex-row align-items-start mt-3 mb-3">
             <div className="d-flex flex-column align-items-start common-div bordered-wrapper mr-3">
-              <div><label>Type:</label> {helpers.getTxType(this.props.transaction)}</div>
+              <div><label>Type:</label> {hathorLib.helpers.getTxType(this.props.transaction)}</div>
               <div><label>Time:</label> {dateFormatter.parseTimestamp(this.props.transaction.timestamp)}</div>
               <div><label>Nonce:</label> {this.props.transaction.nonce}</div>
               <div><label>Weight:</label> {helpers.roundFloat(this.props.transaction.weight)}</div>
-              {!helpers.isBlock(this.props.transaction) && renderFirstBlockDiv()}
+              {!hathorLib.helpers.isBlock(this.props.transaction) && renderFirstBlockDiv()}
             </div>
             <div className="d-flex flex-column align-items-center important-div bordered-wrapper">
-              {helpers.isBlock(this.props.transaction) && renderScore()}
-              {!helpers.isBlock(this.props.transaction) && renderAccWeightDiv()}
-              {!helpers.isBlock(this.props.transaction) && renderConfirmationLevel()}
+              {hathorLib.helpers.isBlock(this.props.transaction) && renderScore()}
+              {!hathorLib.helpers.isBlock(this.props.transaction) && renderAccWeightDiv()}
+              {!hathorLib.helpers.isBlock(this.props.transaction) && renderConfirmationLevel()}
             </div>
           </div>
           <div className="d-flex flex-row align-items-start mb-3">

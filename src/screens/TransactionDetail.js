@@ -2,7 +2,7 @@ import React from 'react';
 import ReactLoading from 'react-loading';
 import TxData from '../components/TxData';
 import txApi from '../api/txApi';
-import helpers from '../utils/helpers';
+import hathorLib from '@hathor/wallet-lib';
 
 
 /**
@@ -65,7 +65,7 @@ class TransactionDetail extends React.Component {
   getTx() {
     txApi.getTransaction(this.props.match.params.id).then((data) => {
       this.txReceived(data);
-      if (!helpers.isBlock(data.tx)) {
+      if (data.success && !hathorLib.helpers.isBlock(data.tx)) {
         this.getConfirmationData();
       }
     }, (e) => {
