@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) Hathor Labs and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 export const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:8080/v1a/";
 
 let tmp_ws_url = process.env.REACT_APP_WS_URL || "ws://127.0.0.1:8080/v1a/ws/";
