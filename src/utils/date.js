@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) Hathor Labs and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 const dateFormatter = {
   parseTimestamp(timestamp) {
     const d = new Date(timestamp*1000); // new Date in js expect milliseconds
