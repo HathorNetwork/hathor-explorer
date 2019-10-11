@@ -59,6 +59,7 @@ class TokenDetail extends React.Component {
           totalSupply: response.total,
           canMint: response.mint.length > 0,
           canMelt: response.melt.length > 0,
+          transactionsCount: response.transactions_count,
         });
       } else {
         this.setState({ errorMessage: response.message });
@@ -164,10 +165,16 @@ class TokenDetail extends React.Component {
 
     const renderTokenInfo = () => {
       return (
-        <div>
-          <p className="mt-3 mb-2"><strong>Total supply: </strong>{hathorLib.helpers.prettyValue(this.state.totalSupply)} {this.state.token.symbol}</p>
-          <p className="mt-2 mb-2"><strong>Can mint: </strong>{this.state.canMint ? <i className="fa fa-check ml-1" title="Can mint"></i> : <i className="fa fa-close ml-1" title="Can't mint"></i>}</p>
-          <p className="mt-2 mb-4"><strong>Can melt: </strong>{this.state.canMelt ? <i className="fa fa-check ml-1" title="Can melt"></i> : <i className="fa fa-close ml-1" title="Can't melt"></i>}</p>
+        <div className="token-general-info">
+          <p className="mb-2"><strong>UID: </strong>{this.state.token.uid}</p>
+          <p className="mt-2 mb-2"><strong>Name: </strong>{this.state.token.name}</p>
+          <p className="mt-2 mb-2"><strong>Symbol: </strong>{this.state.token.symbol}</p>
+          <p className="mt-2 mb-2"><strong>Total supply: </strong>{hathorLib.helpers.prettyValue(this.state.totalSupply)} {this.state.token.symbol}</p>
+          <p className="mt-2 mb-0"><strong>Can mint new tokens: </strong>{this.state.canMint ? 'Yes' : 'No'}</p>
+          <p className="mb-2 subtitle">Indicates whether the token owner can create new tokens, increasing the total supply</p>
+          <p className="mt-2 mb-0"><strong>Can melt tokens: </strong>{this.state.canMelt ? 'Yes' : 'No'}</p>
+          <p className="mb-2 subtitle">Indicates whether the token owner can destroy tokens, decreasing the total supply</p>
+          <p className="mt-2 mb-4"><strong>Total number of transactions: </strong>{this.state.transactionsCount}</p>
         </div>
       );
     }
@@ -183,7 +190,7 @@ class TokenDetail extends React.Component {
             </div>
             {renderTokenInfo()}
           </div>
-          <div className='d-flex flex-column align-items-center config-string-wrapper mt-4'>
+          <div className='d-flex flex-column align-items-center config-string-wrapper mt-4 ml-3'>
             <p><strong>Configuration String</strong></p>
             <span ref="configurationString" className="mb-2">
               {getShortConfigurationString()}
@@ -195,6 +202,8 @@ class TokenDetail extends React.Component {
             <a className="mt-2" onClick={(e) => this.downloadQrCode(e)} download={`${this.state.token.name} (${this.state.token.symbol}) - ${configurationString}`} href="true" ref="downloadLink">Download <i className="fa fa-download ml-1" title="Download QRCode"></i></a>
           </div>
         </div>
+        <p className="mb-4 text-warning">Only the UID is unique, there might be more than one token with the same name and symbol.</p>
+        <hr />
         <div className='d-flex flex-column align-items-start justify-content-center mt-5'>
           <Transactions title={<h2>Transaction History</h2>} shouldUpdateList={this.shouldUpdateList} updateData={this.updateListData} />
         </div>

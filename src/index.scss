@@ -5,6 +5,7 @@ $fa-font-path: "~font-awesome/fonts";
 
 $darkBlue: #0273a0;
 $darkBlueHover: #0081af;
+$warning: #ce9c06;
 
 html, body, #root {
   height: 100%;
@@ -338,8 +339,7 @@ svg.svg-wrapper {
 }
 
 .token-detail-top {
-  padding-bottom: 6rem;
-  border-bottom: 1px solid #ddd;
+  padding-bottom: 3rem;
 }
 
 .token-name {
@@ -349,4 +349,17 @@ svg.svg-wrapper {
 .token-wrapper i {
   font-size: 1.2rem;
   color: rgba(0,0,0,0.5);
+}
+
+.token-general-info {
+  word-break: break-all;
+}
+
+p.subtitle {
+  opacity: 0.7;
+  font-size: 0.85rem;
+}
+
+.text-warning a {
+  color: $warning !important;
 }

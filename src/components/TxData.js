@@ -13,7 +13,6 @@ import HathorAlert from './HathorAlert';
 import Viz from 'viz.js';
 import { Module, render } from 'viz.js/full.render.js';
 import { MAX_GRAPH_LEVEL } from '../constants';
-import transaction from '../utils/transaction';
 import helpers from '../utils/helpers';
 import dateFormatter from '../utils/date';
 import txApi from '../api/txApi';
@@ -86,8 +85,7 @@ class TxData extends React.Component {
     // Adding transactions tokens to state
     const tokens = [];
     for (const output of this.props.transaction.outputs) {
-      if (transaction.isAuthorityOutput(output)) continue;
-      const tokenData = this.checkToken(output.decoded.token_data);
+      const tokenData = this.checkToken(hathorLib.wallet.getTokenIndex(output.decoded.token_data));
 
       if (tokenData) {
         tokens.push(tokenData);
@@ -95,8 +93,7 @@ class TxData extends React.Component {
     }
 
     for (const input of this.props.transaction.inputs) {
-      if (transaction.isAuthorityOutput(input)) continue;
-      const tokenData = this.checkToken(input.decoded.token_data);
+      const tokenData = this.checkToken(hathorLib.wallet.getTokenIndex(input.decoded.token_data));
 
       if (tokenData) {
         tokens.push(tokenData);
@@ -221,24 +218,35 @@ class TxData extends React.Component {
 
     const renderOutputToken = (output) => {
       return (
-        <strong>{this.getOutputToken(output.decoded.token_data)}</strong>
+        <strong>{this.getOutputToken(hathorLib.wallet.getTokenIndex(output.decoded.token_data))}</strong>
       );
     }
 
-    const renderOutput = (output, idx, addBadge) => {
-      if (!transaction.isAuthorityOutput(output)) {
-        return (
-          <div key={idx}>
-            <div>{helpers.prettyValue(output.value)} {renderOutputToken(output)}</div>
-            <div>
-              {output.decoded ? renderDecodedScript(output.decoded) : `${output.script} (unknown script)` }
-              {idx in this.props.spentOutputs ? <span> (<Link to={`/transaction/${this.props.spentOutputs[idx]}`}>Spent</Link>)</span> : ''}
-            </div>
-          </div>
-        );
+    const outputValue = (output) => {
+      if (hathorLib.wallet.isAuthorityOutput(output)) {
+        if (hathorLib.wallet.isMintOutput(output)) {
+          return 'Mint authority';
+        } else if (hathorLib.wallet.isMeltOutput(output)) {
+          return 'Melt authority';
+        } else {
+          // Should never come here
+          return 'Unknown authority';
+        }
       } else {
-        return null;
+        return hathorLib.helpers.prettyValue(output.value);
       }
+    }
+
+    const renderOutput = (output, idx, addBadge) => {
+      return (
+        <div key={idx}>
+          <div>{outputValue(output)} {renderOutputToken(output)}</div>
+          <div>
+            {output.decoded ? renderDecodedScript(output.decoded) : `${output.script} (unknown script)` }
+            {idx in this.props.spentOutputs ? <span> (<Link to={`/transaction/${this.props.spentOutputs[idx]}`}>Spent</Link>)</span> : ''}
+          </div>
+        </div>
+      );
     }
 
     const renderOutputs = (outputs) => {
