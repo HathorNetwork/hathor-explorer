@@ -82,47 +82,7 @@ class TxData extends React.Component {
    * Add all tokens of this transaction (inputs and outputs) to the state
    */
   calculateTokens = () => {
-    // Adding transactions tokens to state
-    const tokens = [];
-    for (const output of this.props.transaction.outputs) {
-      const tokenData = this.checkToken(hathorLib.wallet.getTokenIndex(output.decoded.token_data));
-
-      if (tokenData) {
-        tokens.push(tokenData);
-      }
-    }
-
-    for (const input of this.props.transaction.inputs) {
-      const tokenData = this.checkToken(hathorLib.wallet.getTokenIndex(input.decoded.token_data));
-
-      if (tokenData) {
-        tokens.push(tokenData);
-      }
-    }
-
-    this.setState({ tokens });
-  }
-
-  /**
-   * Checks if token was already added and if it's a known token, then add it
-   *
-   * @param {number} tokenData Represents the index of the token in this transaction
-   * @return {Object} Token config object with {uid, name, symbol}
-   */
-  checkToken = (tokenData) => {
-    if (tokenData === hathorLib.constants.HATHOR_TOKEN_INDEX) {
-      return null;
-    }
-
-    const tokenConfig = this.props.transaction.tokens[tokenData - 1];
-
-    if (this.tokensFound.find((uid) => uid === tokenConfig.uid) !== undefined) {
-      // Already found this token
-      return null;
-    }
-
-    this.tokensFound.push(tokenConfig.uid);
-    return tokenConfig;
+    this.setState({ tokens: this.props.transaction.tokens });
   }
 
   /**
