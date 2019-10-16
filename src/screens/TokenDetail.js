@@ -104,7 +104,7 @@ class TokenDetail extends React.Component {
 
   /**
    * Checks if the recently arrived transaction should trigger an update on the list
-   * It returns true if the transaction there is an input or output of the token
+   * It returns true if, in the transaction, there is an input or output of the token
    *
    * @param {Object} tx Transaction data received in the websocket
    *
@@ -179,8 +179,17 @@ class TokenDetail extends React.Component {
       );
     }
 
+    const renderTokenAlert = () => {
+      return (
+        <div className="alert alert-warning backup-alert" role="alert">
+          Only the UID is unique, there might be more than one token with the same name and symbol.
+        </div>
+      )
+    }
+
     return (
       <div className="content-wrapper flex align-items-center">
+        {renderTokenAlert()}
         <div className='d-flex flex-row align-items-start justify-content-between token-detail-top'>
           <div className='d-flex flex-column justify-content-between mt-4'>
             <div className='token-wrapper d-flex flex-row align-items-center mb-3'>
@@ -202,7 +211,6 @@ class TokenDetail extends React.Component {
             <a className="mt-2" onClick={(e) => this.downloadQrCode(e)} download={`${this.state.token.name} (${this.state.token.symbol}) - ${configurationString}`} href="true" ref="downloadLink">Download <i className="fa fa-download ml-1" title="Download QRCode"></i></a>
           </div>
         </div>
-        <p className="mb-4 text-warning">Only the UID is unique, there might be more than one token with the same name and symbol.</p>
         <hr />
         <div className='d-flex flex-column align-items-start justify-content-center mt-5'>
           <Transactions title={<h2>Transaction History</h2>} shouldUpdateList={this.shouldUpdateList} updateData={this.updateListData} />
