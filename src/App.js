@@ -24,11 +24,10 @@ import { dashboardUpdate, isVersionAllowedUpdate } from "./actions/index";
 import { connect } from "react-redux";
 import versionApi from './api/version';
 import helpers from './utils/helpers';
-import MemoryStore from './store';
 import hathorLib from '@hathor/wallet-lib';
 import { BASE_URL } from './constants';
 
-const store = new MemoryStore();
+const store = new hathorLib.MemoryStore();
 hathorLib.storage.setStore(store);
 hathorLib.storage.setItem('wallet:server', BASE_URL);
 
