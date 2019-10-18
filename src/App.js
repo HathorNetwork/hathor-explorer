@@ -15,6 +15,7 @@ import DecodeTx from './screens/DecodeTx';
 import PushTx from './screens/PushTx';
 import TransactionList from './screens/TransactionList';
 import BlockList from './screens/BlockList';
+import TokenDetail from './screens/TokenDetail';
 import Dag from './screens/Dag';
 import Dashboard from './screens/Dashboard';
 import VersionError from './screens/VersionError';
@@ -23,7 +24,12 @@ import { dashboardUpdate, isVersionAllowedUpdate } from "./actions/index";
 import { connect } from "react-redux";
 import versionApi from './api/version';
 import helpers from './utils/helpers';
+import hathorLib from '@hathor/wallet-lib';
+import { BASE_URL } from './constants';
 
+const store = new hathorLib.MemoryStore();
+hathorLib.storage.setStore(store);
+hathorLib.storage.setItem('wallet:server', BASE_URL);
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -82,6 +88,7 @@ class Root extends React.Component {
           <NavigationRoute exact path="/blocks" component={BlockList} />
           <NavigationRoute exact path="/dag" component={Dag} />
           <NavigationRoute exact path="/network" component={PeerAdmin} />
+          <NavigationRoute exact path="/token_detail/:tokenUID" component={TokenDetail} />
           <NavigationRoute exact path="" component={Dashboard} />
         </Switch>
       </Router>

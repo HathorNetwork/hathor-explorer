@@ -6,7 +6,6 @@
  */
 
 import React from 'react';
-import txApi from '../api/txApi';
 import ReactLoading from 'react-loading';
 import {TX_COUNT} from '../constants';
 import TxRow from './TxRow';
@@ -48,18 +47,20 @@ class Transactions extends React.Component {
 
   updateListWs = (tx) => {
     // We only add new tx/blocks if it's the first page
-    if (!this.state.hasBefore && ((tx.is_block && this.props.type === 'block') || (!tx.is_block && this.props.type === 'tx'))) {
-      let transactions = this.state.transactions;
-      let hasAfter = (this.state.hasAfter || (transactions.length === TX_COUNT && !this.state.hasAfter))
-      transactions = helpers.updateListWs(transactions, tx, TX_COUNT);
+    if (!this.state.hasBefore) {
+      if (this.props.shouldUpdateList(tx)) {
+        let transactions = this.state.transactions;
+        let hasAfter = (this.state.hasAfter || (transactions.length === TX_COUNT && !this.state.hasAfter))
+        transactions = helpers.updateListWs(transactions, tx, TX_COUNT);
 
-      let firstHash = transactions[0].tx_id;
-      let firstTimestamp = transactions[0].timestamp;
-      let lastHash = transactions[transactions.length-1].tx_id;
-      let lastTimestamp = transactions[transactions.length-1].timestamp;
+        let firstHash = transactions[0].tx_id;
+        let firstTimestamp = transactions[0].timestamp;
+        let lastHash = transactions[transactions.length-1].tx_id;
+        let lastTimestamp = transactions[transactions.length-1].timestamp;
 
-      // Finally we update the state again
-      this.setState({ transactions, hasAfter, firstHash, lastHash, firstTimestamp, lastTimestamp });
+        // Finally we update the state again
+        this.setState({ transactions, hasAfter, firstHash, lastHash, firstTimestamp, lastTimestamp });
+      }
     }
   }
 
@@ -97,7 +98,7 @@ class Transactions extends React.Component {
   }
 
   getData = (first, timestamp, hash, page) => {
-    txApi.getTransactions(this.props.type, TX_COUNT, timestamp, hash, page).then((data) => {
+    this.props.updateData(timestamp, hash, page).then((data) => {
       this.handleDataFetched(data, first, page);
     }, (e) => {
       // Error in request
@@ -158,8 +159,8 @@ class Transactions extends React.Component {
     }
 
     return (
-      <div className="tab-content-wrapper">
-        <h1>{this.props.type === 'tx' ? 'Transactions' : 'Blocks'}</h1>
+      <div className="w-100">
+        {this.props.title}
         {!this.state.loaded ? <ReactLoading type='spin' color='#0081af' delay={500} /> : loadTable()}
         {loadPagination()}
       </div>
