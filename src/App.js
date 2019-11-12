@@ -83,13 +83,13 @@ class Root extends React.Component {
           <NavigationRoute exact path="/transaction/:id" component={TransactionDetail} />
           <NavigationRoute exact path="/push-tx" component={PushTx} />
           <NavigationRoute exact path="/decode-tx" component={DecodeTx} />
-          <NavigationRoute exact path="/dashboard-tx" component={DashboardTx} />
           <NavigationRoute exact path="/transactions" component={TransactionList} />
           <NavigationRoute exact path="/blocks" component={BlockList} />
           <NavigationRoute exact path="/dag" component={Dag} />
           <NavigationRoute exact path="/network" component={PeerAdmin} />
+          <NavigationRoute exact path="/statistics" component={Dashboard} />
           <NavigationRoute exact path="/token_detail/:tokenUID" component={TokenDetail} />
-          <NavigationRoute exact path="" component={Dashboard} />
+          <NavigationRoute exact path="" component={DashboardTx} />
         </Switch>
       </Router>
       )
