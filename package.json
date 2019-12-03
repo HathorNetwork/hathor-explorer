@@ -29,7 +29,7 @@
     "react-paginate": "^5.0.0",
     "react-redux": "^5.0.7",
     "react-router-dom": "4.2.2",
-    "react-scripts": "1.1.0",
+    "react-scripts": "^3.2.0",
     "redux": "^4.0.0",
     "viz.js": "^2.1.2"
   },
@@ -42,5 +42,17 @@
     "build": "npm-run-all build-css build-js",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
