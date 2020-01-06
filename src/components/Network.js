@@ -149,7 +149,7 @@ class Network extends React.Component {
         if (isConnected) {
           return renderConnected(peer, conn);
         } else {
-          return renderDisconnected(peer);
+          return null;
         }
       });
     }
