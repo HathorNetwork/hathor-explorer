@@ -12,6 +12,7 @@ import { axisBottom, axisLeft } from 'd3-axis';
 import { max, min, extent } from 'd3-array';
 import { easeLinear } from 'd3-ease';
 import { DASHBOARD_CHART_TIME } from '../constants';
+import helpers from '../utils/helpers';
 
 // This component class is used to create real time chart for d3 (AreaCharts, LineCharts, ...)
 // This should never be used directly, only as a child of another component
@@ -144,8 +145,11 @@ class D3ChartRealTime extends React.Component {
     const renderTitles = () => {
       const data = this.props.getY(this.props.data[this.props.data.length - 1]);
       return data.map((d, index) => {
+        const prettyfied = helpers.divideValueIntoPrefix(d);
+        const prettyValue = prettyfied.value;
+        const prefix = helpers.getUnitPrefix(prettyfied.divisions);
         return (
-          <p key={index} style={{color: this.props.colors[index]}}>{this.props.title[index]}: {d} {this.props.unit}</p>
+          <p key={index} style={{color: this.props.colors[index]}}>{this.props.title[index]}: {prettyValue} {prefix}{this.props.unit}</p>
         );
       });
     }

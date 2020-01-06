@@ -105,6 +105,56 @@ const helpers = {
   getShortHash(hash) {
     return `${hash.substring(0,12)}...${hash.substring(52,64)}`;
   },
+
+  /**
+   * Returns the prefixes for truncated values
+   *
+   * If the value was divided by 1024 one time, returns 'K',
+   * in case of two divisions, 'M', for 3 divisions, 'G' and so on.
+   *
+   * @param {number} divisions Number of times the value was divided by 1024
+   *
+   * @return {string} Prefix to be used
+   * @memberof Helpers
+   * @inner
+   */
+  getUnitPrefix(divisions) {
+    const unitMap = {
+      0: '',
+      1: 'K',
+      2: 'M',
+      3: 'G',
+      4: 'T',
+      5: 'P',
+      6: 'E',
+      7: 'Z',
+      8: 'Y',
+    }
+    return unitMap[divisions];
+  },
+
+  /**
+   * Divide a big value to be used with prefixes
+   * The value is divided by 1024 while it can
+   *
+   * 3,000 = 2.93 after one division (K)
+   * 50,000,000 = 47.68 after two divisions (M)
+   *
+   * @param {number} value Value to be divided
+   *
+   * @return {Object} Object with truncated value and number of divisions
+   * @memberof Helpers
+   * @inner
+   */
+  divideValueIntoPrefix(value) {
+    let divisions = 0;
+    while ((value / 1024) > 1) {
+      value /= 1024;
+      divisions += 1;
+    }
+
+    return {value: value.toFixed(2), divisions};
+  },
 }
 
 export default helpers;

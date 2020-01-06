@@ -7,6 +7,10 @@ $purpleHathor: #8C46FF;
 $purpleHathorHover: #5f2eaf;
 $warning: #ce9c06;
 
+:export {
+  purpleHathor: $purpleHathor;
+}
+
 html, body, #root {
   height: 100%;
   width: 100%;
