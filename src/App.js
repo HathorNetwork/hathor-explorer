@@ -30,6 +30,7 @@ import { BASE_URL } from './constants';
 const store = new hathorLib.MemoryStore();
 hathorLib.storage.setStore(store);
 hathorLib.storage.setItem('wallet:server', BASE_URL);
+hathorLib.network.setNetwork('mainnet');
 
 const mapDispatchToProps = dispatch => {
   return {

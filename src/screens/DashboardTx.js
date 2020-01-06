@@ -6,64 +6,113 @@
  */
 
 import React from 'react';
-import txApi from '../api/txApi';
-import {DASHBOARD_BLOCKS_COUNT, DASHBOARD_TX_COUNT} from '../constants';
 import TxRow from '../components/TxRow';
-import helpers from '../utils/helpers';
-import WebSocketHandler from '../WebSocketHandler';
+import SearchTx from '../components/SearchTx';
+import hathorLib from '@hathor/wallet-lib';
+import { DASHBOARD_TX_COUNT, DASHBOARD_BLOCKS_COUNT } from '../constants';
 
 
+/**
+ * Dashboard screen that show some blocks and some transactions
+ *
+ * @memberof Screens
+ */
 class DashboardTx extends React.Component {
-  constructor(props) {
-    super(props);
+  /**
+   * transactions {Array} Array of transactions to show in the dashboard
+   * blocks {Array} Array of blocks to show in the dashboard
+   */
+  state = { transactions: [], blocks: [] };
 
-    this.state = {
-      transactions: [],
-      blocks: []
-    }
+  componentDidMount = () => {
+    this.getInitialData();
+    hathorLib.WebSocketHandler.on('network', this.handleWebsocket);
   }
 
-  componentDidMount() {
-    txApi.getDashboardTx(DASHBOARD_BLOCKS_COUNT, DASHBOARD_TX_COUNT).then((data) => {
+  componentWillUnmount = () => {
+    hathorLib.WebSocketHandler.removeListener('network', this.handleWebsocket);
+  }
+
+  /**
+   * Get initial data to fill the screen and update the state with this data
+   */
+  getInitialData = () => {
+    hathorLib.txApi.getDashboardTx(DASHBOARD_BLOCKS_COUNT, DASHBOARD_TX_COUNT, (data) => {
       this.updateData(data.transactions, data.blocks);
     }, (e) => {
       // Error in request
       console.log(e);
     });
-
-    WebSocketHandler.on('network', this.handleWebsocket);
   }
 
-  componentWillUnmount() {
-    WebSocketHandler.removeListener('network', this.handleWebsocket);
-  }
-
+  /**
+   * Handle websocket message to see if should update the list
+   */
   handleWebsocket = (wsData) => {
     if (wsData.type === 'network:new_tx_accepted') {
       this.updateListWs(wsData);
     }
   }
 
+  /**
+   * Update list because a new element arrived
+   */
   updateListWs = (tx) => {
     if (tx.is_block) {
       let blocks = this.state.blocks;
 
-      blocks = helpers.updateListWs(blocks, tx, DASHBOARD_BLOCKS_COUNT);
+      blocks = hathorLib.helpers.updateListWs(blocks, tx, DASHBOARD_BLOCKS_COUNT);
 
       // Finally we update the state again
       this.setState({ blocks });
     } else {
       let transactions = this.state.transactions;
 
-      transactions = helpers.updateListWs(transactions, tx, DASHBOARD_TX_COUNT);
+      transactions = hathorLib.helpers.updateListWs(transactions, tx, DASHBOARD_TX_COUNT);
 
       // Finally we update the state again
       this.setState({ transactions });
     }
   }
 
+  /**
+   * Update state data for transactions and blocks
+   */
   updateData = (transactions, blocks) => {
     this.setState({ transactions, blocks });
+  }
+
+  /**
+   * Go to specific transaction or block page after clicking on the link
+   */
+  goToList = (e, to) => {
+    e.preventDefault();
+    this.props.history.push(to);
+  }
+
+  /**
+   * Reload data after search for address was executed  
+   * Must separate into transactions and blocks
+   */
+  newData = (data) => {
+    const transactions = [];
+    const blocks = [];
+    for (const tx of data) {
+      if (hathorLib.helpers.isBlock(tx)) {
+        blocks.push(tx);
+      } else {
+        transactions.push(tx);
+      }
+    }
+    this.updateData(transactions, blocks);
+  }
+
+  /**
+   * Reset data loading initial data  
+   * Executed when searching 'empty' after a previous filter was done
+   */
+  resetData = () => {
+    this.getInitialData();
   }
 
   render() {
@@ -92,6 +141,8 @@ class DashboardTx extends React.Component {
 
     return (
       <div className="content-wrapper">
+        <p className="mt-4 mb-4">Here you can see the most recent transactions and blocks of the network.</p>
+        <SearchTx {...this.props} newData={this.newData} resetData={this.resetData} />
         <div className="table-responsive">
           <table className="table" id="tx-table">
             <thead>
