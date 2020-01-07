@@ -78,7 +78,7 @@ class Navigation extends React.Component {
               </li>
             </ul>
             <div className="navbar-right d-flex flex-row align-items-center navigation-search">
-							<div className="d-flex flex-row align-items-center">
+              <div className="d-flex flex-row align-items-center">
                 <input className="form-control mr-2" type="search" placeholder="Search tx" aria-label="Search" ref="txSearch" onKeyUp={this.handleKeyUp} />
                 <i className="fa fa-search pointer" onClick={this.search}></i>
               </div>
