@@ -90,31 +90,6 @@ class DashboardTx extends React.Component {
     this.props.history.push(to);
   }
 
-  /**
-   * Reload data after search for address was executed  
-   * Must separate into transactions and blocks
-   */
-  newData = (data) => {
-    const transactions = [];
-    const blocks = [];
-    for (const tx of data) {
-      if (hathorLib.helpers.isBlock(tx)) {
-        blocks.push(tx);
-      } else {
-        transactions.push(tx);
-      }
-    }
-    this.updateData(transactions, blocks);
-  }
-
-  /**
-   * Reset data loading initial data  
-   * Executed when searching 'empty' after a previous filter was done
-   */
-  resetData = () => {
-    this.getInitialData();
-  }
-
   render() {
     const renderTableBody = () => {
       return (
@@ -141,8 +116,6 @@ class DashboardTx extends React.Component {
 
     return (
       <div className="content-wrapper">
-        <p className="mt-4 mb-4">Here you can see the most recent transactions and blocks of the network.</p>
-        <SearchTx {...this.props} newData={this.newData} resetData={this.resetData} />
         <div className="table-responsive">
           <table className="table" id="tx-table">
             <thead>
