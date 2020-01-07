@@ -9,6 +9,7 @@ import React from 'react';
 import networkApi from '../api/networkApi';
 import ReactLoading from 'react-loading';
 import dateFormatter from '../utils/date';
+import colors from '../index.scss';
 
 
 class Network extends React.Component {
@@ -157,7 +158,7 @@ class Network extends React.Component {
     return (
       <div className="d-flex flex-column align-items-end">
         {this.state.loaded ? <button className='btn btn-hathor mb-3' onClick={this.loadData}>Reload data</button> : null}
-        {!this.state.loaded ? <ReactLoading type='spin' color='#0081af' delay={500} /> : loadTable()}
+        {!this.state.loaded ? <ReactLoading type='spin' color={colors.purpleHathor} delay={500} /> : loadTable()}
       </div>
     );
   }

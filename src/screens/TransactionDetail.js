@@ -10,6 +10,7 @@ import ReactLoading from 'react-loading';
 import TxData from '../components/TxData';
 import txApi from '../api/txApi';
 import hathorLib from '@hathor/wallet-lib';
+import colors from '../index.scss';
 
 
 /**
@@ -101,7 +102,7 @@ class TransactionDetail extends React.Component {
 
     return (
       <div className="flex align-items-center content-wrapper">
-        {!this.state.loaded ? <ReactLoading type='spin' color='#0081af' delay={500} /> : renderTx()}
+        {!this.state.loaded ? <ReactLoading type='spin' color={colors.purpleHathor} delay={500} /> : renderTx()}
       </div>
     );
   }
