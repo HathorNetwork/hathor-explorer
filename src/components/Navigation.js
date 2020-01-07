@@ -13,7 +13,7 @@ import Version from './Version';
 
 
 class Navigation extends React.Component {
-	constructor(props) {
+  constructor(props) {
     super(props);
 
     this.handleKeyUp = this.handleKeyUp.bind(this);
