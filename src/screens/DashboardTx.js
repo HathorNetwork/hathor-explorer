@@ -141,14 +141,14 @@ class DashboardTx extends React.Component {
 
     return (
       <div className="content-wrapper">
-        <p className="mt-4 mb-4">Here you can see the most recent transactions and blocks of the network.</p>
         <SearchTx {...this.props} newData={this.newData} resetData={this.resetData} />
         <div className="table-responsive">
           <table className="table" id="tx-table">
             <thead>
               <tr>
-                <th>Hash</th>
-                <th>Timestamp</th>
+                <th className="d-none d-lg-table-cell">Hash</th>
+                <th className="d-none d-lg-table-cell">Timestamp</th>
+                <th className="d-table-cell d-lg-none" colSpan="2">Hash<br/>Timestamp</th>
               </tr>
             </thead>
             {renderTableBody()}

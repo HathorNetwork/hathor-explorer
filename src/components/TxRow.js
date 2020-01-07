@@ -8,6 +8,7 @@
 import React from 'react';
 import dateFormatter from '../utils/date';
 import { withRouter } from "react-router-dom";
+import hathorLib from '@hathor/wallet-lib';
 
 
 class TxRow extends React.Component {
@@ -19,8 +20,9 @@ class TxRow extends React.Component {
   render() {
     return (
       <tr onClick={(e) => this.handleClickTr(this.props.tx.tx_id)}>
-        <td className="pr-3">{this.props.tx.tx_id}</td>
-        <td className="pr-3">{dateFormatter.parseTimestamp(this.props.tx.timestamp)}</td>
+        <td className="d-none d-lg-table-cell pr-3">{this.props.tx.tx_id}</td>
+        <td className="d-none d-lg-table-cell pr-3">{dateFormatter.parseTimestamp(this.props.tx.timestamp)}</td>
+        <td className="d-lg-none d-table-cell pr-3" colSpan="2">{hathorLib.helpers.getShortHash(this.props.tx.tx_id)} {dateFormatter.parseTimestamp(this.props.tx.timestamp)}</td>
       </tr>
     );
   }
