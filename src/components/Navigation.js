@@ -46,7 +46,7 @@ class Navigation extends React.Component {
   render() {
     return (
       <div className="main-nav">
-        <nav className="navbar navbar-expand-lg navbar-dark">
+        <nav className="navbar navbar-expand-lg navbar-dark pl-3 pl-lg-0">
           <div className="d-flex flex-column align-items-center">
             <Link className="navbar-brand" to="/" href="/">
               <img src={logo} alt="" />

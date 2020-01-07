@@ -190,7 +190,7 @@ class TokenDetail extends React.Component {
     return (
       <div className="content-wrapper flex align-items-center">
         {renderTokenAlert()}
-        <div className='d-flex flex-row align-items-start justify-content-between token-detail-top'>
+        <div className='d-flex flex-column flex-lg-row align-items-lg-start align-items-center justify-content-between token-detail-top'>
           <div className='d-flex flex-column justify-content-between mt-4'>
             <div className='token-wrapper d-flex flex-row align-items-center mb-3'>
               <p className='token-name mb-0'>
@@ -199,7 +199,7 @@ class TokenDetail extends React.Component {
             </div>
             {renderTokenInfo()}
           </div>
-          <div className='d-flex flex-column align-items-center config-string-wrapper mt-4 ml-3'>
+          <div className='d-flex flex-column align-items-center config-string-wrapper mt-4 ml-lg-3 pl-lg-5 pr-lg-5'>
             <p><strong>Configuration String</strong></p>
             <span ref="configurationString" className="mb-2">
               {getShortConfigurationString()}

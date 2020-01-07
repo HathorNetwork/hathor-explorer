@@ -119,8 +119,9 @@ class DashboardTx extends React.Component {
           <table className="table" id="tx-table">
             <thead>
               <tr>
-                <th>Hash</th>
-                <th>Timestamp</th>
+                <th className="d-none d-lg-table-cell">Hash</th>
+                <th className="d-none d-lg-table-cell">Timestamp</th>
+                <th className="d-table-cell d-lg-none" colSpan="2">Hash<br/>Timestamp</th>
               </tr>
             </thead>
             {renderTableBody()}
