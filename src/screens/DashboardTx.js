@@ -7,7 +7,6 @@
 
 import React from 'react';
 import TxRow from '../components/TxRow';
-import SearchTx from '../components/SearchTx';
 import hathorLib from '@hathor/wallet-lib';
 import { DASHBOARD_TX_COUNT, DASHBOARD_BLOCKS_COUNT } from '../constants';
 
