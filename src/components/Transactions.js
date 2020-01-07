@@ -11,6 +11,7 @@ import {TX_COUNT} from '../constants';
 import TxRow from './TxRow';
 import helpers from '../utils/helpers';
 import WebSocketHandler from '../WebSocketHandler';
+import colors from '../index.scss';
 
 
 class Transactions extends React.Component {
@@ -134,12 +135,13 @@ class Transactions extends React.Component {
 
     const loadTable = () => {
       return (
-        <div className="table-responsive">
+        <div className="table-responsive mt-5">
           <table className="table table-striped" id="tx-table">
             <thead>
               <tr>
-                <th>Hash</th>
-                <th>Timestamp</th>
+                <th className="d-none d-lg-table-cell">Hash</th>
+                <th className="d-none d-lg-table-cell">Timestamp</th>
+                <th className="d-table-cell d-lg-none" colSpan="2">Hash<br/>Timestamp</th>
               </tr>
             </thead>
             <tbody>
@@ -161,7 +163,7 @@ class Transactions extends React.Component {
     return (
       <div className="w-100">
         {this.props.title}
-        {!this.state.loaded ? <ReactLoading type='spin' color='#0081af' delay={500} /> : loadTable()}
+        {!this.state.loaded ? <ReactLoading type='spin' color={colors.purpleHathor} delay={500} /> : loadTable()}
         {loadPagination()}
       </div>
     );

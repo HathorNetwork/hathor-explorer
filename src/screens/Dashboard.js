@@ -9,6 +9,7 @@ import React from 'react';
 import { connect } from "react-redux";
 import LineChartRealTime from '../components/LineChartRealTime';
 import AreaChartRealTime from '../components/AreaChartRealTime';
+import colors from '../index.scss';
 
 
 const mapStateToProps = (state) => {
@@ -50,15 +51,13 @@ class Dashboard extends React.Component {
   }
 
   render() {
+    const blocks = this.props.data.length > 0 ? this.props.data[this.props.data.length - 1].blocks : '';
+    const transactions = this.props.data.length > 0 ? this.props.data[this.props.data.length - 1].transactions : '';
     return (
       <div className="content-wrapper">
-        <LineChartRealTime data={this.props.data} getX={this.getXData} getY={this.getYTxRate} unit="tx/s" title={["Tx Rate"]}/>
-        <LineChartRealTime data={this.props.data} getX={this.getXData} getY={this.getYTx} title={["Transactions"]} />
-        <LineChartRealTime data={this.props.data} getX={this.getXData} getY={this.getYBlock} title={["Blocks"]}/>
-        <LineChartRealTime data={this.props.data} getX={this.getXData} getY={this.getYHashRate} unit="hashes/s" title={["Hash Rate"]}/>
-        <LineChartRealTime data={this.props.data} getX={this.getXData} getY={this.getYFullHashRate} unit="hashes/s" title={["Block Hash Rate", "Tx Hash Rate"]} colors={["steelBlue", "darkgoldenrod"]}/>
-        <AreaChartRealTime data={this.props.data} getX={this.getXData} getY={this.getYStackedHashRate} unit="hashes/s" title={["Block Hash Rate", "Total Hash Rate"]} colors={["steelBlue", "darkgoldenrod"]}/>
-        <LineChartRealTime data={this.props.data} getX={this.getXData} getY={this.getYPeers} title={["Peers"]}/>
+        <p><strong>Blocks: </strong>{blocks}</p>
+        <p><strong>Transactions: </strong>{transactions}</p>
+        <LineChartRealTime data={this.props.data} getX={this.getXData} getY={this.getYHashRate} unit="h/s" title={["Hash Rate"]} colors={[colors.purpleHathor]} />
       </div>
     );
   }

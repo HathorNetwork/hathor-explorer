@@ -42,9 +42,7 @@ class TransactionList extends React.Component {
   render() {
     return (
       <div className="content-wrapper">
-        <div className="tab-content-wrapper">
-          <Transactions title={<h1>Transactions</h1>} shouldUpdateList={this.shouldUpdateList} updateData={this.updateData} />
-        </div>
+        <Transactions title={<h1>Transactions</h1>} shouldUpdateList={this.shouldUpdateList} updateData={this.updateData} />
       </div>
     );
   }

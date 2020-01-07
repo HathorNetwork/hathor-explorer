@@ -428,48 +428,48 @@ class TxData extends React.Component {
         <div className="tx-data-wrapper">
           {this.props.showConflicts ? renderConflicts() : ''}
           <div><label>{hathorLib.helpers.isBlock(this.props.transaction) ? 'Block' : 'Transaction'} ID:</label> {this.props.transaction.hash}</div>
-          <div className="d-flex flex-row align-items-start mt-3 mb-3">
-            <div className="d-flex flex-column align-items-start common-div bordered-wrapper mr-3">
+          <div className="d-flex flex-column flex-lg-row align-items-start mt-3 mb-3">
+            <div className="d-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
               <div><label>Type:</label> {hathorLib.helpers.getTxType(this.props.transaction)}</div>
               <div><label>Time:</label> {dateFormatter.parseTimestamp(this.props.transaction.timestamp)}</div>
-              <div><label>Nonce:</label> {this.props.transaction.nonce}</div>
+              <div><label>Nonce:</label> {this.props.transaction.nonce.toString()}</div>
               <div><label>Weight:</label> {helpers.roundFloat(this.props.transaction.weight)}</div>
               {!hathorLib.helpers.isBlock(this.props.transaction) && renderFirstBlockDiv()}
             </div>
-            <div className="d-flex flex-column align-items-center important-div bordered-wrapper">
+            <div className="d-flex flex-column align-items-center important-div bordered-wrapper mt-3 mt-lg-0 w-100">
               {hathorLib.helpers.isBlock(this.props.transaction) && renderScore()}
               {!hathorLib.helpers.isBlock(this.props.transaction) && renderAccWeightDiv()}
               {!hathorLib.helpers.isBlock(this.props.transaction) && renderConfirmationLevel()}
             </div>
           </div>
-          <div className="d-flex flex-row align-items-start mb-3">
-            <div className="f-flex flex-column align-items-start common-div bordered-wrapper mr-3">
+          <div className="d-flex flex-column flex-lg-row align-items-start mb-3 w-100">
+            <div className="f-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
               <div><label>Inputs:</label></div>
               {renderInputs(this.props.transaction.inputs)}
             </div>
-            <div className="d-flex flex-column align-items-center common-div bordered-wrapper">
+            <div className="d-flex flex-column align-items-center common-div bordered-wrapper mt-3 mt-lg-0 w-100">
               <div><label>Outputs:</label></div>
               {renderOutputs(this.props.transaction.outputs)}
             </div>
           </div>
           {this.state.tokens.length > 0 && renderTokenList()}
-          <div className="d-flex flex-row align-items-start mb-3">
-            <div className="f-flex flex-column align-items-start common-div bordered-wrapper mr-3">
+          <div className="d-flex flex-column flex-lg-row align-items-start mb-3">
+            <div className="f-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
               <div><label>Parents:</label></div>
               {renderDivList(this.props.transaction.parents)}
             </div>
-            <div className="f-flex flex-column align-items-start common-div bordered-wrapper mr-3">
+            <div className="f-flex flex-column align-items-start common-div bordered-wrapper mt-3 mt-lg-0 w-100">
               <div><label>Children: </label>{this.props.meta.children.length > 0 && <a href="true" className="ml-1" onClick={(e) => this.toggleChildren(e)}>{this.state.children ? 'Click to hide' : 'Click to show'}</a>}</div>
               {this.state.children && renderDivList(this.props.meta.children)}
             </div>
           </div>
-          <div className="d-flex flex-row align-items-start mb-3 common-div bordered-wrapper">
+          <div className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
             {this.props.showGraphs && renderGraph('Verification neighbors', 'verification')}
           </div>
-          <div className="d-flex flex-row align-items-start mb-3 common-div bordered-wrapper">
+          <div className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
             {this.props.showGraphs && renderGraph('Funds neighbors', 'funds')}
           </div>
-          <div className="d-flex flex-row align-items-start mb-3 common-div bordered-wrapper">
+          <div className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
             {this.props.showRaw ? showRawWrapper() : null}
           </div>
         </div>

@@ -7,6 +7,10 @@ $purpleHathor: #8C46FF;
 $purpleHathorHover: #5f2eaf;
 $warning: #ce9c06;
 
+:export {
+  purpleHathor: $purpleHathor;
+}
+
 html, body, #root {
   height: 100%;
   width: 100%;
@@ -334,7 +338,7 @@ svg.svg-wrapper {
 }
 
 .config-string-wrapper span {
-  width: 300px;
+  width: 240px;
   text-align: center;
 }
 
@@ -362,4 +366,23 @@ p.subtitle {
 
 .text-warning a {
   color: $warning !important;
+}
+
+.search-div {
+  margin-bottom: 3rem;
+  margin-top: 3rem;
+  padding-left: 0;
+}
+
+#graph-funds svg, #graph-verification svg {
+  width: 100%;
+}
+
+.navbar-dark .navbar-toggler {
+  border: 0;
+}
+
+.dropdown-menu a.nav-link {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
