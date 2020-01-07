@@ -89,7 +89,7 @@ class SearchTx extends React.Component {
   render = () => {
     return (
       <div className="d-flex flex-row align-items-center search-div col-12 col-md-6">
-        <input className="form-control mr-2" type="search" placeholder="Find transaction/block by hash or address" aria-label="Search" ref="txSearch" onKeyUp={this.handleKeyUp} />
+        <input className="form-control mr-2" type="search" placeholder="Search address or transaction id" aria-label="Search" ref="txSearch" onKeyUp={this.handleKeyUp} />
         <i className="fa fa-search pointer" onClick={this.search}></i>
         <HathorAlert ref="alertError" text="Invalid address and hash format" type="danger" />
       </div>
