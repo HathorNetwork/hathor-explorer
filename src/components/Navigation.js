@@ -13,6 +13,36 @@ import Version from './Version';
 
 
 class Navigation extends React.Component {
+	constructor(props) {
+    super(props);
+
+    this.handleKeyUp = this.handleKeyUp.bind(this);
+    this.search = this.search.bind(this);
+  }
+
+  handleKeyUp(e) {
+    if (e.key === 'Enter') {
+      this.search();
+    }
+  }
+
+  search() {
+    const hash = this.refs.txSearch.value;
+
+    if (hash) {
+      const regex = /[A-Fa-f\d]{64}/g;
+      if (regex.test(hash)) {
+        this.props.history.push(`/transaction/${hash}`);
+      } else {
+        this.showError();
+      }
+    }
+  }
+
+  showError() {
+    this.refs.alertError.show(3000);
+  }
+
   render() {
     return (
       <div className="main-nav">
@@ -48,10 +78,15 @@ class Navigation extends React.Component {
               </li>
             </ul>
             <div className="navbar-right d-flex flex-row align-items-center navigation-search">
+							<div className="d-flex flex-row align-items-center">
+                <input className="form-control mr-2" type="search" placeholder="Search tx" aria-label="Search" ref="txSearch" onKeyUp={this.handleKeyUp} />
+                <i className="fa fa-search pointer" onClick={this.search}></i>
+              </div>
               <Version />
             </div>
           </div>
         </nav>
+        <HathorAlert ref="alertError" text="Invalid hash format" type="danger" />
       </div>
     );
   }
