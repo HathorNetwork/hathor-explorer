@@ -37,7 +37,7 @@ export const DASHBOARD_CHART_TIME = 200;
 
 export const DECIMAL_PLACES = 2;
 
-export const VERSION = '0.4.0';
+export const VERSION = '0.4.1';
 
 export const MIN_API_VERSION = '0.29.0';
 

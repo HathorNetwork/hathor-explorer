@@ -53,10 +53,12 @@ class Dashboard extends React.Component {
   render() {
     const blocks = this.props.data.length > 0 ? this.props.data[this.props.data.length - 1].blocks : '';
     const transactions = this.props.data.length > 0 ? this.props.data[this.props.data.length - 1].transactions : '';
+    const peers = this.props.data.length > 0 ? this.props.data[this.props.data.length - 1].peers : '';
     return (
       <div className="content-wrapper">
         <p><strong>Blocks: </strong>{blocks}</p>
         <p><strong>Transactions: </strong>{transactions}</p>
+        <p><strong>Peers: </strong>{peers}</p>
         <LineChartRealTime data={this.props.data} getX={this.getXData} getY={this.getYHashRate} unit="h/s" title={["Hash Rate"]} colors={[colors.purpleHathor]} />
       </div>
     );
