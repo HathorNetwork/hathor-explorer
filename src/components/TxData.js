@@ -359,6 +359,14 @@ class TxData extends React.Component {
       }
     }
 
+    const renderHeight = () => {
+      return (
+        <div>
+          <label>Height:</label> {this.props.transaction.height}
+        </div>
+      );
+    }
+
     const renderScore = () => {
       return (
         <div>
@@ -432,11 +440,12 @@ class TxData extends React.Component {
             <div className="d-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
               <div><label>Type:</label> {hathorLib.helpers.getTxType(this.props.transaction)}</div>
               <div><label>Time:</label> {dateFormatter.parseTimestamp(this.props.transaction.timestamp)}</div>
-              <div><label>Nonce:</label> {this.props.transaction.nonce.toString()}</div>
+              <div><label>Nonce:</label> {this.props.transaction.nonce}</div>
               <div><label>Weight:</label> {helpers.roundFloat(this.props.transaction.weight)}</div>
               {!hathorLib.helpers.isBlock(this.props.transaction) && renderFirstBlockDiv()}
             </div>
             <div className="d-flex flex-column align-items-center important-div bordered-wrapper mt-3 mt-lg-0 w-100">
+              {hathorLib.helpers.isBlock(this.props.transaction) && renderHeight()}
               {hathorLib.helpers.isBlock(this.props.transaction) && renderScore()}
               {!hathorLib.helpers.isBlock(this.props.transaction) && renderAccWeightDiv()}
               {!hathorLib.helpers.isBlock(this.props.transaction) && renderConfirmationLevel()}

@@ -16,6 +16,7 @@ import PushTx from './screens/PushTx';
 import TransactionList from './screens/TransactionList';
 import BlockList from './screens/BlockList';
 import TokenDetail from './screens/TokenDetail';
+import TokensList from './screens/TokensList';
 import Dag from './screens/Dag';
 import Dashboard from './screens/Dashboard';
 import VersionError from './screens/VersionError';
@@ -90,6 +91,7 @@ class Root extends React.Component {
           <NavigationRoute exact path="/network" component={PeerAdmin} />
           <NavigationRoute exact path="/statistics" component={Dashboard} />
           <NavigationRoute exact path="/token_detail/:tokenUID" component={TokenDetail} />
+          <NavigationRoute exact path="/tokens" component={TokensList} />
           <NavigationRoute exact path="" component={DashboardTx} />
         </Switch>
       </Router>
