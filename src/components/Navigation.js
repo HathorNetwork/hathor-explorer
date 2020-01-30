@@ -10,6 +10,7 @@ import { NavLink, Link } from 'react-router-dom';
 import logo from '../assets/images/hathor-white-logo.png';
 import HathorAlert from './HathorAlert';
 import Version from './Version';
+import hathorLib from '@hathor/wallet-lib';
 
 
 class Navigation extends React.Component {
@@ -27,12 +28,16 @@ class Navigation extends React.Component {
   }
 
   search() {
-    const hash = this.refs.txSearch.value;
+    const text = this.refs.txSearch.value;
 
-    if (hash) {
+    if (text) {
       const regex = /[A-Fa-f\d]{64}/g;
-      if (regex.test(hash)) {
-        this.props.history.push(`/transaction/${hash}`);
+      if (regex.test(text)) {
+        // It's a valid hash
+        this.props.history.push(`/transaction/${text}`);
+      } else if (hathorLib.transaction.isAddressValid(text)) {
+        // It's a valid address
+        this.props.history.push(`/address/${text}`);
       } else {
         this.showError();
       }
