@@ -87,14 +87,14 @@ class Navigation extends React.Component {
             </ul>
             <div className="navbar-right d-flex flex-row align-items-center navigation-search">
               <div className="d-flex flex-row align-items-center">
-                <input className="form-control mr-2" type="search" placeholder="Search tx" aria-label="Search" ref="txSearch" onKeyUp={this.handleKeyUp} />
+                <input className="form-control mr-2" type="search" placeholder="Search tx or address" aria-label="Search" ref="txSearch" onKeyUp={this.handleKeyUp} />
                 <i className="fa fa-search pointer" onClick={this.search}></i>
               </div>
               <Version />
             </div>
           </div>
         </nav>
-        <HathorAlert ref="alertError" text="Invalid hash format" type="danger" />
+        <HathorAlert ref="alertError" text="Invalid hash format or address" type="danger" />
       </div>
     );
   }
