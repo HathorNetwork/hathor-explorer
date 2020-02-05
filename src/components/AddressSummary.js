@@ -23,12 +23,14 @@ class AddressSummary extends React.Component {
    * quantity {number} Number of transactions in this address
    * loading {boolean} If is waiting server response
    * errorMessage {String} Message to be shown in case of an error
+   * selectedToken {String} UID of the selected token when address has many
    */
   state = {
     balance: {},
     quantity: null,
     loading: true,
     errorMessage: '',
+    selectedToken: '',
   }
 
   componentDidMount() {
@@ -68,10 +70,27 @@ class AddressSummary extends React.Component {
   getData() {
     hathorLib.walletApi.getAddressBalance(this.props.address, (response) => {
       if (response.success) {
+        let selectedToken = '';
+        if (this.state.selectedToken) {
+          // If user had selected a token already, should continue the same
+          selectedToken = this.state.selectedToken;
+        } else {
+          const hathorUID = hathorLib.constants.HATHOR_TOKEN_CONFIG.uid
+          if (hathorUID in response.tokens_data) {
+            // If HTR is in the token list of this address, it's the default selection
+            selectedToken = hathorUID;
+          } else {
+            // Otherwise we get the first element
+            const keys = Object.keys(response.tokens_data);
+            selectedToken = response.tokens_data[keys[0]];
+          }
+        }
+
         this.setState({
           balance: response.tokens_data,
           quantity: response.quantity,
           loading: false,
+          selectedToken,
         });
       } else {
         this.setState({
@@ -82,36 +101,66 @@ class AddressSummary extends React.Component {
     });
   }
 
+  /**
+   * Called when selected token is changed
+   *
+   * @param {Object} e Event emitted when select is changed
+   */
+  selectChanged = (e) => {
+    this.setState({ selectedToken: e.target.value });
+  }
+
   render() {
     const loadMainInfo = () => {
       return (
         <div className="card text-white bg-dark mb-3">
           <div className="card-body">
             Address: {this.props.address}<br />
-            Number of transactions: {this.state.quantity}
+            Number of transactions: {this.state.quantity}<br />
+            Number of tokens: {Object.keys(this.state.balance).length}
           </div>
         </div>
       );
     }
 
     const loadBalanceInfo = () => {
-      return Object.keys(this.state.balance).map((key) => {
-        return loadOneTokenBalance(key);
-      });
-    }
-
-    const loadOneTokenBalance = (uid) => {
-      const balance = this.state.balance[uid];
+      const balance = this.state.balance[this.state.selectedToken];
       return (
-        <div className="card bg-light mb-3" key={uid}>
+        <div className="card bg-light mb-3">
           <div className="card-body">
-            Token: {balance.name} ({balance.symbol})<br />
+            Token: {renderTokenData()}<br />
             Total received: {hathorLib.helpers.prettyValue(balance.received)}<br />
             Total spent: {hathorLib.helpers.prettyValue(balance.spent)}<br />
-            Final balance: {hathorLib.helpers.prettyValue(balance.received - balance.spent)}
+            <strong>Final balance: </strong>{hathorLib.helpers.prettyValue(balance.received - balance.spent)}
           </div>
         </div>
       );
+    }
+
+    const renderTokenData = () => {
+      if (Object.keys(this.state.balance).length === 1) {
+        const balance = this.state.balance[this.state.selectedToken];
+        return <span>{balance.name} ({balance.symbol})</span>
+      } else {
+        return (
+          <select value={this.state.selectedToken} onChange={this.selectChanged}>
+            {renderTokenOptions()}
+          </select>
+        );
+      }
+    }
+
+    const renderTokenOptions = () => {
+      return Object.keys(this.state.balance).map((uid) => {
+        const tokenData = this.state.balance[uid];
+        return <option value={uid} key={uid}>{tokenData.name} ({tokenData.symbol})</option>;
+      });
+      return this.props.balance.map((token) => {
+        // Show in the select only the tokens not already selected plus the current selection
+        if (this.state.selectedTokens.find((selectedToken) => selectedToken.uid === token.uid) === undefined || token.uid === this.state.selected.uid) {
+        }
+        return null;
+      })
     }
 
     const loadSummary = () => {
