@@ -18,9 +18,10 @@ import hathorLib from '@hathor/wallet-lib';
 
 
 class AddressHistory extends React.Component {
-  // TODO Should update on props change (on address change)
-  // TODO add proptypes
-  // TODO comments about each state
+  /**
+   * transactions {Array} List of transactions on the list
+   * loading {boolean} If is waiting response of data request
+   */
   state = {
     transactions: [],
     loading: true,
@@ -28,8 +29,38 @@ class AddressHistory extends React.Component {
 
   componentDidMount() {
     this.getData();
+
+    WebSocketHandler.on('network', this.handleWebsocket);
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.props.address !== prevProps.address) {
+      // Address changed, must update date
+      this.getData();
+    }
+  }
+
+  componentWillUnmount() {
+    WebSocketHandler.removeListener('network', this.handleWebsocket);
+  }
+
+  /**
+   * Called when 'network' ws message arrives
+   * If it's a new tx message update data, in case is necessary
+   *
+   * @param {Object} wsData Data from websocket
+   */
+  handleWebsocket = (wsData) => {
+    if (wsData.type === 'network:new_tx_accepted') {
+      if (this.props.shouldUpdate(wsData)) {
+        this.getData();
+      }
+    }
+  }
+
+  /**
+   * Update transactions data state after requesting data from the server
+   */
   getData = () => {
     hathorLib.wallet.getHistory([this.props.address]).then((transactions) => {
       this.setState({ transactions, loading: false });
@@ -39,6 +70,11 @@ class AddressHistory extends React.Component {
     });
   }
 
+  /**
+   * Redirects to transaction detail screen after clicking on a table row
+   *
+   * @param {String} hash Hash of tx clicked
+   */
   handleClickTr = (hash) => {
     this.props.history.push(`/transaction/${hash}`);
   }
@@ -84,5 +120,15 @@ class AddressHistory extends React.Component {
     );
   }
 }
+
+/*
+ * address: Address to show summary
+ * shouldUpdate: Function that receives a tx data and returns if summary should be updated
+ */
+AddressHistory.propTypes = {
+  address: PropTypes.string.isRequired,
+  shouldUpdate: PropTypes.func.isRequired,
+};
+
 
 export default AddressHistory;

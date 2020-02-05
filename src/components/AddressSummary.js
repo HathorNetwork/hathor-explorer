@@ -14,12 +14,16 @@ import helpers from '../utils/helpers';
 import WebSocketHandler from '../WebSocketHandler';
 import colors from '../index.scss';
 import hathorLib from '@hathor/wallet-lib';
+import PropTypes from 'prop-types';
 
 
 class AddressSummary extends React.Component {
-  // TODO Should update on props change (on address change)
-  // TODO add propTypes with address
-  // TODO add state comments
+  /**
+   * balance {Object} Object with balance of each token of this address indexed by tokenUid {uid1: {'received', 'spent'}}
+   * quantity {number} Number of transactions in this address
+   * loading {boolean} If is waiting server response
+   * errorMessage {String} Message to be shown in case of an error
+   */
   state = {
     balance: {},
     quantity: null,
@@ -33,10 +37,23 @@ class AddressSummary extends React.Component {
     WebSocketHandler.on('network', this.handleWebsocket);
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.props.address !== prevProps.address) {
+      // Address changed, must update date
+      this.getData();
+    }
+  }
+
   componentWillUnmount() {
     WebSocketHandler.removeListener('network', this.handleWebsocket);
   }
 
+  /**
+   * Called when 'network' ws message arrives
+   * If it's a new tx message update data, in case is necessary
+   *
+   * @param {Object} wsData Data from websocket
+   */
   handleWebsocket = (wsData) => {
     if (wsData.type === 'network:new_tx_accepted') {
       if (this.props.shouldUpdate(wsData)) {
@@ -45,6 +62,9 @@ class AddressSummary extends React.Component {
     }
   }
 
+  /**
+   * Request data from server and update state balance and quantity
+   */
   getData() {
     hathorLib.walletApi.getAddressBalance(this.props.address, (response) => {
       if (response.success) {
@@ -82,7 +102,6 @@ class AddressSummary extends React.Component {
 
     const loadOneTokenBalance = (uid) => {
       const balance = this.state.balance[uid];
-      console.log('Load one token', this.state.balance);
       return (
         <div className="card bg-light mb-3" key={uid}>
           <div className="card-body">
@@ -114,5 +133,14 @@ class AddressSummary extends React.Component {
     );
   }
 }
+
+/*
+ * address: Address to show summary
+ * shouldUpdate: Function that receives a tx data and returns if summary should be updated
+ */
+AddressSummary.propTypes = {
+  address: PropTypes.string.isRequired,
+  shouldUpdate: PropTypes.func.isRequired,
+};
 
 export default AddressSummary;

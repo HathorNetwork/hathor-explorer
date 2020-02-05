@@ -8,19 +8,39 @@
 import React from 'react';
 import AddressSummary from '../components/AddressSummary';
 import AddressHistory from '../components/AddressHistory';
-import hathorLib from '@hathor/wallet-lib';
+import { transaction, walletApi } from '@hathor/wallet-lib';
 
 
 class AddressDetail extends React.Component {
-  // TODO Add state comments
+  /*
+   * address {String} searched address (from url)
+   * errorMessage {String} message to be shown in case of an error
+   */
   state = {
     address: null,
     errorMessage: '',
   }
 
   componentDidMount() {
-    const address = this.props.match.params.address;
-    if (hathorLib.transaction.isAddressValid(address)) {
+    // Expects address on URL
+    this.updateAddress(this.props.match.params.address);
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.match.params.address !== this.props.match.params.address) {
+      // Address on the URL changed
+      this.updateAddress(this.props.match.params.address);
+    }
+  }
+
+  /**
+   * Check if address is valid and then update the state
+   * If not valid show error message
+   *
+   * @param {Object} address New searched address to update state
+   */
+  updateAddress = (address) => {
+    if (transaction.isAddressValid(address)) {
       this.setState({ address });
     } else {
       this.setState({ errorMessage: 'Invalid address.' });
@@ -28,29 +48,22 @@ class AddressDetail extends React.Component {
   }
 
   /**
-   * TODO
+   * Check if the searched address is on the inputs or outputs of the new tx
    *
    * @param {Object} tx Transaction data received in the websocket
    *
    * @return {boolean} True if should update the list, false otherwise
    */
   shouldUpdate = (tx) => {
-    // TODO Check if tx has the searched address
-    return true;
-  }
+    const arr = [...tx.outputs, ...tx.inputs];
 
-  /*
-   * Method called when updating the list with new data
-   * Call the API of transactions list
-   *
-   * @param {number} timestamp Timestamp reference of the pagination
-   * @param {string} hash Hash reference of the pagination
-   * @param {string} page Button clicked in the pagination ('previous' or 'next')
-   *
-   * @return {Promise} Promise to be resolved when new data arrives
-   */
-  updateData = (hash) => {
-    return hathorLib.walletApi.getAddressHistory([this.state.address], hash);
+    for (const element of arr) {
+      if (element.decoded.address === this.state.address) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   render() {
@@ -65,7 +78,7 @@ class AddressDetail extends React.Component {
         return (
           <div>
             <AddressSummary address={this.state.address} shouldUpdate={this.shouldUpdate} />
-            <AddressHistory address={this.state.address} shouldUpdate={this.shouldUpdate} updateData={this.updateData} />
+            <AddressHistory address={this.state.address} shouldUpdate={this.shouldUpdate} />
           </div>
         );
       }
