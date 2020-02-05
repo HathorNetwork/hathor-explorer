@@ -15,6 +15,7 @@ import helpers from '../utils/helpers';
 import WebSocketHandler from '../WebSocketHandler';
 import colors from '../index.scss';
 import hathorLib from '@hathor/wallet-lib';
+import PropTypes from 'prop-types';
 
 
 class AddressHistory extends React.Component {
