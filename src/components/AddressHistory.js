@@ -26,18 +26,35 @@ class AddressHistory extends React.Component {
   state = {
     transactions: [],
     loading: true,
+    firstHash: null,
+    lastHash: null,
+    hasAfter: false,
+    hasBefore: false,
+    queryParams: this.obtainQueryParams(),
   }
 
   componentDidMount() {
-    this.getData();
+    this.getData(this.state.queryParams);
 
     WebSocketHandler.on('network', this.handleWebsocket);
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     if (this.props.address !== prevProps.address) {
-      // Address changed, must update date
-      this.getData();
+      // Address changed, must update data
+      this.clearQueryParams();
+      this.getData(this.obtainQueryParams());
+      return;
+    }
+
+    const queryParams = this.obtainQueryParams();
+
+    // Do we have new URL params?
+    if (!isEqual(this.state.queryParams, queryParams)) {
+      // Fetch new data, unless query params were cleared and we were already in the most recent page
+      if (queryParams.hash || this.state.hasBefore) {
+        this.getData(queryParams);
+      }
     }
   }
 
@@ -53,18 +70,73 @@ class AddressHistory extends React.Component {
    */
   handleWebsocket = (wsData) => {
     if (wsData.type === 'network:new_tx_accepted') {
-      if (this.props.shouldUpdate(wsData)) {
-        this.getData();
+      this.updateListWs(wsData);
+    }
+  }
+
+  updateListWs = (tx) => {
+    // We only add new tx/blocks if it's the first page
+    if (!this.state.hasBefore) {
+      if (this.props.shouldUpdateList(tx)) {
+        let transactions = this.state.transactions;
+        let hasAfter = (this.state.hasAfter || (transactions.length === TX_COUNT && !this.state.hasAfter))
+        transactions = helpers.updateListWs(transactions, tx, TX_COUNT);
+
+        let firstHash = transactions[0].tx_id;
+        let lastHash = transactions[transactions.length-1].tx_id;
+
+        // Finally we update the state again
+        this.setState({ transactions, hasAfter, firstHash, lastHash });
       }
     }
+  }
+
+  handleDataFetched = (data, queryParams) => {
+    // Handle differently if is the first GET response we receive
+    // page indicates if was clicked 'previous' or 'next'
+    // Set first and last hash of the transactions
+    let firstHash = null;
+    let lastHash = null;
+    if (data.transactions.length) {
+      firstHash = data.transactions[0].tx_id;
+      lastHash = data.transactions[data.transactions.length-1].tx_id;
+    }
+
+    let hasAfter;
+    let hasBefore;
+    if (queryParams.page === 'previous') {
+      hasAfter = true;
+      hasBefore = data.has_more;
+      if (!hasBefore) {
+        // Went back to most recent page: clear URL params
+        this.clearQueryParams();
+      }
+    } else if (queryParams.page === 'next') {
+      hasBefore = true;
+      hasAfter = data.has_more;
+    } else {
+      // First load without parameters
+      hasBefore = false;
+      hasAfter = data.has_more;
+    }
+
+    this.setState({
+      transactions: data.transactions,
+      loaded: true,
+      firstHash,
+      lastHash,
+      hasAfter,
+      hasBefore,
+      queryParams,
+    });
   }
 
   /**
    * Update transactions data state after requesting data from the server
    */
-  getData = () => {
-    hathorLib.wallet.getHistory([this.props.address]).then((transactions) => {
-      this.setState({ transactions, loading: false });
+  getData = (queryParams) => {
+    hathorLib.wallet.searchAddress(this.props.address, queryParams.hash, queryParams.page).then((data) => {
+      this.handleDataFetched(data, queryParams);
     }, (e) => {
       // TODO handle show error
       console.log(e);
@@ -80,7 +152,48 @@ class AddressHistory extends React.Component {
     this.props.history.push(`/transaction/${hash}`);
   }
 
+  obtainQueryParams() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      hash: params.get('hash'),
+      page: params.get('page'),
+    };
+  }
+
+  clearQueryParams() {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('hash');
+    url.searchParams.delete('page');
+    window.history.replaceState({}, '', url.href);
+  }
+
+  paginationUrl(hash, page) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('hash', hash);
+    url.searchParams.set('page', page);
+    return url.pathname + url.search + url.hash;
+  }
+
   render() {
+    const loadPagination = () => {
+      if (this.state.transactions.length === 0) {
+        return null;
+      } else {
+        return (
+          <nav aria-label="Tx pagination" className="d-flex justify-content-center">
+            <ul className="pagination">
+              <li ref="txPrevious" className={(!this.state.hasBefore || this.state.transactions.length === 0) ? "page-item mr-3 disabled" : "page-item mr-3"}>
+                <Link className="page-link" to={this.paginationUrl(this.state.firstHash, 'previous')}>Previous</Link>
+              </li>
+              <li ref="txNext" className={(!this.state.hasAfter || this.state.transactions.length === 0) ? "page-item disabled" : "page-item"}>
+                <Link className="page-link" to={this.paginationUrl(this.state.lastHash, 'next')}>Next</Link>
+              </li>
+            </ul>
+          </nav>
+        );
+      }
+    }
+
     const loadTable = () => {
       return (
         <div className="table-responsive mt-5">
