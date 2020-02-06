@@ -7,6 +7,8 @@
 
 import React from 'react';
 import ReactLoading from 'react-loading';
+import { Link } from 'react-router-dom';
+import { isEqual } from 'lodash';
 import {TX_COUNT} from '../constants';
 import TxRow from './TxRow';
 import helpers from '../utils/helpers';
@@ -14,6 +16,22 @@ import WebSocketHandler from '../WebSocketHandler';
 import colors from '../index.scss';
 
 
+/**
+ * Displays transactions history in a table with pagination buttons. As the user navigates through the history,
+ * the URL parameters 'ts', 'hash' and 'page' are updated.
+ *
+ * Either all URL parameters are set or they are all missing.
+ *
+ * Example 1:
+ *   hash = "00000000001b328fafb336b4515bb9557733fe93cf685dfd0c77cae3131f3fff"
+ *   ts = "1579637190"
+ *   page = "previous"
+ *
+ * Example 2:
+ *   hash = "00000000001b328fafb336b4515bb9557733fe93cf685dfd0c77cae3131f3fff"
+ *   ts = "1579637190"
+ *   page = "next"
+ */
 class Transactions extends React.Component {
   constructor(props) {
     super(props);
@@ -27,13 +45,26 @@ class Transactions extends React.Component {
       loaded: false,
       hasAfter: false,
       hasBefore: false,
+      queryParams: this.obtainQueryParams(),
     }
   }
 
   componentDidMount() {
-    this.getData(true, null, null, '');
+    this.getData(this.state.queryParams);
 
     WebSocketHandler.on('network', this.handleWebsocket);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const queryParams = this.obtainQueryParams();
+
+    // Do we have new URL params?
+    if (!isEqual(this.state.queryParams, queryParams)) {
+      // Fetch new data, unless query params were cleared and we were already in the most recent page
+      if (queryParams.hash || this.state.hasBefore) {
+        this.getData(queryParams);
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -65,7 +96,7 @@ class Transactions extends React.Component {
     }
   }
 
-  handleDataFetched = (data, first, page) => {
+  handleDataFetched = (data, queryParams) => {
     // Handle differently if is the first GET response we receive
     // page indicates if was clicked 'previous' or 'next'
     // Set first and last hash of the transactions
@@ -80,41 +111,69 @@ class Transactions extends React.Component {
       lastTimestamp = data.transactions[data.transactions.length-1].timestamp;
     }
 
-    let hasAfter = false;
-    let hasBefore = false;
-    if (first) {
-      // Before is always false, so we check after
+    let hasAfter;
+    let hasBefore;
+    if (queryParams.page === 'previous') {
+      hasAfter = true;
+      hasBefore = data.has_more;
+      if (!hasBefore) {
+        // Went back to most recent page: clear URL params
+        this.clearQueryParams();
+      }
+    } else if (queryParams.page === 'next') {
+      hasBefore = true;
       hasAfter = data.has_more;
     } else {
-      if (page === 'previous') {
-        hasAfter = true;
-        hasBefore = data.has_more;
-      } else {
-        hasBefore = true;
-        hasAfter = data.has_more;
-      }
+      // First load without parameters
+      hasBefore = false;
+      hasAfter = data.has_more;
     }
 
-    this.setState({ transactions: data.transactions, loaded: true, firstHash, lastHash, firstTimestamp, lastTimestamp, hasAfter, hasBefore });
+    this.setState({
+      transactions: data.transactions,
+      loaded: true,
+      firstHash,
+      lastHash,
+      firstTimestamp,
+      lastTimestamp,
+      hasAfter,
+      hasBefore,
+      queryParams,
+    });
   }
 
-  getData = (first, timestamp, hash, page) => {
-    this.props.updateData(timestamp, hash, page).then((data) => {
-      this.handleDataFetched(data, first, page);
+  getData(queryParams) {
+    this.props.updateData(queryParams.timestamp, queryParams.hash, queryParams.page).then((data) => {
+      this.handleDataFetched(data, queryParams);
     }, (e) => {
       // Error in request
       console.log(e);
     });
   }
 
-  previousClicked = (e) => {
-    e.preventDefault();
-    this.getData(false, this.state.firstTimestamp, this.state.firstHash, 'previous');
+  obtainQueryParams() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      timestamp: params.get('ts'),
+      hash: params.get('hash'),
+      page: params.get('page'),
+    };
   }
 
-  nextClicked = (e) => {
-    e.preventDefault();
-    this.getData(false, this.state.lastTimestamp, this.state.lastHash, 'next');
+  clearQueryParams() {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('ts');
+    url.searchParams.delete('hash');
+    url.searchParams.delete('page');
+    window.history.replaceState({}, '', url.href);
+  }
+
+  paginationUrl(ts, hash, page) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('ts', ts);
+    url.searchParams.set('hash', hash);
+    url.searchParams.set('page', page);
+    return url.pathname + url.search + url.hash;
   }
 
   render() {
@@ -125,8 +184,12 @@ class Transactions extends React.Component {
         return (
           <nav aria-label="Tx pagination" className="d-flex justify-content-center">
             <ul className="pagination">
-              <li ref="txPrevious" className={(!this.state.hasBefore || this.state.transactions.length === 0) ? "page-item mr-3 disabled" : "page-item mr-3"}><a className="page-link" onClick={(e) => this.previousClicked(e)} href="">Previous</a></li>
-              <li ref="txNext" className={(!this.state.hasAfter || this.state.transactions.length === 0) ? "page-item disabled" : "page-item"}><a className="page-link" href="" onClick={(e) => this.nextClicked(e)}>Next</a></li>
+              <li ref="txPrevious" className={(!this.state.hasBefore || this.state.transactions.length === 0) ? "page-item mr-3 disabled" : "page-item mr-3"}>
+                <Link className="page-link" to={this.paginationUrl(this.state.firstTimestamp, this.state.firstHash, 'previous')}>Previous</Link>
+              </li>
+              <li ref="txNext" className={(!this.state.hasAfter || this.state.transactions.length === 0) ? "page-item disabled" : "page-item"}>
+                <Link className="page-link" to={this.paginationUrl(this.state.lastTimestamp, this.state.lastHash, 'next')}>Next</Link>
+              </li>
             </ul>
           </nav>
         );
