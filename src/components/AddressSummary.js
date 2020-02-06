@@ -111,6 +111,10 @@ class AddressSummary extends React.Component {
   }
 
   render() {
+    if (Object.keys(this.state.balance).length === 0) {
+      return null;
+    }
+
     const loadMainInfo = () => {
       return (
         <div className="card text-white bg-dark mb-3">

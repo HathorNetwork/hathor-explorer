@@ -66,6 +66,15 @@ class AddressDetail extends React.Component {
     return false;
   }
 
+  /**
+   * Redirects to transaction detail screen after clicking on a table row
+   *
+   * @param {String} hash Hash of tx clicked
+   */
+  onRowClicked = (hash) => {
+    this.props.history.push(`/transaction/${hash}`);
+  }
+
   render() {
     const renderData = () => {
       if (this.state.errorMessage) {
@@ -78,7 +87,7 @@ class AddressDetail extends React.Component {
         return (
           <div>
             <AddressSummary address={this.state.address} shouldUpdate={this.shouldUpdate} />
-            <AddressHistory address={this.state.address} shouldUpdate={this.shouldUpdate} />
+            <AddressHistory address={this.state.address} shouldUpdate={this.shouldUpdate} onRowClicked={this.onRowClicked} />
           </div>
         );
       }

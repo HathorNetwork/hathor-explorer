@@ -8,8 +8,8 @@
 import React from 'react';
 import ReactLoading from 'react-loading';
 import { Link } from 'react-router-dom';
-import {TX_COUNT} from '../constants';
-import TxRow from './TxRow';
+import { TX_COUNT } from '../constants';
+import { isEqual } from 'lodash';
 import dateFormatter from '../utils/date';
 import helpers from '../utils/helpers';
 import WebSocketHandler from '../WebSocketHandler';
@@ -77,7 +77,7 @@ class AddressHistory extends React.Component {
   updateListWs = (tx) => {
     // We only add new tx/blocks if it's the first page
     if (!this.state.hasBefore) {
-      if (this.props.shouldUpdateList(tx)) {
+      if (this.props.shouldUpdate(tx)) {
         let transactions = this.state.transactions;
         let hasAfter = (this.state.hasAfter || (transactions.length === TX_COUNT && !this.state.hasAfter))
         transactions = helpers.updateListWs(transactions, tx, TX_COUNT);
@@ -122,7 +122,7 @@ class AddressHistory extends React.Component {
 
     this.setState({
       transactions: data.transactions,
-      loaded: true,
+      loading: false,
       firstHash,
       lastHash,
       hasAfter,
@@ -135,21 +135,11 @@ class AddressHistory extends React.Component {
    * Update transactions data state after requesting data from the server
    */
   getData = (queryParams) => {
-    hathorLib.wallet.searchAddress(this.props.address, queryParams.hash, queryParams.page).then((data) => {
-      this.handleDataFetched(data, queryParams);
-    }, (e) => {
-      // TODO handle show error
-      console.log(e);
+    hathorLib.walletApi.getSearchAddress(this.props.address, TX_COUNT, queryParams.hash, queryParams.page, (response) => {
+      if (response.success) {
+        this.handleDataFetched(response, queryParams);
+      }
     });
-  }
-
-  /**
-   * Redirects to transaction detail screen after clicking on a table row
-   *
-   * @param {String} hash Hash of tx clicked
-   */
-  handleClickTr = (hash) => {
-    this.props.history.push(`/transaction/${hash}`);
   }
 
   obtainQueryParams() {
@@ -175,6 +165,10 @@ class AddressHistory extends React.Component {
   }
 
   render() {
+    if (this.state.transactions.length === 0) {
+      return <p>This address does not have any transactions yet.</p>
+    }
+
     const loadPagination = () => {
       if (this.state.transactions.length === 0) {
         return null;
@@ -217,7 +211,7 @@ class AddressHistory extends React.Component {
     const loadTableBody = () => {
       return this.state.transactions.map((tx, idx) => {
         return (
-          <tr key={tx.tx_id} onClick={(e) => this.handleClickTr(tx.tx_id)}>
+          <tr key={tx.tx_id} onClick={(e) => this.props.onRowClicked(tx.tx_id)}>
             <td className="d-none d-lg-table-cell pr-3">{hathorLib.helpers.getTxType(tx)}</td>
             <td className="d-none d-lg-table-cell pr-3">{hathorLib.helpers.getShortHash(tx.tx_id)}</td>
             <td className="d-none d-lg-table-cell pr-3">{dateFormatter.parseTimestamp(tx.timestamp)}</td>
@@ -230,6 +224,7 @@ class AddressHistory extends React.Component {
     return (
       <div className="w-100">
         {this.state.loading ? <ReactLoading type='spin' color={colors.purpleHathor} delay={500} /> : loadTable()}
+        {loadPagination()}
       </div>
     );
   }
@@ -238,10 +233,12 @@ class AddressHistory extends React.Component {
 /*
  * address: Address to show summary
  * shouldUpdate: Function that receives a tx data and returns if summary should be updated
+ * onRowClicked: Function executed when user clicks on the table row (receives tx_id)
  */
 AddressHistory.propTypes = {
   address: PropTypes.string.isRequired,
   shouldUpdate: PropTypes.func.isRequired,
+  onRowClicked: PropTypes.func.isRequired,
 };
 
 
