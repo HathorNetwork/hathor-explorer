@@ -16,9 +16,12 @@ import WebSocketHandler from '../WebSocketHandler';
 import colors from '../index.scss';
 import hathorLib from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
+import PaginationURL from '../utils/pagination';
 
 
 class AddressHistory extends React.Component {
+  pagination = new PaginationURL(['hash', 'page']);
+
   /**
    * transactions {Array} List of transactions on the list
    * loading {boolean} If is waiting response of data request
@@ -30,7 +33,7 @@ class AddressHistory extends React.Component {
     lastHash: null,
     hasAfter: false,
     hasBefore: false,
-    queryParams: this.obtainQueryParams(),
+    queryParams: this.pagination.obtainQueryParams(),
   }
 
   componentDidMount() {
@@ -42,12 +45,12 @@ class AddressHistory extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     if (this.props.address !== prevProps.address) {
       // Address changed, must update data
-      this.clearQueryParams();
-      this.getData(this.obtainQueryParams());
+      this.pagination.clearQueryParams();
+      this.getData(this.pagination.obtainQueryParams());
       return;
     }
 
-    const queryParams = this.obtainQueryParams();
+    const queryParams = this.pagination.obtainQueryParams();
 
     // Do we have new URL params?
     if (!isEqual(this.state.queryParams, queryParams)) {
@@ -109,7 +112,7 @@ class AddressHistory extends React.Component {
       hasBefore = data.has_more;
       if (!hasBefore) {
         // Went back to most recent page: clear URL params
-        this.clearQueryParams();
+        this.pagination.clearQueryParams();
       }
     } else if (queryParams.page === 'next') {
       hasBefore = true;
@@ -142,27 +145,6 @@ class AddressHistory extends React.Component {
     });
   }
 
-  obtainQueryParams() {
-    const params = new URLSearchParams(window.location.search);
-    return {
-      hash: params.get('hash'),
-      page: params.get('page'),
-    };
-  }
-
-  clearQueryParams() {
-    const url = new URL(window.location.href);
-    url.searchParams.delete('hash');
-    url.searchParams.delete('page');
-    window.history.replaceState({}, '', url.href);
-  }
-
-  paginationUrl(hash, page) {
-    const url = new URL(window.location.href);
-    url.searchParams.set('hash', hash);
-    url.searchParams.set('page', page);
-    return url.pathname + url.search + url.hash;
-  }
 
   render() {
     if (this.state.transactions.length === 0) {
@@ -177,10 +159,10 @@ class AddressHistory extends React.Component {
           <nav aria-label="Tx pagination" className="d-flex justify-content-center">
             <ul className="pagination">
               <li ref="txPrevious" className={(!this.state.hasBefore || this.state.transactions.length === 0) ? "page-item mr-3 disabled" : "page-item mr-3"}>
-                <Link className="page-link" to={this.paginationUrl(this.state.firstHash, 'previous')}>Previous</Link>
+                <Link className="page-link" to={this.pagination.paginationUrl({hash: this.state.firstHash, page: 'previous'})}>Previous</Link>
               </li>
               <li ref="txNext" className={(!this.state.hasAfter || this.state.transactions.length === 0) ? "page-item disabled" : "page-item"}>
-                <Link className="page-link" to={this.paginationUrl(this.state.lastHash, 'next')}>Next</Link>
+                <Link className="page-link" to={this.pagination.paginationUrl({hash: this.state.lastHash, page: 'next'})}>Next</Link>
               </li>
             </ul>
           </nav>

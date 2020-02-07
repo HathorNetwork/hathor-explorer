@@ -14,6 +14,7 @@ import TxRow from './TxRow';
 import helpers from '../utils/helpers';
 import WebSocketHandler from '../WebSocketHandler';
 import colors from '../index.scss';
+import PaginationURL from '../utils/pagination';
 
 
 /**
@@ -36,6 +37,8 @@ class Transactions extends React.Component {
   constructor(props) {
     super(props);
 
+    this.pagination = new PaginationURL(['ts', 'hash', 'page']);
+
     this.state = {
       transactions: [],
       firstHash: null,
@@ -45,7 +48,7 @@ class Transactions extends React.Component {
       loaded: false,
       hasAfter: false,
       hasBefore: false,
-      queryParams: this.obtainQueryParams(),
+      queryParams: this.pagination.obtainQueryParams(),
     }
   }
 
@@ -56,7 +59,7 @@ class Transactions extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const queryParams = this.obtainQueryParams();
+    const queryParams = this.pagination.obtainQueryParams();
 
     // Do we have new URL params?
     if (!isEqual(this.state.queryParams, queryParams)) {
@@ -118,7 +121,7 @@ class Transactions extends React.Component {
       hasBefore = data.has_more;
       if (!hasBefore) {
         // Went back to most recent page: clear URL params
-        this.clearQueryParams();
+        this.pagination.clearQueryParams();
       }
     } else if (queryParams.page === 'next') {
       hasBefore = true;
@@ -143,37 +146,12 @@ class Transactions extends React.Component {
   }
 
   getData(queryParams) {
-    this.props.updateData(queryParams.timestamp, queryParams.hash, queryParams.page).then((data) => {
+    this.props.updateData(queryParams.ts, queryParams.hash, queryParams.page).then((data) => {
       this.handleDataFetched(data, queryParams);
     }, (e) => {
       // Error in request
       console.log(e);
     });
-  }
-
-  obtainQueryParams() {
-    const params = new URLSearchParams(window.location.search);
-    return {
-      timestamp: params.get('ts'),
-      hash: params.get('hash'),
-      page: params.get('page'),
-    };
-  }
-
-  clearQueryParams() {
-    const url = new URL(window.location.href);
-    url.searchParams.delete('ts');
-    url.searchParams.delete('hash');
-    url.searchParams.delete('page');
-    window.history.replaceState({}, '', url.href);
-  }
-
-  paginationUrl(ts, hash, page) {
-    const url = new URL(window.location.href);
-    url.searchParams.set('ts', ts);
-    url.searchParams.set('hash', hash);
-    url.searchParams.set('page', page);
-    return url.pathname + url.search + url.hash;
   }
 
   render() {
@@ -185,10 +163,10 @@ class Transactions extends React.Component {
           <nav aria-label="Tx pagination" className="d-flex justify-content-center">
             <ul className="pagination">
               <li ref="txPrevious" className={(!this.state.hasBefore || this.state.transactions.length === 0) ? "page-item mr-3 disabled" : "page-item mr-3"}>
-                <Link className="page-link" to={this.paginationUrl(this.state.firstTimestamp, this.state.firstHash, 'previous')}>Previous</Link>
+                <Link className="page-link" to={this.pagination.paginationUrl({ts: this.state.firstTimestamp, hash: this.state.firstHash, page: 'previous'})}>Previous</Link>
               </li>
               <li ref="txNext" className={(!this.state.hasAfter || this.state.transactions.length === 0) ? "page-item disabled" : "page-item"}>
-                <Link className="page-link" to={this.paginationUrl(this.state.lastTimestamp, this.state.lastHash, 'next')}>Next</Link>
+                <Link className="page-link" to={this.pagination.paginationUrl({ts: this.state.lastTimestamp, hash: this.state.lastHash, page: 'next'})}>Next</Link>
               </li>
             </ul>
           </nav>
