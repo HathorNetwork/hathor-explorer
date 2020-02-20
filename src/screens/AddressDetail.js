@@ -9,9 +9,18 @@ import React from 'react';
 import AddressSummary from '../components/AddressSummary';
 import AddressHistory from '../components/AddressHistory';
 import { transaction, walletApi } from '@hathor/wallet-lib';
+import PaginationURL from '../utils/pagination';
 
 
 class AddressDetail extends React.Component {
+  pagination = new PaginationURL({
+    'hash': {required: false},
+    'page': {required: false},
+    'token': {required: true}
+  });
+
+  addressSummaryRef = React.createRef();
+
   /*
    * address {String} searched address (from url)
    * errorMessage {String} message to be shown in case of an error
@@ -51,15 +60,21 @@ class AddressDetail extends React.Component {
    * Check if the searched address is on the inputs or outputs of the new tx
    *
    * @param {Object} tx Transaction data received in the websocket
+   * @param {boolean} checkToken If should also check if token is the same, or just address
    *
    * @return {boolean} True if should update the list, false otherwise
    */
-  shouldUpdate = (tx) => {
+  shouldUpdate = (tx, checkToken) => {
     const arr = [...tx.outputs, ...tx.inputs];
+    const token = this.pagination.obtainQueryParams().token;
 
     for (const element of arr) {
       if (element.decoded.address === this.state.address) {
-        return true;
+        // Address is the same
+        if ((checkToken && element.token === token) || !checkToken) {
+          // Need to check token and token is the same, or no need to check token
+          return true;
+        }
       }
     }
 
@@ -75,6 +90,15 @@ class AddressDetail extends React.Component {
     this.props.history.push(`/transaction/${hash}`);
   }
 
+  /**
+   * Update window URL without reloading the page
+   *
+   * @param {String} url New url
+   */
+  pushNewURL = (url) => {
+    this.props.history.push(url);
+  }
+
   render() {
     const renderData = () => {
       if (this.state.errorMessage) {
@@ -86,8 +110,8 @@ class AddressDetail extends React.Component {
       } else {
         return (
           <div>
-            <AddressSummary address={this.state.address} shouldUpdate={this.shouldUpdate} />
-            <AddressHistory address={this.state.address} shouldUpdate={this.shouldUpdate} onRowClicked={this.onRowClicked} />
+            <AddressSummary address={this.state.address} shouldUpdate={this.shouldUpdate} pagination={this.pagination} ref={this.addressSummaryRef} pushNewURL={this.pushNewURL} />
+            <AddressHistory address={this.state.address} shouldUpdate={this.shouldUpdate} onRowClicked={this.onRowClicked} pagination={this.pagination} addressSummaryRef={this.addressSummaryRef} updateNumberOfTransactions={(value) => this.addressSummaryRef.current.updateNumberOfTransactions(value) } />
           </div>
         );
       }

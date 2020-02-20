@@ -37,7 +37,11 @@ class Transactions extends React.Component {
   constructor(props) {
     super(props);
 
-    this.pagination = new PaginationURL(['ts', 'hash', 'page']);
+    this.pagination = new PaginationURL({
+      'ts': {'required': false},
+      'hash': {'required': false},
+      'page': {'required': false}
+    });
 
     this.state = {
       transactions: [],
@@ -121,7 +125,7 @@ class Transactions extends React.Component {
       hasBefore = data.has_more;
       if (!hasBefore) {
         // Went back to most recent page: clear URL params
-        this.pagination.clearQueryParams();
+        this.pagination.clearOptionalQueryParams();
       }
     } else if (queryParams.page === 'next') {
       hasBefore = true;

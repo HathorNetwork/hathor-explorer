@@ -7,7 +7,8 @@
 
 class PaginationURL {
   /**
-   * parameters {Array} Array of strings with pagination URL parameters
+   * parameters {Object} Object of parameters to the URL {param1: {required: true}, param2: {required: false}}
+   * XXX Could be used in the future to do extra validations, e.g. param type.
    */
   constructor(parameters) {
     this.parameters = parameters;
@@ -19,19 +20,24 @@ class PaginationURL {
   obtainQueryParams() {
     const params = new URLSearchParams(window.location.search);
     const ret = {};
-    for (const param of this.parameters) {
-      ret[param] = params.get(param);
+    for (const param in this.parameters) {
+      if (this.parameters[param].required || params.get(param) !== null) {
+        ret[param] = params.get(param);
+      }
     }
     return ret;
   }
 
   /**
-   * Delete query params from URL
+   * Delete optional query params from URL
    */
-  clearQueryParams() {
+  clearOptionalQueryParams() {
     const url = new URL(window.location.href);
-    for (const param of this.parameters) {
-      url.searchParams.delete(param);
+    for (const param in this.parameters) {
+      if (!this.parameters[param].required) {
+        // Remove from search param
+        url.searchParams.delete(param);
+      }
     }
     window.history.replaceState({}, '', url.href);
   }
@@ -43,8 +49,10 @@ class PaginationURL {
    */
   paginationUrl(data) {
     const url = new URL(window.location.href);
-    for (const param of this.parameters) {
-      url.searchParams.set(param, data[param]);
+    for (const param in data) {
+      if (param in this.parameters) {
+        url.searchParams.set(param, data[param]);
+      }
     }
     return url.pathname + url.search + url.hash;
   }

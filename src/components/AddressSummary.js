@@ -15,33 +15,44 @@ import WebSocketHandler from '../WebSocketHandler';
 import colors from '../index.scss';
 import hathorLib from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
+import PaginationURL from '../utils/pagination';
 
 
 class AddressSummary extends React.Component {
   /**
    * balance {Object} Object with balance of each token of this address indexed by tokenUid {uid1: {'received', 'spent'}}
-   * quantity {number} Number of transactions in this address
    * loading {boolean} If is waiting server response
    * errorMessage {String} Message to be shown in case of an error
    * selectedToken {String} UID of the selected token when address has many
+   * numberOfTransactions {Number} Total number of transactions of the list
    */
   state = {
     balance: {},
-    quantity: null,
     loading: true,
     errorMessage: '',
     selectedToken: '',
+    numberOfTransactions: 0,
   }
 
   componentDidMount() {
-    this.getData();
+    const queryParams = this.props.pagination.obtainQueryParams();
+    if (queryParams.token !== null) {
+      // User already have a token selected on the URL
+      this.setState({ selectedToken: queryParams.token }, () => {
+        this.getData();
+      });
+    } else {
+      // Will get data and select the default token
+      this.getData();
+    }
 
     WebSocketHandler.on('network', this.handleWebsocket);
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.address !== prevProps.address) {
-      // Address changed, must update date
+      // Address changed, must update data
+      this.props.pagination.clearOptionalQueryParams();
       this.getData();
     }
   }
@@ -58,20 +69,20 @@ class AddressSummary extends React.Component {
    */
   handleWebsocket = (wsData) => {
     if (wsData.type === 'network:new_tx_accepted') {
-      if (this.props.shouldUpdate(wsData)) {
+      if (this.props.shouldUpdate(wsData, false)) {
         this.getData();
       }
     }
   }
 
   /**
-   * Request data from server and update state balance and quantity
+   * Request data from server and update state balance
    */
   getData() {
     hathorLib.walletApi.getAddressBalance(this.props.address, (response) => {
       if (response.success) {
         let selectedToken = '';
-        if (this.state.selectedToken) {
+        if (this.state.selectedToken && this.state.selectedToken in response.tokens_data) {
           // If user had selected a token already, should continue the same
           selectedToken = this.state.selectedToken;
         } else {
@@ -86,9 +97,11 @@ class AddressSummary extends React.Component {
           }
         }
 
+        // Update token in the URL
+        this.updateTokenURL(selectedToken);
+
         this.setState({
           balance: response.tokens_data,
-          quantity: response.quantity,
           loading: false,
           selectedToken,
         });
@@ -108,11 +121,25 @@ class AddressSummary extends React.Component {
    */
   selectChanged = (e) => {
     this.setState({ selectedToken: e.target.value });
+    this.updateTokenURL(e.target.value);
+  }
+
+  updateTokenURL = (token) => {
+    const queryParams = this.props.pagination.obtainQueryParams();
+    queryParams.token = token;
+    const newURL = this.props.pagination.paginationUrl(queryParams);
+    this.props.pushNewURL(newURL);
+  }
+
+  updateNumberOfTransactions = (numberOfTransactions) => {
+    this.setState({ numberOfTransactions });
   }
 
   render() {
     if (Object.keys(this.state.balance).length === 0) {
-      return null;
+      if (this.state.loading) {
+        return null;
+      }
     }
 
     const loadMainInfo = () => {
@@ -120,7 +147,6 @@ class AddressSummary extends React.Component {
         <div className="card text-white bg-dark mb-3">
           <div className="card-body">
             Address: {this.props.address}<br />
-            Number of transactions: {this.state.quantity}<br />
             Number of tokens: {Object.keys(this.state.balance).length}
           </div>
         </div>
@@ -133,6 +159,7 @@ class AddressSummary extends React.Component {
         <div className="card bg-light mb-3">
           <div className="card-body">
             Token: {renderTokenData()}<br />
+            Number of transactions: {this.state.numberOfTransactions}<br />
             Total received: {hathorLib.helpers.prettyValue(balance.received)}<br />
             Total spent: {hathorLib.helpers.prettyValue(balance.spent)}<br />
             <strong>Final balance: </strong>{hathorLib.helpers.prettyValue(balance.received - balance.spent)}
@@ -159,17 +186,9 @@ class AddressSummary extends React.Component {
         const tokenData = this.state.balance[uid];
         return <option value={uid} key={uid}>{tokenData.name} ({tokenData.symbol})</option>;
       });
-      return this.props.balance.map((token) => {
-        // Show in the select only the tokens not already selected plus the current selection
-        if (this.state.selectedTokens.find((selectedToken) => selectedToken.uid === token.uid) === undefined || token.uid === this.state.selected.uid) {
-        }
-        return null;
-      })
     }
 
     const loadSummary = () => {
-      if (this.state.quantity === null) return null;
-
       return (
         <div>
           {loadMainInfo()}
@@ -190,10 +209,12 @@ class AddressSummary extends React.Component {
 /*
  * address: Address to show summary
  * shouldUpdate: Function that receives a tx data and returns if summary should be updated
+ * pagination: Instance of pagination class that handles the URL parameters
  */
 AddressSummary.propTypes = {
   address: PropTypes.string.isRequired,
   shouldUpdate: PropTypes.func.isRequired,
+  pagination: PropTypes.instanceOf(PaginationURL).isRequired,
 };
 
 export default AddressSummary;
