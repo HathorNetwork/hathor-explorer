@@ -15,11 +15,11 @@ import PaginationURL from '../utils/pagination';
 
 class AddressHistory extends React.Component {
   /**
-   * We get the final balance for the search address and selected token
+   * We get the final balance of one tx of the list
    *
    * @param {Object} tx Transaction data
    *
-   * @return {Number} Final balance value (can be negative value, in case we spent more than received for the search address)
+   * @return {Number} Final tx balance value (can be negative value, in case we spent more than received for the search address)
    */
   calculateAddressBalance = (tx) => {
     const token = this.props.selectedToken;

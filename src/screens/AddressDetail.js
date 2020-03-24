@@ -126,7 +126,7 @@ class AddressDetail extends React.Component {
     if (!this.state.hasBefore) {
       if (this.props.shouldUpdate(tx, true)) {
         let transactions = this.state.transactions;
-        let hasAfter = (this.state.hasAfter || (transactions.length === TX_COUNT && !this.state.hasAfter))
+        let hasAfter = this.state.hasAfter || transactions.length === TX_COUNT;
         transactions = helpers.updateListWs(transactions, tx, TX_COUNT);
 
         const newNumberOfTransactions = this.state.numberOfTransactions + 1;
@@ -173,7 +173,7 @@ class AddressDetail extends React.Component {
   getHistoryData = (queryParams) => {
     hathorLib.walletApi.getSearchAddress(this.state.address, TX_COUNT, queryParams.hash, queryParams.page, queryParams.token, (response) => {
       if (response.success) {
-        this.handleDataFetched(response, queryParams);
+        this.handleFetchedData(response, queryParams);
       }
     });
   }
@@ -185,7 +185,7 @@ class AddressDetail extends React.Component {
    * @param {Object} data Response data from the server
    * @param {Object} queryParams URL parameters
    */
-  handleDataFetched = (data, queryParams) => {
+  handleFetchedData = (data, queryParams) => {
     // Handle differently if is the first GET response we receive
     // page indicates if was clicked 'previous' or 'next'
     // Set first and last hash of the transactions
