@@ -167,10 +167,10 @@ class Transactions extends React.Component {
           <nav aria-label="Tx pagination" className="d-flex justify-content-center">
             <ul className="pagination">
               <li ref="txPrevious" className={(!this.state.hasBefore || this.state.transactions.length === 0) ? "page-item mr-3 disabled" : "page-item mr-3"}>
-                <Link className="page-link" to={this.pagination.paginationUrl({ts: this.state.firstTimestamp, hash: this.state.firstHash, page: 'previous'})}>Previous</Link>
+                <Link className="page-link" to={this.pagination.setURLParameters({ts: this.state.firstTimestamp, hash: this.state.firstHash, page: 'previous'})}>Previous</Link>
               </li>
               <li ref="txNext" className={(!this.state.hasAfter || this.state.transactions.length === 0) ? "page-item disabled" : "page-item"}>
-                <Link className="page-link" to={this.pagination.paginationUrl({ts: this.state.lastTimestamp, hash: this.state.lastHash, page: 'next'})}>Next</Link>
+                <Link className="page-link" to={this.pagination.setURLParameters({ts: this.state.lastTimestamp, hash: this.state.lastHash, page: 'next'})}>Next</Link>
               </li>
             </ul>
           </nav>

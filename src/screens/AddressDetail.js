@@ -8,7 +8,6 @@
 import React from 'react';
 import AddressSummary from '../components/AddressSummary';
 import AddressHistory from '../components/AddressHistory';
-import { transaction, walletApi } from '@hathor/wallet-lib';
 import PaginationURL from '../utils/pagination';
 import hathorLib from '@hathor/wallet-lib';
 import ReactLoading from 'react-loading';
@@ -124,7 +123,7 @@ class AddressDetail extends React.Component {
   updateListWs = (tx) => {
     // We only add new tx/blocks if it's the first page
     if (!this.state.hasBefore) {
-      if (this.props.shouldUpdate(tx, true)) {
+      if (this.shouldUpdate(tx, true)) {
         let transactions = this.state.transactions;
         let hasAfter = this.state.hasAfter || transactions.length === TX_COUNT;
         transactions = helpers.updateListWs(transactions, tx, TX_COUNT);
@@ -144,7 +143,7 @@ class AddressDetail extends React.Component {
    * @param {Object} address New searched address to update state
    */
   updateAddress = (address) => {
-    if (transaction.isAddressValid(address)) {
+    if (hathorLib.transaction.isAddressValid(address)) {
       this.setState({ address, errorMessage: '' }, () => {
         const queryParams = this.pagination.obtainQueryParams();
         if (queryParams.token !== null) {
@@ -220,7 +219,7 @@ class AddressDetail extends React.Component {
   /**
    * Request data from server and update state balance
    */
-  getSummaryData() {
+  getSummaryData = () => {
     hathorLib.walletApi.getAddressBalance(this.state.address, (response) => {
       if (response.success) {
         let selectedToken = '';
@@ -274,7 +273,7 @@ class AddressDetail extends React.Component {
   updateTokenURL = (token) => {
     const queryParams = this.pagination.obtainQueryParams();
     queryParams.token = token;
-    const newURL = this.pagination.paginationUrl(queryParams);
+    const newURL = this.pagination.setURLParameters(queryParams);
     this.props.history.push(newURL);
   }
 

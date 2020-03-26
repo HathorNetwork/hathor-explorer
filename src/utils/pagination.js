@@ -47,7 +47,7 @@ class PaginationURL {
    *
    * data {Object} with key as param name and value as it's value to be set
    */
-  paginationUrl(data) {
+  setURLParameters(data) {
     const url = new URL(window.location.href);
     for (const param in data) {
       if (param in this.parameters) {

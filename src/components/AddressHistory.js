@@ -87,11 +87,11 @@ class AddressHistory extends React.Component {
         return (
           <nav aria-label="Tx pagination" className="d-flex justify-content-center">
             <ul className="pagination">
-              <li ref="txPrevious" className={(!this.props.hasBefore || this.props.transactions.length === 0) ? "page-item mr-3 disabled" : "page-item mr-3"}>
-                <Link className="page-link" to={this.props.pagination.paginationUrl({hash: getFirstHash(), page: 'previous'})}>Previous</Link>
+              <li ref="txPrevious" className={!this.props.hasBefore ? "page-item mr-3 disabled" : "page-item mr-3"}>
+                <Link className="page-link" to={this.props.pagination.setURLParameters({hash: getFirstHash(), page: 'previous'})}>Previous</Link>
               </li>
-              <li ref="txNext" className={(!this.props.hasAfter || this.props.transactions.length === 0) ? "page-item disabled" : "page-item"}>
-                <Link className="page-link" to={this.props.pagination.paginationUrl({hash: getLastHash(), page: 'next'})}>Next</Link>
+              <li ref="txNext" className={!this.props.hasAfter ? "page-item disabled" : "page-item"}>
+                <Link className="page-link" to={this.props.pagination.setURLParameters({hash: getLastHash(), page: 'next'})}>Next</Link>
               </li>
             </ul>
           </nav>
