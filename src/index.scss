@@ -386,3 +386,37 @@ p.subtitle {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
 }
+
+.address-history .spent-tx, .address-history .voided {
+  text-decoration: line-through;
+}
+
+.address-history .input-tr .state, .address-history .input-tr .value, .sent-value {
+  color: #dc3545;
+}
+
+.address-history .output-tr .state, .address-history .output-tr .value, .received-value {
+  color: #28a745;
+}
+
+.address-history .state.voided, .address-history .value .voided {
+  color: #6c757d !important;
+}
+
+.address-history .value {
+	text-align: right;
+	font-family: monospace;
+	font-size: 1.2rem;
+}
+
+.address-history .voided-element {
+  text-decoration: none;
+  background-color: #6c757d;
+  font-size: 0.75rem;
+  width: 1.5rem;
+  height: 0.75rem;
+  padding: 0.4rem;
+  border-radius: 0.75rem;
+  color: white;
+  margin-left: 1rem;
+}
