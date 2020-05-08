@@ -57,3 +57,8 @@ export const HATHOR_TOKEN_CONFIG = {'name': 'Hathor', 'symbol': 'HTR', 'uid': '0
  * Hathor token default index
  */
 export const HATHOR_TOKEN_INDEX = 0;
+
+/**
+ * Base URL for economics API
+ */
+export const ECONOMICS_API_URL = 'https://api.economics.hathor.network/';

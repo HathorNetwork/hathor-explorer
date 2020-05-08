@@ -6,10 +6,12 @@
  */
 
 import React from 'react';
+import ReactLoading from 'react-loading';
 import { connect } from "react-redux";
-import LineChartRealTime from '../components/LineChartRealTime';
-import AreaChartRealTime from '../components/AreaChartRealTime';
 import colors from '../index.scss';
+import helpers from '../utils/helpers';
+import economicsApi from '../api/economics';
+import hathorLib from '@hathor/wallet-lib';
 
 
 const mapStateToProps = (state) => {
@@ -18,50 +20,61 @@ const mapStateToProps = (state) => {
 
 
 class Dashboard extends React.Component {
-  getXData(d) {
-    return d.date;
+  /**
+   * totalSupply {Number} Network total supply from economics API
+   * circulatingSupply {Number} Network circulating supply from economics API
+   */
+  state = {
+    totalSupply: 0,
+    circulatingSupply: 0,
   }
 
-  getYTxRate(d) {
-    return [parseFloat(d.txRate.toFixed(2))];
+  componentDidMount() {
+    this.updateEconomicsData();
   }
 
-  getYTx(d) {
-    return [d.transactions];
-  }
+  updateEconomicsData = () => {
+    // Update total supply
+    economicsApi.getTotalSupply().then((response) => {
+      this.setState({ totalSupply: hathorLib.helpers.prettyValue(response) });
+    });
 
-  getYBlock(d) {
-    return [d.blocks];
-  }
-
-  getYHashRate(d) {
-    return [parseFloat(d.hash_rate.toFixed(2))];
-  }
-
-  getYPeers(d) {
-    return [d.peers];
-  }
-
-  getYFullHashRate(d) {
-    return [parseFloat(d.block_hash_rate.toFixed(2)), parseFloat(d.tx_hash_rate.toFixed(2))];
-  }
-
-  getYStackedHashRate(d) {
-    return [parseFloat(d.block_hash_rate.toFixed(2)), parseFloat(d.network_hash_rate.toFixed(2))];
+    // Update circulating supply
+    economicsApi.getCirculatingSupply().then((response) => {
+      this.setState({ circulatingSupply: hathorLib.helpers.prettyValue(response) });
+    });
   }
 
   render() {
-    const blocks = this.props.data.length > 0 ? this.props.data[this.props.data.length - 1].blocks : '';
-    const transactions = this.props.data.length > 0 ? this.props.data[this.props.data.length - 1].transactions : '';
-    const peers = this.props.data.length > 0 ? this.props.data[this.props.data.length - 1].peers : '';
-    const height = this.props.data.length > 0 ? this.props.data[this.props.data.length - 1].best_block_height : '';
+    if (this.props.data.length === 0) {
+      return (
+        <div className="content-wrapper">
+          <ReactLoading type='spin' color={colors.purpleHathor} delay={500} />
+        </div>
+      );
+    }
+
+    const index = this.props.data.length - 1;
+    const blocks = this.props.data[index].blocks;
+    const transactions = this.props.data[index].transactions;
+    const peers = this.props.data[index].peers;
+    const height = this.props.data[index].best_block_height;
+
+    const hashRateValue = parseFloat(this.props.data[index].hash_rate.toFixed(2));
+    const prettyfied = helpers.divideValueIntoPrefix(hashRateValue);
+    const prettyValue = prettyfied.value;
+    const prefix = helpers.getUnitPrefix(prettyfied.divisions);
+    const hashRate = `${prettyValue} ${prefix}h/s`;
+
     return (
       <div className="content-wrapper">
         <p><strong>Blocks: </strong>{blocks}</p>
         <p><strong>Height of the best chain: </strong>{height}</p>
         <p><strong>Transactions: </strong>{transactions}</p>
         <p><strong>Peers: </strong>{peers}</p>
-        <LineChartRealTime data={this.props.data} getX={this.getXData} getY={this.getYHashRate} unit="h/s" title={["Hash Rate"]} colors={[colors.purpleHathor]} />
+        <p><strong>Hash rate: </strong>{hashRate}</p>
+        <p><strong>Circulating supply: </strong>{this.state.circulatingSupply}</p>
+        <p><strong>Total supply: </strong>{this.state.totalSupply}</p>
       </div>
     );
   }
