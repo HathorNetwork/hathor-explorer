@@ -6,12 +6,10 @@
  */
 
 import requestClient from './economicsAxiosInstance';
-import { ECONOMICS_API_URL } from '../constants';
 
 const economicsApi = {
   getTotalSupply() {
     return requestClient.get(`total-supply`).then((res) => {
-      console.log('### ', res)
       return res.data
     }, (res) => {
       throw new Error(res.data.message);
