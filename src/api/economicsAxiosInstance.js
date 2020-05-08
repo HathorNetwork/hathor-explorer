@@ -12,7 +12,7 @@ const requestClient = () => {
   const defaultOptions = {
     baseURL: ECONOMICS_API_URL,
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'text/plain',
     },
   }
 
