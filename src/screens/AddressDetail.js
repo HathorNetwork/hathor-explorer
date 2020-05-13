@@ -56,9 +56,7 @@ class AddressDetail extends React.Component {
 
   componentDidMount() {
     // Expects address on URL
-    this.setState({ queryParams: this.pagination.obtainQueryParams() }, () => {
-      this.updateAddress(this.props.match.params.address);
-    });
+    this.updateAddress(this.props.match.params.address);
 
     WebSocketHandler.on('network', this.handleWebsocket);
   }
@@ -143,25 +141,27 @@ class AddressDetail extends React.Component {
    * @param {Object} address New searched address to update state
    */
   updateAddress = (address) => {
-    if (hathorLib.transaction.isAddressValid(address)) {
-      this.setState({ address, errorMessage: '' }, () => {
-        const queryParams = this.pagination.obtainQueryParams();
-        if (queryParams.token !== null) {
-          // User already have a token selected on the URL
-          this.setState({ selectedToken: queryParams.token }, () => {
+    this.setState({ queryParams: this.pagination.obtainQueryParams() }, () => {
+      if (hathorLib.transaction.isAddressValid(address)) {
+        this.setState({ address, loadingSummary: true, transactions: [], errorMessage: '' }, () => {
+          const queryParams = this.pagination.obtainQueryParams();
+          if (queryParams.token !== null) {
+            // User already have a token selected on the URL
+            this.setState({ selectedToken: queryParams.token }, () => {
+              this.getSummaryData();
+              this.getHistoryData(this.state.queryParams);
+            });
+          } else {
+            // Will get data and select the default token
+            // In this case I don't get history data because I still don't know the token
+            // When the token changes, I will fetch the history data
             this.getSummaryData();
-            this.getHistoryData(this.state.queryParams);
-          });
-        } else {
-          // Will get data and select the default token
-          // In this case I don't get history data because I still don't know the token
-          // When the token changes, I will fetch the history data
-          this.getSummaryData();
-        }
-      });
-    } else {
-      this.setState({ errorMessage: 'Invalid address.' });
-    }
+          }
+        });
+      } else {
+        this.setState({ errorMessage: 'Invalid address.' });
+      }
+    });
   }
 
   /**
@@ -232,8 +232,13 @@ class AddressDetail extends React.Component {
             // If HTR is in the token list of this address, it's the default selection
             selectedToken = hathorUID;
           } else {
-            // Otherwise we get the first element
+            // Otherwise we get the first element, if there is one
             const keys = Object.keys(response.tokens_data);
+            if (keys.length === 0) {
+              // In case the length is 0, we have no transactions for this address
+              this.setState({ loadingSummary: false });
+              return;
+            }
             selectedToken = keys[0];
           }
         }
