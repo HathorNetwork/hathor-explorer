@@ -7,9 +7,9 @@
 
 import React from 'react';
 import { connect } from "react-redux";
-import LineChartRealTime from '../components/LineChartRealTime';
-import AreaChartRealTime from '../components/AreaChartRealTime';
 import colors from '../index.scss';
+import ReactLoading from 'react-loading';
+import helpers from '../utils/helpers';
 
 
 const mapStateToProps = (state) => {
@@ -18,50 +18,33 @@ const mapStateToProps = (state) => {
 
 
 class Dashboard extends React.Component {
-  getXData(d) {
-    return d.date;
-  }
-
-  getYTxRate(d) {
-    return [parseFloat(d.txRate.toFixed(2))];
-  }
-
-  getYTx(d) {
-    return [d.transactions];
-  }
-
-  getYBlock(d) {
-    return [d.blocks];
-  }
-
-  getYHashRate(d) {
-    return [parseFloat(d.hash_rate.toFixed(2))];
-  }
-
-  getYPeers(d) {
-    return [d.peers];
-  }
-
-  getYFullHashRate(d) {
-    return [parseFloat(d.block_hash_rate.toFixed(2)), parseFloat(d.tx_hash_rate.toFixed(2))];
-  }
-
-  getYStackedHashRate(d) {
-    return [parseFloat(d.block_hash_rate.toFixed(2)), parseFloat(d.network_hash_rate.toFixed(2))];
-  }
-
   render() {
-    const blocks = this.props.data.length > 0 ? this.props.data[this.props.data.length - 1].blocks : '';
-    const transactions = this.props.data.length > 0 ? this.props.data[this.props.data.length - 1].transactions : '';
-    const peers = this.props.data.length > 0 ? this.props.data[this.props.data.length - 1].peers : '';
-    const height = this.props.data.length > 0 ? this.props.data[this.props.data.length - 1].best_block_height : '';
+    if (this.props.data === null) {
+      return (
+        <div className="content-wrapper">
+          <ReactLoading type='spin' color={colors.purpleHathor} delay={500} />
+        </div>
+      );
+    }
+
+    const blocks = this.props.data.blocks;
+    const transactions = this.props.data.transactions;
+    const peers = this.props.data.peers;
+    const height = this.props.data.best_block_height;
+
+    const hashRateValue = parseFloat(this.props.data.hash_rate.toFixed(2));
+    const prettyfied = helpers.divideValueIntoPrefix(hashRateValue);
+    const prettyValue = prettyfied.value;
+    const prefix = helpers.getUnitPrefix(prettyfied.divisions);
+    const hashRate = `${prettyValue} ${prefix}h/s`;
+
     return (
       <div className="content-wrapper">
         <p><strong>Blocks: </strong>{blocks}</p>
         <p><strong>Height of the best chain: </strong>{height}</p>
         <p><strong>Transactions: </strong>{transactions}</p>
         <p><strong>Peers: </strong>{peers}</p>
-        <LineChartRealTime data={this.props.data} getX={this.getXData} getY={this.getYHashRate} unit="h/s" title={["Hash Rate"]} colors={[colors.purpleHathor]} />
+        <p className="color-hathor"><strong>Hash rate: </strong>{hashRate}</p>
       </div>
     );
   }
