@@ -30,9 +30,7 @@ const initialState = {
 const rootReducer = (state = initialState, action) => {
   switch (action.type) {
     case 'dashboard_update':
-      let newData = action.payload;
-      newData['date'] = new Date(newData.time*1000);
-      return Object.assign({}, state, {data: newData});
+      return Object.assign({}, state, {data: action.payload});
     case 'is_version_allowed_update':
       return Object.assign({}, state, {isVersionAllowed: action.payload.allowed});
     default:
