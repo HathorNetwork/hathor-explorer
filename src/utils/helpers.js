@@ -135,10 +135,11 @@ const helpers = {
 
   /**
    * Divide a big value to be used with prefixes
-   * The value is divided by 1024 while it can
+   * The value is divided by 1000 while it can, which is the newest convention
+   * for K, M, ... prefixes. Binary prefixes are now Ki, Mi, ...
    *
-   * 3,000 = 2.93 after one division (K)
-   * 50,000,000 = 47.68 after two divisions (M)
+   * 3,000 = 3.00 after one division (K)
+   * 50,000,000 = 50.00 after two divisions (M)
    *
    * @param {number} value Value to be divided
    *
@@ -148,8 +149,8 @@ const helpers = {
    */
   divideValueIntoPrefix(value) {
     let divisions = 0;
-    while ((value / 1024) > 1) {
-      value /= 1024;
+    while ((value / 1000) > 1) {
+      value /= 1000;
       divisions += 1;
     }
 
