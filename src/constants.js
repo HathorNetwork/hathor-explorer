@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export const BASE_URL = process.env.REACT_APP_BASE_URL || "https://node2.mainnet.hathor.network/v1a/";
+export const BASE_URL = process.env.REACT_APP_BASE_URL || "https://node.explorer.hathor.network/v1a/";
 
-let tmp_ws_url = process.env.REACT_APP_WS_URL || "wss://node2.mainnet.hathor.network/v1a/ws/";
+let tmp_ws_url = process.env.REACT_APP_WS_URL || "wss://node.explorer.hathor.network/v1a/ws/";
 if (!(tmp_ws_url.startsWith('ws:') || tmp_ws_url.startsWith('wss:'))) {
   if (tmp_ws_url.startsWith('/')) {
     tmp_ws_url = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + tmp_ws_url;
