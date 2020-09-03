@@ -80,7 +80,13 @@ class AddressDetail extends React.Component {
       if (queryParams.token !== this.state.queryParams.token && queryParams.token !== null) {
         // User selected a new token, so we must go to the first page (clear queryParams)
         this.pagination.clearOptionalQueryParams();
-        this.getHistoryData(this.pagination.obtainQueryParams());
+        // Need to get newQueryParams because the optional ones were cleared
+        // Update state to set the new selected token on it
+        // If we don't update this state here we might execute a duplicate request
+        const newQueryParams = this.pagination.obtainQueryParams();
+        this.setState({ queryParams: newQueryParams }, () => {
+          this.getHistoryData(newQueryParams);
+        });
         return;
       }
 
