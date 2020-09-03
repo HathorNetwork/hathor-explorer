@@ -33,8 +33,6 @@ export const GENESIS_TX = [
   '0000001df6f77892cd562a2d7829bc17d0130546edfc6a81e0a431af4b8aa51e'
 ]
 
-export const DASHBOARD_CHART_TIME = 200;
-
 export const DECIMAL_PLACES = 2;
 
 export const VERSION = '0.7.1';
