@@ -39,6 +39,7 @@ class AddressDetail extends React.Component {
    * loadingSummary {boolean} If is waiting response of data summary request
    * loadingHistory {boolean} If is waiting response of data history request
    * errorMessage {String} message to be shown in case of an error
+   * warningRefreshPage {boolean} If should show a warning to refresh the page to see newest data for the address
    */
   state = {
     address: null,
@@ -52,6 +53,7 @@ class AddressDetail extends React.Component {
     loadingSummary: true,
     loadingHistory: false,
     errorMessage: '',
+    warningRefreshPage: false,
   }
 
   componentDidMount() {
@@ -105,14 +107,9 @@ class AddressDetail extends React.Component {
    */
   handleWebsocket = (wsData) => {
     if (wsData.type === 'network:new_tx_accepted') {
-      if (this.shouldUpdate(wsData, false)) {
-        // For summary data we don't check the token
-        this.getSummaryData();
-      }
-
-      if (this.shouldUpdate(wsData, true)) {
-        // For the history list we must check the token
-        this.updateListWs(wsData);
+      if (this.shouldUpdate(wsData, false) && !this.state.warningRefreshPage) {
+        // If the search address is in one of the inputs or outputs
+        this.setState({ warningRefreshPage: true });
       }
     }
   }
@@ -336,6 +333,7 @@ class AddressDetail extends React.Component {
         } else {
           return (
             <div>
+              {this.state.warningRefreshPage && <div className="alert alert-warning" role="alert"> There is a new transaction for this address. Please refresh the page to see the newest data.</div>}
               <AddressSummary
                 address={this.state.address}
                 balance={this.state.balance}
