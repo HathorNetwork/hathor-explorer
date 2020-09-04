@@ -8,8 +8,7 @@
 import hathorLib from '@hathor/wallet-lib';
 
 /**
- * Create axios instance settings base URL and content type  
- * Besides that, it captures error to show modal error and save in Redux
+ * Create axios instance to be used in lib HTTP requests
  *
  * @module Axios
  */
@@ -21,6 +20,7 @@ import hathorLib from '@hathor/wallet-lib';
  * @param {number} timeout Timeout in milliseconds for the request
  */
 const createRequestInstance = (resolve, timeout) => {
+  // Will override lib axios instance increasing the default request timeout
   const instance = hathorLib.axios.defaultCreateRequestInstance(resolve, 30000);
   return instance;
 }
