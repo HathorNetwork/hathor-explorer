@@ -319,7 +319,29 @@ class AddressDetail extends React.Component {
     this.props.history.push(`/transaction/${hash}`);
   }
 
+  /**
+   * Refresh web page
+   *
+   * @param {Event} e Click event
+   */
+  refreshPage = (e) => {
+    e.preventDefault();
+    window.location.reload();
+  }
+
   render() {
+    const renderWarningAlert = () => {
+      if (this.state.warningRefreshPage) {
+        return (
+          <div className="alert alert-warning refresh-alert" role="alert">
+            There is a new transaction for this address. Please <a href="true" onClick={this.refreshPage}>refresh</a> the page to see the newest data.
+          </div>
+        );
+      }
+
+      return null;
+    }
+
     const renderData = () => {
       if (this.state.errorMessage) {
         return (
@@ -333,7 +355,7 @@ class AddressDetail extends React.Component {
         } else {
           return (
             <div>
-              {this.state.warningRefreshPage && <div className="alert alert-warning" role="alert"> There is a new transaction for this address. Please refresh the page to see the newest data.</div>}
+              {renderWarningAlert()}
               <AddressSummary
                 address={this.state.address}
                 balance={this.state.balance}
