@@ -39,6 +39,7 @@ class AddressDetail extends React.Component {
    * loadingSummary {boolean} If is waiting response of data summary request
    * loadingHistory {boolean} If is waiting response of data history request
    * errorMessage {String} message to be shown in case of an error
+   * warningRefreshPage {boolean} If should show a warning to refresh the page to see newest data for the address
    */
   state = {
     address: null,
@@ -52,6 +53,7 @@ class AddressDetail extends React.Component {
     loadingSummary: true,
     loadingHistory: false,
     errorMessage: '',
+    warningRefreshPage: false,
   }
 
   componentDidMount() {
@@ -80,7 +82,13 @@ class AddressDetail extends React.Component {
       if (queryParams.token !== this.state.queryParams.token && queryParams.token !== null) {
         // User selected a new token, so we must go to the first page (clear queryParams)
         this.pagination.clearOptionalQueryParams();
-        this.getHistoryData(this.pagination.obtainQueryParams());
+        // Need to get newQueryParams because the optional ones were cleared
+        // Update state to set the new selected token on it
+        // If we don't update this state here we might execute a duplicate request
+        const newQueryParams = this.pagination.obtainQueryParams();
+        this.setState({ queryParams: newQueryParams }, () => {
+          this.getHistoryData(newQueryParams);
+        });
         return;
       }
 
@@ -99,14 +107,9 @@ class AddressDetail extends React.Component {
    */
   handleWebsocket = (wsData) => {
     if (wsData.type === 'network:new_tx_accepted') {
-      if (this.shouldUpdate(wsData, false)) {
-        // For summary data we don't check the token
-        this.getSummaryData();
-      }
-
-      if (this.shouldUpdate(wsData, true)) {
-        // For the history list we must check the token
-        this.updateListWs(wsData);
+      if (this.shouldUpdate(wsData, false) && !this.state.warningRefreshPage) {
+        // If the search address is in one of the inputs or outputs
+        this.setState({ warningRefreshPage: true });
       }
     }
   }
@@ -316,7 +319,29 @@ class AddressDetail extends React.Component {
     this.props.history.push(`/transaction/${hash}`);
   }
 
+  /**
+   * Refresh web page
+   *
+   * @param {Event} e Click event
+   */
+  refreshPage = (e) => {
+    e.preventDefault();
+    window.location.reload();
+  }
+
   render() {
+    const renderWarningAlert = () => {
+      if (this.state.warningRefreshPage) {
+        return (
+          <div className="alert alert-warning refresh-alert" role="alert">
+            There is a new transaction for this address. Please <a href="true" onClick={this.refreshPage}>refresh</a> the page to see the newest data.
+          </div>
+        );
+      }
+
+      return null;
+    }
+
     const renderData = () => {
       if (this.state.errorMessage) {
         return (
@@ -330,6 +355,7 @@ class AddressDetail extends React.Component {
         } else {
           return (
             <div>
+              {renderWarningAlert()}
               <AddressSummary
                 address={this.state.address}
                 balance={this.state.balance}

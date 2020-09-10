@@ -28,6 +28,7 @@ import versionApi from './api/version';
 import helpers from './utils/helpers';
 import hathorLib from '@hathor/wallet-lib';
 import { BASE_URL } from './constants';
+import createRequestInstance from './api/customAxiosInstance';
 
 const store = new hathorLib.MemoryStore();
 hathorLib.storage.setStore(store);
@@ -50,6 +51,8 @@ const mapStateToProps = (state) => {
 class Root extends React.Component {
   componentDidMount() {
     WebSocketHandler.on('dashboard', this.handleWebsocket);
+
+    hathorLib.axios.registerNewCreateRequestInstance(createRequestInstance);
 
     versionApi.getVersion().then((data) => {
       this.props.isVersionAllowedUpdate({allowed: helpers.isVersionAllowed(data.version)});
