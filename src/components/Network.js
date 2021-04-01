@@ -20,8 +20,8 @@ const SyncStates = {
 
 const SyncStatesDescription = {
   [SyncStates.IN_SYNC]: 'Synchronized',
-  [SyncStates.BEHIND]: <span title="Behind of us">Not synchronized <i class="fa fa-question-circle"></i></span>,
-  [SyncStates.AHEAD]: <span title="Ahead of us">Not synchronized <i class="fa fa-question-circle"></i></span>,
+  [SyncStates.BEHIND]: <span title="Behind of us">Synchronizing... <i class="fa fa-question-circle"></i></span>,
+  [SyncStates.AHEAD]: <span title="Ahead of us">Synchronizing... <i class="fa fa-question-circle"></i></span>,
   [SyncStates.UNKNOWN]: 'Unknown'
 };
 
@@ -150,7 +150,8 @@ class Network extends React.Component {
         * Unified sync information
         * { status: string, progress: number, latest_timestamp: number|null|undefined, synced_timestamp: number|null|undefined }
         */
-        const sync_data = conn.sync || this.buildSyncDataPolyfill(conn);
+        const sync_data = conn.sync ?
+          { ...conn.sync, ...conn.plugins["node-sync-timestamp"] } : this.buildSyncDataPolyfill(conn);
         const { synced_percent, general_percent } = this.getSyncProgressPercent(sync_data);
         const sync_state_description = SyncStatesDescription[sync_data.state] || SyncStatesDescription[SyncStates.UNKNOWN];
 
