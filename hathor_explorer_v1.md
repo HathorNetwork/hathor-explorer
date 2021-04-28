@@ -25,18 +25,17 @@ At first, this new project will be responsible for:
 - Handle Web Requests that was handled by the `full-node`
 - Listen to updates from `full-node` and store data in its own database
 - Make requests for other services that are already detached from `full-node` 
+- Cache most of these requests tha still need to be made to `full-node` 
 
 Deploy will be done by serverless framework, except Mongodb that will run in a EC2 instance
 
 The following image illustrates how the parts of the services will interact:
-![image](https://user-images.githubusercontent.com/698586/115868879-79385180-a413-11eb-873a-d337861b6752.png)
+![image](https://user-images.githubusercontent.com/698586/116418765-cef56b00-a812-11eb-9261-e3145efb5de9.png)
 
 
 **Note:* `hathor-running-services` is an abstraction for services that are already currently running.
 
-***Note:* [`hathor-history-service`](#guide-level-explanation/hathor-history-service) might (and probably will) fit inside `hathor-explorer-service` in a way that can be easily extracted if it make sense in the future.
-
-****Note:* `hathor-lib` (`hathor-explorer-lib` maybe?) might (and probably will) fit inside `hathor-explorer` in a way that can be easily extracted if it make sense in the future.
+****Note:* `hathor-explorer-lib` might be extracted from `hathor-explorer` in the future.
 
 ## Hathor Explorer Service
 [guide-level-explanation/hathor-explorer-service]: #guide-level-explanation/hathor-explorer-service
@@ -55,14 +54,14 @@ We chose Mongo because data to store is very simple, it's flexible to easily add
 ### Decode Tx Handler
 [guide-level-explanation/hathor-explorer-service/decode-tx-handler]: #guide-level-explanation/hathor-explorer-service/decode-tx-handler
 
-Decode TX will just make a request to `hathor-core`, parse response and return the decoded transaction
+Decode TX will just make a request to `hathor-core` (if needed), parse response and return the decoded transaction
 
 > **Estimated cost:** $ 0.50 per million requests.
 
 ### Push Tx Handler
 [guide-level-explanation/hathor-explorer-service/push-tx-handler]: #guide-level-explanation/hathor-explorer-service/push-tx-handler
 
-Push TX will just make a request to `hathor-core`, parse response and return the success or error messages.
+Push TX will validate the transaction and just make a request to `hathor-core`, parse response and return the success or error messages.
 
 > **Estimated cost:** $ 0.50 per million requests.
 
@@ -89,7 +88,7 @@ A new endpoint will have to be made on `hathor-wallet-service` to retrieve token
 [guide-level-explanation/hathor-explorer-service/transactions-handler]: #guide-level-explanation/hathor-explorer-service/transactions-handler
 
 Transactions handler will return data about transactions. Transactions list or specific data about a given transaction.
-As this is the main feature on explorer (a list of last transactions is listed on explorer home page) it can easily overload the `full-node`. To solve this problem, we will store only hash and timestamp of every new transaction on `hathor-explorer-service` database. This way we can easily list and paginate transactions and access the `full-node` only to retrieve one single transaction data that is a cheap operation.
+As this is the main feature on explorer (a list of last transactions is listed on explorer home page) it can easily overload the `full-node`. To solve this problem, we will store only hash and timestamp of every new transaction on `hathor-explorer-service` database. This way we can easily list and paginate transactions and access the `full-node` only to retrieve one single transaction data that is a cheap operation. Requests for this handler will be cached on [API gateway](#guide-level-explanation/hathor-explorer-service/api-gateway).
 
 > **Estimated cost:** $ 0.50 per million requests.
 
@@ -138,63 +137,37 @@ Statistics update handler will consume this SQS and send a message for every con
 
 Every new update on network data will be pushed to a SNS. A SQS will be fed from this SNS notifications.
 Network handler will consume this SQS and send a message for every connection stored in the database subscribed to network topic.
+Network data will also be improved, showing the overall network instead of a single node point of view.
 
 > **Estimated cost:** $1.50 monthly ($ 0.50 per million update, every second update).
 
-### API gateway
-[guide-level-explanation/hathor-explorer-service/api-gateway]: #guide-level-explanation/hathor-explorer-service/api-gateway
-
-API gateway will handle REST requests and WS connections from the external world.
-
-> **Estimated cost:** $2 monthly (according to AWS example. Variables are quantity of requests, time of connection and data transferred).
-
-## Hathor History Service
-[guide-level-explanation/hathor-history-service]: #guide-level-explanation/hathor-history-service
-
-Hathor history service is responsible for keep track of statistics updates. As a different service it will have its own database and lambdas. But for now we will simplify putting inside of `hathor-explorer-service`.
-
-### Mongodb (not for now)
-[guide-level-explanation/hathor-history-service/mongodb]: #guide-level-explanation/hathor-history-service/mongodb
-
-_**Note:** for now, `hathor-explorer-service`'s database will be used_ 
-
-Mongodb will run on a EC2 instance and will not be deployed by Serverless framework. 
-
-We chose Mongo because data to store is very simple, it's flexible to easily add more properties when needed without migrations or other complications and Mongo can handle tens of thousands of connections which is perfect to deal with lambdas.
-
-> ~**Estimated cost:** $ 21.05 Monthly (`t3.medium` - `20GB SSD`)~
-
 ### Statistics Collector
-[guide-level-explanation/hathor-history-service/statistics-collector]: #guide-level-explanation/hathor-history-service/statistics-collector
+[guide-level-explanation/hathor-explorer-service/statistics-collector]: #guide-level-explanation/hathor-explorer-service/statistics-collector
 
 Every new hashrate/statistics updates will be pushed to a SNS. A SQS will listen to this SNS and store it.
 Statistics collector updater will consume this SQS and store data in the database.
-Statistics collector will also push data to another SQS (or SNS when it is a different service) that will be consumed by [`statistics-update-handler`](#guide-level-explanation/hathor-explorer-service/statistics-update-handler)
+Statistics collector will also trigger [`statistics-update-handler`](#guide-level-explanation/hathor-explorer-service/statistics-update-handler) to update connected clients. 
 
 A new feature will be made on `hathor-core` to push statistics data to SNS. It can be in the same place where this data is pushed to WS.
 
 > **Estimated cost:** $ 0.90 per million transactions.
+### API gateway
+[guide-level-explanation/hathor-explorer-service/api-gateway]: #guide-level-explanation/hathor-explorer-service/api-gateway
 
-### Hashrate History Handler (not now)
-[guide-level-explanation/hathor-history-service/hashrate-history-handler]: #guide-level-explanation/hathor-history-service/hashrate-history-handler
+API gateway will handle REST requests and WS connections from the external world. Also will cache requests that will lead to `hathor-core` requests
 
-_**Note:** for now, [`statistics-history-handler`](#guide-level-explanation/hathor-explorer-service/statistics-history-handler) will access database directly instead of request this function_ 
-
-Hashrate history handler will retrieve past statistics data necessary to build a graph.
-
-> ~**Estimated cost:** $ 0.50 per million requests.~
-
+> **Estimated cost:** $2 monthly (according to AWS example. Variables are quantity of requests, time of connection and data transferred).
 ## Hathor Explorer Lib
 [guide-level-explanation/hathor-explorer-lib]: #guide-level-explanation/hathor-explorer-lib
 
 As is a good practice use React components as presentation layer only, Hathor Explorer Lib comes as an abstraction for business matters. All requests, WS connections, Entities and business decisions will be made by it and imported by [`hathor-explorer`](#guide-level-explanation/hathor-explorer) to be called.
 
-It's probably a good idea to separate things inside the project first and extract to a different one later. So it will still be part of [`hathor-explorer`](#guide-level-explanation/hathor-explorer) for now.
+It's a good idea to separate things inside the project first and extract to a different one later. So it will still be part of [`hathor-explorer`](#guide-level-explanation/hathor-explorer) for now.
 
 ## Hathor Explorer
 [guide-level-explanation/hathor-explorer]: #guide-level-explanation/hathor-explorer
 
-The existing project will not have any big visual modification except by token list pagination and the hashrate x time graph that will be "all time" instead of starting only by the time the page is loaded.
+The existing project will not have any big visual modification except by network visualization, token list pagination and the hashrate x time graph that will be "all time" instead of starting only by the time the page is loaded.
 
 Furthermore business logic will be extracted from React components and API calls will be modified, if needed, to fit the new responses from new [guide-level-explanation/hathor-explorer-service](#guide-level-explanation/hathor-explorer-service)
 
@@ -256,6 +229,7 @@ Transaction {}
 
 Build a request with received param and make it to `hathor-core` passing the transaction hash:
 `GET /v1a/decode_tx?hex_tx=hash` - Maybe it would be better to change this endpoint to `POST` instead of `GET` in `hathor-core`
+We can cache these requests using the first `n` chars of the `hash`
 
 ### Push Tx Handler
 [reference-level-explanation/hathor-explorer-service/push-tx-handler]: #reference-level-explanation/hathor-explorer-service/push-tx-handler
@@ -486,6 +460,8 @@ When no `hash` provided, a simple query is made to the database to return the st
 
 When a `hash` is provided, it build a request to the `full-node` with this hash to return transaction data. This data then is transformed into the structure described above and returned.
 
+Cache on API GW will use `hash` as key.
+
 ### Transactions Updater
 [reference-level-explanation/hathor-explorer-service/transactions-updater]: #reference-level-explanation/hathor-explorer-service/transactions-updater
 
@@ -561,26 +537,17 @@ DAG {
 
 **WS Topic:** `'statistics'`
 
-**SNS:** `hathor-history-service-statistics` (not now)
+**Invoke:** `hathor-explorer-service-statistics-update`
 
-**SQS:** `hathor-explorer-service-statistics`
-
-**`hathor-history-service`:** Send Statistics to `SNS` in the following format:
+**Body:**
 ```
-Statistic {
-    blocks: int
-    best_chain_height: int
-    transactions: int
-    hashrate: float
-    peers: int
-    timestamp: timestamp // (ISO 8601)
-}
+Statistic {}
 ```
-**Procedure**:
+**Returns:** `202 ACCEPTED`
 
-_**Note:** for now it will be triggered directly by [`statistics-collector`](#reference-level-explanation/hathor-history-service/statistics-collector)_
+**Procedure**: It will be triggered directly by [`statistics-collector`](#reference-level-explanation/hathor-explorer-service/statistics-collector)_
 
-`statistics-update-handler` consumes `SQS`, checks database for WS connections and send messages for each client connected and subscribed to `statistics` topic.
+`statistics-update-handler` is triggered by `statistics-collector`, checks database for WS connections and send messages for each client connected and subscribed to `statistics` topic.
 
 ### Network handler
 [reference-level-explanation/hathor-explorer-service/network-handler]: #reference-level-explanation/hathor-explorer-service/network-handler
@@ -618,27 +585,12 @@ Network {
 
 `network-handler` consumes `SQS`, checks database for WS connections and send messages for each client connected and subscribed to `network` topic.
 
-### API gateway
-[reference-level-explanation/hathor-explorer-service/api-gateway]: #reference-level-explanation/hathor-explorer-service/api-gateway
-
-## Hathor History Service
-[reference-level-explanation/hathor-history-service]: #reference-level-explanation/hathor-history-service
-
-Hathor History Service will live inside `hathor-explorer-service` for now, using the same database.
-
-### Mongodb (not for now)
-[reference-level-explanation/hathor-history-service/mongodb]: #reference-level-explanation/hathor-history-service/mongodb
-
-_**Note:** for now, `hathor-explorer-service`'s database will be used_ 
-
 ### Statistics Collector
-[reference-level-explanation/hathor-history-service/statistics-collector]: #reference-level-explanation/hathor-history-service/statistics-collector
-
-_**Note:** it will ve inside of `hathor-explorer-service` for now._
+[reference-level-explanation/hathor-explorer-service/statistics-collector]: #reference-level-explanation/hathor-explorer-service/statistics-collector
 
 **SNS:** `hathor-core-statistics`
 
-**SQS:** `hathor-history-service-statistics` (`hathor-explorer-service-statistics` for now)
+**SQS:** `hathor-explorer-service-statistics`
 
 **`hathor-core`:** Send Statistics to `SNS` in the following format:
 ```
@@ -653,12 +605,12 @@ Statistic {
 ```
 **Procedure**:
 
-`statistics-collector` consumes `SQS`, saves hashrate into database and push a message to `SNS` with Statistic data.
+`statistics-collector` consumes `SQS`, saves hashrate into database and triggers `statistics-update-handler` with received data.
 
-### Hashrate History Handler (not now)
-[reference-level-explanation/hathor-history-service/hashrate-history-handler]: #reference-level-explanation/hathor-history-service/hashrate-history-handler
+### API Gateway
+[reference-level-explanation/hathor-explorer-service/api-gateway]: #reference-level-explanation/hathor-explorer-service/api-gateway
 
-_**Note:** for now, [`statistics-history-handler`](#reference-level-explanation/hathor-explorer-service/statistics-history-handler) will access database directly instead of request this function_ 
+API Gateway will handle HTTP requests and WS connections. It will also cache requests that leads to `hathor-core` calls using query params or some header (in POST requests).
 
 ## Hathor Explorer Lib
 [reference-level-explanation/hathor-explorer-lib]: #reference-level-explanation/hathor-explorer-lib
@@ -678,7 +630,7 @@ _**Note:** for now, [`statistics-history-handler`](#reference-level-explanation/
 - **Blocks**
   - Blocks page will keep the same structure and visual. When page loads, a request will be made to [`transactions-handler`](#reference-level-explanation/hathor-explorer-service/transactions-handler) with `blocks=1` to retrieve latest blocks.
 - **Network**
-  - Network page will keep the same structure and visual. Whe page loads, it connects with WS subscribing to `'network'` topic for updates. The info shown on grey area may vary due [this issue](#unresolved-questions/updates-unicity).
+  - Network page will keep the same structure and visual except that it will show Network data as a overall instead of a single node point of view. Whe page loads, it connects with WS subscribing to `'network'` topic for updates.
 - **Statistics**
   - Statistics page will keep the sabe structure and visual except for the new Hashrate history graph. When page loads, a request will be made to [`statistics-history-handler`](#reference-level-explanation/hathor-explorer-service/statistics-history-handler) to retrieve hashrate history and it will connect to WS subscribing to `'statistics'` topic for updates.
 - **Tokens**
@@ -695,7 +647,7 @@ _**Note:** for now, [`statistics-history-handler`](#reference-level-explanation/
 # Drawbacks
 [drawbacks]: #drawbacks
 
-- Even though serveless framework works with different providers, this design are pretty bounded to AWS.
+- Even though serveless framework works with different providers, this design is pretty bounded to AWS.
 - 
 
 # Rationale and alternatives
