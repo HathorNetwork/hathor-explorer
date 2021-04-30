@@ -437,7 +437,6 @@ class TxData extends React.Component {
     }
 
     const renderGenesisMark = (hash) => {
-      console.log(hash)
       if (GENESIS_TX.includes(hash) || GENESIS_BLOCK.includes(hash)) {
         return <span className="text-info">[GENESIS]</span>
       }
