@@ -202,8 +202,7 @@ class TxData extends React.Component {
         <div key={idx}>
           <div>{outputValue(output)} {renderOutputToken(output)}</div>
           <div>
-            {renderDecodedScript(output.decoded)}
-            {Object.keys(output.decoded).length == 0 && ` script: ${output.script}` }
+            {renderDecodedScript(output)}
             {idx in this.props.spentOutputs ? <span> (<Link to={`/transaction/${this.props.spentOutputs[idx]}`}>Spent</Link>)</span> : ''}
           </div>
         </div>
@@ -216,15 +215,20 @@ class TxData extends React.Component {
       });
     }
 
-    const renderDecodedScript = (decoded) => {
-      switch (decoded.type) {
+    const renderDecodedScript = (output) => {
+      switch (output.decoded.type) {
         case 'P2PKH':
         case 'MultiSig':
-          return renderP2PKHorMultiSig(decoded);
+          return renderP2PKHorMultiSig(output.decoded);
         case 'NanoContractMatchValues':
-          return renderNanoContractMatchValues(decoded);
+          return renderNanoContractMatchValues(output.decoded);
         default:
-          return 'Unable to decode';
+          let script = output.script;
+          try {
+            script = atob(output.script)
+          } catch {}
+
+          return `Unable to decode script: ${script.trim()}`;
       }
     }
 
