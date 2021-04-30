@@ -178,7 +178,7 @@ class TxData extends React.Component {
 
     const renderOutputToken = (output) => {
       return (
-        <strong>{this.getOutputToken(hathorLib.wallet.getTokenIndex(output.decoded.token_data))}</strong>
+        <strong>{this.getOutputToken(hathorLib.wallet.getTokenIndex(output.token_data))}</strong>
       );
     }
 
@@ -202,7 +202,8 @@ class TxData extends React.Component {
         <div key={idx}>
           <div>{outputValue(output)} {renderOutputToken(output)}</div>
           <div>
-            {output.decoded ? renderDecodedScript(output.decoded) : `${output.script} (unknown script)` }
+            {renderDecodedScript(output.decoded)}
+            {Object.keys(output.decoded).length == 0 && ` script: ${output.script}` }
             {idx in this.props.spentOutputs ? <span> (<Link to={`/transaction/${this.props.spentOutputs[idx]}`}>Spent</Link>)</span> : ''}
           </div>
         </div>
