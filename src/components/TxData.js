@@ -436,6 +436,12 @@ class TxData extends React.Component {
       );
     }
 
+    const renderGenesisMark = (hash) => {
+      if (helpers.isGenesisBlock(hash) || helpers.isGenesisTx(hash)) {
+        return <span className="text-info">[GENESIS]</span>
+      }
+    }
+
     const loadTxData = () => {
       return (
         <div className="tx-data-wrapper">
@@ -443,7 +449,7 @@ class TxData extends React.Component {
           <div><label>{hathorLib.helpers.isBlock(this.props.transaction) ? 'Block' : 'Transaction'} ID:</label> {this.props.transaction.hash}</div>
           <div className="d-flex flex-column flex-lg-row align-items-start mt-3 mb-3">
             <div className="d-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
-              <div><label>Type:</label> {hathorLib.helpers.getTxType(this.props.transaction)}</div>
+              <div><label>Type:</label> {hathorLib.helpers.getTxType(this.props.transaction)} {renderGenesisMark(this.props.transaction.hash)}</div>
               <div><label>Time:</label> {dateFormatter.parseTimestamp(this.props.transaction.timestamp)}</div>
               <div><label>Nonce:</label> {this.props.transaction.nonce}</div>
               <div><label>Weight:</label> {helpers.roundFloat(this.props.transaction.weight)}</div>

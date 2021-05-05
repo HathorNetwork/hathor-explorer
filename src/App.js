@@ -33,7 +33,7 @@ import createRequestInstance from './api/customAxiosInstance';
 const store = new hathorLib.MemoryStore();
 hathorLib.storage.setStore(store);
 hathorLib.storage.setItem('wallet:server', BASE_URL);
-hathorLib.network.setNetwork('mainnet');
+
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -55,6 +55,7 @@ class Root extends React.Component {
     hathorLib.axios.registerNewCreateRequestInstance(createRequestInstance);
 
     versionApi.getVersion().then((data) => {
+      hathorLib.network.setNetwork(data.network.split('-')[0]);
       this.props.isVersionAllowedUpdate({allowed: helpers.isVersionAllowed(data.version)});
     }, (e) => {
       // Error in request
