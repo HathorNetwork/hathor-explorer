@@ -168,7 +168,7 @@ const helpers = {
    * @inner
    */
   isGenesisTx(hash) {
-    if (hathorLib.network.getNetwork().name === 'mainnet') {
+    if (this.isMainnet()) {
       return MAINNET_GENESIS_TX.includes(hash);
     }
 
@@ -185,12 +185,23 @@ const helpers = {
    * @inner
    */
   isGenesisBlock(hash) {
-    if (hathorLib.network.getNetwork().name === 'mainnet') {
+    if (this.isMainnet()) {
       return MAINNET_GENESIS_BLOCK.includes(hash);
     }
 
     return TESTNET_GENESIS_BLOCK.includes(hash);
   },
+
+  /**
+   * Checks if current network is mainnet
+   *
+   * @return {boolean} true if is mainnet, false otherwise
+   * @memberof Helpers
+   * @inner
+   */
+  isMainnet() {
+    return hathorLib.network.getNetwork().name === 'mainnet';
+  }
 
 }
 
