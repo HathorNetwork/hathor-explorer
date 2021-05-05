@@ -16,7 +16,7 @@ import { MAX_GRAPH_LEVEL } from '../constants';
 import helpers from '../utils/helpers';
 import dateFormatter from '../utils/date';
 import txApi from '../api/txApi';
-import { BASE_URL, HATHOR_TOKEN_INDEX, HATHOR_TOKEN_CONFIG, GENESIS_BLOCK, GENESIS_TX } from '../constants';
+import { BASE_URL, HATHOR_TOKEN_INDEX, HATHOR_TOKEN_CONFIG } from '../constants';
 import hathorLib from '@hathor/wallet-lib';
 
 
@@ -437,7 +437,7 @@ class TxData extends React.Component {
     }
 
     const renderGenesisMark = (hash) => {
-      if (GENESIS_TX.includes(hash) || GENESIS_BLOCK.includes(hash)) {
+      if (helpers.isGenesisBlock(hash) || helpers.isGenesisTx(hash)) {
         return <span className="text-info">[GENESIS]</span>
       }
     }

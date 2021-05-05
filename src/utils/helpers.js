@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { GENESIS_BLOCK, GENESIS_TX, DECIMAL_PLACES, MIN_API_VERSION } from '../constants';
+import hathorLib from '@hathor/wallet-lib';
+import { MAINNET_GENESIS_BLOCK, TESTNET_GENESIS_BLOCK, MAINNET_GENESIS_TX, TESTNET_GENESIS_TX, DECIMAL_PLACES, MIN_API_VERSION } from '../constants';
 
 const helpers = {
   updateListWs(list, newEl, max) {
@@ -19,9 +20,9 @@ const helpers = {
   },
 
   getTxType(tx) {
-    if (GENESIS_TX.indexOf(tx.hash) > -1) {
+    if (this.isGenesisTx(tx.hash)) {
       return 'Tx';
-    } else if (GENESIS_BLOCK.indexOf(tx.hash) > -1) {
+    } else if (this.isGenesisBlock(tx.hash)) {
       return 'Block';
     } else {
       if (tx.inputs.length > 0) {
@@ -156,6 +157,41 @@ const helpers = {
 
     return {value: value.toFixed(2), divisions};
   },
+
+  /**
+   * Checks if transaction is a Genesis transaction
+   *
+   * @param {string} hash Hash of transaction
+   *
+   * @return {boolean} true if is genesis, false otherwise
+   * @memberof Helpers
+   * @inner
+   */
+  isGenesisTx(hash) {
+    if (hathorLib.network.getNetwork().name === 'mainnet') {
+      return MAINNET_GENESIS_TX.includes(hash);
+    }
+
+    return TESTNET_GENESIS_TX.includes(hash);
+  },
+
+  /**
+   * Checks if block is Genesis
+   *
+   * @param {string} hash Hash of block
+   *
+   * @return {boolean} true if is genesis, false otherwise
+   * @memberof Helpers
+   * @inner
+   */
+  isGenesisBlock(hash) {
+    if (hathorLib.network.getNetwork().name === 'mainnet') {
+      return MAINNET_GENESIS_BLOCK.includes(hash);
+    }
+
+    return TESTNET_GENESIS_BLOCK.includes(hash);
+  },
+
 }
 
 export default helpers;
