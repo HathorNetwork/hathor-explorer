@@ -30,31 +30,32 @@ At first, this new project will be responsible for:
 Deploy will be done by serverless framework, except Mongodb that will run in a EC2 instance
 
 The following image illustrates how the parts of the services will interact:
-![image](https://user-images.githubusercontent.com/698586/116418765-cef56b00-a812-11eb-9261-e3145efb5de9.png)
+![image](https://user-images.githubusercontent.com/698586/117684298-3dc7b200-b18b-11eb-916f-d82209c8d614.png)
 
 
 **Note:* `hathor-running-services` is an abstraction for services that are already currently running.
 
-****Note:* `hathor-explorer-lib` might be extracted from `hathor-explorer` in the future.
+***Note:* `hathor-explorer-lib` might be extracted from `hathor-explorer` in the future.
 
 ## Hathor Explorer Service
 [guide-level-explanation/hathor-explorer-service]: #guide-level-explanation/hathor-explorer-service
 
 Hathor explorer service will be responsible for provide data to be consumed by explorer. Some of this data will be obtained by requesting other services and some will be stored on service own database.
 
-### Mongodb
-[guide-level-explanation/hathor-explorer-service/mongodb]: #guide-level-explanation/hathor-explorer-service/mongodb
+### Postgresql
+[guide-level-explanation/hathor-explorer-service/postgresql]: #guide-level-explanation/hathor-explorer-service/postgresql
 
-Mongodb will run on a EC2 instance and will not be deployed by Serverless framework. 
+Postgresql will run behind a RDS proxy to handle lambda connections and will not be deployed by Serverless framework. 
 
-We chose Mongo because data to store is very simple, it's flexible to easily add more properties when needed without migrations or other complications, we need also to store WS state and Mongo can handle tens of thousands of connections which is perfect to deal with lambdas.
+We choose Postgresql because we want to have a lot of fancy features in the feature and a good relational database is essential.
+As the number of connections can be a problem using lambda, we can easily deal with that using a RDS Proxy
 
-> **Estimated cost:** $ 21.05 Monthly (`t3.medium` - `20GB SSD`)
+> **Estimated cost:** $ 50 Monthly (`db.t3.medium`)
 
 ### Decode Tx Handler
 [guide-level-explanation/hathor-explorer-service/decode-tx-handler]: #guide-level-explanation/hathor-explorer-service/decode-tx-handler
 
-Decode TX will just make a request to `hathor-core` (if needed), parse response and return the decoded transaction
+Decode TX will just decode and return the decoded transaction
 
 > **Estimated cost:** $ 0.50 per million requests.
 
@@ -68,7 +69,8 @@ Push TX will validate the transaction and just make a request to `hathor-core`, 
 ### Address Handler
 [guide-level-explanation/hathor-explorer-service/address-handler]: #guide-level-explanation/hathor-explorer-service/address-handler
 
-Address handler will return data about a given address. As overall address information is already been stored by `hathor-wallet-service`, we can make a request for it. More detailed information will still be fetched on `full-node`. 
+Address handler will return data about a given address. As overall address information is already been stored by `hathor-wallet-service` and the remaining information will be stored there as well, we can make a request for it.
+Requests for this handler will be cached on [API gateway](#guide-level-explanation/hathor-explorer-service/api-gateway).
 
 A new endpoit will have to be made on `hathor-wallet-service` to deal with public information.
 
@@ -78,7 +80,8 @@ A new endpoit will have to be made on `hathor-wallet-service` to deal with publi
 [guide-level-explanation/hathor-explorer-service/tokens-handler]: #guide-level-explanation/hathor-explorer-service/tokens-handler
 
 Tokens handler will return data about tokens. Tokens list or information about a given token.
-Tokens list will be available on  `hathor-wallet-service` and as a token is a transaction, we can retrieve it in `hathor-core`
+Tokens list will be available on  `hathor-wallet-service` and as a token is a transaction, it will be stored there as well.
+Requests for this handler will be cached on [API gateway](#guide-level-explanation/hathor-explorer-service/api-gateway).
 
 A new endpoint will have to be made on `hathor-wallet-service` to retrieve tokens list with pagination.
 
@@ -88,7 +91,7 @@ A new endpoint will have to be made on `hathor-wallet-service` to retrieve token
 [guide-level-explanation/hathor-explorer-service/transactions-handler]: #guide-level-explanation/hathor-explorer-service/transactions-handler
 
 Transactions handler will return data about transactions. Transactions list or specific data about a given transaction.
-As this is the main feature on explorer (a list of last transactions is listed on explorer home page) it can easily overload the `full-node`. To solve this problem, we will store only hash and timestamp of every new transaction on `hathor-explorer-service` database. This way we can easily list and paginate transactions and access the `full-node` only to retrieve one single transaction data that is a cheap operation. Requests for this handler will be cached on [API gateway](#guide-level-explanation/hathor-explorer-service/api-gateway).
+As this is the main feature on explorer (a list of last transactions is listed on explorer home page) it can easily overload the `full-node`. To solve this problem, we will store only hash and timestamp of every new transaction on `hathor-explorer-service` database. This way we can easily list and paginate transactions and access the `hathor-wallet-service` only to retrieve one single transaction data that is a cheap operation. Requests for this handler will be cached on [API gateway](#guide-level-explanation/hathor-explorer-service/api-gateway).
 
 > **Estimated cost:** $ 0.50 per million requests.
 
@@ -154,7 +157,7 @@ A new feature will be made on `hathor-core` to push statistics data to SNS. It c
 ### API gateway
 [guide-level-explanation/hathor-explorer-service/api-gateway]: #guide-level-explanation/hathor-explorer-service/api-gateway
 
-API gateway will handle REST requests and WS connections from the external world. Also will cache requests that will lead to `hathor-core` requests
+API gateway will handle REST requests and WS connections from the external world. Also will cache requests strategically to prevent services overload.
 
 > **Estimated cost:** $2 monthly (according to AWS example. Variables are quantity of requests, time of connection and data transferred).
 ## Hathor Explorer Lib
@@ -171,7 +174,7 @@ The existing project will not have any big visual modification except by network
 
 Furthermore business logic will be extracted from React components and API calls will be modified, if needed, to fit the new responses from new [guide-level-explanation/hathor-explorer-service](#guide-level-explanation/hathor-explorer-service)
 
-> **Estimated total monthly cost:** $ 32.00 with a huge margin of accesses
+> **Estimated total monthly cost:** $ 62.00 with a huge margin of accesses
 
 # Reference-level explanation
 [reference-level-explanation]: #reference-level-explanation
@@ -179,35 +182,41 @@ Furthermore business logic will be extracted from React components and API calls
 ## Hathor Explorer Service
 [reference-level-explanation/hathor-explorer-service]: #reference-level-explanation/hathor-explorer-service
 
-### Mongodb
-[reference-level-explanation/hathor-explorer-service/mongodb]: #reference-level-explanation/hathor-explorer-service/mongodb
+**Some considerations about the service:**
 
-Mongodb will have 3 collections with the following attributes:
+As `hathor-wallet-service` already deal with reorgs, we just need to get transaction data from there.
+
+Cache will be made using API Gateway for endpoints that make sense, with expiration times that makes sense.
+
+### Postgresql
+[reference-level-explanation/hathor-explorer-service/postgresql]: #reference-level-explanation/hathor-explorer-service/postgresql
+
+Postgresql will have 3 tables with the following columns:
 
 ```
 ws_connections {
-    topic: string // ['network', 'dag', 'statistics', 'trasactions', '${address}']
-    connectionId: string
+    topic: varchar // ['network', 'dag', 'statistics', 'trasactions', '${address}']
+    connectionId: varchar
 }
 
 // must be seeded with current transactions
 transactions {
-    hash: string
+    hash: varchar
     is_block: boolean
-    timestamp: Date
+    timestamp: datetime
 }
 
 // must be seeded with current tokens
 tokens {
-  hash: string
-  name: string
-  symbol: string
+  hash: varchar
+  name: varchar
+  symbol: varchar
 }
 
 statistics {
     hashrate: number
     peers: number
-    timestamp: Date
+    timestamp: datetime
 }
 ```
 
@@ -227,9 +236,8 @@ Transaction {}
 
 **Procedure:**
 
-Build a request with received param and make it to `hathor-core` passing the transaction hash:
-`GET /v1a/decode_tx?hex_tx=hash` - Maybe it would be better to change this endpoint to `POST` instead of `GET` in `hathor-core`
-We can cache these requests using the first `n` chars of the `hash`
+Use `hathor-lib` transaction classes to decode the Transaction and return. 
+We can cache these requests using the last `n` chars of the `hash`
 
 ### Push Tx Handler
 [reference-level-explanation/hathor-explorer-service/push-tx-handler]: #reference-level-explanation/hathor-explorer-service/push-tx-handler
@@ -286,6 +294,8 @@ Address {
 Build a request with received params and make it to `hathor-wallet-service` basically with the same params received.
 
 `hathor-wallet-service` should return the data in the same structure as described above, as it holds all thos information.
+
+Cache on API GW will use `address` as key. (10 ~ 20s)
 
 **Invoke:** `hathor-explorer-service-address`
 
@@ -360,8 +370,9 @@ TokenList {
 
 When no `hash` provided, a simple query is made to the database to return the stored list.
 
-When a `hash` is provided, it build a request to the `full-node` with this hash to return transaction data. This data then is transformed into the structure described above and returned.
+When a `hash` is provided, it build a request to the `hathor-wallet-service` with this hash to return transaction data. This data then is transformed into the structure described above and returned.
 
+Cache on API GW will use `hash` as key.
 ### Transactions Handler
 [reference-level-explanation/hathor-explorer-service/transactions-handler]: #reference-level-explanation/hathor-explorer-service/transactions-handler
 
@@ -458,7 +469,7 @@ TransactionList {
 
 When no `hash` provided, a simple query is made to the database to return the stored list.
 
-When a `hash` is provided, it build a request to the `full-node` with this hash to return transaction data. This data then is transformed into the structure described above and returned.
+When a `hash` is provided, it build a request to the `hathor-wallet-service` with this hash to return transaction data. This data then is transformed into the structure described above and returned.
 
 Cache on API GW will use `hash` as key.
 
@@ -482,7 +493,7 @@ Transaction {
 
 `transactions-updater` consumes the `SQS`, storing data into `transactions` collection for each transaction found.
 
-Then it makes a request to `full-node` to retrieve transaction information, triggers [`address-handler`](#reference-level-explanation/hathor-explorer-service/address-handler) with every address contained in the transaction and also triggers [`transactions-handler`](#reference-level-explanation/hathor-explorer-service/transactions-handler) with transaction data in order to update clients subscribed to `transactions` WS topic.
+Then it makes a request to `hathor-wallet-service` to retrieve transaction information, triggers [`address-handler`](#reference-level-explanation/hathor-explorer-service/address-handler) with every address contained in the transaction and also triggers [`transactions-handler`](#reference-level-explanation/hathor-explorer-service/transactions-handler) with transaction data in order to update clients subscribed to `transactions` WS topic.
 
 If the transaction is for token creation, the token information is stored into `tokens` collection. 
 
@@ -656,12 +667,6 @@ API Gateway will handle HTTP requests and WS connections. It will also cache req
 - Lambdas are awesome. They're fast, light and cheap. Also it's independent, so we can easily scale a specific function when it grows in demand.
 - SNS and SQS ensures data and events integrity between services making it easy to manage and understand who is getting the notifications.
 
-[WIP]
-- Why is this design the best in the space of possible designs?
-- What other designs have been considered and what is the rationale for not
-  choosing them?
-- What is the impact of not doing this?
-
 # Prior art
 [prior-art]: #prior-art
 
@@ -709,7 +714,9 @@ We already have an API running (that access the `full-node`). Would this service
 
 - [ ] Create Project base structure and Repo
 - [ ] Create first version of automated tests and deploy
-- [ ] Setup Mongodb on EC2
+- [ ] Setup postgresql and RDS Proxy
+- [ ] Design `network-handler`
+- [ ] Implement `network-handler`
 - [ ] ...
 
 ## hathor-wallet-service
@@ -722,22 +729,21 @@ We already have an API running (that access the `full-node`). Would this service
 ## hathor-core
 [tasks/hathor-core]: #tasks/hathor-core
 
-- [ ] Create SNS topic for Network status updates
-- [ ] Push notification to SNS for Network status update
-- [ ] Create SNS topic for Hashrate update
-- [ ] Push notification to SNS for Hashrate update
-- [ ] Create SNS topic for New transactions update
-- [ ] Push notification to SNS for New transactions
-- [ ] ...
+- [ ] Design how the updates will be sent to SNS's
 
 ## hathor-explorer
 [tasks/hathor-explorer]: #tasks/hathor-explorer
 
 - [ ] Update libraries (security fixes included)
 - [ ] Change Pages to fetch/connect to `hathor-explorer-service`
-  - [ ] Transactions list (home)
+  - [ ] Home page
+  - [ ] Transactions page
+  - [ ] Blocks page
   - [ ] Network page
   - [ ] Statistics page
   - [ ] Tokens page
   - [ ] DAG page
+  - [ ] Decode Tx page
+  - [ ] Push Tx page
+  - [ ] Address page
 - [ ] ... 
