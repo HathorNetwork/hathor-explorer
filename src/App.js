@@ -6,10 +6,12 @@
  */
 
 import React from 'react';
+
 import { Switch, BrowserRouter as Router, Route } from 'react-router-dom';
 import PeerAdmin from './screens/PeerAdmin';
 import DashboardTx from './screens/DashboardTx';
 import Navigation from './components/Navigation';
+import Loading from './components/Loading';
 import TransactionDetail from './screens/TransactionDetail';
 import AddressDetail from './screens/AddressDetail';
 import DecodeTx from './screens/DecodeTx';
@@ -80,7 +82,13 @@ class Root extends React.Component {
   render() {
     if (this.props.isVersionAllowed === undefined) {
       // Waiting for version
-      return null;
+      return (
+        <Router>
+          <>
+            <Navigation />
+            <Loading />
+          </>
+        </Router>);
     } else if (!this.props.isVersionAllowed) {
       return <VersionError />;
     } else {
