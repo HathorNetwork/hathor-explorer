@@ -429,3 +429,11 @@ p.subtitle {
   color: #856404;
   text-decoration: underline;
 }
+
+.loading-wrapper {
+  width: 100%;
+  height: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
