@@ -30,7 +30,7 @@ At first, this new project will be responsible for:
 Deploy will be done by serverless framework, except Mongodb that will run in a EC2 instance
 
 The following image illustrates how the parts of the services will interact:
-![image](https://user-images.githubusercontent.com/698586/117684298-3dc7b200-b18b-11eb-916f-d82209c8d614.png)
+![image](https://user-images.githubusercontent.com/698586/117825867-0cf88300-b246-11eb-914a-c528a5f83b5e.png)
 
 
 **Note:* `hathor-running-services` is an abstraction for services that are already currently running.
@@ -122,7 +122,7 @@ Web Socket Clients handler will handle connections and disconnections from WS on
 ### DAG handler
 [guide-level-explanation/hathor-explorer-service/dag-handler]: #guide-level-explanation/hathor-explorer-service/dag-handler
 
-Every new update on DAG data will be pushed to a SNS. A SQS will be fed from this SNS notifications.
+[`data-collector`](#guide-level-explanation/hathor-explorer-service/data-collector) will listen to DAG updates and send to a SNS. A SQS will be fed from this SNS notifications.
 DAG handler will consume this SQS and send a message for every connection stored in the database subscribed to dag topic.
 
 > **Estimated cost:** $1.50 monthly ($ 0.50 per million update, every second update).
@@ -130,7 +130,7 @@ DAG handler will consume this SQS and send a message for every connection stored
 ### Statistics update handler
 [guide-level-explanation/hathor-explorer-service/statistics-update-handler]: #guide-level-explanation/hathor-explorer-service/statistics-update-handler
 
-Every new update on statistics data will be pushed to a SNS. A SQS will be fed from this SNS notifications.
+[`data-collector`](#guide-level-explanation/hathor-explorer-service/data-collector) will listen to statistics updates and send to a SNS. A SQS will be fed from this SNS notifications.
 Statistics update handler will consume this SQS and send a message for every connection stored in the database subscribed to statistics topic.
 
 > **Estimated cost:** $1.50 monthly ($ 0.50 per million update, every second update).
@@ -138,7 +138,7 @@ Statistics update handler will consume this SQS and send a message for every con
 ### Network handler
 [guide-level-explanation/hathor-explorer-service/network-handler]: #guide-level-explanation/hathor-explorer-service/network-handler
 
-Every new update on network data will be pushed to a SNS. A SQS will be fed from this SNS notifications.
+[`data-collector`](#guide-level-explanation/hathor-explorer-service/data-collector) will listen to network updates and send to a SNS. A SQS will be fed from this SNS notifications.
 Network handler will consume this SQS and send a message for every connection stored in the database subscribed to network topic.
 Network data will also be improved, showing the overall network instead of a single node point of view.
 
@@ -147,13 +147,19 @@ Network data will also be improved, showing the overall network instead of a sin
 ### Statistics Collector
 [guide-level-explanation/hathor-explorer-service/statistics-collector]: #guide-level-explanation/hathor-explorer-service/statistics-collector
 
-Every new hashrate/statistics updates will be pushed to a SNS. A SQS will listen to this SNS and store it.
+[`data-collector`](#guide-level-explanation/hathor-explorer-service/data-collector) will listen to hashrate/statistics updates and send to a SNS. A SQS will listen to this SNS and store it.
 Statistics collector updater will consume this SQS and store data in the database.
 Statistics collector will also trigger [`statistics-update-handler`](#guide-level-explanation/hathor-explorer-service/statistics-update-handler) to update connected clients. 
 
-A new feature will be made on `hathor-core` to push statistics data to SNS. It can be in the same place where this data is pushed to WS.
-
 > **Estimated cost:** $ 0.90 per million transactions.
+
+### Data Collector
+[guide-level-explanation/hathor-explorer-service/data-collector]: #guide-level-explanation/hathor-explorer-service/data-collector
+
+Data Collector will connect to `full-node` WebSockets to listen for updates and send messages to SNS topics.
+For data which doesn't come from WebSocket, polling will be used. 
+
+> **Estimated cost:** $ 14 monthly (`t3.small`).
 ### API gateway
 [guide-level-explanation/hathor-explorer-service/api-gateway]: #guide-level-explanation/hathor-explorer-service/api-gateway
 
@@ -174,7 +180,7 @@ The existing project will not have any big visual modification except by network
 
 Furthermore business logic will be extracted from React components and API calls will be modified, if needed, to fit the new responses from new [guide-level-explanation/hathor-explorer-service](#guide-level-explanation/hathor-explorer-service)
 
-> **Estimated total monthly cost:** $ 62.00 with a huge margin of accesses
+> **Estimated total monthly cost:** $ 76.00 with a huge margin of accesses
 
 # Reference-level explanation
 [reference-level-explanation]: #reference-level-explanation
@@ -480,7 +486,7 @@ Cache on API GW will use `hash` as key.
 
 **SQS:** `hathor-explorer-service-transactions`
 
-**`hathor-core`:** Send Transaction to `SNS` in the following format:
+**`data-collector`:** Send Transaction to `SNS` in the following format:
 ```
 Transaction {
     hash: string
@@ -532,7 +538,7 @@ If the transaction is for token creation, the token information is stored into `
 
 **SQS:** `hathor-explorer-service-dag`
 
-**`hathor-core`:** Send DAG to `SNS` in the following format:
+**`data-collector`:** Send DAG to `SNS` in the following format:
 ```
 DAG {
     hash: string
@@ -569,7 +575,7 @@ Statistic {}
 
 **SQS:** `hathor-explorer-service-network`
 
-**`hathor-core`:** Send Network data to `SNS` in the following format:
+**`data-collector`:** Send Network data to `SNS` in the following format:
 ```
 Network {
     id: string
@@ -603,7 +609,7 @@ Network {
 
 **SQS:** `hathor-explorer-service-statistics`
 
-**`hathor-core`:** Send Statistics to `SNS` in the following format:
+**`data-collector`:** Send Statistics to `SNS` in the following format:
 ```
 Statistic {
     blocks: int
@@ -617,6 +623,23 @@ Statistic {
 **Procedure**:
 
 `statistics-collector` consumes `SQS`, saves hashrate into database and triggers `statistics-update-handler` with received data.
+
+### Data Collector
+[reference-level-explanation/hathor-explorer-service/data-collector]: #reference-level-explanation/hathor-explorer-service/data-collector
+
+Data collector will get data from `full-node` by the following ways
+
+**WebSocket:**
+
+- `/v1a/ws` - Listen to the following events:
+    - `'dashboard:metrics'` - for statistics
+    - `'network:new_tx_accepted'` - for transactions an DAG
+
+**Polling:**
+
+- `/v1a/status` - Fetch Network information 
+
+Every update will be sent to respective SNS.
 
 ### API Gateway
 [reference-level-explanation/hathor-explorer-service/api-gateway]: #reference-level-explanation/hathor-explorer-service/api-gateway
