@@ -33,6 +33,8 @@ const rootReducer = (state = initialState, action) => {
       return Object.assign({}, state, {data: action.payload});
     case 'is_version_allowed_update':
       return Object.assign({}, state, {isVersionAllowed: action.payload.allowed});
+    case 'api_load_error_update':
+      return Object.assign({}, state, {apiLoadError: action.payload.apiLoadError});
     default:
       return state;
   }
