@@ -12,17 +12,17 @@ import colors from '../index.scss';
 
 
 const Loading = (props) => {
-    return (
-        <div className="loading-wrapper">
-            <ReactLoading {...props} />
-        </div>
-    ) 
+  return (
+    <div className="loading-wrapper">
+      <ReactLoading {...props} />
+    </div>
+  ) 
 } 
 
 Loading.defaultProps =  {
-    type: 'spin',
-    color: colors.purpleHathor,
-    delay: 500
+  type: 'spin',
+  color: colors.purpleHathor,
+  delay: 500
 }
 
 export default Loading;
