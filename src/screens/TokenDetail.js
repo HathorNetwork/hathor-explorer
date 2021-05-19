@@ -11,6 +11,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import HathorAlert from '../components/HathorAlert';
 import Transactions from '../components/Transactions';
 import hathorLib from '@hathor/wallet-lib';
+import helpers from '../utils/helpers';
 import { TX_COUNT } from '../constants';
 
 /**
@@ -38,6 +39,7 @@ class TokenDetail extends React.Component {
     canMelt: null,
     paramUID: '',
     transactions: [],
+    nft: null
   };
 
   componentDidMount() {
@@ -45,6 +47,7 @@ class TokenDetail extends React.Component {
 
     this.setState({ paramUID: params.tokenUID }, () => {
       this.updateTokenInfo();
+      this.fetchNftList();
     });
   }
 
@@ -64,6 +67,19 @@ class TokenDetail extends React.Component {
       } else {
         this.setState({ errorMessage: response.message });
       }
+    });
+  }
+
+  /**
+   * Fetch NFT info for custom NFT Tokens
+   */
+  fetchNftList() {
+    fetch(helpers.nftTokenListUrl()).then((response) => {
+      response.json().then((data) => {
+        this.setState({
+          nft: data.find(obj => obj.id === this.state.paramUID)
+        });
+      });
     });
   }
 
@@ -166,15 +182,27 @@ class TokenDetail extends React.Component {
     const renderTokenInfo = () => {
       return (
         <div className="token-general-info">
-          <p className="mb-2"><strong>UID: </strong>{this.state.token.uid}</p>
-          <p className="mt-2 mb-2"><strong>Name: </strong>{this.state.token.name}</p>
-          <p className="mt-2 mb-2"><strong>Symbol: </strong>{this.state.token.symbol}</p>
-          <p className="mt-2 mb-2"><strong>Total supply: </strong>{hathorLib.helpers.prettyValue(this.state.totalSupply)} {this.state.token.symbol}</p>
-          <p className="mt-2 mb-0"><strong>Can mint new tokens: </strong>{this.state.canMint ? 'Yes' : 'No'}</p>
-          <p className="mb-2 subtitle">Indicates whether the token owner can create new tokens, increasing the total supply</p>
-          <p className="mt-2 mb-0"><strong>Can melt tokens: </strong>{this.state.canMelt ? 'Yes' : 'No'}</p>
-          <p className="mb-2 subtitle">Indicates whether the token owner can destroy tokens, decreasing the total supply</p>
-          <p className="mt-2 mb-4"><strong>Total number of transactions: </strong>{this.state.transactionsCount}</p>
+          <p className="token-general-info__uid"><strong>UID: </strong><br/>{this.state.token.uid}</p>
+          <p><strong>Name: </strong>{this.state.token.name}</p>
+          <p><strong>Symbol: </strong>{this.state.token.symbol}</p>
+          <p><strong>Total supply: </strong>{hathorLib.helpers.prettyValue(this.state.totalSupply)} {this.state.token.symbol}</p>
+          <p>
+            <strong>Can mint new tokens: </strong>
+            {this.state.canMint ? 'Yes' : 'No'}
+            <a href="javascript:;" className="info-hover-wrapper float-right">
+              <i className="fa fa-info-circle" title="Mint info"></i>
+              <span className="subtitle subtitle info-hover-popover">Indicates whether the token owner can create new tokens, increasing the total supply</span>
+            </a>
+          </p>
+          <p>
+            <strong>Can melt tokens: </strong>
+            {this.state.canMelt ? 'Yes' : 'No'}
+            <a href="javascript:;" className="info-hover-wrapper float-right">
+              <i className="fa fa-info-circle" title="Melt info"></i>
+              <span className="subtitle info-hover-popover">Indicates whether the token owner can destroy tokens, decreasing the total supply</span>
+            </a>
+          </p>
+          <p><strong>Total number of transactions: </strong>{this.state.transactionsCount}</p>
         </div>
       );
     }
@@ -190,7 +218,7 @@ class TokenDetail extends React.Component {
     return (
       <div className="content-wrapper flex align-items-center">
         {renderTokenAlert()}
-        <div className='d-flex flex-column flex-lg-row align-items-lg-start align-items-center justify-content-between token-detail-top'>
+        <div className='d-flex flex-column flex-lg-row align-items-lg-stretch align-items-center justify-content-between token-detail-top'>
           <div className='d-flex flex-column justify-content-between mt-4'>
             <div className='token-wrapper d-flex flex-row align-items-center mb-3'>
               <p className='token-name mb-0'>
@@ -199,17 +227,43 @@ class TokenDetail extends React.Component {
             </div>
             {renderTokenInfo()}
           </div>
-          <div className='d-flex flex-column align-items-center config-string-wrapper mt-4 ml-lg-3 pl-lg-5 pr-lg-5'>
+          <div className='d-flex flex-column align-items-left config-string-wrapper'>
             <p><strong>Configuration String</strong></p>
-            <span ref="configurationString" className="mb-2">
-              {getShortConfigurationString()}
-              <CopyToClipboard text={configurationString} onCopy={this.copied}>
-                <i className="fa fa-clone pointer ml-1" title="Copy to clipboard"></i>
-              </CopyToClipboard>
-            </span> 
-            <QRCode size={200} value={configurationString} />
-            <a className="mt-2" onClick={(e) => this.downloadQrCode(e)} download={`${this.state.token.name} (${this.state.token.symbol}) - ${configurationString}`} href="true" ref="downloadLink">Download <i className="fa fa-download ml-1" title="Download QRCode"></i></a>
+            <p className="text-center py-4 flex-fill d-flex align-items-center justify-content-center">
+              <QRCode size={200} value={configurationString} />
+            </p>
+            <p>
+              <span ref="configurationString" className="mb-4 text-left">
+                {getShortConfigurationString()}
+                <CopyToClipboard text={configurationString} onCopy={this.copied}>
+                  <i className="fa fa-lg fa-clone pointer ml-1 float-right" title="Copy to clipboard"></i>
+                </CopyToClipboard>
+              </span> 
+            </p>
+            <p>
+              <a className="mt-2" onClick={(e) => this.downloadQrCode(e)} download={`${this.state.token.name} (${this.state.token.symbol}) - ${configurationString}`} href="true" ref="downloadLink">
+                Download
+                <i className="fa fa-download ml-1 float-right" title="Download QRCode"></i>
+              </a>
+            </p>
           </div>
+          <>
+            { this.state.nft ?
+                <div className='d-flex flex-column token-nft-preview'>
+                  <p><strong>NFT preview</strong></p>
+                  <figure class="figure flex-fill p-4 d-flex align-items-center justify-content-center">
+                    { this.state.nft.type === 'image' ?
+                      <img src={this.state.nft.file} width="100%" height="100%" />
+                      : <video controls>
+                          <source src={this.state.nft.file} type="video/mp4" />
+                          Your browser does not support the video tag.
+                        </video>
+                    }
+                  </figure>
+                </div>
+              : null
+            }
+          </>
         </div>
         <hr />
         <div className='d-flex flex-column align-items-start justify-content-center mt-5'>
