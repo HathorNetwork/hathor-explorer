@@ -5,16 +5,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import ReactLoading from 'react-loading';
 import colors from '../index.scss';
 
-
 const Loading = (props) => {
+
+  const slowDelay = props.slowDelay || 3000;
+
+  const [slowLoad, setSlowLoad] = useState(false);
+
+  useEffect(() => {
+    const updateSlowLoad = setTimeout(() => setSlowLoad(true), slowDelay);
+
+    return () => { clearTimeout(updateSlowLoad) }
+  })
+
   return (
     <div className="loading-wrapper">
       <ReactLoading {...props} />
+      { slowLoad ? <span>Still loading... Please, be patient.</span> : null }
     </div>
   ) 
 } 

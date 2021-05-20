@@ -91,7 +91,7 @@ class Root extends React.Component {
             <Navigation />
             { this.props.apiLoadError ? 
               <div className="content-wrapper">
-                <h3 className="text-danger">Error loading API. Please try again later.</h3>
+                <h3 className="text-danger">Error loading the explorer. Please reload the page to try again.</h3>
               </div>
               : <Loading />  }
           </>
