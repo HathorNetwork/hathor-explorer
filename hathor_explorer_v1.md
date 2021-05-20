@@ -27,7 +27,7 @@ At first, this new project will be responsible for:
 - Make requests for other services that are already detached from `full-node` 
 - Cache most of these requests tha still need to be made to `full-node` 
 
-Deploy will be done by serverless framework, except Mongodb that will run in a EC2 instance
+Deploy will be done by Serverless framework (lambdas and API Gateway) and Terraform (all other things)
 
 The following image illustrates how the parts of the services will interact:
 ![image](https://user-images.githubusercontent.com/698586/117825867-0cf88300-b246-11eb-914a-c528a5f83b5e.png)
@@ -47,7 +47,7 @@ Hathor explorer service will be responsible for provide data to be consumed by e
 
 Postgresql will run behind a RDS proxy to handle lambda connections and will not be deployed by Serverless framework. 
 
-We choose Postgresql because we want to have a lot of fancy features in the feature and a good relational database is essential.
+We choose Postgresql because we want to have a nice and complex features in the feature and a good relational database is essential to give us enough flexibility to do it.
 As the number of connections can be a problem using lambda, we can easily deal with that using a RDS Proxy
 
 > **Estimated cost:** $ 50 Monthly (`db.t3.medium`)
