@@ -215,6 +215,32 @@ class TokenDetail extends React.Component {
       )
     }
 
+    const renderNftPreview = () => {
+      if (this.state.nft) {
+
+        let media;
+
+        if (this.state.nft.type === 'image') {
+          media = <img src={this.state.nft.file} width="100%" height="100%" />;
+        } else {
+          media = (
+            <video controls>
+              <source src={this.state.nft.file} type="video/mp4" />
+              Your browser does not support html video tag.
+            </video>
+          )
+        }
+        return (
+          <div className='d-flex flex-column token-nft-preview'>
+            <p><strong>NFT preview</strong></p>
+            <figure class="figure flex-fill p-4 d-flex align-items-center justify-content-center">
+              { media }
+            </figure>
+          </div>
+        )
+      }
+    }
+
     return (
       <div className="content-wrapper flex align-items-center">
         {renderTokenAlert()}
@@ -247,23 +273,7 @@ class TokenDetail extends React.Component {
               </a>
             </p>
           </div>
-          <>
-            { this.state.nft ?
-                <div className='d-flex flex-column token-nft-preview'>
-                  <p><strong>NFT preview</strong></p>
-                  <figure class="figure flex-fill p-4 d-flex align-items-center justify-content-center">
-                    { this.state.nft.type === 'image' ?
-                      <img src={this.state.nft.file} width="100%" height="100%" />
-                      : <video controls>
-                          <source src={this.state.nft.file} type="video/mp4" />
-                          Your browser does not support the video tag.
-                        </video>
-                    }
-                  </figure>
-                </div>
-              : null
-            }
-          </>
+          {renderNftPreview()}
         </div>
         <hr />
         <div className='d-flex flex-column align-items-start justify-content-center mt-5'>
