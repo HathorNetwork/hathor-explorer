@@ -74,13 +74,18 @@ class TokenDetail extends React.Component {
    * Fetch NFT info for custom NFT Tokens
    */
   fetchNftList() {
-    fetch(helpers.nftTokenListUrl()).then((response) => {
-      response.json().then((data) => {
-        this.setState({
-          nft: data.find(obj => obj.id === this.state.paramUID)
+    const nftTokenListUrl = helpers.nftTokenListUrl();
+    if (nftTokenListUrl) {
+      fetch(helpers.nftTokenListUrl()).then((response) => {
+        response.json().then((data) => {
+          if (Array.isArray(data)) {
+            this.setState({
+              nft: data.find(obj => obj.id === this.state.paramUID)
+            });
+          }
         });
       });
-    });
+    }
   }
 
   /**

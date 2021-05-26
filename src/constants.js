@@ -42,9 +42,9 @@ export const TESTNET_GENESIS_TX = [
   '00975897028ceb037307327c953f5e7ad4d3f42402d71bd3d11ecb63ac39f01a',
 ];
 
-export const MAINNET_NFT_TOKEN_LIST_URL = ''; // TODO add json url
+export const MAINNET_NFT_TOKEN_LIST_URL = '';
 
-export const TESTNET_NFT_TOKEN_LIST_URL = ''; // TODO add json url
+export const TESTNET_NFT_TOKEN_LIST_URL = '';
 
 export const DECIMAL_PLACES = 2;
 
