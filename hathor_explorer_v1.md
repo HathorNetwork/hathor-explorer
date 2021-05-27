@@ -30,7 +30,7 @@ At first, this new project will be responsible for:
 Deploy will be done by Serverless framework (lambdas and API Gateway) and Terraform (all other things)
 
 The following image illustrates how the parts of the services will interact:
-![image](https://user-images.githubusercontent.com/698586/117825867-0cf88300-b246-11eb-914a-c528a5f83b5e.png)
+![image](https://raw.githubusercontent.com/HathorNetwork/hathor-explorer/master/public/hathor-explorer-design.png)
 
 
 **Note:* `hathor-running-services` is an abstraction for services that are already currently running.
@@ -42,15 +42,14 @@ The following image illustrates how the parts of the services will interact:
 
 Hathor explorer service will be responsible for provide data to be consumed by explorer. Some of this data will be obtained by requesting other services and some will be stored on service own database.
 
-### Postgresql
-[guide-level-explanation/hathor-explorer-service/postgresql]: #guide-level-explanation/hathor-explorer-service/postgresql
+### Aurora MySQL
+[guide-level-explanation/hathor-explorer-service/aurora-mysql]: #guide-level-explanation/hathor-explorer-service/aurora-mysql
 
-Postgresql will run behind a RDS proxy to handle lambda connections and will not be deployed by Serverless framework. 
+Aurora MySQL will not be deployed by Serverless framework. 
 
-We choose Postgresql because we want to have a nice and complex features in the feature and a good relational database is essential to give us enough flexibility to do it.
-As the number of connections can be a problem using lambda, we can easily deal with that using a RDS Proxy
+As almost any database is fine for our purpose and change it is very easy because all the data is inside the blockchain, we choose Aurora MySQL for convenience because the team is comfortable and the setup is very simple.
 
-> **Estimated cost:** $ 50 Monthly (`db.t3.medium`)
+> **Estimated cost:** $ 30 Monthly (`db.t3.small`)
 
 ### Decode Tx Handler
 [guide-level-explanation/hathor-explorer-service/decode-tx-handler]: #guide-level-explanation/hathor-explorer-service/decode-tx-handler
@@ -180,7 +179,7 @@ The existing project will not have any big visual modification except by network
 
 Furthermore business logic will be extracted from React components and API calls will be modified, if needed, to fit the new responses from new [guide-level-explanation/hathor-explorer-service](#guide-level-explanation/hathor-explorer-service)
 
-> **Estimated total monthly cost:** $ 76.00 with a huge margin of accesses
+> **Estimated total monthly cost:** $ 56.00 with a huge margin of accesses
 
 # Reference-level explanation
 [reference-level-explanation]: #reference-level-explanation
@@ -194,17 +193,12 @@ As `hathor-wallet-service` already deal with reorgs, we just need to get transac
 
 Cache will be made using API Gateway for endpoints that make sense, with expiration times that makes sense.
 
-### Postgresql
-[reference-level-explanation/hathor-explorer-service/postgresql]: #reference-level-explanation/hathor-explorer-service/postgresql
+### Aurora MySQL
+[reference-level-explanation/hathor-explorer-service/aurora-mysql]: #reference-level-explanation/hathor-explorer-service/aurora-mysql
 
-Postgresql will have 3 tables with the following columns:
+Aurora MySQL will have 3 tables with the following columns:
 
 ```
-ws_connections {
-    topic: varchar // ['network', 'dag', 'statistics', 'trasactions', '${address}']
-    connectionId: varchar
-}
-
 // must be seeded with current transactions
 transactions {
     hash: varchar
@@ -737,7 +731,7 @@ We already have an API running (that access the `full-node`). Would this service
 
 - [ ] Create Project base structure and Repo
 - [ ] Create first version of automated tests and deploy
-- [ ] Setup postgresql and RDS Proxy
+- [ ] Setup aurora-mysql
 - [ ] Design `network-handler`
 - [ ] Implement `network-handler`
 - [ ] ...
