@@ -1,0 +1,61 @@
+name: deploy
+
+on:
+  push:
+    branches: [ci/automate-deployment]
+    tags: ['v*']
+
+jobs:
+  deploy-testnet-explorer:
+    if: github.ref == 'refs/heads/ci/automate-deployment'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node.js 14.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.16.0
+      - name: Install Dependencies
+        run: |
+          npm install
+      - name: Build
+        run: |
+          npm run build
+        env:
+          REACT_APP_BASE_URL: https://node1.foxtrot.testnet.hathor.network/v1a/
+          REACT_APP_WS_URL: wss://node1.foxtrot.testnet.hathor.network/v1a/ws/
+      - name: Deploy Testnet Explorer
+        run: |
+          make check_version
+          aws s3 sync --delete ./build/ s3://hathor-testnet-public-explorer
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: 'us-east-1'
+  deploy-mainnet-explorer:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node.js 14.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+      - name: Install Dependencies
+        run: |
+          npm install
+      - name: Build
+        run: |
+          npm run build
+        env:
+          REACT_APP_BASE_URL: https://node.explorer.hathor.network/v1a/
+          REACT_APP_WS_URL: wss://node.explorer.hathor.network/v1a/
+      - name: Deploy Mainnet Explorer
+        run: |
+          make check_version
+          make check_tag
+          aws s3 sync --delete ./build/ s3://hathor-public-explorer
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: 'us-east-1'

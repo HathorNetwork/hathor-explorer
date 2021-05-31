@@ -8,6 +8,10 @@ build:
 	REACT_APP_BASE_URL=$(REACT_APP_BASE_URL) \
 	npm run build
 
-.PHONY: s3_upload
-s3_upload:
-	./s3_prod_upload
+.PHONY: check_version
+check_version:
+	./scripts/check_version
+
+.PHONY: check_tag
+check_tag:
+	./scripts/check_tag
