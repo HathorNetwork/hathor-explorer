@@ -335,7 +335,6 @@ svg.svg-wrapper {
 .config-string-wrapper, .token-nft-preview, .token-general-info {
   border-radius: 10px;
   border: 1px solid #eee;
-  margin-top: calc(2.5rem + 35px);
   width: 320px;
 
   & > p {
@@ -356,10 +355,6 @@ svg.svg-wrapper {
 
 .config-string-wrapper span {
   text-align: left;
-}
-
-.token-detail-top {
-  padding-bottom: 3rem;
 }
 
 .token-name {
