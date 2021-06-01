@@ -19,18 +19,18 @@ const TokenInfo = (props) => {
       <p>
         <strong>Can mint new tokens: </strong>
         {token.canMint ? 'Yes' : 'No'}
-        <a href="javascript:;" className="info-hover-wrapper float-right">
+        <button className="info-hover-wrapper float-right btn btn-link">
           <i className="fa fa-info-circle" title="Mint info"></i>
           <span className="subtitle subtitle info-hover-popover">Indicates whether the token owner can create new tokens, increasing the total supply</span>
-        </a>
+        </button>
       </p>
       <p>
         <strong>Can melt tokens: </strong>
         {token.canMelt ? 'Yes' : 'No'}
-        <a href="javascript:;" className="info-hover-wrapper float-right">
+        <button className="info-hover-wrapper float-right btn btn-link">
           <i className="fa fa-info-circle" title="Melt info"></i>
           <span className="subtitle info-hover-popover">Indicates whether the token owner can destroy tokens, decreasing the total supply</span>
-        </a>
+        </button>
       </p>
       <p><strong>Total number of transactions: </strong>{token.transactionsCount}</p>
     </div>

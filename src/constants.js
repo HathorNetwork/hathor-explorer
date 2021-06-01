@@ -6,6 +6,7 @@
  */
 
 export const BASE_URL = process.env.REACT_APP_BASE_URL || "https://node.explorer.hathor.network/v1a/";
+export const BASE_URL_V1 = process.env.REACT_APP_BASE_URL_V1 || "https://explorer-service.hathor.network/v1/";
 
 let tmp_ws_url = process.env.REACT_APP_WS_URL || "wss://node.explorer.hathor.network/v1a/ws/";
 if (!(tmp_ws_url.startsWith('ws:') || tmp_ws_url.startsWith('wss:'))) {
@@ -41,10 +42,6 @@ export const TESTNET_GENESIS_TX = [
   '00e161a6b0bee1781ea9300680913fb76fd0fac4acab527cd9626cc1514abdc9',
   '00975897028ceb037307327c953f5e7ad4d3f42402d71bd3d11ecb63ac39f01a',
 ];
-
-export const MAINNET_NFT_TOKEN_LIST_URL = '';
-
-export const TESTNET_NFT_TOKEN_LIST_URL = '';
 
 export const DECIMAL_PLACES = 2;
 

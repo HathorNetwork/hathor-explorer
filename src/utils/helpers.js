@@ -6,8 +6,7 @@
  */
 
 import hathorLib from '@hathor/wallet-lib';
-import { MAINNET_GENESIS_BLOCK, TESTNET_GENESIS_BLOCK, MAINNET_GENESIS_TX, TESTNET_GENESIS_TX, DECIMAL_PLACES,
-         MIN_API_VERSION, MAINNET_NFT_TOKEN_LIST_URL, TESTNET_NFT_TOKEN_LIST_URL } from '../constants';
+import { MAINNET_GENESIS_BLOCK, TESTNET_GENESIS_BLOCK, MAINNET_GENESIS_TX, TESTNET_GENESIS_TX, DECIMAL_PLACES, MIN_API_VERSION } from '../constants';
 
 const helpers = {
   updateListWs(list, newEl, max) {
@@ -191,19 +190,6 @@ const helpers = {
     }
 
     return TESTNET_GENESIS_BLOCK.includes(hash);
-  },
-
-  /**
-   * Get NFT toke list url
-   *
-   * @returns {string} url of token list
-   */
-  nftTokenListUrl() {
-    if (this.isMainnet()) {
-      return MAINNET_NFT_TOKEN_LIST_URL;
-    }
-
-    return TESTNET_NFT_TOKEN_LIST_URL;
   },
 
   /**

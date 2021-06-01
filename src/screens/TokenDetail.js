@@ -8,11 +8,8 @@
 import React from 'react';
 import Transactions from '../components/Transactions';
 import hathorLib from '@hathor/wallet-lib';
-import helpers from '../utils/helpers';
+import tokenApi from '../api/tokenApi';
 import { TX_COUNT } from '../constants';
-import TokenConfig from '../components/TokenConfig';
-import TokenInfo from '../components/TokenInfo';
-import TokenNFTPreview from '../components/TokenNFTPreview';
 import TokenDetailsTop from '../components/TokenDetailsTop';
 import TokenDetailsTopNFT from '../components/TokenDetailsTopNFT';
 
@@ -24,46 +21,43 @@ import TokenDetailsTopNFT from '../components/TokenDetailsTopNFT';
 class TokenDetail extends React.Component {
   /**
    * token {Object} selected token data
-   * successMessage {string} success message to show
    * errorMessage {string} error message to show
-   * paramUID {string} UID of token in the URL
    * transactions {Array} Array of transactions for the token
    */
   state = {
     token: null,
-    successMessage: '',
     errorMessage: '',
-    paramUID: '',
     transactions: [],
   };
 
   componentDidMount() {
     const { match: { params } } = this.props;
 
-    this.setState({ paramUID: params.tokenUID }, () => {
-      this.updateTokenInfo();
-      this.fetchNftList();
-    });
+    this.setTokenId(params.tokenUID);
+  }
+
+  setTokenId(id) {
+    this.updateTokenInfo(id);
+    this.updateTokenMetadata(id);
   }
 
   /**
    * Upadte token info getting data from the full node (can mint, can melt, total supply)
    */
-  updateTokenInfo = () => {
-    hathorLib.walletApi.getGeneralTokenInfo(this.state.paramUID, (response) => {
+  updateTokenInfo = (id) => {
+    hathorLib.walletApi.getGeneralTokenInfo(id, (response) => {
       if (response.success) {
         this.setState((oldState) => {
           return {
             token: {
               ...oldState.token,
-              uid: this.state.paramUID,
+              uid: id,
               name: response.name,
               symbol: response.symbol,
               totalSupply: response.total,
               canMint: response.mint.length > 0,
               canMelt: response.melt.length > 0,
               transactionsCount: response.transactions_count,
-              nft: oldState.token.nft,
             },
           }
         });
@@ -73,28 +67,20 @@ class TokenDetail extends React.Component {
     });
   }
 
-  /**
-   * Fetch NFT info for custom NFT Tokens
-   */
-  fetchNftList() {
-    const nftTokenListUrl = helpers.nftTokenListUrl();
-    if (nftTokenListUrl) {
-      fetch(helpers.nftTokenListUrl()).then((response) => {
-        response.json().then((data) => {
-          if (Array.isArray(data)) {
-            const nft = data.find(obj => obj.id === this.state.paramUID);
-            this.setState((oldState) => {
-              return {
-                token: {
-                  ...oldState.token,
-                  nft
-                }
-              }
-            });
+  updateTokenMetadata = (id) => {
+    tokenApi.getMetadata(id).then((data) => {
+      if (data) {
+        this.setState((oldState) => {
+          return {
+            token: {
+              ...oldState.token,
+              uid: id,
+              meta: data
+            }
           }
         });
-      });
-    }
+      }
+    });
   }
 
   /**
@@ -107,13 +93,13 @@ class TokenDetail extends React.Component {
    */
   shouldUpdateList = (tx) => {
     for (const input of tx.inputs) {
-      if (input.token === this.state.paramUID) {
+      if (input.token === this.state.token.uid) {
         return true;
       }
     }
 
     for (const output of tx.outputs) {
-      if (output.token === this.state.paramUID) {
+      if (output.token === this.state.token.uid) {
         return true;
       }
     }
@@ -133,7 +119,7 @@ class TokenDetail extends React.Component {
    */
   updateListData = (timestamp, hash, page) => {
     const promise = new Promise((resolve, reject) => {
-      hathorLib.walletApi.getTokenHistory(this.state.paramUID, TX_COUNT, hash, timestamp, page, (response) => {
+      hathorLib.walletApi.getTokenHistory(this.state.token.uid, TX_COUNT, hash, timestamp, page, (response) => {
         resolve(response);
       });
     });
@@ -159,10 +145,14 @@ class TokenDetail extends React.Component {
       )
     }
 
+    const isNFT = () => {
+      return this.state.token.meta && this.state.token.meta.nft;
+    }
+
     return (
       <div className="content-wrapper flex align-items-center">
         {renderTokenAlert()}
-        { this.state.token.nft ? 
+        { isNFT() ? 
           <TokenDetailsTopNFT token={this.state.token} />
           : <TokenDetailsTop token={this.state.token} />
         }
