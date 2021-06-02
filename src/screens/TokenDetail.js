@@ -21,6 +21,19 @@ import TokenDetailsTopNFT from '../components/TokenDetailsTopNFT';
 class TokenDetail extends React.Component {
   /**
    * token {Object} selected token data
+   *    - uid {string} UID of token
+   *    - name {string} Token Name
+   *    - symbol {string} Token symbol
+   *    - totalSupply {number} Token total supply
+   *    - canMint {boolean} If this token can still be minted
+   *    - canMelt {boolean} If this token can still be melted
+   *    - transactionsCount {number} Number of transactions made with this token
+   *    - meta {Object} Token metadata
+   *        - banned {boolean} If this token is banned
+   *        - verified {boolean} If this token is verified
+   *        - nft {Object} Token nft data
+   *            - type {string} type of file
+   *            - file {string} url of file
    * errorMessage {string} error message to show
    * transactions {Array} Array of transactions for the token
    */

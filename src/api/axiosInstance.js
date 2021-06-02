@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { BASE_URL, BASE_URL_V1 } from '../constants.js';
+import { BASE_URL, EXPLORER_SERVICE_BASE_URL } from '../constants.js';
 const axios = require('axios');
 
 const errorHandler = (error) => {
@@ -27,9 +27,9 @@ const requestClient = () => {
   return instance;
 }
 
-const requestClientV1 = () => {
+const requestExplorerServiceV1 = () => {
   const defaultOptions = {
-    baseURL: BASE_URL_V1,
+    baseURL: EXPLORER_SERVICE_BASE_URL,
     headers: {
       'Content-Type': 'application/json',
     },
@@ -44,4 +44,4 @@ const requestClientV1 = () => {
 
 export default requestClient();
 
-export { requestClientV1 };
+export { requestExplorerServiceV1 };

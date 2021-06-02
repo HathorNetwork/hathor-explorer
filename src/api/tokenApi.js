@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { requestClientV1 } from './axiosInstance';
+import { requestExplorerServiceV1 } from './axiosInstance';
 
 const tokenApi = {
   getMetadata(id) {
-    return requestClientV1().get(`token/${id}/meta`).then((res) => {
+    return requestExplorerServiceV1().get(`token/${id}/meta`).then((res) => {
       return res.data
     }).catch((error) => {
       // throw new Error(error);
