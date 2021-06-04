@@ -9,7 +9,22 @@ import requestClient from './axiosInstance';
 
 const networkApi = {
   getPeers() {
-    return requestClient.get(`status`).then((res) => {
+    requestClient.interceptors.request.use(config => { 
+      config.baseURL = 'http://localhost:3001/dev/';
+      return config; 
+    });
+    return requestClient.get(`node`).then((res) => {
+      return res.data
+    }, (res) => {
+      throw new Error(res.data.message);
+    });
+  },
+  getPeer(hash) {
+    requestClient.interceptors.request.use(config => { 
+      config.baseURL = 'http://localhost:3001/dev/';
+      return config; 
+    });
+    return requestClient.get(`node/${hash}`).then((res) => {
       return res.data
     }, (res) => {
       throw new Error(res.data.message);

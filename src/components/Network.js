@@ -20,8 +20,8 @@ const SyncStates = {
 
 const SyncStatesDescription = {
   [SyncStates.IN_SYNC]: 'Synchronized',
-  [SyncStates.BEHIND]: <span title="Behind of us">Synchronizing... <i class="fa fa-question-circle"></i></span>,
-  [SyncStates.AHEAD]: <span title="Ahead of us">Synchronizing... <i class="fa fa-question-circle"></i></span>,
+  [SyncStates.BEHIND]: <span title="Behind of us">Synchronizing... <i className="fa fa-question-circle"></i></span>,
+  [SyncStates.AHEAD]: <span title="Ahead of us">Synchronizing... <i className="fa fa-question-circle"></i></span>,
   [SyncStates.UNKNOWN]: 'Unknown'
 };
 
@@ -33,27 +33,45 @@ class Network extends React.Component {
       connected_peers: [],
       known_peers: [],
       loaded: false,
-      isLoading: false
+      isLoading: false,
+      peers: [],
+      peer_id: '',
     }
 
     this.loadData = this.loadData.bind(this);
   }
 
   componentDidMount() {
-    this.loadData();
-    this.loadTimer = setInterval(this.loadData, 1000);
+    const { match: { params } } = this.props;
+
+    networkApi.getPeers().then((peers) => {
+      this.setState({peers}, () => {
+        let peer_id = params.peer_id;
+        if (!peer_id) {
+          peer_id = peers[0];
+        }
+        this.props.history.push(`/network/${this.state.peers[0]}`);
+        this.setState({peer_id}, () => {
+          this.loadData();
+          this.loadTimer = setInterval(this.loadData, 1000);
+        });
+      });
+    });
+  }
+
+  onPeerChange(event) {
+    const peer_id = event.target.value;
+    this.props.history.push(`/network/${peer_id}`);
+    this.setState({peer_id}, () => { this.loadData() });
   }
 
   loadData() {
     if (this.state.isLoading) return;
 
     this.setState({ isLoading: true }, () => {
-      networkApi.getPeers().then((peers) => {
+      networkApi.getPeer(this.state.peer_id).then((peer) => {
         this.setState({
-          connected_peers: peers.connections.connected_peers,
-          known_peers: peers.known_peers,
-          server: peers.server,
-          dag: peers.dag,
+          ...peer,
           loaded: true,
           isLoading: false
         });
@@ -81,25 +99,26 @@ class Network extends React.Component {
   }
 
   buildSyncDataPolyfill(conn) {
-    const { plugins: { "node-sync-timestamp": timestamps } } = conn;
-    const first_timestamp = this.state.dag.first_timestamp;
-    const latest_timestamp = this.state.dag.latest_timestamp;
-    const delta = latest_timestamp - first_timestamp;
-    const progress = (timestamps.synced_timestamp - first_timestamp) / delta;
+    const {sync_timestamp, latest_timestamp} = conn;
+    const first_timestamp = this.state.first_timestamp;
+    const server_latest_timestamp = this.state.latest_timestamp;
+    const delta = server_latest_timestamp - first_timestamp;
+    const progress = (sync_timestamp - first_timestamp) / delta;
     let state = SyncStates.UNKNOWN;
 
-    if (timestamps.synced_timestamp < latest_timestamp) {
+    if (sync_timestamp < server_latest_timestamp) {
       state = SyncStates.BEHIND;
-    } else if (timestamps.synced_timestamp === latest_timestamp) {
+    } else if (sync_timestamp === server_latest_timestamp) {
       state = SyncStates.IN_SYNC;
-    } else if (timestamps.synced_timestamp > latest_timestamp) {
+    } else if (sync_timestamp > server_latest_timestamp) {
       state = SyncStates.AHEAD;
     }
 
     return {
       progress,
       state,
-      ...timestamps
+      sync_timestamp,
+      latest_timestamp
     };
   }
 
@@ -116,10 +135,10 @@ class Network extends React.Component {
         <div style={{width: "100%"}}>
           <div className="card text-white bg-dark" style={{marginBottom: "30px"}}>
             <div className="card-body">
-              Id: {this.state.server.id}<br />
-              Uptime: {dateFormatter.uptimeFormat(this.state.server.uptime)}<br />
-              Version: {this.state.server.app_version}<br />
-              Latest timestamp: {dateFormatter.timestampToString(this.state.dag.latest_timestamp)}<br />
+              Id: {this.state.id}<br />
+              Uptime: {dateFormatter.uptimeFormat(this.state.uptime)}<br />
+              Version: {this.state.app_version}<br />
+              Latest timestamp: {dateFormatter.timestampToString(this.state.latest_timestamp)}<br />
             </div>
           </div>
           {loadTableBody()}
@@ -128,19 +147,20 @@ class Network extends React.Component {
     }
 
     const renderConnected = (peer, conn) => {
+        console.log(peer, conn)
         /**
         * Unified sync information
-        * { status: string, progress: number, latest_timestamp: number|null|undefined, synced_timestamp: number|null|undefined }
+        * { status: string, progress: number, latest_timestamp: number|null|undefined, sync_timestamp: number|null|undefined }
         */
         const sync_data = conn.sync ?
-          { ...conn.sync, ...conn.plugins["node-sync-timestamp"] } : this.buildSyncDataPolyfill(conn);
+          { ...conn.sync } : this.buildSyncDataPolyfill(conn);
         const { synced_percent, general_percent } = this.getSyncProgressPercent(sync_data);
         const sync_state_description = SyncStatesDescription[sync_data.state] || SyncStatesDescription[SyncStates.UNKNOWN];
 
         return (
-          <div key={peer.id} style={{marginBottom: "30px"}} className={"card bg-light border-success"}>
+          <div key={peer} style={{marginBottom: "30px"}} className={"card bg-light border-success"}>
             <h6 className="card-header">
-              {peer.id}
+              {peer}
               <span className="float-right">
                 <span className="badge badge-success">Connected</span>
               </span>
@@ -149,14 +169,14 @@ class Network extends React.Component {
               Uptime: {dateFormatter.uptimeFormat(conn.uptime)}<br />
               Version: {conn.app_version}<br />
               Address: {conn.address}<br />
-              Entrypoints: {peer.entrypoints.join(", ")}<br />
+              Entrypoints: { /* peer.entrypoints.join(", ") */ }<br />
               State: {sync_state_description}
             </div>
             <ul className="list-group list-group-flush">
               <li className="list-group-item">
                   <div>
-                    {sync_data.synced_timestamp ? (
-                      <>Synced timestamp: {dateFormatter.timestampToString(sync_data.synced_timestamp)}<br /></>
+                    {sync_data.sync_timestamp ? (
+                      <>Synced timestamp: {dateFormatter.timestampToString(sync_data.sync_timestamp)}<br /></>
                     ) : null}
                     {sync_data.latest_timestamp ? (
                       <>Latest timestamp: {dateFormatter.timestampToString(sync_data.latest_timestamp)}</>
@@ -174,7 +194,7 @@ class Network extends React.Component {
 
     const loadTableBody = () => {
       return this.state.known_peers.map((peer, idx) => {
-        const conn = this.getConnection(peer.id);
+        const conn = this.getConnection(peer);
         const isConnected = !!conn;
         if (isConnected) {
           return renderConnected(peer, conn);
@@ -186,6 +206,11 @@ class Network extends React.Component {
 
     return (
       <div className="d-flex flex-column align-items-end">
+        <select name="peers" value={this.state.peer_id} onChange={this.onPeerChange.bind(this)}>
+          {this.state.peers.map((peer) => {
+            return <option value={peer} key={peer}>{peer}</option>
+          })}
+        </select>
         {this.state.loaded ? <button className='btn btn-hathor mb-3' onClick={this.loadData}>Reload data</button> : null}
         {!this.state.loaded ? <ReactLoading type='spin' color={colors.purpleHathor} delay={500} /> : loadTable()}
       </div>
