@@ -6,7 +6,7 @@
  */
 
 export const BASE_URL = process.env.REACT_APP_BASE_URL || "https://node.explorer.hathor.network/v1a/";
-export const BASE_URL_V1 = process.env.REACT_APP_BASE_URL_V1 || "https://explorer-service.hathor.network/v1/";
+export const EXPLORER_SERVICE_BASE_URL = process.env.REACT_APP_EXPLORER_SERVICE_BASE_URL || "https://explorer-service.hathor.network/";
 
 let tmp_ws_url = process.env.REACT_APP_WS_URL || "wss://node.explorer.hathor.network/v1a/ws/";
 if (!(tmp_ws_url.startsWith('ws:') || tmp_ws_url.startsWith('wss:'))) {
