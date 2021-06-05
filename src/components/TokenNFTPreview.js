@@ -13,7 +13,7 @@ const TokenNFTPreview = (props) => {
 
   let media;
 
-  if (token.meta.nft.type === 'image') {
+  if (token.meta.nft.type && token.meta.nft.type.toUpperCase() === 'IMAGE') {
     media = <img src={token.meta.nft.file} width="100%" height="100%" alt="NFT Preview" />;
   } else {
     media = (
