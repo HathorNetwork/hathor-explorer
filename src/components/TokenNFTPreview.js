@@ -4,6 +4,7 @@ const TokenNFTPreview = (props) => {
   const [token, setToken] = useState(props.token);
 
   useEffect(() => {
+    // ensure data binding with props.token re rendering when changed
     setToken(props.token);
   }, [props.token]);
 
