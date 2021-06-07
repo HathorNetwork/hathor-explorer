@@ -50,14 +50,10 @@ jobs:
       - name: Build
         run: |
           tar -xf node_modules.tar
-          npm run build
-        env:
-          REACT_APP_BASE_URL: https://node1.foxtrot.testnet.hathor.network/v1a/
-          REACT_APP_WS_URL: wss://node1.foxtrot.testnet.hathor.network/v1a/ws/
+          make testnet_build
       - name: Deploy Testnet Explorer
         run: |
-          make check_version
-          aws s3 sync --delete ./build/ s3://hathor-testnet-foxtrot-public-explorer
+          make testnet_deploy
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -75,15 +71,10 @@ jobs:
       - name: Build
         run: |
           tar -xf node_modules.tar
-          npm run build
-        env:
-          REACT_APP_BASE_URL: https://node.explorer.hathor.network/v1a/
-          REACT_APP_WS_URL: wss://node.explorer.hathor.network/v1a/
+          make mainnet_build
       - name: Deploy Mainnet Explorer
         run: |
-          make check_version
-          make check_tag
-          aws s3 sync --delete ./build/ s3://hathor-mainnet-public-explorer
+          make mainnet_deploy
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
