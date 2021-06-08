@@ -127,24 +127,6 @@ class Network extends React.Component {
       );
     }
 
-    const renderDisconnected = (peer) => {
-        return (
-          <div key={peer.id} style={{marginBottom: "30px"}} className={"card bg-light border-danger"}>
-            <h6 className="card-header">
-              {peer.id}
-              <span className="float-right">
-                <span className="badge badge-danger">Disconnected</span>
-              </span>
-            </h6>
-            {peer.entrypoints.length > 0
-            ? (<div className="card-body">
-                {peer.entrypoints.join(", ")}
-              </div>) 
-            : ''}
-          </div>
-        );
-    };
-
     const renderConnected = (peer, conn) => {
         /**
         * Unified sync information
