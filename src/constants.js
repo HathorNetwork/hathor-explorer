@@ -65,3 +65,5 @@ export const HATHOR_TOKEN_CONFIG = {'name': 'Hathor', 'symbol': 'HTR', 'uid': '0
  * Hathor token default index
  */
 export const HATHOR_TOKEN_INDEX = 0;
+
+export const GTM_ID = 'GTM-MJVX6BG';

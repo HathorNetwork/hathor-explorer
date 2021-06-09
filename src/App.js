@@ -29,8 +29,11 @@ import { connect } from "react-redux";
 import versionApi from './api/version';
 import helpers from './utils/helpers';
 import hathorLib from '@hathor/wallet-lib';
-import { BASE_URL } from './constants';
+import { BASE_URL, GTM_ID } from './constants';
 import createRequestInstance from './api/customAxiosInstance';
+import TagManager from 'react-gtm-module';
+
+TagManager.initialize({ gtmId: GTM_ID })
 
 const store = new hathorLib.MemoryStore();
 hathorLib.storage.setStore(store);
