@@ -6,12 +6,12 @@
  */
 
 import React from 'react';
-import QRCode from 'qrcode.react';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import HathorAlert from '../components/HathorAlert';
 import Transactions from '../components/Transactions';
 import hathorLib from '@hathor/wallet-lib';
+import tokenApi from '../api/tokenApi';
 import { TX_COUNT } from '../constants';
+import TokenDetailsTop from '../components/TokenDetailsTop';
+import TokenDetailsTopNFT from '../components/TokenDetailsTopNFT';
 
 /**
  * Screen to manage a token. See total amount, if can mint/melt and the history of transaction
@@ -21,45 +21,58 @@ import { TX_COUNT } from '../constants';
 class TokenDetail extends React.Component {
   /**
    * token {Object} selected token data
-   * successMessage {string} success message to show
+   *    - uid {string} UID of token
+   *    - name {string} Token Name
+   *    - symbol {string} Token symbol
+   *    - totalSupply {number} Token total supply
+   *    - canMint {boolean} If this token can still be minted
+   *    - canMelt {boolean} If this token can still be melted
+   *    - transactionsCount {number} Number of transactions made with this token
+   *    - meta {Object} Token metadata
+   *        - banned {boolean} If this token is banned
+   *        - verified {boolean} If this token is verified
+   *        - nft {Object} Token nft data
+   *            - type {string} type of file
+   *            - file {string} url of file
    * errorMessage {string} error message to show
-   * totalSupply {number} Token total supply
-   * canMint {boolean} If this token can still be minted
-   * canMelt {boolean} If this token can still be melted
-   * paramUID {string} UID of token in the URL
    * transactions {Array} Array of transactions for the token
    */
   state = {
     token: null,
-    successMessage: '',
     errorMessage: '',
-    totalSupply: 0,
-    canMint: null,
-    canMelt: null,
-    paramUID: '',
     transactions: [],
   };
 
   componentDidMount() {
     const { match: { params } } = this.props;
 
-    this.setState({ paramUID: params.tokenUID }, () => {
-      this.updateTokenInfo();
-    });
+    this.setTokenId(params.tokenUID);
+  }
+
+  setTokenId(id) {
+    this.updateTokenInfo(id);
+    this.updateTokenMetadata(id);
   }
 
   /**
    * Upadte token info getting data from the full node (can mint, can melt, total supply)
    */
-  updateTokenInfo = () => {
-    hathorLib.walletApi.getGeneralTokenInfo(this.state.paramUID, (response) => {
+  updateTokenInfo = (id) => {
+    hathorLib.walletApi.getGeneralTokenInfo(id, (response) => {
       if (response.success) {
-        this.setState({
-          token: {uid: this.state.paramUID, name: response.name, symbol: response.symbol },
-          totalSupply: response.total,
-          canMint: response.mint.length > 0,
-          canMelt: response.melt.length > 0,
-          transactionsCount: response.transactions_count,
+        this.setState((oldState) => {
+          return {
+            token: {
+              ...oldState.token,
+              uid: id,
+              name: response.name,
+              symbol: response.symbol,
+              totalSupply: response.total,
+              canMint: response.mint.length > 0,
+              canMelt: response.melt.length > 0,
+              transactionsCount: response.transactions_count,
+            },
+          }
         });
       } else {
         this.setState({ errorMessage: response.message });
@@ -67,39 +80,20 @@ class TokenDetail extends React.Component {
     });
   }
 
-  /**
-   * Called when user clicks to download the qrcode
-   * Add the href from the qrcode canvas
-   *
-   * @param {Object} e Event emitted by the link clicked
-   */
-  downloadQrCode = (e) => {
-    e.currentTarget.href = document.getElementsByTagName('canvas')[0].toDataURL();
-  }
-
-  /**
-   * Show alert success message
-   *
-   * @param {string} message Success message
-   */
-  showSuccess = (message) => {
-    this.setState({ successMessage: message }, () => {
-      this.refs.alertSuccess.show(3000);
-    })
-  }
-
-  /**
-   * Method called on copy to clipboard success  
-   * Show alert success message
-   *
-   * @param {string} text Text copied to clipboard
-   * @param {*} result Null in case of error
-   */
-  copied = (text, result) => {
-    if (result) {
-      // If copied with success
-      this.showSuccess('Configuration string copied to clipboard!');
-    }
+  updateTokenMetadata = (id) => {
+    tokenApi.getMetadata(id).then((data) => {
+      if (data) {
+        this.setState((oldState) => {
+          return {
+            token: {
+              ...oldState.token,
+              uid: id,
+              meta: data
+            }
+          }
+        });
+      }
+    });
   }
 
   /**
@@ -112,13 +106,13 @@ class TokenDetail extends React.Component {
    */
   shouldUpdateList = (tx) => {
     for (const input of tx.inputs) {
-      if (input.token === this.state.paramUID) {
+      if (input.token === this.state.token.uid) {
         return true;
       }
     }
 
     for (const output of tx.outputs) {
-      if (output.token === this.state.paramUID) {
+      if (output.token === this.state.token.uid) {
         return true;
       }
     }
@@ -138,7 +132,7 @@ class TokenDetail extends React.Component {
    */
   updateListData = (timestamp, hash, page) => {
     const promise = new Promise((resolve, reject) => {
-      hathorLib.walletApi.getTokenHistory(this.state.paramUID, TX_COUNT, hash, timestamp, page, (response) => {
+      hathorLib.walletApi.getTokenHistory(this.state.token.uid, TX_COUNT, hash, timestamp, page, (response) => {
         resolve(response);
       });
     });
@@ -156,29 +150,6 @@ class TokenDetail extends React.Component {
 
     if (!this.state.token) return null;
 
-    const configurationString = hathorLib.tokens.getConfigurationString(this.state.token.uid, this.state.token.name, this.state.token.symbol);
-
-    const getShortConfigurationString = () => {
-      const configArr = configurationString.split(':');
-      return `${configArr[0]}:${configArr[1]}...${configArr[3]}`;
-    }
-
-    const renderTokenInfo = () => {
-      return (
-        <div className="token-general-info">
-          <p className="mb-2"><strong>UID: </strong>{this.state.token.uid}</p>
-          <p className="mt-2 mb-2"><strong>Name: </strong>{this.state.token.name}</p>
-          <p className="mt-2 mb-2"><strong>Symbol: </strong>{this.state.token.symbol}</p>
-          <p className="mt-2 mb-2"><strong>Total supply: </strong>{hathorLib.helpers.prettyValue(this.state.totalSupply)} {this.state.token.symbol}</p>
-          <p className="mt-2 mb-0"><strong>Can mint new tokens: </strong>{this.state.canMint ? 'Yes' : 'No'}</p>
-          <p className="mb-2 subtitle">Indicates whether the token owner can create new tokens, increasing the total supply</p>
-          <p className="mt-2 mb-0"><strong>Can melt tokens: </strong>{this.state.canMelt ? 'Yes' : 'No'}</p>
-          <p className="mb-2 subtitle">Indicates whether the token owner can destroy tokens, decreasing the total supply</p>
-          <p className="mt-2 mb-4"><strong>Total number of transactions: </strong>{this.state.transactionsCount}</p>
-        </div>
-      );
-    }
-
     const renderTokenAlert = () => {
       return (
         <div className="alert alert-warning backup-alert" role="alert">
@@ -187,35 +158,20 @@ class TokenDetail extends React.Component {
       )
     }
 
+    const isNFT = () => {
+      return this.state.token.meta && this.state.token.meta.nft;
+    }
+
     return (
       <div className="content-wrapper flex align-items-center">
         {renderTokenAlert()}
-        <div className='d-flex flex-column flex-lg-row align-items-lg-start align-items-center justify-content-between token-detail-top'>
-          <div className='d-flex flex-column justify-content-between mt-4'>
-            <div className='token-wrapper d-flex flex-row align-items-center mb-3'>
-              <p className='token-name mb-0'>
-                <strong>{this.state.token.name} ({this.state.token.symbol})</strong>
-              </p>
-            </div>
-            {renderTokenInfo()}
-          </div>
-          <div className='d-flex flex-column align-items-center config-string-wrapper mt-4 ml-lg-3 pl-lg-5 pr-lg-5'>
-            <p><strong>Configuration String</strong></p>
-            <span ref="configurationString" className="mb-2">
-              {getShortConfigurationString()}
-              <CopyToClipboard text={configurationString} onCopy={this.copied}>
-                <i className="fa fa-clone pointer ml-1" title="Copy to clipboard"></i>
-              </CopyToClipboard>
-            </span> 
-            <QRCode size={200} value={configurationString} />
-            <a className="mt-2" onClick={(e) => this.downloadQrCode(e)} download={`${this.state.token.name} (${this.state.token.symbol}) - ${configurationString}`} href="true" ref="downloadLink">Download <i className="fa fa-download ml-1" title="Download QRCode"></i></a>
-          </div>
-        </div>
-        <hr />
+        { isNFT() ? 
+          <TokenDetailsTopNFT token={this.state.token} />
+          : <TokenDetailsTop token={this.state.token} />
+        }
         <div className='d-flex flex-column align-items-start justify-content-center mt-5'>
           <Transactions title={<h2>Transaction History</h2>} shouldUpdateList={this.shouldUpdateList} updateData={this.updateListData} />
         </div>
-        <HathorAlert ref="alertSuccess" text={this.state.successMessage} type="success" />
       </div>
     )
   }
