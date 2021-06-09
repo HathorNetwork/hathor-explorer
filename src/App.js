@@ -6,10 +6,12 @@
  */
 
 import React from 'react';
+
 import { Switch, BrowserRouter as Router, Route } from 'react-router-dom';
 import PeerAdmin from './screens/PeerAdmin';
 import DashboardTx from './screens/DashboardTx';
 import Navigation from './components/Navigation';
+import Loading from './components/Loading';
 import TransactionDetail from './screens/TransactionDetail';
 import AddressDetail from './screens/AddressDetail';
 import DecodeTx from './screens/DecodeTx';
@@ -22,7 +24,7 @@ import Dag from './screens/Dag';
 import Dashboard from './screens/Dashboard';
 import VersionError from './screens/VersionError';
 import WebSocketHandler from './WebSocketHandler';
-import { dashboardUpdate, isVersionAllowedUpdate } from "./actions/index";
+import { apiLoadErrorUpdate, dashboardUpdate, isVersionAllowedUpdate } from "./actions/index";
 import { connect } from "react-redux";
 import versionApi from './api/version';
 import helpers from './utils/helpers';
@@ -39,12 +41,13 @@ const mapDispatchToProps = dispatch => {
   return {
     dashboardUpdate: data => dispatch(dashboardUpdate(data)),
     isVersionAllowedUpdate: data => dispatch(isVersionAllowedUpdate(data)),
+    apiLoadErrorUpdate: data => dispatch(apiLoadErrorUpdate(data)),
   };
 };
 
 
 const mapStateToProps = (state) => {
-  return { isVersionAllowed: state.isVersionAllowed };
+  return { isVersionAllowed: state.isVersionAllowed, apiLoadError: state.apiLoadError };
 };
 
 
@@ -53,6 +56,7 @@ class Root extends React.Component {
     WebSocketHandler.on('dashboard', this.handleWebsocket);
 
     hathorLib.axios.registerNewCreateRequestInstance(createRequestInstance);
+    this.props.apiLoadErrorUpdate({apiLoadError: false});
 
     versionApi.getVersion().then((data) => {
       hathorLib.network.setNetwork(data.network.split('-')[0]);
@@ -60,6 +64,7 @@ class Root extends React.Component {
     }, (e) => {
       // Error in request
       console.log(e);
+      this.props.apiLoadErrorUpdate({apiLoadError: true});
     });
   }
 
@@ -80,7 +85,18 @@ class Root extends React.Component {
   render() {
     if (this.props.isVersionAllowed === undefined) {
       // Waiting for version
-      return null;
+      return (
+        <Router>
+          <>
+            <Navigation />
+            { this.props.apiLoadError ? 
+              <div className="content-wrapper">
+                <h3 className="text-danger">Error loading the explorer. Please reload the page to try again.</h3>
+              </div>
+              : <Loading />  }
+          </>
+        </Router>);
+
     } else if (!this.props.isVersionAllowed) {
       return <VersionError />;
     } else {

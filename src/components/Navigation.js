@@ -75,9 +75,9 @@ class Navigation extends React.Component {
                 <NavLink to="/tokens" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Tokens</NavLink>
               </li>
               <li className="nav-item dropdown">
-                <a className="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span className="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Tools
-                </a>
+                </span>
                 <div className="dropdown-menu" aria-labelledby="navbarDropdown">
                   <NavLink to="/decode-tx/" exact className="nav-link">Decode Tx</NavLink>
                   <NavLink to="/push-tx/" exact className="nav-link">Push Tx</NavLink>

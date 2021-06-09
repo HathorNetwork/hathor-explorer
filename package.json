@@ -1,6 +1,6 @@
 {
   "name": "hathor-admin",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "private": true,
   "dependencies": {
     "@hathor/wallet-lib": "^0.11.1",
@@ -18,7 +18,7 @@
     "popper.js": "^1.12.9",
     "prop-types": "^15.7.2",
     "qrcode.react": "^0.8.0",
-    "react": "^16.5.0",
+    "react": "^16.12.0",
     "react-copy-to-clipboard": "^5.0.1",
     "react-dom": "^16.2.0",
     "react-loading": "^1.0.3",
