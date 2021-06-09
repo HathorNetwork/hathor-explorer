@@ -58,8 +58,8 @@ class TokenDetail extends React.Component {
    * Upadte token info getting data from the full node (can mint, can melt, total supply)
    */
   updateTokenInfo = (id) => {
-    tokenApi.get(id).then((response) => {
-      if (response) {
+    hathorLib.walletApi.getGeneralTokenInfo(id, (response) => {
+      if (response.success) {
         this.setState((oldState) => {
           return {
             token: {
@@ -67,9 +67,9 @@ class TokenDetail extends React.Component {
               uid: id,
               name: response.name,
               symbol: response.symbol,
-              totalSupply: response.total_supply,
-              canMint: response.can_mint,
-              canMelt: response.can_melt,
+              totalSupply: response.total,
+              canMint: response.mint.length > 0,
+              canMelt: response.melt.length > 0,
               transactionsCount: response.transactions_count,
             },
           }
