@@ -66,4 +66,4 @@ export const HATHOR_TOKEN_CONFIG = {'name': 'Hathor', 'symbol': 'HTR', 'uid': '0
  */
 export const HATHOR_TOKEN_INDEX = 0;
 
-export const GTM_ID = 'GTM-MJVX6BG';
+export const GTM_ID = process.env.REACT_APP_GTM_ID;
