@@ -7,11 +7,14 @@ const TokenNFTPreview = (props) => {
   useEffect(() => {
     // ensure data binding with props.token re rendering when changed
     setToken(props.token);
-    TagManager.dataLayer({
-      dataLayer: {
-        'event': 'LoadNFTPreview'
-      }
-    });
+    if (token.uid) {
+      TagManager.dataLayer({
+        dataLayer: {
+          event: 'LoadNFTPreview',
+          tokenId: token.uid
+        }
+      });
+    }
   }, [props.token]);
 
   if (!token.meta.nft) {
@@ -21,7 +24,8 @@ const TokenNFTPreview = (props) => {
   const onPLayVideo = () => {
     TagManager.dataLayer({
       dataLayer: {
-        'event': 'PlayNFTVideo'
+        event: 'PlayNFTVideo',
+        tokenId: token.uid
       }
     });
   }
