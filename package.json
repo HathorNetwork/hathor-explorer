@@ -21,6 +21,7 @@
     "react": "^16.12.0",
     "react-copy-to-clipboard": "^5.0.1",
     "react-dom": "^16.2.0",
+    "react-gtm-module": "^2.0.11",
     "react-loading": "^1.0.3",
     "react-paginate": "^5.0.0",
     "react-redux": "^5.0.7",
