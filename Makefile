@@ -24,6 +24,7 @@ mainnet_build:
 	FULLNODE_HOST=node.explorer.hathor.network; \
 	export REACT_APP_BASE_URL=https://$$FULLNODE_HOST/v1a/; \
 	export REACT_APP_WS_URL=wss://$$FULLNODE_HOST/v1a/ws/; \
+	export REACT_APP_GTM_ID=GTM-MJVX6BG; /
 	export EXPLORER_SERVICE_BASE_URL=https://explorer-service.hathor.network/; /
 	npm run build
 
