@@ -5,26 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import requestClient from './axiosInstance';
+import { requestExplorerServiceV1 } from './axiosInstance';
 
 const networkApi = {
   getPeers() {
-    requestClient.interceptors.request.use(config => { 
-      config.baseURL = 'http://localhost:3001/dev/';
-      return config; 
-    });
-    return requestClient.get(`node`).then((res) => {
+    return requestExplorerServiceV1().get(`node`).then((res) => {
       return res.data
     }, (res) => {
       throw new Error(res.data.message);
     });
   },
   getPeer(hash) {
-    requestClient.interceptors.request.use(config => { 
-      config.baseURL = 'http://localhost:3001/dev/';
-      return config; 
-    });
-    return requestClient.get(`node/${hash}`).then((res) => {
+    return requestExplorerServiceV1().get(`node/${hash}`).then((res) => {
       return res.data
     }, (res) => {
       throw new Error(res.data.message);

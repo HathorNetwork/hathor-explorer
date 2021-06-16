@@ -8,6 +8,7 @@
 import React from 'react';
 import networkApi from '../api/networkApi';
 import ReactLoading from 'react-loading';
+import Loading from './Loading';
 import dateFormatter from '../utils/date';
 import colors from '../index.scss';
 
@@ -129,6 +130,10 @@ class Network extends React.Component {
     return { synced_percent, general_percent };
   }
 
+  getPeerIdAbbrev(peerId) {
+    return `${peerId.substr(0, 8)}...${peerId.substr(-8, 8)}`
+  }
+
   render() {
     const loadTable = () => {
       return (
@@ -147,7 +152,6 @@ class Network extends React.Component {
     }
 
     const renderConnected = (peer, conn) => {
-        console.log(peer, conn)
         /**
         * Unified sync information
         * { status: string, progress: number, latest_timestamp: number|null|undefined, sync_timestamp: number|null|undefined }
@@ -204,16 +208,31 @@ class Network extends React.Component {
       });
     }
 
+    const renderControls = () => {
+      if (!this.state.loaded) {
+        return null;
+      }
+
+      return (
+        <div className="form-inline mb-3">
+          <label>
+            Peer PoV:
+            <select name="peers" className="form-control mx-2" value={this.state.peer_id} onChange={this.onPeerChange.bind(this)}>
+              {this.state.peers.map((peer) => {
+                return <option value={peer} key={peer}>{this.getPeerIdAbbrev(peer)}</option>
+              })}
+            </select>
+          </label>
+          <button className='btn btn-hathor ml-auto' onClick={this.loadData}>Reload data</button>
+        </div>
+      )
+    }
+
     return (
-      <div className="d-flex flex-column align-items-end">
-        <select name="peers" value={this.state.peer_id} onChange={this.onPeerChange.bind(this)}>
-          {this.state.peers.map((peer) => {
-            return <option value={peer} key={peer}>{peer}</option>
-          })}
-        </select>
-        {this.state.loaded ? <button className='btn btn-hathor mb-3' onClick={this.loadData}>Reload data</button> : null}
-        {!this.state.loaded ? <ReactLoading type='spin' color={colors.purpleHathor} delay={500} /> : loadTable()}
-      </div>
+      <>
+        {renderControls()}
+        {!this.state.loaded ? <Loading type='spin' color={colors.purpleHathor} delay={500} /> : loadTable()}
+      </>
     );
   }
 }
