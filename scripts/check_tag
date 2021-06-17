@@ -1,0 +1,17 @@
+#!/bin/bash
+
+PACKAGE_VERSION=`grep '"version":' ./package.json | cut -d '"' -f4`
+GIT_TAG_VERSION=`git describe --abbrev=0 --tags`
+
+# For debugging:
+# echo x${PACKAGE_VERSION}x
+# echo x${GIT_TAG_VERSION}x
+
+EXITCODE=0
+
+if [[ x${PACKAGE_VERSION}x != x${GIT_TAG_VERSION:1}x ]]; then
+	echo Version different in package.json and git tag
+	EXITCODE=-1
+fi
+
+exit $EXITCODE
