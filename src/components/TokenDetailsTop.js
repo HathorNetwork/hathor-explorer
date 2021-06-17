@@ -20,7 +20,7 @@ const TokenDetailsTop = (props) => {
         <div className='d-flex flex-column justify-content-between'>
           <TokenInfo token={token} />
         </div>
-        <div className='d-flex align-items-lg-stretch'>
+        <div className='d-flex align-items-lg-stretch mt-4 mt-lg-0'>
           <TokenConfig token={token} />
         </div>
       </div>
