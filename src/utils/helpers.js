@@ -201,6 +201,20 @@ const helpers = {
    */
   isMainnet() {
     return hathorLib.network.getNetwork().name === 'mainnet';
+  },
+
+  /**
+   * Get file extension
+   *
+   * @param {string} file File name
+   *
+   * @return {string} extension of the file
+   * @memberof Helpers
+   * @inner
+   */
+  getFileExtension(file) {
+    const parts = file.split('.');
+    return parts[parts.length - 1];
   }
 
 }

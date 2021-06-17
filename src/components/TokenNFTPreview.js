@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TagManager from 'react-gtm-module';
+import helpers from '../utils/helpers';
+import { NFT_MEDIA_TYPES, VIDEO_MEDIA_TYPES_BY_EXTENSION, AUDIO_MEDIA_TYPES_BY_EXTENSION } from '../constants';
 
 const TokenNFTPreview = (props) => {
   const [token, setToken] = useState(props.token);
@@ -21,26 +23,49 @@ const TokenNFTPreview = (props) => {
     return null;
   }
 
-  const onPLayVideo = () => {
+  const onPLayMedia = () => {
     TagManager.dataLayer({
       dataLayer: {
-        event: 'PlayNFTVideo',
+        event: 'PlayNFTMedia',
         tokenId: token.uid
       }
     });
   }
 
+  const nftType = token.meta.nft.type && token.meta.nft.type.toUpperCase();
+
+  const ext = helpers.getFileExtension(token.meta.nft.file);
+
+  let fileType;
+
+  if (nftType === NFT_MEDIA_TYPES.audio) {
+    fileType = AUDIO_MEDIA_TYPES_BY_EXTENSION[ext];
+  }
+
+  if (nftType === NFT_MEDIA_TYPES.video) {
+    fileType = VIDEO_MEDIA_TYPES_BY_EXTENSION[ext];
+  }
+
   let media;
 
-  if (token.meta.nft.type && token.meta.nft.type.toUpperCase() === 'IMAGE') {
+  if (nftType === NFT_MEDIA_TYPES.image) {
     media = <img src={token.meta.nft.file} width="100%" height="100%" alt="NFT Preview" />;
-  } else {
+  } else if(nftType === NFT_MEDIA_TYPES.video && fileType) {
     media = (
-      <video controls controlsList="nodownload noremoteplayback" disablePictureInPicture onPlay={onPLayVideo}>
-        <source src={token.meta.nft.file} type="video/mp4" />
+      <video controls controlsList="nodownload noremoteplayback" disablePictureInPicture onPlay={onPLayMedia}>
+        <source src={token.meta.nft.file} type={fileType} />
         Your browser does not support html video tag.
       </video>
     )
+  } else if(nftType === NFT_MEDIA_TYPES.audio && fileType) {
+    media = (
+      <audio controls controlsList="nodownload" onPlay={onPLayMedia} >
+        <source src={token.meta.nft.file} type={fileType} />
+        Your browser does not support the audio element.
+      </audio>
+    )
+  } else {
+    media = <p> Preview Unavailable </p>
   }
 
   return (
