@@ -214,6 +214,9 @@ const helpers = {
    */
   getFileExtension(file) {
     const parts = file.split('.');
+    if (parts.length === 1) {
+      return '';
+    }
     return parts[parts.length - 1];
   }
 
