@@ -19,7 +19,7 @@ const GDPRConsent = () => {
   };
   
   useEffect(() => {
-    // Just to ensure that when we initialize GTM, this message will be shown
+    // Just to ensure that when we initialize GTM, the message on this component will be shown
     TagManager.initialize({ gtmId: GTM_ID });
 
     const isConsent = getCookieConsentValue();
@@ -29,18 +29,17 @@ const GDPRConsent = () => {
   }, []);
 
   return (
-    <div className="cookie-consent-wrapper">
-      <CookieConsent
-        onAccept={onAccept}
-        disableButtonStyles={true}
-        buttonWrapperClasses="mx-auto"
-        buttonClasses="btn btn-hathor m-3"
-        >
-        We use cookies to improve your user experience. By continuing onto our website, you agree.
-      </CookieConsent>
-    </div>
+    <CookieConsent
+      onAccept={onAccept}
+      disableButtonStyles={true}
+      buttonText="Got it!"
+      buttonWrapperClasses="mx-auto"
+      buttonClasses="btn btn-hathor m-3"
+    >
+      We use cookies to improve your user experience. By continuing onto our website, you agree with our
+      <a href="https://hathor.network/terms-and-conditions/" target="_blank" rel="noopener noreferrer" > Terms and Conditions </a>.
+    </CookieConsent>
   )
 }
 
 export default GDPRConsent;
- 
