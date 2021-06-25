@@ -7,7 +7,6 @@
 
 import React from 'react';
 import networkApi from '../api/networkApi';
-import ReactLoading from 'react-loading';
 import Loading from './Loading';
 import dateFormatter from '../utils/date';
 import colors from '../index.scss';
@@ -36,41 +35,43 @@ class Network extends React.Component {
       loaded: false,
       isLoading: false,
       peers: [],
-      peer_id: '',
+      peerId: '',
     }
 
-    this.loadData = this.loadData.bind(this);
   }
 
   componentDidMount() {
+    this.loadPeers();
+  }
+
+  loadPeers() {
     const { match: { params } } = this.props;
 
     networkApi.getPeers().then((peers) => {
       this.setState({peers}, () => {
-        let peer_id = params.peer_id;
-        if (!peer_id) {
-          peer_id = peers[0];
+        let peerId = params.peerId;
+        if (!peerId) {
+          peerId = peers[0];
         }
-        this.props.history.push(`/network/${this.state.peers[0]}`);
-        this.setState({peer_id}, () => {
-          this.loadData();
-          this.loadTimer = setInterval(this.loadData, 1000);
-        });
+        this.onPeerChange(peerId);
       });
     });
   }
 
-  onPeerChange(event) {
-    const peer_id = event.target.value;
-    this.props.history.push(`/network/${peer_id}`);
-    this.setState({peer_id}, () => { this.loadData() });
+  onPeerChange(peerId) {
+    this.props.history.push(`/network/${peerId}`);
+    clearInterval(this.loadTimer);
+    this.setState({peerId, loaded: false}, () => {
+      this.loadData();
+      this.loadTimer = setInterval(this.loadData.bind(this), 1000);
+    });
   }
 
   loadData() {
     if (this.state.isLoading) return;
 
     this.setState({ isLoading: true }, () => {
-      networkApi.getPeer(this.state.peer_id).then((peer) => {
+      networkApi.getPeer(this.state.peerId).then((peer) => {
         this.setState({
           ...peer,
           loaded: true,
@@ -217,7 +218,7 @@ class Network extends React.Component {
         <div className="form-inline mb-3">
           <label>
             Peer PoV:
-            <select name="peers" className="form-control mx-2" value={this.state.peer_id} onChange={this.onPeerChange.bind(this)}>
+            <select name="peers" className="form-control mx-2" value={this.state.peerId} onChange={(event) => this.onPeerChange(event.target.value)}>
               {this.state.peers.map((peer) => {
                 return <option value={peer} key={peer}>{this.getPeerIdAbbrev(peer)}</option>
               })}
