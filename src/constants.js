@@ -45,7 +45,7 @@ export const TESTNET_GENESIS_TX = [
 
 export const DECIMAL_PLACES = 2;
 
-export const VERSION = '0.7.6';
+export const VERSION = '0.7.7';
 
 export const MIN_API_VERSION = '0.33.0';
 
