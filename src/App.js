@@ -8,10 +8,11 @@
 import React from 'react';
 
 import { Switch, BrowserRouter as Router, Route } from 'react-router-dom';
+import GDPRConsent from './components/GDPRConsent';
+import Loading from './components/Loading';
+import Navigation from './components/Navigation';
 import PeerAdmin from './screens/PeerAdmin';
 import DashboardTx from './screens/DashboardTx';
-import Navigation from './components/Navigation';
-import Loading from './components/Loading';
 import TransactionDetail from './screens/TransactionDetail';
 import AddressDetail from './screens/AddressDetail';
 import DecodeTx from './screens/DecodeTx';
@@ -29,11 +30,8 @@ import { connect } from "react-redux";
 import versionApi from './api/version';
 import helpers from './utils/helpers';
 import hathorLib from '@hathor/wallet-lib';
-import { BASE_URL, GTM_ID } from './constants';
+import { BASE_URL } from './constants';
 import createRequestInstance from './api/customAxiosInstance';
-import TagManager from 'react-gtm-module';
-
-TagManager.initialize({ gtmId: GTM_ID })
 
 const store = new hathorLib.MemoryStore();
 hathorLib.storage.setStore(store);
@@ -104,22 +102,25 @@ class Root extends React.Component {
       return <VersionError />;
     } else {
       return (
-      <Router>
-        <Switch>
-          <NavigationRoute exact path="/transaction/:id" component={TransactionDetail} />
-          <NavigationRoute exact path="/push-tx" component={PushTx} />
-          <NavigationRoute exact path="/decode-tx" component={DecodeTx} />
-          <NavigationRoute exact path="/transactions" component={TransactionList} />
-          <NavigationRoute exact path="/blocks" component={BlockList} />
-          <NavigationRoute exact path="/dag" component={Dag} />
-          <NavigationRoute exact path="/network" component={PeerAdmin} />
-          <NavigationRoute exact path="/statistics" component={Dashboard} />
-          <NavigationRoute exact path="/token_detail/:tokenUID" component={TokenDetail} />
-          <NavigationRoute exact path="/tokens" component={TokensList} />
-          <NavigationRoute exact path="/address/:address" component={AddressDetail} />
-          <NavigationRoute exact path="" component={DashboardTx} />
-        </Switch>
-      </Router>
+        <>
+          <Router>
+            <Switch>
+              <NavigationRoute exact path="/transaction/:id" component={TransactionDetail} />
+              <NavigationRoute exact path="/push-tx" component={PushTx} />
+              <NavigationRoute exact path="/decode-tx" component={DecodeTx} />
+              <NavigationRoute exact path="/transactions" component={TransactionList} />
+              <NavigationRoute exact path="/blocks" component={BlockList} />
+              <NavigationRoute exact path="/dag" component={Dag} />
+              <NavigationRoute exact path="/network" component={PeerAdmin} />
+              <NavigationRoute exact path="/statistics" component={Dashboard} />
+              <NavigationRoute exact path="/token_detail/:tokenUID" component={TokenDetail} />
+              <NavigationRoute exact path="/tokens" component={TokensList} />
+              <NavigationRoute exact path="/address/:address" component={AddressDetail} />
+              <NavigationRoute exact path="" component={DashboardTx} />
+            </Switch>
+          </Router>
+          <GDPRConsent />
+        </>
       )
     }
   }

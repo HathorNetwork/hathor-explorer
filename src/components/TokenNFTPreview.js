@@ -71,7 +71,7 @@ const TokenNFTPreview = (props) => {
   return (
     <div className="d-flex flex-column token-nft-preview">
       <p><strong>NFT preview</strong></p>
-      <figure class="figure flex-fill p-4 d-flex align-items-center justify-content-center">
+      <figure className="figure flex-fill p-4 d-flex align-items-center justify-content-center">
         { media }
       </figure>
     </div>        
