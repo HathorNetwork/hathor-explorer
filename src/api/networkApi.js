@@ -8,17 +8,17 @@
 import { requestExplorerServiceV1 } from './axiosInstance';
 
 const networkApi = {
-  getPeers() {
+  getPeerList() {
     return requestExplorerServiceV1().get(`node`).then((res) => {
       return res.data
-    }, (res) => {
+    }).catch((res) => {
       throw new Error(res.data.message);
     });
   },
   getPeer(hash) {
     return requestExplorerServiceV1().get(`node/${hash}`).then((res) => {
       return res.data
-    }, (res) => {
+    }).catch((res) => {
       throw new Error(res.data.message);
     });
   }

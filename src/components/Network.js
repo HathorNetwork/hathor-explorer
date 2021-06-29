@@ -47,14 +47,16 @@ class Network extends React.Component {
   loadPeers() {
     const { match: { params } } = this.props;
 
-    networkApi.getPeers().then((peers) => {
+    networkApi.getPeerList().then((peers) => {
       this.setState({peers}, () => {
-        let peerId = params.peerId;
+        let peerId = peers.find(target => target === params.peerId);
         if (!peerId) {
           peerId = peers[0];
         }
         this.onPeerChange(peerId);
       });
+    }).catch(() => {
+      setTimeout(this.loadPeers.bind(this), 1000);
     });
   }
 
@@ -217,13 +219,17 @@ class Network extends React.Component {
       return (
         <div className="form-inline mb-3">
           <label>
-            Peer PoV:
+            Peer:
             <select name="peers" className="form-control mx-2" value={this.state.peerId} onChange={(event) => this.onPeerChange(event.target.value)}>
               {this.state.peers.map((peer) => {
                 return <option value={peer} key={peer}>{this.getPeerIdAbbrev(peer)}</option>
               })}
             </select>
           </label>
+          <button className="info-hover-wrapper float-right btn btn-link">
+            <i className="fa fa-info-circle" title="Select a peer"></i>
+            <span className="subtitle subtitle info-hover-popover">Select a peer to check its network status.</span>
+          </button>
           <button className='btn btn-hathor ml-auto' onClick={this.loadData}>Reload data</button>
         </div>
       )
