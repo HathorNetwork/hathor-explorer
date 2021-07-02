@@ -164,6 +164,8 @@ class Network extends React.Component {
         const { synced_percent, general_percent } = this.getSyncProgressPercent(sync_data);
         const sync_state_description = SyncStatesDescription[sync_data.state] || SyncStatesDescription[SyncStates.UNKNOWN];
 
+        const entrypoints = peer.entrypoints || [];
+
         return (
           <div key={peer} style={{marginBottom: "30px"}} className={"card bg-light border-success"}>
             <h6 className="card-header">
@@ -176,7 +178,7 @@ class Network extends React.Component {
               Uptime: {dateFormatter.uptimeFormat(conn.uptime)}<br />
               Version: {conn.app_version}<br />
               Address: {conn.address}<br />
-              Entrypoints: { /* peer.entrypoints.join(", ") */ }<br />
+              Entrypoints: { entrypoints.join(", ") }<br />
               State: {sync_state_description}
             </div>
             <ul className="list-group list-group-flush">
