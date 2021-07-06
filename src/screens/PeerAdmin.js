@@ -13,7 +13,7 @@ class PeerAdmin extends React.Component {
   render() {
     return (
       <div className="content-wrapper">
-        <Network />
+        <Network {...this.props} />
       </div>
     );
   }
