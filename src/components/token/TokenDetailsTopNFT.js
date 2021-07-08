@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import TokenConfig from '../components/TokenConfig';
-import TokenInfo from '../components/TokenInfo';
-import TokenNFTPreview from '../components/TokenNFTPreview';
+import TokenConfig from './TokenConfig';
+import TokenInfo from './TokenInfo';
+import TokenNFTPreview from './TokenNFTPreview';
 
 const TokenDetailsTopNFT = (props) => {
   const [token, setToken] = useState(props.token);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import TokenConfig from '../components/TokenConfig';
-import TokenInfo from '../components/TokenInfo';
+import TokenConfig from './TokenConfig';
+import TokenInfo from './TokenInfo';
 
 const TokenDetailsTop = (props) => {
   const [token, setToken] = useState(props.token);

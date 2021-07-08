@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import hathorLib from '@hathor/wallet-lib';
-import HathorAlert from './HathorAlert';
+import HathorAlert from '../HathorAlert';
 import QRCode from 'qrcode.react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
