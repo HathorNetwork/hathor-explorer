@@ -10,8 +10,10 @@ import Transactions from '../components/Transactions';
 import hathorLib from '@hathor/wallet-lib';
 import tokenApi from '../api/tokenApi';
 import { TX_COUNT } from '../constants';
-import TokenDetailsTop from '../components/TokenDetailsTop';
-import TokenDetailsTopNFT from '../components/TokenDetailsTopNFT';
+import TokenDetailsTop from '../components/token/TokenDetailsTop';
+import TokenDetailsTopNFT from '../components/token/TokenDetailsTopNFT';
+import TokenAlerts from '../components/token/TokenAlerts';
+
 
 /**
  * Screen to manage a token. See total amount, if can mint/melt and the history of transaction
@@ -150,21 +152,13 @@ class TokenDetail extends React.Component {
 
     if (!this.state.token) return null;
 
-    const renderTokenAlert = () => {
-      return (
-        <div className="alert alert-warning backup-alert" role="alert">
-          Only the UID is unique, there might be more than one token with the same name and symbol.
-        </div>
-      )
-    }
-
     const isNFT = () => {
       return this.state.token.meta && this.state.token.meta.nft;
     }
 
     return (
       <div className="content-wrapper flex align-items-center">
-        {renderTokenAlert()}
+        <TokenAlerts token={this.state.token} />
         { isNFT() ? 
           <TokenDetailsTopNFT token={this.state.token} />
           : <TokenDetailsTop token={this.state.token} />

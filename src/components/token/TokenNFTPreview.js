@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TagManager from 'react-gtm-module';
-import helpers from '../utils/helpers';
-import { NFT_MEDIA_TYPES, VIDEO_MEDIA_TYPES_BY_EXTENSION, AUDIO_MEDIA_TYPES_BY_EXTENSION } from '../constants';
+import helpers from '../../utils/helpers';
+import { NFT_MEDIA_TYPES, VIDEO_MEDIA_TYPES_BY_EXTENSION, AUDIO_MEDIA_TYPES_BY_EXTENSION } from '../../constants';
 
 const TokenNFTPreview = (props) => {
   const [token, setToken] = useState(props.token);
