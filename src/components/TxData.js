@@ -515,6 +515,7 @@ class TxData extends React.Component {
 
     return (
       <div>
+        <TxAlerts tx={this.props.transaction} />
         {loadTxData()}
         <HathorAlert ref="alertCopied" text="Copied to clipboard!" type="success" />
       </div>
