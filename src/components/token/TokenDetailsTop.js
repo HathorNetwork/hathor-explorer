@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import TokenConfig from './TokenConfig';
 import TokenInfo from './TokenInfo';
+import TokenTitle from './TokenTitle';
+
 
 const TokenDetailsTop = (props) => {
   const [token, setToken] = useState(props.token);
@@ -13,7 +15,7 @@ const TokenDetailsTop = (props) => {
     <>
       <div className='d-flex flex-column justify-content-between mt-4 mb-3'>
         <p className='token-name mb-0 mt-4'>
-          <strong>{token.name} ({token.symbol})</strong>
+          <TokenTitle token={token} />
         </p>
       </div>
       <div className='d-flex flex-column flex-lg-row align-items-lg-stretch align-items-center justify-content-between mb-4'>
