@@ -6,7 +6,7 @@ const TxMarkers = (props) => {
   const [tx, setTx] = useState(props.tx);
 
   useEffect(() => {
-    setTx({genesis: helpers.isGenesisBlock(props.tx.hash) || helpers.isGenesisTx(props.tx.hash)});
+    setTx({...props.tx, genesis: helpers.isGenesisBlock(props.tx.hash) || helpers.isGenesisTx(props.tx.hash)});
   }, [props.tx]);
 
   const genesisMarker = () => {
@@ -15,10 +15,20 @@ const TxMarkers = (props) => {
     }
 
     return (
-      <button className="info-hover-wrapper btn btn-link pl-0">
+      <span className="text-info">[GENESIS]</span>
+    )
+  }
+
+  const infoMarker = () => {
+    if (!tx.context) {
+      return null;
+    }
+
+    return (
+      <button className="info-hover-wrapper btn btn-link pl-1">
         <i className="fa fa-certificate text-info" title="Genesis"></i>
         <span className="subtitle info-hover-popover">
-          This is the first Network {helpers.isBlock(props.tx) ? 'Block' : 'Transaction'}
+          {tx.context}
         </span>
       </button>
     )
@@ -27,6 +37,7 @@ const TxMarkers = (props) => {
   return (
     <>
       {genesisMarker()}
+      {infoMarker()}
     </>
   );
 }

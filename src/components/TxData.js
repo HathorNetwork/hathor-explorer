@@ -18,7 +18,6 @@ import dateFormatter from '../utils/date';
 import txApi from '../api/txApi';
 import { BASE_URL, HATHOR_TOKEN_INDEX, HATHOR_TOKEN_CONFIG } from '../constants';
 import hathorLib from '@hathor/wallet-lib';
-import TxAlerts from './tx/TxAlerts';
 import TxMarkers from './tx/TxMarkers';
 
 
@@ -516,7 +515,6 @@ class TxData extends React.Component {
 
     return (
       <div>
-        <TxAlerts tx={this.props.transaction} />
         {loadTxData()}
         <HathorAlert ref="alertCopied" text="Copied to clipboard!" type="success" />
       </div>
