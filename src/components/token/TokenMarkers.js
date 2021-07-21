@@ -15,9 +15,9 @@ const TokenMarkers = (props) => {
 
     return (
       <button className="info-hover-wrapper btn btn-link pl-2">
-        <i className="fa fa-certificate fa-lg text-info" title="Verified"></i>
+        <i className="fa fa-check-circle fa-lg text-info" title="Verified"></i>
         <span className="subtitle info-hover-popover">
-          This is a verified token. <a href="http://google.com" >Learn more.</a>
+          This is a verified token. <a href="http://hathor.network" >Learn more.</a>
         </span>
       </button>
     )
@@ -32,7 +32,7 @@ const TokenMarkers = (props) => {
       <button className="info-hover-wrapper btn btn-link pl-2">
         <i className="fa fa-exclamation-triangle fa-lg text-danger" title="Banned"></i>
         <span className="subtitle info-hover-popover">
-          This token was banned and should not be trusted. <a href="http://google.com" >Learn more.</a>
+          This token was banned and should not be trusted. <a href="http://hathor.network" >Learn more.</a>
         </span>
       </button>
     )

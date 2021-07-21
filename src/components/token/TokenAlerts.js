@@ -16,7 +16,7 @@ const TokenAlerts = (props) => {
     return (
       <div className="alert alert-danger backup-alert" role="alert">
         <i className="fa fa-exclamation-triangle mr-2" title="Token Verified"></i>
-        This token was banned and should not be trusted. <a href="http://google.com" >Learn more.</a>
+        This token was banned and should not be trusted. <a href="http://hathor.network" >Learn more.</a>
       </div>
     )
   }
