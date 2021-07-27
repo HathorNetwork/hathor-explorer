@@ -26,7 +26,7 @@ const TxMarkers = (props) => {
 
     return (
       <button className="info-hover-wrapper btn btn-link pl-1">
-        <i className="fa fa-certificate text-info" title="Genesis"></i>
+        <i className="fa fa-certificate text-info" title={tx.context} ></i>
         <span className="subtitle info-hover-popover">
           {tx.context}
         </span>
