@@ -5,13 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import requestClient from './axiosInstance';
+import { requestExplorerServiceV1 } from './axiosInstance';
 
 const networkApi = {
-  getPeers() {
-    return requestClient.get(`status`).then((res) => {
+  getPeerList() {
+    return requestExplorerServiceV1().get(`node`).then((res) => {
       return res.data
-    }, (res) => {
+    }).catch((res) => {
+      throw new Error(res.data.message);
+    });
+  },
+  getPeer(hash) {
+    return requestExplorerServiceV1().get(`node/${hash}`).then((res) => {
+      return res.data
+    }).catch((res) => {
       throw new Error(res.data.message);
     });
   }
