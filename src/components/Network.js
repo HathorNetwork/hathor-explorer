@@ -164,7 +164,7 @@ class Network extends React.Component {
         const { synced_percent, general_percent } = this.getSyncProgressPercent(sync_data);
         const sync_state_description = SyncStatesDescription[sync_data.state] || SyncStatesDescription[SyncStates.UNKNOWN];
 
-        const entrypoints = peer.entrypoints || [];
+        const entrypoints = conn.entrypoints || [];
 
         return (
           <div key={peer} style={{marginBottom: "30px"}} className={"card bg-light border-success"}>
