@@ -83,7 +83,27 @@ class TxData extends React.Component {
    * Add all tokens of this transaction (inputs and outputs) to the state
    */
   calculateTokens = () => {
-    this.setState({ tokens: this.props.transaction.tokens });
+    let tokens = this.props.transaction.tokens;
+
+    const metaRequests = tokens.map(token => this.getTokenMetadata(token));
+
+    Promise.all(metaRequests).then((metaResults) => {
+      this.setState({ tokens: metaResults });
+    });
+  }
+
+  /**
+   * Fetch token metadata
+   *
+   * @param {Object} token Token object to be updated
+   */
+  getTokenMetadata = (token) => {
+    return new Promise((resolve, reject) => { // here will be the request instead of this promise
+      resolve({});
+    }).then((data) => {
+      token.meta = data;
+      return token;
+    }).catch(err => token);
   }
 
   /**
@@ -113,7 +133,7 @@ class TxData extends React.Component {
   }
 
   /**
-   * Method called on copy to clipboard success  
+   * Method called on copy to clipboard success
    * Show alert success message
    *
    * @param {string} text Text copied to clipboard
