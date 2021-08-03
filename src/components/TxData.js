@@ -170,7 +170,7 @@ class TxData extends React.Component {
         return (
           <div key={`${input.tx_id}${input.index}`}>
             <Link to={`/transaction/${input.tx_id}`}>{helpers.getShortHash(input.tx_id)}</Link> ({input.index})
-            {renderOutput(input, 0, false)}
+            {renderInputOrOutput(input, 0, false)}
           </div>
         );
       });
@@ -197,13 +197,21 @@ class TxData extends React.Component {
       }
     }
 
-    const renderOutput = (output, idx, addBadge) => {
+    const renderOutputLink = (idx) => {
+      if (idx in this.props.spentOutputs) {
+        return <span> (<Link to={`/transaction/${this.props.spentOutputs[idx]}`}>Spent</Link>)</span>;
+      } else {
+        return null;
+      }
+    }
+
+    const renderInputOrOutput = (output, idx, isOutput) => {
       return (
         <div key={idx}>
           <div>{outputValue(output)} {renderOutputToken(output)}</div>
           <div>
             {renderDecodedScript(output)}
-            {idx in this.props.spentOutputs ? <span> (<Link to={`/transaction/${this.props.spentOutputs[idx]}`}>Spent</Link>)</span> : ''}
+            {isOutput && renderOutputLink(idx)}
           </div>
         </div>
       );
@@ -211,7 +219,7 @@ class TxData extends React.Component {
 
     const renderOutputs = (outputs) => {
       return outputs.map((output, idx) => {
-        return renderOutput(output, idx, true);
+        return renderInputOrOutput(output, idx, true);
       });
     }
 
