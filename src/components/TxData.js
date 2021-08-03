@@ -170,7 +170,7 @@ class TxData extends React.Component {
         return (
           <div key={`${input.tx_id}${input.index}`}>
             <Link to={`/transaction/${input.tx_id}`}>{helpers.getShortHash(input.tx_id)}</Link> ({input.index})
-            {renderOutput(input, 0, false)}
+            {renderInputOrOutput(input, 0, false)}
           </div>
         );
       });
@@ -205,7 +205,7 @@ class TxData extends React.Component {
       }
     }
 
-    const renderOutput = (output, idx, isOutput) => {
+    const renderInputOrOutput = (output, idx, isOutput) => {
       return (
         <div key={idx}>
           <div>{outputValue(output)} {renderOutputToken(output)}</div>
@@ -219,7 +219,7 @@ class TxData extends React.Component {
 
     const renderOutputs = (outputs) => {
       return outputs.map((output, idx) => {
-        return renderOutput(output, idx, true);
+        return renderInputOrOutput(output, idx, true);
       });
     }
 
