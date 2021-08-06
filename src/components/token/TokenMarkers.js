@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { tokenBannedMessage } from '../../messages';
 
 
 const TokenMarkers = (props) => {
@@ -28,13 +29,11 @@ const TokenMarkers = (props) => {
       return null;
     }
 
-    const bannedMessage = ''; // TODO: this message is being disscussed here: https://github.com/HathorNetwork/hathor-explorer/issues/92
-
     return (
       <button className="info-hover-wrapper btn btn-link pl-2">
         <i className="fa fa-exclamation-triangle fa-lg text-danger" title="Banned"></i>
         <span className="subtitle info-hover-popover">
-          {bannedMessage}
+          {tokenBannedMessage}
         </span>
       </button>
     )

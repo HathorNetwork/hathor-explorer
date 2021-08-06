@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { tokenBannedMessage } from '../../messages';
 
 
 const TokenAlerts = (props) => {
@@ -13,12 +14,10 @@ const TokenAlerts = (props) => {
       return null;
     }
 
-    const bannedMessage = ''; // TODO: this message is being disscussed here: https://github.com/HathorNetwork/hathor-explorer/issues/92
-
     return (
       <div className="alert alert-danger backup-alert" role="alert">
         <i className="fa fa-exclamation-triangle mr-2" title="Banned Token"></i>
-          {bannedMessage}
+          {tokenBannedMessage}
       </div>
     )
   }
