@@ -16,7 +16,7 @@ const tokenApi = {
     });
   },
   getMetadata(id) {
-    return requestExplorerServiceV1().get(`token/${id}/meta`).then((res) => {
+    return requestExplorerServiceV1().get(`metadata/token/${id}`).then((res) => {
       return res.data
     }).catch((error) => {
       // something wrong with request
