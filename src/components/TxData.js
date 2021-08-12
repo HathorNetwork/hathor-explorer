@@ -19,6 +19,9 @@ import txApi from '../api/txApi';
 import { BASE_URL, HATHOR_TOKEN_INDEX, HATHOR_TOKEN_CONFIG } from '../constants';
 import hathorLib from '@hathor/wallet-lib';
 import TxMarkers from './tx/TxMarkers';
+import TxAlerts from './tx/TxAlerts';
+import TokenMarkers from './token/TokenMarkers';
+import tokenApi from '../api/tokenApi';
 
 
 /**
@@ -98,9 +101,7 @@ class TxData extends React.Component {
    * @param {Object} token Token object to be updated
    */
   getTokenMetadata = (token) => {
-    return new Promise((resolve, reject) => { // here will be the request instead of this promise
-      resolve({});
-    }).then((data) => {
+    return tokenApi.getMetadata(token.uid).then((data) => {
       token.meta = data;
       return token;
     }).catch(err => token);
@@ -420,7 +421,7 @@ class TxData extends React.Component {
       const tokens = this.state.tokens.map((token) => {
         return (
           <div key={token.uid}>
-            <span>{token.name} <strong>({token.symbol})</strong> | {renderTokenUID(token)}</span>
+            <TokenMarkers token={token} /><span>{token.name} <strong>({token.symbol})</strong> | {renderTokenUID(token)}</span>
           </div>
         );
       });
@@ -468,6 +469,7 @@ class TxData extends React.Component {
     const loadTxData = () => {
       return (
         <div className="tx-data-wrapper">
+          <TxAlerts transaction={this.props.transaction} />
           {this.props.showConflicts ? renderConflicts() : ''}
           <div><label>{hathorLib.helpers.isBlock(this.props.transaction) ? 'Block' : 'Transaction'} ID:</label> {this.props.transaction.hash}</div>
           <div className="d-flex flex-column flex-lg-row align-items-start mt-3 mb-3">
