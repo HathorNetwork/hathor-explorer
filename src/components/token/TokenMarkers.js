@@ -10,7 +10,7 @@ const TokenMarkers = (props) => {
   }, [props.token]);
 
   const verifiedMarker = () => {
-    if (!token.verified) {
+    if (!token.meta || !token.meta.data.verified) {
       return null;
     }
 
@@ -25,7 +25,7 @@ const TokenMarkers = (props) => {
   }
 
   const bannedMarker = () => {
-    if (!token.banned) {
+    if (!token.meta || !token.meta.data.banned) {
       return null;
     }
 

@@ -19,7 +19,7 @@ const TokenNFTPreview = (props) => {
     }
   }, [props.token, token.uid]);
 
-  if (!token.meta.nft) {
+  if (!token.meta || !token.meta.data.nft_media) {
     return null;
   }
 
@@ -32,9 +32,9 @@ const TokenNFTPreview = (props) => {
     });
   }
 
-  const nftType = token.meta.nft.type && token.meta.nft.type.toUpperCase();
+  const nftType = token.meta.data.nft_media.type && token.meta.data.nft_media.type.toUpperCase();
 
-  const ext = helpers.getFileExtension(token.meta.nft.file);
+  const ext = helpers.getFileExtension(token.meta.data.nft_media.file);
 
   let fileType;
 
@@ -49,18 +49,31 @@ const TokenNFTPreview = (props) => {
   let media;
 
   if (nftType === NFT_MEDIA_TYPES.image) {
-    media = <img src={token.meta.nft.file} width="100%" height="100%" alt="NFT Preview" />;
+    media = <img src={token.meta.data.nft_media.file} width="100%" height="100%" alt="NFT Preview" />;
   } else if(nftType === NFT_MEDIA_TYPES.video && fileType) {
     media = (
-      <video controls controlsList="nodownload noremoteplayback" disablePictureInPicture onPlay={onPlayMedia}>
-        <source src={token.meta.nft.file} type={fileType} />
+      <video
+        controls
+        controlsList="nodownload noremoteplayback"
+        disablePictureInPicture
+        onPlay={onPlayMedia}
+        loop={token.meta.data.nft_media.loop}
+        autoPlay={token.meta.data.nft_media.autoplay}
+      >
+        <source src={token.meta.data.nft_media.file} type={fileType} />
         Your browser does not support html video tag.
       </video>
     )
   } else if(nftType === NFT_MEDIA_TYPES.audio && fileType) {
     media = (
-      <audio controls controlsList="nodownload" onPlay={onPlayMedia} >
-        <source src={token.meta.nft.file} type={fileType} />
+      <audio
+        controls
+        controlsList="nodownload"
+        onPlay={onPlayMedia}
+        loop={token.meta.data.nft_media.loop}
+        autoPlay={token.meta.data.nft_media.autoplay}
+      >
+        <source src={token.meta.data.nft_media.file} type={fileType} />
         Your browser does not support the audio element.
       </audio>
     )

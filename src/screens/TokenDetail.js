@@ -152,14 +152,14 @@ class TokenDetail extends React.Component {
 
     if (!this.state.token) return null;
 
-    const isNFT = () => {
-      return this.state.token.meta && this.state.token.meta.nft;
+    const hasNFTMedia = () => {
+      return this.state.token.meta && this.state.token.meta.data.nft_media;
     }
 
     return (
       <div className="content-wrapper flex align-items-center">
         <TokenAlerts token={this.state.token} />
-        { isNFT() ? 
+        { hasNFTMedia() ?
           <TokenDetailsTopNFT token={this.state.token} />
           : <TokenDetailsTop token={this.state.token} />
         }
