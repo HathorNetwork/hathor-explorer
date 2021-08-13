@@ -52,14 +52,26 @@ const TokenNFTPreview = (props) => {
     media = <img src={token.meta.nft.file} width="100%" height="100%" alt="NFT Preview" />;
   } else if(nftType === NFT_MEDIA_TYPES.video && fileType) {
     media = (
-      <video controls controlsList="nodownload noremoteplayback" disablePictureInPicture onPlay={onPlayMedia}>
+      <video
+        controls
+        controlsList="nodownload noremoteplayback"
+        disablePictureInPicture onPlay={onPlayMedia}
+        loop={token.meta.nft.loop}
+        autoPlay={token.meta.nft.autoplay}
+      >
         <source src={token.meta.nft.file} type={fileType} />
         Your browser does not support html video tag.
       </video>
     )
   } else if(nftType === NFT_MEDIA_TYPES.audio && fileType) {
     media = (
-      <audio controls controlsList="nodownload" onPlay={onPlayMedia} >
+      <audio
+        controls
+        controlsList="nodownload"
+        onPlay={onPlayMedia}
+        loop={token.meta.nft.loop}
+        autoPlay={token.meta.nft.autoplay}
+      >
         <source src={token.meta.nft.file} type={fileType} />
         Your browser does not support the audio element.
       </audio>
