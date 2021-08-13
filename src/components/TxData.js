@@ -170,7 +170,7 @@ class TxData extends React.Component {
         return (
           <div key={`${input.tx_id}${input.index}`}>
             <Link to={`/transaction/${input.tx_id}`}>{helpers.getShortHash(input.tx_id)}</Link> ({input.index})
-            {renderOutput(input, 0, false)}
+            {renderInputOrOutput(input, 0, false)}
           </div>
         );
       });
@@ -197,13 +197,21 @@ class TxData extends React.Component {
       }
     }
 
-    const renderOutput = (output, idx, addBadge) => {
+    const renderOutputLink = (idx) => {
+      if (idx in this.props.spentOutputs) {
+        return <span> (<Link to={`/transaction/${this.props.spentOutputs[idx]}`}>Spent</Link>)</span>;
+      } else {
+        return null;
+      }
+    }
+
+    const renderInputOrOutput = (output, idx, isOutput) => {
       return (
         <div key={idx}>
           <div>{outputValue(output)} {renderOutputToken(output)}</div>
           <div>
             {renderDecodedScript(output)}
-            {idx in this.props.spentOutputs ? <span> (<Link to={`/transaction/${this.props.spentOutputs[idx]}`}>Spent</Link>)</span> : ''}
+            {isOutput && renderOutputLink(idx)}
           </div>
         </div>
       );
@@ -211,7 +219,7 @@ class TxData extends React.Component {
 
     const renderOutputs = (outputs) => {
       return outputs.map((output, idx) => {
-        return renderOutput(output, idx, true);
+        return renderInputOrOutput(output, idx, true);
       });
     }
 
@@ -464,11 +472,11 @@ class TxData extends React.Component {
           </div>
           <div className="d-flex flex-column flex-lg-row align-items-start mb-3 w-100">
             <div className="f-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
-              <div><label>Inputs:</label></div>
+              <div><label>Inputs ({ this.props.transaction.inputs.length })</label></div>
               {renderInputs(this.props.transaction.inputs)}
             </div>
             <div className="d-flex flex-column align-items-center common-div bordered-wrapper mt-3 mt-lg-0 w-100">
-              <div><label>Outputs:</label></div>
+              <div><label>Outputs ({ this.props.transaction.outputs.length })</label></div>
               {renderOutputs(this.props.transaction.outputs)}
             </div>
           </div>

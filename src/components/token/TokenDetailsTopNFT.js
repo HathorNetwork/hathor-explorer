@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import TokenConfig from '../components/TokenConfig';
-import TokenInfo from '../components/TokenInfo';
+import TokenConfig from './TokenConfig';
+import TokenInfo from './TokenInfo';
+import TokenNFTPreview from './TokenNFTPreview';
 
-const TokenDetailsTop = (props) => {
+const TokenDetailsTopNFT = (props) => {
   const [token, setToken] = useState(props.token);
 
   useEffect(() => {
@@ -23,10 +24,13 @@ const TokenDetailsTop = (props) => {
         <div className='d-flex align-items-lg-stretch mt-4 mt-lg-0'>
           <TokenConfig token={token} />
         </div>
+        <div className='d-flex align-items-lg-stretch mt-4 mt-lg-0'>
+          <TokenNFTPreview token={token} />
+        </div>
       </div>
     </>
   )
 
 }
 
-export default TokenDetailsTop;
+export default TokenDetailsTopNFT;
