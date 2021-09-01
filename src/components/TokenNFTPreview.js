@@ -49,7 +49,13 @@ const TokenNFTPreview = (props) => {
   let media;
 
   if (nftType === NFT_MEDIA_TYPES.image) {
-    media = <img src={token.meta.nft.file} width="100%" height="100%" alt="NFT Preview" />;
+    if (ext === 'pdf') {
+      // Toolbar to prevent showing download/print icons
+      const data = `${token.meta.nft.file}#toolbar=0`;
+      media = <object data={data} width="100%" height="100%" type="application/pdf" alt="NFT Preview" />;
+    } else {
+      media = <img src={token.meta.nft.file} width="100%" height="100%" alt="NFT Preview" />;
+    }
   } else if(nftType === NFT_MEDIA_TYPES.video && fileType) {
     media = (
       <video controls controlsList="nodownload noremoteplayback" disablePictureInPicture onPlay={onPlayMedia}>
