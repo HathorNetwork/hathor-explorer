@@ -50,7 +50,7 @@ const TokenNFTPreview = (props) => {
 
   if (nftType === NFT_MEDIA_TYPES.image) {
     media = <img src={token.meta.nft.file} width="100%" height="100%" alt="NFT Preview" />;
-  } else if(nftType === NFT_MEDIA_TYPES.video && fileType) {
+  } else if (nftType === NFT_MEDIA_TYPES.video && fileType) {
     media = (
       <video
         controls
@@ -63,7 +63,7 @@ const TokenNFTPreview = (props) => {
         Your browser does not support html video tag.
       </video>
     )
-  } else if(nftType === NFT_MEDIA_TYPES.audio && fileType) {
+  } else if (nftType === NFT_MEDIA_TYPES.audio && fileType) {
     media = (
       <audio
         controls
@@ -76,6 +76,10 @@ const TokenNFTPreview = (props) => {
         Your browser does not support the audio element.
       </audio>
     )
+  } else if (nftType === NFT_MEDIA_TYPES.pdf) {
+    // Toolbar to prevent showing download/print icons
+    const data = `${token.meta.nft.file}#toolbar=0`;
+    media = <object data={data} width="100%" height="100%" type="application/pdf" alt="NFT Preview" />;
   } else {
     media = <p> Preview Unavailable </p>
   }
