@@ -472,11 +472,11 @@ class TxData extends React.Component {
           </div>
           <div className="d-flex flex-column flex-lg-row align-items-start mb-3 w-100">
             <div className="f-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
-              <div><label>Inputs:</label></div>
+              <div><label>Inputs ({ this.props.transaction.inputs.length })</label></div>
               {renderInputs(this.props.transaction.inputs)}
             </div>
             <div className="d-flex flex-column align-items-center common-div bordered-wrapper mt-3 mt-lg-0 w-100">
-              <div><label>Outputs:</label></div>
+              <div><label>Outputs ({ this.props.transaction.outputs.length })</label></div>
               {renderOutputs(this.props.transaction.outputs)}
             </div>
           </div>
