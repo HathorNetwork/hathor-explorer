@@ -79,7 +79,7 @@ const TokenNFTPreview = (props) => {
   } else if (nftType === NFT_MEDIA_TYPES.pdf) {
     // Toolbar to prevent showing download/print icons
     const data = `${token.meta.nft.file}#toolbar=0`;
-    media = <object data={data} width="100%" height="100%" type="application/pdf" alt="NFT Preview" />;
+    media = <object data={data} width="100%" height="100%" type="application/pdf" alt="NFT Preview" aria-label="NFT Preview" />;
   } else {
     media = <p> Preview Unavailable </p>
   }
