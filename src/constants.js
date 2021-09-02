@@ -71,7 +71,8 @@ export const GTM_ID = process.env.REACT_APP_GTM_ID;
 export const NFT_MEDIA_TYPES = {
   image: 'IMAGE',
   video: 'VIDEO',
-  audio: 'AUDIO'
+  audio: 'AUDIO',
+  pdf: 'PDF',
 }
 
 export const VIDEO_MEDIA_TYPES_BY_EXTENSION = {
