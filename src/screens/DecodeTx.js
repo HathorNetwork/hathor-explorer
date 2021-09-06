@@ -6,8 +6,8 @@
  */
 
 import React from 'react';
-import TxTextInput from '../components/TxTextInput';
-import TxData from '../components/TxData';
+import TxTextInput from '../components/tx/TxTextInput';
+import TxData from '../components/tx/TxData';
 import helpers from '../utils/helpers';
 import txApi from '../api/txApi';
 

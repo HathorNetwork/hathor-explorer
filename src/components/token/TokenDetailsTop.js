@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TokenConfig from './TokenConfig';
 import TokenInfo from './TokenInfo';
 import TokenTitle from './TokenTitle';
+import TokenNFTPreview from './TokenNFTPreview';
 
 
 const TokenDetailsTop = (props) => {
@@ -10,6 +11,18 @@ const TokenDetailsTop = (props) => {
   useEffect(() => {
     setToken(props.token);
   }, [props.token]);
+
+  const nftPreview = () => {
+    if (!token.meta || !token.meta.nft || !token.meta.nft_media) {
+      return null;
+    }
+
+    return (
+      <div className='d-flex align-items-lg-stretch mt-4 mt-lg-0'>
+        <TokenNFTPreview token={token} />
+      </div>
+    )
+  }
 
   return (
     <>
@@ -25,6 +38,7 @@ const TokenDetailsTop = (props) => {
         <div className='d-flex align-items-lg-stretch mt-4 mt-lg-0'>
           <TokenConfig token={token} />
         </div>
+        {nftPreview()}
       </div>
     </>
   )

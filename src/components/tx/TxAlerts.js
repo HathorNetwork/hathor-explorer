@@ -10,7 +10,7 @@ const TxAlerts = (props) => {
   }, [props.transaction]);
 
   const bannedAlert = () => {
-    if (!transaction.tokens.find(token => token.meta && token.meta.data.banned)) {
+    if (!transaction.tokens.find(token => token.meta && token.meta.banned)) {
       return null;
     }
 

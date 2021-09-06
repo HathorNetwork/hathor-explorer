@@ -7,8 +7,9 @@
 
 import React from 'react';
 import ReactLoading from 'react-loading';
-import TxData from '../components/TxData';
+import TxData from '../components/tx/TxData';
 import txApi from '../api/txApi';
+import metadataApi from '../api/metadataApi';
 import hathorLib from '@hathor/wallet-lib';
 import colors from '../index.scss';
 
@@ -68,10 +69,10 @@ class TransactionDetail extends React.Component {
   }
 
   /**
-   * Get transaction in the server when mounting the page
+   * Get transaction in the server
    */
-  getTx() {
-    txApi.getTransaction(this.props.match.params.id).then((data) => {
+  updateTxInfo = (id) => {
+    txApi.getTransaction(id).then((data) => {
       this.txReceived(data);
       if (data.success && !hathorLib.helpers.isBlock(data.tx)) {
         this.getConfirmationData();
@@ -80,6 +81,32 @@ class TransactionDetail extends React.Component {
       // Error in request
       console.log(e);
     });
+  }
+
+  /**
+   * Get transaction metadata from explorer service
+   */
+  updateTxMetadata = (id) => {
+    metadataApi.getDag(id).then((data) => {
+      if (data) {
+        this.setState((oldState) => {
+          return {
+            transaction: {
+              ...oldState.transaction,
+              meta: data
+            }
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Update transaction information when loading page
+   */
+  getTx() {
+      this.updateTxInfo(this.props.match.params.id);
+      this.updateTxMetadata(this.props.match.params.id);
   }
 
   /**

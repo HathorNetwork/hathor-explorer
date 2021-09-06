@@ -5,23 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
 import $ from 'jquery';
+import HathorAlert from '../HathorAlert';
+import React from 'react';
+import TokenMarkers from '../token/TokenMarkers';
+import TxAlerts from './TxAlerts';
+import TxMarkers from './TxMarkers';
+import Viz from 'viz.js';
+import dateFormatter from '../../utils/date';
+import hathorLib from '@hathor/wallet-lib';
+import helpers from '../../utils/helpers';
+import metadataApi from '../../api/metadataApi';
+import txApi from '../../api/txApi';
+import { BASE_URL, HATHOR_TOKEN_INDEX, HATHOR_TOKEN_CONFIG, MAX_GRAPH_LEVEL } from '../../constants';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Link } from 'react-router-dom'
-import HathorAlert from './HathorAlert';
-import Viz from 'viz.js';
 import { Module, render } from 'viz.js/full.render.js';
-import { MAX_GRAPH_LEVEL } from '../constants';
-import helpers from '../utils/helpers';
-import dateFormatter from '../utils/date';
-import txApi from '../api/txApi';
-import { BASE_URL, HATHOR_TOKEN_INDEX, HATHOR_TOKEN_CONFIG } from '../constants';
-import hathorLib from '@hathor/wallet-lib';
-import TxMarkers from './tx/TxMarkers';
-import TxAlerts from './tx/TxAlerts';
-import TokenMarkers from './token/TokenMarkers';
-import tokenApi from '../api/tokenApi';
 
 
 /**
@@ -101,7 +100,7 @@ class TxData extends React.Component {
    * @param {Object} token Token object to be updated
    */
   getTokenMetadata = (token) => {
-    return tokenApi.getMetadata(token.uid).then((data) => {
+    return metadataApi.getDag(token.uid).then((data) => {
       token.meta = data;
       return token;
     }).catch(err => token);

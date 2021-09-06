@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import helpers from '../../utils/helpers';
 
 
 const TxMarkers = (props) => {
   const [tx, setTx] = useState(props.tx);
 
   useEffect(() => {
-    setTx({...props.tx, genesis: helpers.isGenesisBlock(props.tx.hash) || helpers.isGenesisTx(props.tx.hash)});
+    setTx(props.tx);
   }, [props.tx]);
 
   const genesisMarker = () => {
-    if (!tx.genesis) {
+    if (!tx.meta || !tx.meta.genesis) {
       return null;
     }
 
@@ -20,15 +19,15 @@ const TxMarkers = (props) => {
   }
 
   const infoMarker = () => {
-    if (!tx.context) {
+    if (!tx.meta || !tx.meta.context) {
       return null;
     }
 
     return (
       <button className="info-hover-wrapper btn btn-link pl-1">
-        <i className="fa fa-certificate text-info" title={tx.context} ></i>
+        <i className="fa fa-certificate text-info" title={tx.meta.context} ></i>
         <span className="subtitle info-hover-popover">
-          {tx.context}
+          {tx.meta.context}
         </span>
       </button>
     )

@@ -36,3 +36,11 @@ mainnet_s3_sync:
 
 .PHONY: mainnet_deploy
 mainnet_deploy: check_version check_tag mainnet_s3_sync
+
+.PHONY: testnet_local
+testnet_local:
+	FULLNODE_HOST=node1.foxtrot.testnet.hathor.network; \
+	export REACT_APP_BASE_URL=https://$$FULLNODE_HOST/v1a/; \
+	export REACT_APP_WS_URL=wss://$$FULLNODE_HOST/v1a/ws/; \
+	export REACT_APP_EXPLORER_SERVICE_BASE_URL=http://localhost:3001/dev/; \
+	npm run start
