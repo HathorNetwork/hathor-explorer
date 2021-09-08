@@ -100,10 +100,10 @@ class TxData extends React.Component {
    * @param {Object} token Token object to be updated
    */
   getTokenMetadata = (token) => {
-    return metadataApi.getDag(token.uid).then((data) => {
-      token.meta = data;
-      return token;
-    }).catch(err => token);
+    return metadataApi.getDag(token.uid).then((data) => ({
+      ...token,
+      meta: data,
+    })).catch(err => token);
   }
 
   /**
