@@ -25,6 +25,7 @@ class TransactionDetail extends React.Component {
 
     /**
      * transaction {Object} Loaded transaction
+     *  - `transaction.meta`: Will be created by `updateTxMetadata` with data from the explorer-service metadata
      * loaded {boolean} If had success loading transaction from the server
      * success {boolean} If a transaction was returned from the server or an error ocurred
      * meta {Object} Metadata of loaded transaction received from the server

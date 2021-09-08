@@ -31,13 +31,13 @@ const TokenMarkers = (props) => {
     let banIcon = (
       <i className="fa fa-exclamation-triangle fa-lg text-danger" title="Banned"></i>
     )
-    if (token.meta && token.meta.reason) {
+    if (token.meta.reason) {
       banIcon = (
         <div>
-        <i className="fa fa-exclamation-triangle fa-lg text-danger"></i>
-        <span className="subtitle info-hover-popover">
-          {token.meta.reason}
-        </span>
+          <i className="fa fa-exclamation-triangle fa-lg text-danger"></i>
+          <span className="subtitle info-hover-popover">
+            {token.meta.reason}
+          </span>
         </div>
       )
     }
