@@ -3,14 +3,14 @@ import { txTokenBannedMessage } from '../../messages';
 
 
 const TxAlerts = (props) => {
-  const [transaction, setTransaction] = useState(props.transaction);
+  const [tokens, setTokens] = useState(props.tokens);
 
   useEffect(() => {
-    setTransaction(props.transaction);
-  }, [props.transaction]);
+    setTokens(props.tokens);
+  }, [props.tokens]);
 
   const bannedAlert = () => {
-    if (!transaction.tokens.find(token => token.meta && token.meta.banned)) {
+    if (!tokens.find(token => token.meta && token.meta.banned)) {
       return null;
     }
 

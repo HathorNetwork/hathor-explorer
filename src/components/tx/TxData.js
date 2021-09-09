@@ -468,7 +468,7 @@ class TxData extends React.Component {
     const loadTxData = () => {
       return (
         <div className="tx-data-wrapper">
-          <TxAlerts transaction={this.props.transaction} />
+          <TxAlerts tokens={this.state.tokens}/>
           {this.props.showConflicts ? renderConflicts() : ''}
           <div><label>{hathorLib.helpers.isBlock(this.props.transaction) ? 'Block' : 'Transaction'} ID:</label> {this.props.transaction.hash}</div>
           <div className="d-flex flex-column flex-lg-row align-items-start mt-3 mb-3">
