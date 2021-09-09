@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import TxRow from '../components/TxRow';
+import TxRow from '../components/tx/TxRow';
 import hathorLib from '@hathor/wallet-lib';
 import { DASHBOARD_TX_COUNT, DASHBOARD_BLOCKS_COUNT } from '../constants';
 

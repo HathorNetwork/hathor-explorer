@@ -11,7 +11,7 @@ const TokenTitle = (props) => {
   }, [props.token]);
 
   const bannedClassName = () => {
-    if (!token.banned) {
+    if (!token.meta || !token.meta.banned) {
       return '';
     }
 

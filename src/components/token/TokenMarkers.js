@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { tokenBannedMessage } from '../../messages';
+// import { tokenBannedMessage } from '../../messages';
 
 
 const TokenMarkers = (props) => {
@@ -10,7 +10,7 @@ const TokenMarkers = (props) => {
   }, [props.token]);
 
   const verifiedMarker = () => {
-    if (!token.verified) {
+    if (!token.meta || !token.meta.verified) {
       return null;
     }
 
@@ -25,16 +25,26 @@ const TokenMarkers = (props) => {
   }
 
   const bannedMarker = () => {
-    if (!token.banned) {
+    if (!token.meta || !token.meta.banned) {
       return null;
+    }
+    let banIcon = (
+      <i className="fa fa-exclamation-triangle fa-lg text-danger" title="Banned"></i>
+    )
+    if (token.meta.reason) {
+      banIcon = (
+        <div>
+          <i className="fa fa-exclamation-triangle fa-lg text-danger"></i>
+          <span className="subtitle info-hover-popover">
+            {token.meta.reason}
+          </span>
+        </div>
+      )
     }
 
     return (
       <button className="info-hover-wrapper btn btn-link pl-2">
-        <i className="fa fa-exclamation-triangle fa-lg text-danger" title="Banned"></i>
-        <span className="subtitle info-hover-popover">
-          {tokenBannedMessage}
-        </span>
+        {banIcon}
       </button>
     )
   }

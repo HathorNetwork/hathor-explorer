@@ -10,7 +10,7 @@ const TokenAlerts = (props) => {
   }, [props.token]);
 
   const bannedAlert = () => {
-    if (!token.banned) {
+    if (!token.meta || !token.meta.banned) {
       return null;
     }
 
