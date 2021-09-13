@@ -19,7 +19,7 @@ testnet_s3_sync:
 	aws s3 sync --delete ./build/ s3://hathor-testnet-foxtrot-public-explorer
 
 .PHONY: testnet_deploy
-testnet_deploy: check_version testnet_s3_sync
+testnet_deploy: check_version testnet_s3_sync clear_cloudfront_cache
 
 .PHONY: mainnet_build
 mainnet_build:
@@ -35,7 +35,11 @@ mainnet_s3_sync:
 	aws s3 sync --delete ./build/ s3://hathor-mainnet-public-explorer
 
 .PHONY: mainnet_deploy
-mainnet_deploy: check_version check_tag mainnet_s3_sync
+mainnet_deploy: check_version check_tag mainnet_s3_sync clear_cloudfront_cache
+
+.PHONY: clear_cloudfront_cache
+clear_cloudfront_cache:
+	aws cloudfront create-invalidation --distribution-id $$CLOUDFRONT_ID --paths "/index.html"
 
 .PHONY: testnet_local
 testnet_local:
