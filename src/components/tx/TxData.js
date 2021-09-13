@@ -5,19 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
 import $ from 'jquery';
+import HathorAlert from '../HathorAlert';
+import React from 'react';
+import TokenMarkers from '../token/TokenMarkers';
+import TxAlerts from './TxAlerts';
+import TxMarkers from './TxMarkers';
+import Viz from 'viz.js';
+import dateFormatter from '../../utils/date';
+import hathorLib from '@hathor/wallet-lib';
+import helpers from '../../utils/helpers';
+import metadataApi from '../../api/metadataApi';
+import txApi from '../../api/txApi';
+import { BASE_URL, HATHOR_TOKEN_INDEX, HATHOR_TOKEN_CONFIG, MAX_GRAPH_LEVEL } from '../../constants';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Link } from 'react-router-dom'
-import HathorAlert from './HathorAlert';
-import Viz from 'viz.js';
 import { Module, render } from 'viz.js/full.render.js';
-import { MAX_GRAPH_LEVEL } from '../constants';
-import helpers from '../utils/helpers';
-import dateFormatter from '../utils/date';
-import txApi from '../api/txApi';
-import { BASE_URL, HATHOR_TOKEN_INDEX, HATHOR_TOKEN_CONFIG } from '../constants';
-import hathorLib from '@hathor/wallet-lib';
 
 
 /**
@@ -82,7 +85,25 @@ class TxData extends React.Component {
    * Add all tokens of this transaction (inputs and outputs) to the state
    */
   calculateTokens = () => {
-    this.setState({ tokens: this.props.transaction.tokens });
+    let tokens = this.props.transaction.tokens;
+
+    const metaRequests = tokens.map(token => this.getTokenMetadata(token));
+
+    Promise.all(metaRequests).then((metaResults) => {
+      this.setState({ tokens: metaResults });
+    });
+  }
+
+  /**
+   * Fetch token metadata
+   *
+   * @param {Object} token Token object to be updated
+   */
+  getTokenMetadata = (token) => {
+    return metadataApi.getDag(token.uid).then((data) => ({
+      ...token,
+      meta: data,
+    })).catch(err => token);
   }
 
   /**
@@ -112,7 +133,7 @@ class TxData extends React.Component {
   }
 
   /**
-   * Method called on copy to clipboard success  
+   * Method called on copy to clipboard success
    * Show alert success message
    *
    * @param {string} text Text copied to clipboard
@@ -399,7 +420,7 @@ class TxData extends React.Component {
       const tokens = this.state.tokens.map((token) => {
         return (
           <div key={token.uid}>
-            <span>{token.name} <strong>({token.symbol})</strong> | {renderTokenUID(token)}</span>
+            <TokenMarkers token={token} /><span>{token.name} <strong>({token.symbol})</strong> | {renderTokenUID(token)}</span>
           </div>
         );
       });
@@ -444,20 +465,15 @@ class TxData extends React.Component {
       );
     }
 
-    const renderGenesisMark = (hash) => {
-      if (helpers.isGenesisBlock(hash) || helpers.isGenesisTx(hash)) {
-        return <span className="text-info">[GENESIS]</span>
-      }
-    }
-
     const loadTxData = () => {
       return (
         <div className="tx-data-wrapper">
+          <TxAlerts tokens={this.state.tokens}/>
           {this.props.showConflicts ? renderConflicts() : ''}
           <div><label>{hathorLib.helpers.isBlock(this.props.transaction) ? 'Block' : 'Transaction'} ID:</label> {this.props.transaction.hash}</div>
           <div className="d-flex flex-column flex-lg-row align-items-start mt-3 mb-3">
             <div className="d-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
-              <div><label>Type:</label> {hathorLib.helpers.getTxType(this.props.transaction)} {renderGenesisMark(this.props.transaction.hash)}</div>
+              <div><label>Type:</label> {hathorLib.helpers.getTxType(this.props.transaction)} <TxMarkers tx={this.props.transaction} /></div>
               <div><label>Time:</label> {dateFormatter.parseTimestamp(this.props.transaction.timestamp)}</div>
               <div><label>Nonce:</label> {this.props.transaction.nonce}</div>
               <div><label>Weight:</label> {helpers.roundFloat(this.props.transaction.weight)}</div>

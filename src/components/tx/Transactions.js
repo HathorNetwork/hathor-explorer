@@ -9,12 +9,12 @@ import React from 'react';
 import ReactLoading from 'react-loading';
 import { Link } from 'react-router-dom';
 import { isEqual } from 'lodash';
-import {TX_COUNT} from '../constants';
+import {TX_COUNT} from '../../constants';
 import TxRow from './TxRow';
-import helpers from '../utils/helpers';
-import WebSocketHandler from '../WebSocketHandler';
-import colors from '../index.scss';
-import PaginationURL from '../utils/pagination';
+import helpers from '../../utils/helpers';
+import WebSocketHandler from '../../WebSocketHandler';
+import colors from '../../index.scss';
+import PaginationURL from '../../utils/pagination';
 
 
 /**

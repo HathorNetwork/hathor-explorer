@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import dateFormatter from '../utils/date';
+import dateFormatter from '../../utils/date';
 import { withRouter } from "react-router-dom";
 import hathorLib from '@hathor/wallet-lib';
 

@@ -7,14 +7,16 @@
 
 import { requestExplorerServiceV1 } from './axiosInstance';
 
-const tokenApi = {
-  get(id) {
-    return requestExplorerServiceV1().get(`token/${id}`).then((res) => {
-      return res.data
+const metadataApi = {
+  getDag(id) {
+    return requestExplorerServiceV1().get(`metadata/dag`, {params: {id}}).then((res) => {
+      if (id in res.data) {
+        return res.data[id]
+      }
     }).catch((error) => {
       // something wrong with request
     });
-  },
+  }
 };
 
-export default tokenApi;
+export default metadataApi;

@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import Transactions from '../components/Transactions';
+import Transactions from '../components/tx/Transactions';
 import txApi from '../api/txApi';
 import { TX_COUNT } from '../constants';
 

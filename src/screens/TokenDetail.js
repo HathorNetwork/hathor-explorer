@@ -6,12 +6,11 @@
  */
 
 import React from 'react';
-import Transactions from '../components/Transactions';
+import Transactions from '../components/tx/Transactions';
 import hathorLib from '@hathor/wallet-lib';
-import tokenApi from '../api/tokenApi';
+import metadataApi from '../api/metadataApi';
 import { TX_COUNT } from '../constants';
 import TokenDetailsTop from '../components/token/TokenDetailsTop';
-import TokenDetailsTopNFT from '../components/token/TokenDetailsTopNFT';
 import TokenAlerts from '../components/token/TokenAlerts';
 
 
@@ -83,7 +82,7 @@ class TokenDetail extends React.Component {
   }
 
   updateTokenMetadata = (id) => {
-    tokenApi.getMetadata(id).then((data) => {
+    metadataApi.getDag(id).then((data) => {
       if (data) {
         this.setState((oldState) => {
           return {
@@ -152,17 +151,10 @@ class TokenDetail extends React.Component {
 
     if (!this.state.token) return null;
 
-    const isNFT = () => {
-      return this.state.token.meta && this.state.token.meta.nft;
-    }
-
     return (
       <div className="content-wrapper flex align-items-center">
         <TokenAlerts token={this.state.token} />
-        { isNFT() ? 
-          <TokenDetailsTopNFT token={this.state.token} />
-          : <TokenDetailsTop token={this.state.token} />
-        }
+        <TokenDetailsTop token={this.state.token} />
         <div className='d-flex flex-column align-items-start justify-content-center mt-5'>
           <Transactions title={<h2>Transaction History</h2>} shouldUpdateList={this.shouldUpdateList} updateData={this.updateListData} />
         </div>
