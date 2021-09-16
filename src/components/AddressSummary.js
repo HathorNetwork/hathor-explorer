@@ -6,8 +6,8 @@
  */
 
 import React from 'react';
-import hathorLib from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
+import helpers from '../utils/helpers';
 
 
 class AddressSummary extends React.Component {
@@ -43,9 +43,9 @@ class AddressSummary extends React.Component {
           <div className="card-body">
             Token: {renderTokenData()}<br />
             Number of transactions: {this.props.numberOfTransactions}<br />
-            Total received: {hathorLib.helpers.prettyValue(balance.received)}<br />
-            Total spent: {hathorLib.helpers.prettyValue(balance.spent)}<br />
-            <strong>Final balance: </strong>{hathorLib.helpers.prettyValue(balance.received - balance.spent)}
+            Total received: {helpers.renderValue(balance.received, this.props.isNFT)}<br />
+            Total spent: {helpers.renderValue(balance.spent, this.props.isNFT)}<br />
+            <strong>Final balance: </strong>{helpers.renderValue(balance.received - balance.spent, this.props.isNFT)}
           </div>
         </div>
       );

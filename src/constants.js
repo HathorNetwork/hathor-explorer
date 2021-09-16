@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export const BASE_URL = process.env.REACT_APP_BASE_URL || "https://node.explorer.hathor.network/v1a/";
-export const EXPLORER_SERVICE_BASE_URL = process.env.REACT_APP_EXPLORER_SERVICE_BASE_URL || "https://explorer-service.hathor.network/";
+export const BASE_URL = process.env.REACT_APP_BASE_URL || "https://node1.foxtrot.testnet.hathor.network/v1a/";
+export const EXPLORER_SERVICE_BASE_URL = process.env.REACT_APP_EXPLORER_SERVICE_BASE_URL || "https://explorer-service.testnet.hathor.network/";
 
-let tmp_ws_url = process.env.REACT_APP_WS_URL || "wss://node.explorer.hathor.network/v1a/ws/";
+let tmp_ws_url = process.env.REACT_APP_WS_URL || "wss://node1.foxtrot.testnet.hathor.network/v1a/ws/";
 if (!(tmp_ws_url.startsWith('ws:') || tmp_ws_url.startsWith('wss:'))) {
   if (tmp_ws_url.startsWith('/')) {
     tmp_ws_url = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + tmp_ws_url;

@@ -11,6 +11,7 @@ import dateFormatter from '../utils/date';
 import hathorLib from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
 import PaginationURL from '../utils/pagination';
+import helpers from '../utils/helpers';
 
 
 class AddressHistory extends React.Component {
@@ -127,7 +128,7 @@ class AddressHistory extends React.Component {
         const value = this.calculateAddressBalance(tx);
         let statusElement = '';
         let trClass = '';
-        let prettyValue = hathorLib.helpers.prettyValue(value);
+        let prettyValue = helpers.renderValue(value, this.props.isNFT);
         if (value > 0) {
           if (tx.version === hathorLib.constants.CREATE_TOKEN_TX_VERSION) {
             statusElement = <span>Token creation <i className={`fa ml-3 fa-long-arrow-down`}></i></span>;

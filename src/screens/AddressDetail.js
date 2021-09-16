@@ -54,6 +54,7 @@ class AddressDetail extends React.Component {
     loadingHistory: false,
     errorMessage: '',
     warningRefreshPage: false,
+    selectedTokenMetadata: null,
   }
 
   componentDidMount() {
@@ -254,6 +255,8 @@ class AddressDetail extends React.Component {
           loadingSummary: false,
           selectedToken,
         });
+
+        this.getSelectedTokenMetadata(selectedToken);
       } else {
         this.setState({
           loadingSummary: false,
@@ -261,6 +264,10 @@ class AddressDetail extends React.Component {
         });
       }
     });
+  }
+
+  getSelectedTokenMetadata = (selectedToken) => {
+    // TODO get token metadata and save on state
   }
 
   /**
@@ -342,6 +349,10 @@ class AddressDetail extends React.Component {
       return null;
     }
 
+    const isNFT = () => {
+      return this.state.selectedTokenMetadata && this.state.selectedTokenMetadata.nft;
+    }
+
     const renderData = () => {
       if (this.state.errorMessage) {
         return (
@@ -362,6 +373,7 @@ class AddressDetail extends React.Component {
                 selectedToken={this.state.selectedToken}
                 numberOfTransactions={this.state.numberOfTransactions}
                 tokenSelectChanged={this.onTokenSelectChanged}
+                isNFT={isNFT()}
               />
               <AddressHistory
                 address={this.state.address}
@@ -371,6 +383,7 @@ class AddressDetail extends React.Component {
                 transactions={this.state.transactions}
                 hasAfter={this.state.hasAfter}
                 hasBefore={this.state.hasBefore}
+                isNFT={isNFT()}
               />
             </div>
           );
