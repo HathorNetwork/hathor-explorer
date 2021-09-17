@@ -36,16 +36,39 @@ class AddressSummary extends React.Component {
       );
     }
 
+    // We show 'Loading' until all metadatas are loaded
+    // to prevent switching from decimal to integer if one of the tokens is an NFT
+    const renderType = () => {
+      if (!this.props.metadataLoaded) {
+        return 'Loading...';
+      }
+
+      if (this.props.isNFT) {
+        return 'NFT';
+      } else {
+        return 'Custom token';
+      }
+    }
+
+    const renderValue = (value) => {
+      if (!this.props.metadataLoaded) {
+        return 'Loading...';
+      }
+
+      return helpers.renderValue(value, this.props.isNFT);
+    }
+
     const loadBalanceInfo = () => {
       const balance = this.props.balance[this.props.selectedToken];
       return (
         <div className="card bg-light mb-3">
           <div className="card-body">
             Token: {renderTokenData()}<br />
+            Type: {renderType()}<br />
             Number of transactions: {this.props.numberOfTransactions}<br />
-            Total received: {helpers.renderValue(balance.received, this.props.isNFT)}<br />
-            Total spent: {helpers.renderValue(balance.spent, this.props.isNFT)}<br />
-            <strong>Final balance: </strong>{helpers.renderValue(balance.received - balance.spent, this.props.isNFT)}
+            Total received: {renderValue(balance.received)}<br />
+            Total spent: {renderValue(balance.spent)}<br />
+            <strong>Final balance: </strong>{renderValue(balance.received - balance.spent)}
           </div>
         </div>
       );

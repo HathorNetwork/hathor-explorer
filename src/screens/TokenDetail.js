@@ -37,11 +37,13 @@ class TokenDetail extends React.Component {
    *            - file {string} url of file
    * errorMessage {string} error message to show
    * transactions {Array} Array of transactions for the token
+   * metadataLoaded {boolean} If token metadata was loaded
    */
   state = {
     token: null,
     errorMessage: '',
     transactions: [],
+    metadataLoaded: false,
   };
 
   componentDidMount() {
@@ -94,6 +96,8 @@ class TokenDetail extends React.Component {
           }
         });
       }
+    }).finally(() => {
+      this.setState({ metadataLoaded: true });
     });
   }
 
@@ -154,7 +158,7 @@ class TokenDetail extends React.Component {
     return (
       <div className="content-wrapper flex align-items-center">
         <TokenAlerts token={this.state.token} />
-        <TokenDetailsTop token={this.state.token} />
+        <TokenDetailsTop token={this.state.token} metadataLoaded={this.state.metadataLoaded} />
         <div className='d-flex flex-column align-items-start justify-content-center mt-5'>
           <Transactions title={<h2>Transaction History</h2>} shouldUpdateList={this.shouldUpdateList} updateData={this.updateListData} />
         </div>

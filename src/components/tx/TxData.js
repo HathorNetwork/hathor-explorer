@@ -33,8 +33,9 @@ class TxData extends React.Component {
    * raw {boolean} if should show raw transaction
    * children {boolean} if should show children (default is hidden but user can show with a click)
    * tokens {Array} tokens contained in this transaction
+   * metadataLoaded {boolean} true when all token metadatas are loaded
    */
-  state = { raw: false, children: false, tokens: [] };
+  state = { raw: false, children: false, tokens: [], metadataLoaded: false };
 
   // Array of token uid that was already found to show the symbol
   tokensFound = [];
@@ -90,7 +91,7 @@ class TxData extends React.Component {
     const metaRequests = tokens.map(token => this.getTokenMetadata(token));
 
     Promise.all(metaRequests).then((metaResults) => {
-      this.setState({ tokens: metaResults });
+      this.setState({ tokens: metaResults, metadataLoaded: true });
     });
   }
 
@@ -229,9 +230,16 @@ class TxData extends React.Component {
           return 'Unknown authority';
         }
       } else {
+        if (!this.state.metadataLoaded) {
+          // We show 'Loading' until all metadatas are loaded
+          // to prevent switching from decimal to integer if one of the tokens is an NFT
+          return 'Loading...';
+        }
+
         // if it's an NFT token we should show integer value
         const uid = this.getUIDFromTokenData(hathorLib.wallet.getTokenIndex(output.token_data));
-        const isNFT = uid in this.props.tokenMetadata && this.props.tokenMetadata[uid].nft;
+        const tokenData = this.state.tokens.find((token) => token.uid === uid);
+        const isNFT = tokenData && tokenData.meta && tokenData.meta.nft;
         return helpers.renderValue(output.value, isNFT);
       }
     }
@@ -484,14 +492,13 @@ class TxData extends React.Component {
     }
 
     const isNFTCreation = () => {
-      if (this.props.transaction.version === hathorLib.constants.CREATE_TOKEN_TX_VERSION) {
-        const createdToken = this.props.transaction.tokens[0];
-        if (createdToken in this.props.tokenMetadata) {
-          return this.props.tokenMetadata[createdToken].nft;
-        }
+      if (this.props.transaction.version !== hathorLib.constants.CREATE_TOKEN_TX_VERSION) {
+        return false;
       }
 
-      return false;
+      const createdToken = this.props.transaction.tokens[0];
+      const tokenData = this.state.tokens.find((token) => token.uid === createdToken.uid);
+      return tokenData && tokenData.meta && tokenData.meta.nft;
     }
 
     const loadTxData = () => {

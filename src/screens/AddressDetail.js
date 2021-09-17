@@ -16,6 +16,7 @@ import WebSocketHandler from '../WebSocketHandler';
 import { TX_COUNT } from '../constants';
 import { isEqual } from 'lodash';
 import helpers from '../utils/helpers';
+import metadataApi from '../api/metadataApi';
 
 
 class AddressDetail extends React.Component {
@@ -40,6 +41,8 @@ class AddressDetail extends React.Component {
    * loadingHistory {boolean} If is waiting response of data history request
    * errorMessage {String} message to be shown in case of an error
    * warningRefreshPage {boolean} If should show a warning to refresh the page to see newest data for the address
+   * selectedTokenMetadata {Object} Metadata of the selected token
+   * metadataLoaded {boolean} When the selected token metadata was loaded
    */
   state = {
     address: null,
@@ -55,6 +58,7 @@ class AddressDetail extends React.Component {
     errorMessage: '',
     warningRefreshPage: false,
     selectedTokenMetadata: null,
+    metadataLoaded: false,
   }
 
   componentDidMount() {
@@ -267,7 +271,13 @@ class AddressDetail extends React.Component {
   }
 
   getSelectedTokenMetadata = (selectedToken) => {
-    // TODO get token metadata and save on state
+    metadataApi.getDag(selectedToken).then((data) => {
+      if (data) {
+        this.setState({ selectedTokenMetadata: data });
+      }
+    }).finally(() => {
+      this.setState({ metadataLoaded: true });
+    });
   }
 
   /**
@@ -276,7 +286,7 @@ class AddressDetail extends React.Component {
    * @param {String} Value of the selected item
    */
   onTokenSelectChanged = (value) => {
-    this.setState({ selectedToken: value });
+    this.setState({ selectedToken: value, metadataLoaded: false, selectedTokenMetadata: null });
     this.updateTokenURL(value);
   }
 
@@ -374,6 +384,7 @@ class AddressDetail extends React.Component {
                 numberOfTransactions={this.state.numberOfTransactions}
                 tokenSelectChanged={this.onTokenSelectChanged}
                 isNFT={isNFT()}
+                metadataLoaded={this.state.metadataLoaded}
               />
               <AddressHistory
                 address={this.state.address}
@@ -384,6 +395,7 @@ class AddressDetail extends React.Component {
                 hasAfter={this.state.hasAfter}
                 hasBefore={this.state.hasBefore}
                 isNFT={isNFT()}
+                metadataLoaded={this.state.metadataLoaded}
               />
             </div>
           );

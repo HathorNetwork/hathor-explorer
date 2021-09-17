@@ -123,12 +123,20 @@ class AddressHistory extends React.Component {
       );
     }
 
+    const renderValue = (value) => {
+      if (!this.props.metadataLoaded) {
+        return 'Loading...';
+      }
+
+      return helpers.renderValue(value, this.props.isNFT);
+    }
+
     const loadTableBody = () => {
       return this.props.transactions.map((tx, idx) => {
         const value = this.calculateAddressBalance(tx);
         let statusElement = '';
         let trClass = '';
-        let prettyValue = helpers.renderValue(value, this.props.isNFT);
+        let prettyValue = renderValue(value);
         if (value > 0) {
           if (tx.version === hathorLib.constants.CREATE_TOKEN_TX_VERSION) {
             statusElement = <span>Token creation <i className={`fa ml-3 fa-long-arrow-down`}></i></span>;
@@ -149,6 +157,12 @@ class AddressHistory extends React.Component {
             prettyValue = '--';
           }
         }
+
+        if (!this.props.metadataLoaded) {
+          // We don't show green/red info while metadata is not loaded
+          trClass = '';
+        }
+
         return (
           <tr key={tx.tx_id} className={trClass} onClick={(e) => this.props.onRowClicked(tx.tx_id)}>
             <td className="d-none d-lg-table-cell pr-3">{hathorLib.helpers.getTxType(tx)}</td>

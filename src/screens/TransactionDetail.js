@@ -39,7 +39,6 @@ class TransactionDetail extends React.Component {
       loaded: false,
       success: null,
       confirmationData: null,
-      tokenMetadata: {},
     }
   }
 
@@ -77,19 +76,12 @@ class TransactionDetail extends React.Component {
     txApi.getTransaction(id).then((data) => {
       this.txReceived(data);
       if (data.success && !hathorLib.helpers.isBlock(data.tx)) {
-        for (const token of data.tx.tokens) {
-          this.getTokenMetadata(token.uid);
-        }
         this.getConfirmationData();
       }
     }, (e) => {
       // Error in request
       console.log(e);
     });
-  }
-
-  getTokenMetadata(token) {
-    // TODO get token metadata and save on state
   }
 
   /**
@@ -131,7 +123,7 @@ class TransactionDetail extends React.Component {
     const renderTx = () => {
       return (
         <div>
-          {this.state.transaction ? <TxData transaction={this.state.transaction} tokenMetadata={this.state.tokenMetadata} confirmationData={this.state.confirmationData} spentOutputs={this.state.spentOutputs} meta={this.state.meta} showRaw={true} showConflicts={true} showGraphs={true} /> : <p className="text-danger">Transaction with hash {this.props.match.params.id} not found</p>}
+          {this.state.transaction ? <TxData transaction={this.state.transaction} confirmationData={this.state.confirmationData} spentOutputs={this.state.spentOutputs} meta={this.state.meta} showRaw={true} showConflicts={true} showGraphs={true} /> : <p className="text-danger">Transaction with hash {this.props.match.params.id} not found</p>}
         </div>
       );
     }
