@@ -84,7 +84,7 @@ class TokenDetail extends React.Component {
   }
 
   updateTokenMetadata = (id) => {
-    metadataApi.getDag(id).then((data) => {
+    metadataApi.getDagMetadata(id).then((data) => {
       if (data) {
         this.setState((oldState) => {
           return {
@@ -96,7 +96,6 @@ class TokenDetail extends React.Component {
           }
         });
       }
-    }).finally(() => {
       this.setState({ metadataLoaded: true });
     });
   }

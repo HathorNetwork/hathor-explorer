@@ -8,9 +8,9 @@
 import { requestExplorerServiceV1 } from './axiosInstance';
 
 const metadataApi = {
-  getDag(id) {
+  getDagMetadata(id) {
     return requestExplorerServiceV1().get(`metadata/dag`, {params: {id}}).then((res) => {
-      if (id in res.data) {
+      if (res && id in res.data) {
         return res.data[id]
       }
     }).catch((error) => {

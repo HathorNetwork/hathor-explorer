@@ -271,11 +271,10 @@ class AddressDetail extends React.Component {
   }
 
   getSelectedTokenMetadata = (selectedToken) => {
-    metadataApi.getDag(selectedToken).then((data) => {
+    metadataApi.getDagMetadata(selectedToken).then((data) => {
       if (data) {
         this.setState({ selectedTokenMetadata: data });
       }
-    }).finally(() => {
       this.setState({ metadataLoaded: true });
     });
   }
