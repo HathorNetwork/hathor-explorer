@@ -16,6 +16,7 @@ import WebSocketHandler from '../WebSocketHandler';
 import { TX_COUNT } from '../constants';
 import { isEqual } from 'lodash';
 import helpers from '../utils/helpers';
+import metadataApi from '../api/metadataApi';
 
 
 class AddressDetail extends React.Component {
@@ -40,6 +41,8 @@ class AddressDetail extends React.Component {
    * loadingHistory {boolean} If is waiting response of data history request
    * errorMessage {String} message to be shown in case of an error
    * warningRefreshPage {boolean} If should show a warning to refresh the page to see newest data for the address
+   * selectedTokenMetadata {Object} Metadata of the selected token
+   * metadataLoaded {boolean} When the selected token metadata was loaded
    */
   state = {
     address: null,
@@ -54,6 +57,8 @@ class AddressDetail extends React.Component {
     loadingHistory: false,
     errorMessage: '',
     warningRefreshPage: false,
+    selectedTokenMetadata: null,
+    metadataLoaded: false,
   }
 
   componentDidMount() {
@@ -254,6 +259,8 @@ class AddressDetail extends React.Component {
           loadingSummary: false,
           selectedToken,
         });
+
+        this.getSelectedTokenMetadata(selectedToken);
       } else {
         this.setState({
           loadingSummary: false,
@@ -263,13 +270,22 @@ class AddressDetail extends React.Component {
     });
   }
 
+  getSelectedTokenMetadata = (selectedToken) => {
+    metadataApi.getDagMetadata(selectedToken).then((data) => {
+      if (data) {
+        this.setState({ selectedTokenMetadata: data });
+      }
+      this.setState({ metadataLoaded: true });
+    });
+  }
+
   /**
    * Callback to be executed when user changes token on select input
    *
    * @param {String} Value of the selected item
    */
   onTokenSelectChanged = (value) => {
-    this.setState({ selectedToken: value });
+    this.setState({ selectedToken: value, metadataLoaded: false, selectedTokenMetadata: null });
     this.updateTokenURL(value);
   }
 
@@ -342,6 +358,10 @@ class AddressDetail extends React.Component {
       return null;
     }
 
+    const isNFT = () => {
+      return this.state.selectedTokenMetadata && this.state.selectedTokenMetadata.nft;
+    }
+
     const renderData = () => {
       if (this.state.errorMessage) {
         return (
@@ -362,6 +382,8 @@ class AddressDetail extends React.Component {
                 selectedToken={this.state.selectedToken}
                 numberOfTransactions={this.state.numberOfTransactions}
                 tokenSelectChanged={this.onTokenSelectChanged}
+                isNFT={isNFT()}
+                metadataLoaded={this.state.metadataLoaded}
               />
               <AddressHistory
                 address={this.state.address}
@@ -371,6 +393,8 @@ class AddressDetail extends React.Component {
                 transactions={this.state.transactions}
                 hasAfter={this.state.hasAfter}
                 hasBefore={this.state.hasBefore}
+                isNFT={isNFT()}
+                metadataLoaded={this.state.metadataLoaded}
               />
             </div>
           );

@@ -33,8 +33,9 @@ class TxData extends React.Component {
    * raw {boolean} if should show raw transaction
    * children {boolean} if should show children (default is hidden but user can show with a click)
    * tokens {Array} tokens contained in this transaction
+   * metadataLoaded {boolean} true when all token metadatas are loaded
    */
-  state = { raw: false, children: false, tokens: [] };
+  state = { raw: false, children: false, tokens: [], metadataLoaded: false };
 
   // Array of token uid that was already found to show the symbol
   tokensFound = [];
@@ -90,7 +91,7 @@ class TxData extends React.Component {
     const metaRequests = tokens.map(token => this.getTokenMetadata(token));
 
     Promise.all(metaRequests).then((metaResults) => {
-      this.setState({ tokens: metaResults });
+      this.setState({ tokens: metaResults, metadataLoaded: true });
     });
   }
 
@@ -100,7 +101,7 @@ class TxData extends React.Component {
    * @param {Object} token Token object to be updated
    */
   getTokenMetadata = (token) => {
-    return metadataApi.getDag(token.uid).then((data) => ({
+    return metadataApi.getDagMetadata(token.uid).then((data) => ({
       ...token,
       meta: data,
     })).catch(err => token);
@@ -177,6 +178,21 @@ class TxData extends React.Component {
     return tokenConfig.symbol;
   }
 
+  /**
+   * Get uid of token from an output token data
+   *
+   * @param {number} tokenData
+   *
+   * @return {string} Token uid
+   */
+  getUIDFromTokenData = (tokenData) => {
+    if (tokenData === HATHOR_TOKEN_INDEX) {
+      return HATHOR_TOKEN_CONFIG.uid;
+    }
+    const tokenConfig = this.props.transaction.tokens[tokenData - 1];
+    return tokenConfig.uid;
+  }
+
   render() {
     const renderBlockOrTransaction = () => {
       if (hathorLib.helpers.isBlock(this.props.transaction)) {
@@ -214,7 +230,17 @@ class TxData extends React.Component {
           return 'Unknown authority';
         }
       } else {
-        return hathorLib.helpers.prettyValue(output.value);
+        if (!this.state.metadataLoaded) {
+          // We show 'Loading' until all metadatas are loaded
+          // to prevent switching from decimal to integer if one of the tokens is an NFT
+          return 'Loading...';
+        }
+
+        // if it's an NFT token we should show integer value
+        const uid = this.getUIDFromTokenData(hathorLib.wallet.getTokenIndex(output.token_data));
+        const tokenData = this.state.tokens.find((token) => token.uid === uid);
+        const isNFT = tokenData && tokenData.meta && tokenData.meta.nft;
+        return helpers.renderValue(output.value, isNFT);
       }
     }
 
@@ -465,6 +491,16 @@ class TxData extends React.Component {
       );
     }
 
+    const isNFTCreation = () => {
+      if (this.props.transaction.version !== hathorLib.constants.CREATE_TOKEN_TX_VERSION) {
+        return false;
+      }
+
+      const createdToken = this.props.transaction.tokens[0];
+      const tokenData = this.state.tokens.find((token) => token.uid === createdToken.uid);
+      return tokenData && tokenData.meta && tokenData.meta.nft;
+    }
+
     const loadTxData = () => {
       return (
         <div className="tx-data-wrapper">
@@ -473,7 +509,7 @@ class TxData extends React.Component {
           <div><label>{hathorLib.helpers.isBlock(this.props.transaction) ? 'Block' : 'Transaction'} ID:</label> {this.props.transaction.hash}</div>
           <div className="d-flex flex-column flex-lg-row align-items-start mt-3 mb-3">
             <div className="d-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
-              <div><label>Type:</label> {hathorLib.helpers.getTxType(this.props.transaction)} <TxMarkers tx={this.props.transaction} /></div>
+              <div><label>Type:</label> {hathorLib.helpers.getTxType(this.props.transaction)} {isNFTCreation() && '(NFT)'} <TxMarkers tx={this.props.transaction} /></div>
               <div><label>Time:</label> {dateFormatter.parseTimestamp(this.props.transaction.timestamp)}</div>
               <div><label>Nonce:</label> {this.props.transaction.nonce}</div>
               <div><label>Weight:</label> {helpers.roundFloat(this.props.transaction.weight)}</div>

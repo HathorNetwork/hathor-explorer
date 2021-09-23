@@ -88,7 +88,7 @@ class TransactionDetail extends React.Component {
    * Get transaction metadata from explorer service
    */
   updateTxMetadata = (id) => {
-    metadataApi.getDag(id).then((data) => {
+    metadataApi.getDagMetadata(id).then((data) => {
       if (data) {
         this.setState((oldState) => {
           return {

@@ -7,10 +7,15 @@ import TokenNFTPreview from './TokenNFTPreview';
 
 const TokenDetailsTop = (props) => {
   const [token, setToken] = useState(props.token);
+  const [metadataLoaded, setMetadataLoaded] = useState(props.metadataLoaded);
 
   useEffect(() => {
     setToken(props.token);
   }, [props.token]);
+
+  useEffect(() => {
+    setMetadataLoaded(props.metadataLoaded);
+  }, [props.metadataLoaded]);
 
   const nftPreview = () => {
     if (!token.meta || !token.meta.nft || !token.meta.nft_media) {
@@ -33,7 +38,7 @@ const TokenDetailsTop = (props) => {
       </div>
       <div className='d-flex flex-column flex-lg-row align-items-lg-stretch align-items-center justify-content-between mb-4'>
         <div className='d-flex flex-column justify-content-between'>
-          <TokenInfo token={token} />
+          <TokenInfo token={token} metadataLoaded={metadataLoaded} />
         </div>
         <div className='d-flex align-items-lg-stretch mt-4 mt-lg-0'>
           <TokenConfig token={token} />
