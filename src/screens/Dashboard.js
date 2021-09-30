@@ -40,10 +40,10 @@ class Dashboard extends React.Component {
 
     return (
       <div className="content-wrapper">
-        <p><strong>Blocks: </strong>{blocks}</p>
-        <p><strong>Height of the best chain: </strong>{height}</p>
-        <p><strong>Transactions: </strong>{transactions}</p>
-        <p><strong>Peers: </strong>{peers}</p>
+        <p><strong>Blocks: </strong>{helpers.renderValue(blocks, true)}</p>
+        <p><strong>Height of the best chain: </strong>{helpers.renderValue(height, true)}</p>
+        <p><strong>Transactions: </strong>{helpers.renderValue(transactions, true)}</p>
+        <p><strong>Peers: </strong>{helpers.renderValue(peers, true)}</p>
         <p className="color-hathor"><strong>Hash rate: </strong>{hashRate}</p>
       </div>
     );

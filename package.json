@@ -1,9 +1,9 @@
 {
   "name": "hathor-admin",
-  "version": "0.7.11",
+  "version": "0.8.0",
   "private": true,
   "dependencies": {
-    "@hathor/wallet-lib": "^0.11.1",
+    "@hathor/wallet-lib": "^0.23.1",
     "axios": "^0.17.1",
     "bootstrap": "^4.0.0",
     "d3-selection": "^1.3.2",
