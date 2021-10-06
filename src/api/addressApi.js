@@ -10,7 +10,7 @@ import { requestExplorerServiceV1 } from './axiosInstance';
 const addressApi = {
   getBalance(address) {
     return requestExplorerServiceV1().get(`node_api/address_balance`, {params: {address}}).then((res) => {
-      if (res && id in res.data) {
+      if (res && res.data) {
         return res.data
       }
     }).catch((error) => {
@@ -38,7 +38,7 @@ const addressApi = {
     }
 
     return requestExplorerServiceV1().get(`node_api/address_search`, {params: data}).then((res) => {
-      if (res && id in res.data) {
+      if (res && res.data) {
         return res.data
       }
     }).catch((error) => {
