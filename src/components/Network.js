@@ -48,6 +48,9 @@ class Network extends React.Component {
     const { match: { params } } = this.props;
 
     networkApi.getPeerList().then((peers) => {
+      if (peers.error === undefined && peers.length === 0) {
+        throw new Error("No peers present.");
+      }
       this.setState({peers}, () => {
         let peerId = peers.find(target => target === params.peerId);
         if (!peerId) {
@@ -55,7 +58,8 @@ class Network extends React.Component {
         }
         this.onPeerChange(peerId);
       });
-    }).catch(() => {
+    }).catch((ex) => {
+      console.log(ex);
       setTimeout(this.loadPeers.bind(this), 1000);
     });
   }

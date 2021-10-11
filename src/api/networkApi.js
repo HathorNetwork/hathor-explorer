@@ -10,6 +10,9 @@ import { requestExplorerServiceV1 } from './axiosInstance';
 const networkApi = {
   getPeerList() {
     return requestExplorerServiceV1().get(`node`).then((res) => {
+      if (!res.data) {
+        throw new Error("unknown_error");
+      }
       return res.data
     }).catch((res) => {
       throw new Error(res.data.message);
@@ -17,6 +20,9 @@ const networkApi = {
   },
   getPeer(hash) {
     return requestExplorerServiceV1().get(`node/${hash}`).then((res) => {
+      if (!res.data) {
+        throw new Error("unknown_error");
+      }
       return res.data
     }).catch((res) => {
       throw new Error(res.data.message);
