@@ -17,6 +17,7 @@ import { TX_COUNT } from '../constants';
 import { isEqual } from 'lodash';
 import helpers from '../utils/helpers';
 import metadataApi from '../api/metadataApi';
+import addressApi from '../api/addressApi';
 
 
 class AddressDetail extends React.Component {
@@ -178,10 +179,12 @@ class AddressDetail extends React.Component {
    * @param {Object} queryParams URL parameters
    */
   getHistoryData = (queryParams) => {
-    hathorLib.walletApi.getSearchAddress(this.state.address, TX_COUNT, queryParams.hash, queryParams.page, queryParams.token, (response) => {
+    addressApi.search(this.state.address, TX_COUNT, queryParams.hash, queryParams.page, queryParams.token).then((response) => {
       if (response.success) {
         this.handleFetchedData(response, queryParams);
       }
+      // fetch metadata for selected token
+      this.getSelectedTokenMetadata(queryParams.token);
     });
   }
 
@@ -228,7 +231,7 @@ class AddressDetail extends React.Component {
    * Request data from server and update state balance
    */
   getSummaryData = () => {
-    hathorLib.walletApi.getAddressBalance(this.state.address, (response) => {
+    addressApi.getBalance(this.state.address).then((response) => {
       if (response.success) {
         let selectedToken = '';
         if (this.state.selectedToken && this.state.selectedToken in response.tokens_data) {
