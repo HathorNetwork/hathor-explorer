@@ -279,12 +279,29 @@ class TxData extends React.Component {
           return renderNanoContractMatchValues(output.decoded);
         default:
           let script = output.script;
+          // Try to parse as script data
+          try {
+            // The output script is decoded to base64 in the full node
+            // before returning as response to the explorer in the API
+            // and the lib expects a buffer (bytes)
+            // In the future we must receive from the full node
+            // the decoded.type as script data but this still needs
+            // some refactor there that won't happen soon
+            const buff = new Buffer.from(script, 'base64');
+            const parsedData = hathorLib.scriptsUtils.parseScriptData(buff);
+            return renderDataScript(parsedData.data);
+          } catch {}
+
           try {
             script = atob(output.script)
           } catch {}
 
           return `Unable to decode script: ${script.trim()}`;
       }
+    }
+
+    const renderDataScript = (data) => {
+      return `${data} [Data Script]`;
     }
 
     const renderP2PKHorMultiSig = (decoded) => {
