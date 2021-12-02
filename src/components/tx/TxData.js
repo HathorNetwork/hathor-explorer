@@ -301,7 +301,7 @@ class TxData extends React.Component {
     }
 
     const renderDataScript = (data) => {
-      return `${data} [Data Script]`;
+      return `${data} [Data]`;
     }
 
     const renderP2PKHorMultiSig = (decoded) => {
