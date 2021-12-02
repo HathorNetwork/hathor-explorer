@@ -290,7 +290,13 @@ class TxData extends React.Component {
             const buff = new Buffer.from(script, 'base64');
             const parsedData = hathorLib.scriptsUtils.parseScriptData(buff);
             return renderDataScript(parsedData.data);
-          } catch {}
+          } catch(e) {
+            if (!(e instanceof hathorLib.errors.ParseScriptError)) {
+              // Parse script error is the expected error in case the output script
+              // is not a script data. If we get another error here, we should at least log it
+              console.log('Error parsing script data', e);
+            }
+          }
 
           try {
             script = atob(output.script)
