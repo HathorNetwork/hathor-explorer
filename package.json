@@ -1,6 +1,6 @@
 {
   "name": "hathor-admin",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "private": true,
   "dependencies": {
     "@hathor/wallet-lib": "^0.29.0",
