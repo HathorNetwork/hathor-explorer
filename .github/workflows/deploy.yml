@@ -4,6 +4,10 @@ on:
   push:
     branches: [master]
     tags: ['v*']
+  pull_request:
+    branches:
+    - dev
+    - master
 
 jobs:
   dependencies:
@@ -37,6 +41,11 @@ jobs:
           path: node_modules.tar
           if-no-files-found: error
           retention-days: 1
+  build:
+    needs: dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
       - name: Build
         run: |
           tar -xf node_modules.tar
