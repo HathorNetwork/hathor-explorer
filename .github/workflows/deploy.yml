@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Node.js 12.x
+      - name: Set up Node.js 14.x
         uses: actions/setup-node@v1
         with:
-          node-version: 12.x
+          node-version: 14.x
       - name: Cache node modules
         uses: actions/cache@v2
         env:
@@ -37,6 +37,10 @@ jobs:
           path: node_modules.tar
           if-no-files-found: error
           retention-days: 1
+      - name: Build
+        run: |
+          tar -xf node_modules.tar
+          make testnet_build
   deploy-testnet-explorer:
     if: github.ref == 'refs/heads/master'
     needs: dependencies
