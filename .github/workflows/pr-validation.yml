@@ -1,12 +1,15 @@
-name: deploy
+name: PR validation
 
 on:
   push:
-    branches: [master]
-    tags: ['v*']
+    branches: [master, dev]
+  pull_request:
+    branches:
+    - dev
+    - master
 
 jobs:
-  dependencies:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -37,8 +40,7 @@ jobs:
           path: node_modules.tar
           if-no-files-found: error
           retention-days: 1
-  deploy-testnet-explorer:
-    if: github.ref == 'refs/heads/master'
+  build:
     needs: dependencies
     runs-on: ubuntu-latest
     steps:
@@ -51,33 +53,3 @@ jobs:
         run: |
           tar -xf node_modules.tar
           make testnet_build
-      - name: Deploy Testnet Explorer
-        run: |
-          make testnet_deploy
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: 'us-east-1'
-          CLOUDFRONT_ID: E2TGO5SVP34CC3
-  deploy-mainnet-explorer:
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: dependencies
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Download node modules
-        uses: actions/download-artifact@v2
-        with:
-          name: node_modules
-      - name: Build
-        run: |
-          tar -xf node_modules.tar
-          make mainnet_build
-      - name: Deploy Mainnet Explorer
-        run: |
-          make mainnet_deploy
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: 'us-east-1'
-          CLOUDFRONT_ID: ETOC9JKCK86OG
