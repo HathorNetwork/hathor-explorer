@@ -16,7 +16,7 @@ testnet_build:
 
 .PHONY: testnet_s3_sync
 testnet_s3_sync:
-	aws s3 sync --delete ./build/ s3://hathor-testnet-foxtrot-public-explorer
+	aws s3 sync --delete ./build/ s3://hathor-testnet-golf-public-explorer
 
 .PHONY: testnet_deploy
 testnet_deploy: check_version testnet_s3_sync clear_cloudfront_cache
