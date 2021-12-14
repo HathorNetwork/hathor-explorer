@@ -8,7 +8,7 @@ check_tag:
 
 .PHONY: testnet_build
 testnet_build:
-	FULLNODE_HOST=node1.foxtrot.testnet.hathor.network; \
+	FULLNODE_HOST=node1.golf.testnet.hathor.network; \
 	export REACT_APP_BASE_URL=https://$$FULLNODE_HOST/v1a/; \
 	export REACT_APP_WS_URL=wss://$$FULLNODE_HOST/v1a/ws/; \
 	export REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.testnet.hathor.network/; \
@@ -16,7 +16,7 @@ testnet_build:
 
 .PHONY: testnet_s3_sync
 testnet_s3_sync:
-	aws s3 sync --delete ./build/ s3://hathor-testnet-foxtrot-public-explorer
+	aws s3 sync --delete ./build/ s3://hathor-testnet-golf-public-explorer
 
 .PHONY: testnet_deploy
 testnet_deploy: check_version testnet_s3_sync clear_cloudfront_cache
@@ -43,7 +43,7 @@ clear_cloudfront_cache:
 
 .PHONY: testnet_local
 testnet_local:
-	FULLNODE_HOST=node1.foxtrot.testnet.hathor.network; \
+	FULLNODE_HOST=node1.golf.testnet.hathor.network; \
 	export REACT_APP_BASE_URL=https://$$FULLNODE_HOST/v1a/; \
 	export REACT_APP_WS_URL=wss://$$FULLNODE_HOST/v1a/ws/; \
 	export REACT_APP_EXPLORER_SERVICE_BASE_URL=http://localhost:3001/dev/; \
