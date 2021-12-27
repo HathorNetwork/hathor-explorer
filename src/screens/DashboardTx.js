@@ -9,6 +9,7 @@ import React from 'react';
 import TxRow from '../components/tx/TxRow';
 import hathorLib from '@hathor/wallet-lib';
 import { DASHBOARD_TX_COUNT, DASHBOARD_BLOCKS_COUNT } from '../constants';
+import txApi from '../api/txApi';
 
 
 /**
@@ -36,9 +37,9 @@ class DashboardTx extends React.Component {
    * Get initial data to fill the screen and update the state with this data
    */
   getInitialData = () => {
-    hathorLib.txApi.getDashboardTx(DASHBOARD_BLOCKS_COUNT, DASHBOARD_TX_COUNT, (data) => {
-      this.updateData(data.transactions, data.blocks);
-    }, (e) => {
+    txApi.getDashboardTx(DASHBOARD_BLOCKS_COUNT, DASHBOARD_TX_COUNT).then(res => {
+      this.updateData(res.data.transactions, res.data.blocks);
+    }).catch((e) => {
       // Error in request
       console.log(e);
     });

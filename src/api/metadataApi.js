@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { requestExplorerServiceV1 } from './axiosInstance';
+import requestExplorerServiceV1 from './axiosInstance';
 
 const metadataApi = {
   getDagMetadata(id) {
-    return requestExplorerServiceV1().get(`metadata/dag`, {params: {id}}).then((res) => {
+    return requestExplorerServiceV1.get(`metadata/dag`, {params: {id}}).then((res) => {
       if (res && id in res.data) {
         return res.data[id]
       }

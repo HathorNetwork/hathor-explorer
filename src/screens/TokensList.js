@@ -7,6 +7,7 @@
 
 import React from 'react';
 import hathorLib from '@hathor/wallet-lib';
+import tokenApi from '../api/tokenApi';
 import ReactLoading from 'react-loading';
 import colors from '../index.scss';
 
@@ -40,7 +41,7 @@ class TokensList extends React.Component {
    * Call the API of tokens list and update component state with result
    */
   updateData = () => {
-    hathorLib.walletApi.getTokensList((response) => {
+    tokenApi.getList().then(response => {
       if (response.success) {
         this.setState({
           tokens: response.tokens,

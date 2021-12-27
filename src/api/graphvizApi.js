@@ -6,10 +6,12 @@
  */
 
 import requestExplorerServiceV1 from './axiosInstance';
+import { TX_COUNT, MAX_GRAPH_LEVEL } from '../constants';
 
-const versionApi = {
-  getVersion() {
-    return requestExplorerServiceV1.get(`node_api/version`).then((res) => {
+const graphvizApi = {
+  dotNeighbors(tx, graphType) {
+    const data = {tx, "graph_type": graphType, "max_level": MAX_GRAPH_LEVEL}
+    return requestExplorerServiceV1.get(`node_api/graphviz/neighbours.dot`, {params: data}).then((res) => {
       return res.data
     }, (res) => {
       throw new Error(res.data.message);
@@ -17,4 +19,4 @@ const versionApi = {
   }
 };
 
-export default versionApi;
+export default graphvizApi;

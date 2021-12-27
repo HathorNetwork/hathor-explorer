@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import requestClient from './axiosInstance';
+import requestExplorerServiceV1 from './axiosInstance';
 
 const txApi = {
   getTransactionBase(data) {
-    return requestClient.get(`transaction`, {params: data}).then((res) => {
+    return requestExplorerServiceV1.get(`node_api/transaction`, {params: data}).then((res) => {
       return res.data
     }, (res) => {
       throw new Error(res.data.message);
@@ -41,7 +41,7 @@ const txApi = {
 
   decodeTx(hex_tx) {
     const data = {hex_tx}
-    return requestClient.get(`decode_tx`, {params: data}).then((res) => {
+    return requestExplorerServiceV1.get(`node_api/decode_tx`, {params: data}).then((res) => {
       return res.data
     }, (res) => {
       throw new Error(res.data.message);
@@ -50,7 +50,7 @@ const txApi = {
 
   pushTx(hex_tx, force) {
     const data = {hex_tx, force}
-    return requestClient.get(`push_tx`, {params: data}).then((res) => {
+    return requestExplorerServiceV1.get(`node_api/push_tx`, {params: data}).then((res) => {
       return res.data
     }, (res) => {
       throw new Error(res.data.message);
@@ -59,7 +59,7 @@ const txApi = {
 
   getDashboardTx(block, tx) {
     const data = {block, tx}
-    return requestClient.get(`dashboard_tx`, {params: data}).then((res) => {
+    return requestExplorerServiceV1.get(`node_api/dashboard_tx`, {params: data}).then((res) => {
       return res.data
     }, (res) => {
       throw new Error(res.data.message);
@@ -77,24 +77,7 @@ const txApi = {
    */
   getConfirmationData(id) {
     const data = {id};
-    return requestClient.get(`transaction_acc_weight`, {params: data}).then((res) => {
-      return res.data;
-    }, (res) => {
-      return Promise.reject(res);
-    });
-  },
-
-  /*
-   * Call api to get graphviz
-   *
-   * @param {string} url URL to get graph data
-   *
-   * @return {Promise}
-   * @memberof ApiTransaction
-   * @inner
-   */
-  getGraphviz(url) {
-    return requestClient.get(url).then((res) => {
+    return requestExplorerServiceV1.get(`node_api/transaction_acc_weight`, {params: data}).then((res) => {
       return res.data;
     }, (res) => {
       return Promise.reject(res);

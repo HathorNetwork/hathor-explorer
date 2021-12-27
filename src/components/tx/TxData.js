@@ -17,6 +17,7 @@ import hathorLib from '@hathor/wallet-lib';
 import helpers from '../../utils/helpers';
 import metadataApi from '../../api/metadataApi';
 import txApi from '../../api/txApi';
+import graphvizApi from '../../api/graphvizApi';
 import { BASE_URL, HATHOR_TOKEN_INDEX, HATHOR_TOKEN_CONFIG, MAX_GRAPH_LEVEL } from '../../constants';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Link } from 'react-router-dom'
@@ -53,29 +54,17 @@ class TxData extends React.Component {
   }
 
   /**
-   * Returns the url to get the graph for each type
-   *
-   * @param {string} hash ID of the transaction to get the graph
-   * @param {string} type Type of graph to be returned (funds or verification)
-   */
-  graphURL = (hash, type) => {
-    return `${BASE_URL}graphviz/neighbours.dot/?tx=${hash}&graph_type=${type}&max_level=${MAX_GRAPH_LEVEL}`;
-  }
-
-  /**
    * Update graphs on the screen to add the ones from the server
    */
   updateGraphs = () => {
     const viz = new Viz({ Module, render });
-    const url1 = this.graphURL(this.props.transaction.hash, 'funds');
-    const url2 = this.graphURL(this.props.transaction.hash, 'verification');
-    txApi.getGraphviz(url1).then((response) => {
+    graphvizApi.dotNeighbors(this.props.transaction.hash, 'funds').then(response => {
       viz.renderSVGElement(response).then((element) => {
         document.getElementById('graph-funds').appendChild(element);
       });
     });
 
-    txApi.getGraphviz(url2).then((response) => {
+    graphvizApi.dotNeighbors(this.props.transaction.hash, 'verification').then(response => {
       viz.renderSVGElement(response).then((element) => {
         document.getElementById('graph-verification').appendChild(element);
       });

@@ -7,8 +7,8 @@
 
 import React from 'react';
 import Transactions from '../components/tx/Transactions';
-import hathorLib from '@hathor/wallet-lib';
 import metadataApi from '../api/metadataApi';
+import tokenApi from '../api/tokenApi';
 import { TX_COUNT } from '../constants';
 import TokenDetailsTop from '../components/token/TokenDetailsTop';
 import TokenAlerts from '../components/token/TokenAlerts';
@@ -61,7 +61,7 @@ class TokenDetail extends React.Component {
    * Upadte token info getting data from the full node (can mint, can melt, total supply)
    */
   updateTokenInfo = (id) => {
-    hathorLib.walletApi.getGeneralTokenInfo(id, (response) => {
+    tokenApi.get(id).then(response => {
       if (response.success) {
         this.setState((oldState) => {
           return {
@@ -136,7 +136,7 @@ class TokenDetail extends React.Component {
    */
   updateListData = (timestamp, hash, page) => {
     const promise = new Promise((resolve, reject) => {
-      hathorLib.walletApi.getTokenHistory(this.state.token.uid, TX_COUNT, hash, timestamp, page, (response) => {
+      tokenApi.getHistory(this.state.token.uid, timestamp, hash, page).then(response => {
         resolve(response);
       });
     });
