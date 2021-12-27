@@ -16,7 +16,7 @@ const graphvizApi = {
     }, (res) => {
       throw new Error(res.data.message);
     });
-  }
+  },
 };
 
 export default graphvizApi;

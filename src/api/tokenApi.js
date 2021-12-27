@@ -15,7 +15,7 @@ const tokenApi = {
     }, (res) => {
       throw new Error(res.data.message);
     });
-  }
+  },
 
   get(id) {
     const data = {id};
@@ -24,7 +24,7 @@ const tokenApi = {
     }, (res) => {
       throw new Error(res.data.message);
     });
-  }
+  },
 
   getHistory(id, timestamp, hash, page) {
     const data = {id, timestamp, hash, page, count: TX_COUNT};
@@ -33,7 +33,7 @@ const tokenApi = {
     }, (res) => {
       throw new Error(res.data.message);
     });
-  }
+  },
 };
 
 export default tokenApi;
