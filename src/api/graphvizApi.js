@@ -6,7 +6,7 @@
  */
 
 import requestExplorerServiceV1 from './axiosInstance';
-import { TX_COUNT, MAX_GRAPH_LEVEL } from '../constants';
+import { MAX_GRAPH_LEVEL } from '../constants';
 
 const graphvizApi = {
   dotNeighbors(tx, graphType) {

@@ -16,9 +16,8 @@ import dateFormatter from '../../utils/date';
 import hathorLib from '@hathor/wallet-lib';
 import helpers from '../../utils/helpers';
 import metadataApi from '../../api/metadataApi';
-import txApi from '../../api/txApi';
 import graphvizApi from '../../api/graphvizApi';
-import { BASE_URL, HATHOR_TOKEN_INDEX, HATHOR_TOKEN_CONFIG, MAX_GRAPH_LEVEL } from '../../constants';
+import { HATHOR_TOKEN_INDEX, HATHOR_TOKEN_CONFIG } from '../../constants';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Link } from 'react-router-dom'
 import { Module, render } from 'viz.js/full.render.js';

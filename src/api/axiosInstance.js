@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { BASE_URL, EXPLORER_SERVICE_BASE_URL } from '../constants.js';
+import { EXPLORER_SERVICE_BASE_URL } from '../constants.js';
 const axios = require('axios');
 
 const errorHandler = (error) => {

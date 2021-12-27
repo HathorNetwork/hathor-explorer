@@ -9,7 +9,6 @@ import React from 'react';
 import Transactions from '../components/tx/Transactions';
 import metadataApi from '../api/metadataApi';
 import tokenApi from '../api/tokenApi';
-import { TX_COUNT } from '../constants';
 import TokenDetailsTop from '../components/token/TokenDetailsTop';
 import TokenAlerts from '../components/token/TokenAlerts';
 
