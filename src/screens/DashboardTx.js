@@ -38,7 +38,7 @@ class DashboardTx extends React.Component {
    */
   getInitialData = () => {
     txApi.getDashboardTx(DASHBOARD_BLOCKS_COUNT, DASHBOARD_TX_COUNT).then(res => {
-      this.updateData(res.data.transactions, res.data.blocks);
+      this.updateData(res.transactions, res.blocks);
     }).catch((e) => {
       // Error in request
       console.log(e);

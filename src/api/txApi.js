@@ -8,14 +8,6 @@
 import requestExplorerServiceV1 from './axiosInstance';
 
 const txApi = {
-  getTransactionBase(data) {
-    return requestExplorerServiceV1.get(`node_api/transaction`, {params: data}).then((res) => {
-      return res.data
-    }, (res) => {
-      throw new Error(res.data.message);
-    });
-  },
-
   getTransactions(type, count, timestamp, hash, page) {
     /*
      type: 'block' or 'tx' -> if we are getting txs or blocks
@@ -31,12 +23,19 @@ const txApi = {
       data['timestamp'] = timestamp;
       data['page'] = page;
     }
-    return this.getTransactionBase(data);
+    return requestExplorerServiceV1.get(`node_api/transactions`, {params: data}).then(res => {
+      return res.data
+    }).catch(e => {
+      throw new Error(e);
+    });
   },
 
   getTransaction(id) {
-    const data = {id};
-    return this.getTransactionBase(data);
+    return requestExplorerServiceV1.get(`node_api/transaction`, {params: {id}}).then(res => {
+      return res.data
+    }).catch(e => {
+      throw new Error(e);
+    });
   },
 
   decodeTx(hex_tx) {
