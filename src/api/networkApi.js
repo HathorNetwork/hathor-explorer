@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { requestExplorerServiceV1 } from './axiosInstance';
+import requestExplorerServiceV1 from './axiosInstance';
 
 const networkApi = {
   getPeerList() {
-    return requestExplorerServiceV1().get(`node`).then((res) => {
+    return requestExplorerServiceV1.get(`node`).then((res) => {
       if (!res.data) {
         throw new Error("unknown_error");
       }
@@ -19,7 +19,7 @@ const networkApi = {
     });
   },
   getPeer(hash) {
-    return requestExplorerServiceV1().get(`node/${hash}`).then((res) => {
+    return requestExplorerServiceV1.get(`node/${hash}`).then((res) => {
       if (!res.data) {
         throw new Error("unknown_error");
       }

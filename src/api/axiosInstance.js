@@ -5,26 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { BASE_URL, EXPLORER_SERVICE_BASE_URL } from '../constants.js';
+import { EXPLORER_SERVICE_BASE_URL } from '../constants.js';
 const axios = require('axios');
 
 const errorHandler = (error) => {
   console.log("ERROR RESPONSE", error);
-}
-
-const requestClient = () => {
-  const defaultOptions = {
-    baseURL: BASE_URL,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  }
-
-  let instance = axios.create(defaultOptions);
-  instance.interceptors.response.use((response) => {
-    return response;
-  }, errorHandler);
-  return instance;
 }
 
 const requestExplorerServiceV1 = () => {
@@ -42,6 +27,4 @@ const requestExplorerServiceV1 = () => {
   return instance;
 }
 
-export default requestClient();
-
-export { requestExplorerServiceV1 };
+export default requestExplorerServiceV1();

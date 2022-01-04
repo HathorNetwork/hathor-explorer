@@ -29,7 +29,6 @@ class Dashboard extends React.Component {
 
     const blocks = this.props.data.blocks;
     const transactions = this.props.data.transactions;
-    const peers = this.props.data.peers;
     const height = this.props.data.best_block_height;
 
     const hashRateValue = parseFloat(this.props.data.hash_rate.toFixed(2));
@@ -43,7 +42,6 @@ class Dashboard extends React.Component {
         <p><strong>Blocks: </strong>{helpers.renderValue(blocks, true)}</p>
         <p><strong>Height of the best chain: </strong>{helpers.renderValue(height, true)}</p>
         <p><strong>Transactions: </strong>{helpers.renderValue(transactions, true)}</p>
-        <p><strong>Peers: </strong>{helpers.renderValue(peers, true)}</p>
         <p className="color-hathor"><strong>Hash rate: </strong>{hashRate}</p>
       </div>
     );
