@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { requestExplorerServiceV1 } from './axiosInstance';
+import requestExplorerServiceV1 from './axiosInstance';
 
 const addressApi = {
   getBalance(address) {
-    return requestExplorerServiceV1().get(`node_api/address_balance`, {params: {address}}).then((res) => {
+    return requestExplorerServiceV1.get(`node_api/address_balance`, {params: {address}}).then((res) => {
       if (res && res.data) {
         return res.data
       }
@@ -37,7 +37,7 @@ const addressApi = {
         data['token'] = token;
     }
 
-    return requestExplorerServiceV1().get(`node_api/address_search`, {params: data}).then((res) => {
+    return requestExplorerServiceV1.get(`node_api/address_search`, {params: data}).then((res) => {
       if (res && res.data) {
         return res.data
       }
