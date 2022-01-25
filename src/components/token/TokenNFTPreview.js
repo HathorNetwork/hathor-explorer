@@ -34,7 +34,9 @@ const TokenNFTPreview = (props) => {
 
   const nftType = token.meta.nft_media.type && token.meta.nft_media.type.toUpperCase();
 
-  const ext = helpers.getFileExtension(token.meta.nft_media.file);
+  // The metadata may have the media content type (useful for videos and audios) because many times the file does not have an extension.
+  // In case it's not there, we try to get from the file extension
+  const ext = token.meta.nft_media.content_type || helpers.getFileExtension(token.meta.nft_media.file);
 
   let fileType;
 
