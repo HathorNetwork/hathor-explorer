@@ -34,18 +34,23 @@ const TokenNFTPreview = (props) => {
 
   const nftType = token.meta.nft_media.type && token.meta.nft_media.type.toUpperCase();
 
-  // The metadata may have the media content type (useful for videos and audios) because many times the file does not have an extension.
+  // The metadata may have the media mime type (useful for videos and audios) because many times the file does not have an extension.
   // In case it's not there, we try to get from the file extension
-  const ext = token.meta.nft_media.content_type || helpers.getFileExtension(token.meta.nft_media.file);
+  // mimeType will already have image/png, video/mp4, application/pdf, audio/mp3
+  // so we don't need to handle anything if it's already set
+  const mimeType = token.meta.nft_media.mime_type;
 
-  let fileType;
+  let fileType = mimeType;
+  if (!fileType) {
+    const ext = helpers.getFileExtension(token.meta.nft_media.file);
 
-  if (nftType === NFT_MEDIA_TYPES.audio) {
-    fileType = AUDIO_MEDIA_TYPES_BY_EXTENSION[ext];
-  }
+    if (nftType === NFT_MEDIA_TYPES.audio) {
+      fileType = AUDIO_MEDIA_TYPES_BY_EXTENSION[ext];
+    }
 
-  if (nftType === NFT_MEDIA_TYPES.video) {
-    fileType = VIDEO_MEDIA_TYPES_BY_EXTENSION[ext];
+    if (nftType === NFT_MEDIA_TYPES.video) {
+      fileType = VIDEO_MEDIA_TYPES_BY_EXTENSION[ext];
+    }
   }
 
   let media;
