@@ -27,7 +27,7 @@ class Dashboard extends React.Component {
       );
     }
 
-    const blocks = this.props.data.blocks;
+    const orphanBlocks = this.props.data.blocks - this.props.data.best_block_height;
     const transactions = this.props.data.transactions;
     const height = this.props.data.best_block_height;
 
@@ -39,8 +39,8 @@ class Dashboard extends React.Component {
 
     return (
       <div className="content-wrapper">
-        <p><strong>Blocks: </strong>{helpers.renderValue(blocks, true)}</p>
         <p><strong>Height of the best chain: </strong>{helpers.renderValue(height, true)}</p>
+        <p><strong>Orphan blocks: </strong>{helpers.renderValue(orphanBlocks, true)}</p>
         <p><strong>Transactions: </strong>{helpers.renderValue(transactions, true)}</p>
         <p className="color-hathor"><strong>Hash rate: </strong>{hashRate}</p>
       </div>
