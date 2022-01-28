@@ -406,8 +406,12 @@ p, span {
   padding-left: 0;
 }
 
-#graph-funds svg, #graph-verification svg {
+#graph-funds svg, #graph-verification svg, #graph-neighbors svg {
   width: 100%;
+}
+
+.hidden {
+  display:none;
 }
 
 .navbar-dark .navbar-toggler {

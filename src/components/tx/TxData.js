@@ -34,40 +34,33 @@ class TxData extends React.Component {
    * children {boolean} if should show children (default is hidden but user can show with a click)
    * tokens {Array} tokens contained in this transaction
    * metadataLoaded {boolean} true when all token metadatas are loaded
+   * calculatedVerificationNeighbors {boolean} true if verification neighbors were already calculated
+   * calculatedFundNeighbors {boolean} true if fund neighbors were already calculated
+   * showVerificationNeighbors {boolean} true if user wants to see verification neighbors
+   * showFundNeighbors {boolean} true if user wants to see fund neighbors
    */
-  state = { raw: false, children: false, tokens: [], metadataLoaded: false };
+  state = {
+    raw: false,
+    children: false,
+    tokens: [],
+    metadataLoaded: false,
+    calculatedVerificationNeighbors: false,
+    calculatedFundNeighbors: false,
+    showVerificationNeighbors: false,
+    showFundNeighbors: false
+  };
 
   // Array of token uid that was already found to show the symbol
   tokensFound = [];
 
   componentDidMount = () => {
     this.calculateTokens();
-    this.updateGraphs();
   }
 
   componentDidUpdate = (prevProps) => {
     if (prevProps.transaction !== this.props.transaction) {
       this.calculateTokens();
-      this.updateGraphs();
     }
-  }
-
-  /**
-   * Update graphs on the screen to add the ones from the server
-   */
-  updateGraphs = () => {
-    const viz = new Viz({ Module, render });
-    graphvizApi.dotNeighbors(this.props.transaction.hash, 'funds').then(response => {
-      viz.renderSVGElement(response).then((element) => {
-        document.getElementById('graph-funds').appendChild(element);
-      });
-    });
-
-    graphvizApi.dotNeighbors(this.props.transaction.hash, 'verification').then(response => {
-      viz.renderSVGElement(response).then((element) => {
-        document.getElementById('graph-verification').appendChild(element);
-      });
-    });
   }
 
   /**
@@ -119,6 +112,52 @@ class TxData extends React.Component {
   toggleChildren = (e) => {
     e.preventDefault();
     this.setState({ children: !this.state.children });
+  }
+
+  /**
+   * Given a graph type, it calculates the DAG (verification or funds) and renders into the HTML element
+   *
+   * @param {string} graphType
+   */
+  calculateNeighborsGraph = async(graphType) => {
+    const viz = new Viz({ Module, render });
+
+    graphvizApi.dotNeighbors(this.props.transaction.hash, graphType).then(response => {
+      viz.renderSVGElement(response).then((element) => {
+          element.id = `graph-${graphType}`
+          document.getElementById(`graph-${graphType}`).appendChild(element);
+      });
+    });
+  }
+
+  /**
+   * Handle on/off visualization of DAG of verification
+   *
+   * @param {Event} e
+   */
+  toggleVerificationNeighbors = async(e) => {
+    e.preventDefault();
+    await this.setState({showVerificationNeighbors: !this.state.showVerificationNeighbors});
+
+    if(!this.state.calculatedVerificationNeighbors) {
+      this.calculateNeighborsGraph('verification');
+      this.setState({calculatedVerificationNeighbors: true});
+    }
+  }
+
+  /**
+   * Handle on/off visualization of DAG of funds
+   *
+   * @param {Event} e
+   */
+  toggleFundNeighbors = async(e) => {
+    e.preventDefault();
+    await this.setState({showFundNeighbors: !this.state.showFundNeighbors});
+
+    if(!this.state.calculatedFundNeighbors) {
+      this.calculateNeighborsGraph('funds');
+      this.setState({calculatedFundNeighbors: true})
+    }
   }
 
   /**
@@ -409,10 +448,12 @@ class TxData extends React.Component {
       )
     }
 
-    const renderGraph = (label, type) => {
+    const renderGraph = (label, type, toggleFunction, currentState) => {
       return (
-        <div className="mt-3 graph-div" id={`graph-${type}`} key={`graph-${type}-${this.props.transaction.hash}`}>
+        <div  id={`graph-neighbors`} key={`graph-${type}-${this.props.transaction.hash}`}>
           <label className="graph-label">{label}:</label>
+          <a href="true" className="ml-1" onClick={(e) => toggleFunction(e)}>{currentState ? 'Click to hide' : 'Click to show'}</a>
+          <div className={currentState ? undefined : 'hidden'} id={`graph-${type}`}></div>
         </div>
       );
     }
@@ -555,10 +596,10 @@ class TxData extends React.Component {
             </div>
           </div>
           <div className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
-            {this.props.showGraphs && renderGraph('Verification neighbors', 'verification')}
+            {renderGraph('Verification neighbors', 'verification', this.toggleVerificationNeighbors, this.state.showVerificationNeighbors)}
           </div>
           <div className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
-            {this.props.showGraphs && renderGraph('Funds neighbors', 'funds')}
+            {renderGraph('Funds neighbors', 'funds', this.toggleFundNeighbors, this.state.showFundNeighbors)}
           </div>
           <div className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
             {this.props.showRaw ? showRawWrapper() : null}
