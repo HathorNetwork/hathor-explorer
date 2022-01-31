@@ -140,7 +140,7 @@ class TxData extends React.Component {
     const graphvizResponse = await graphvizApi.dotNeighbors(this.props.transaction.hash, graphType);
     const element = await viz.renderSVGElement(graphvizResponse);
 
-    element.id = `graph-${graphType}`;
+    element.id = `graph-${graphType}-data`;
     document.getElementById(`graph-${graphType}`).appendChild(element);
   }
 
@@ -464,7 +464,7 @@ class TxData extends React.Component {
     const renderGraph = (graphIndex) => {
       return (
         <div className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
-          <div className="mt-3 graph-div" id={`graph-neighbors`} key={`graph-${this.state.graphs[graphIndex].name}-${this.props.transaction.hash}`}>
+          <div className="mt-3 graph-div" key={`graph-${this.state.graphs[graphIndex].name}-${this.props.transaction.hash}`}>
             <label className="graph-label">{this.state.graphs[graphIndex].label}:</label>
             <a href="true" className="ml-1" onClick={(e) => this.toggleGraph(e, graphIndex)}>{this.state.graphs[graphIndex].showNeighbors ? 'Click to hide' : 'Click to show'}</a>
             <div className={this.state.graphs[graphIndex].showNeighbors ? undefined : 'd-none'} id={`graph-${this.state.graphs[graphIndex].name}`}></div>
