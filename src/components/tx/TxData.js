@@ -21,7 +21,7 @@ import { HATHOR_TOKEN_INDEX, HATHOR_TOKEN_CONFIG } from '../../constants';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Link } from 'react-router-dom'
 import { Module, render } from 'viz.js/full.render.js';
-
+import Loading from '../Loading';
 
 /**
  * Component that renders data of a transaction (used in TransactionDetail and DecodeTx screens)
@@ -29,25 +29,40 @@ import { Module, render } from 'viz.js/full.render.js';
  * @memberof Components
  */
 class TxData extends React.Component {
+
+  /**
+   * Base states of a graph
+   */
+  baseItemGraph = {
+    calculatedNeighbors: false,
+    showNeighbors: false,
+    graphLoading: false
+  };
+
   /**
    * raw {boolean} if should show raw transaction
    * children {boolean} if should show children (default is hidden but user can show with a click)
    * tokens {Array} tokens contained in this transaction
    * metadataLoaded {boolean} true when all token metadatas are loaded
-   * calculatedVerificationNeighbors {boolean} true if verification neighbors were already calculated
-   * calculatedFundNeighbors {boolean} true if fund neighbors were already calculated
-   * showVerificationNeighbors {boolean} true if user wants to see verification neighbors
-   * showFundNeighbors {boolean} true if user wants to see fund neighbors
+   * graphs {array} hold all states that a graph needs
    */
   state = {
     raw: false,
     children: false,
     tokens: [],
     metadataLoaded: false,
-    calculatedVerificationNeighbors: false,
-    calculatedFundNeighbors: false,
-    showVerificationNeighbors: false,
-    showFundNeighbors: false
+    graphs: [
+      {
+        name: 'verification',
+        label: 'Verification neighbors',
+        ...this.baseItemGraph
+      },
+      {
+        name: 'funds',
+        label: 'Funds neighbors',
+        ...this.baseItemGraph
+      }
+    ]
   };
 
   // Array of token uid that was already found to show the symbol
@@ -119,44 +134,40 @@ class TxData extends React.Component {
    *
    * @param {string} graphType
    */
-  calculateNeighborsGraph = async(graphType) => {
+  calculateNeighborsGraph = async (graphType) => {
     const viz = new Viz({ Module, render });
 
-    graphvizApi.dotNeighbors(this.props.transaction.hash, graphType).then(response => {
+    await graphvizApi.dotNeighbors(this.props.transaction.hash, graphType).then(response => {
       viz.renderSVGElement(response).then((element) => {
-          element.id = `graph-${graphType}`
+          element.id = `graph-${graphType}`;
           document.getElementById(`graph-${graphType}`).appendChild(element);
       });
     });
   }
 
   /**
-   * Handle on/off visualization of DAG of verification
+   * Handle all the necessary events to perform the graph toggle event
    *
-   * @param {Event} e
+   * @param {e} e Event emitted when clicking the link
+   * @param {number} index Index of the graph that will be toggled
    */
-  toggleVerificationNeighbors = async(e) => {
+  toggleGraph = async (e, index) => {
     e.preventDefault();
-    await this.setState({showVerificationNeighbors: !this.state.showVerificationNeighbors});
 
-    if(!this.state.calculatedVerificationNeighbors) {
-      this.calculateNeighborsGraph('verification');
-      this.setState({calculatedVerificationNeighbors: true});
-    }
-  }
+    let graphs = [...this.state.graphs];
+    graphs[index].showNeighbors = !graphs[index].showNeighbors;
 
-  /**
-   * Handle on/off visualization of DAG of funds
-   *
-   * @param {Event} e
-   */
-  toggleFundNeighbors = async(e) => {
-    e.preventDefault();
-    await this.setState({showFundNeighbors: !this.state.showFundNeighbors});
+    this.setState({ graphs });
 
-    if(!this.state.calculatedFundNeighbors) {
-      this.calculateNeighborsGraph('funds');
-      this.setState({calculatedFundNeighbors: true})
+    if(!graphs[index].calculatedNeighbors && !graphs[index].graphLoading) {
+      graphs[index].graphLoading = true;
+      this.setState({ graphs });
+
+      await this.calculateNeighborsGraph(graphs[index].name);
+
+      graphs[index].calculatedNeighbors = true;
+      graphs[index].graphLoading = false;
+      this.setState({ graphs });
     }
   }
 
@@ -448,12 +459,15 @@ class TxData extends React.Component {
       )
     }
 
-    const renderGraph = (label, type, toggleFunction, currentState) => {
+    const renderGraph = (graphIndex) => {
       return (
-        <div  id={`graph-neighbors`} key={`graph-${type}-${this.props.transaction.hash}`}>
-          <label className="graph-label">{label}:</label>
-          <a href="true" className="ml-1" onClick={(e) => toggleFunction(e)}>{currentState ? 'Click to hide' : 'Click to show'}</a>
-          <div className={currentState ? undefined : 'hidden'} id={`graph-${type}`}></div>
+        <div className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
+          <div className="mt-3 graph-div" id={`graph-neighbors`} key={`graph-${this.state.graphs[graphIndex].name}-${this.props.transaction.hash}`}>
+            <label className="graph-label">{this.state.graphs[graphIndex].label}:</label>
+            <a href="true" className="ml-1" onClick={(e) => this.toggleGraph(e, graphIndex)}>{this.state.graphs[graphIndex].showNeighbors ? 'Click to hide' : 'Click to show'}</a>
+            <div className={this.state.graphs[graphIndex].showNeighbors ? undefined : 'd-none'} id={`graph-${this.state.graphs[graphIndex].name}`}></div>
+            {this.state.graphs[graphIndex].graphLoading ? <Loading /> : null}
+          </div>
         </div>
       );
     }
@@ -595,12 +609,7 @@ class TxData extends React.Component {
               {this.state.children && renderDivList(this.props.meta.children)}
             </div>
           </div>
-          <div className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
-            {renderGraph('Verification neighbors', 'verification', this.toggleVerificationNeighbors, this.state.showVerificationNeighbors)}
-          </div>
-          <div className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
-            {renderGraph('Funds neighbors', 'funds', this.toggleFundNeighbors, this.state.showFundNeighbors)}
-          </div>
+          { this.state.graphs.map((graph, index) => renderGraph(index)) }
           <div className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
             {this.props.showRaw ? showRawWrapper() : null}
           </div>
