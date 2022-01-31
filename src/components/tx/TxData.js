@@ -137,12 +137,11 @@ class TxData extends React.Component {
   calculateNeighborsGraph = async (graphType) => {
     const viz = new Viz({ Module, render });
 
-    await graphvizApi.dotNeighbors(this.props.transaction.hash, graphType).then(response => {
-      viz.renderSVGElement(response).then((element) => {
-          element.id = `graph-${graphType}`;
-          document.getElementById(`graph-${graphType}`).appendChild(element);
-      });
-    });
+    const graphvizResponse = await graphvizApi.dotNeighbors(this.props.transaction.hash, graphType);
+    const element = await viz.renderSVGElement(graphvizResponse);
+
+    element.id = `graph-${graphType}`;
+    document.getElementById(`graph-${graphType}`).appendChild(element);
   }
 
   /**
@@ -159,12 +158,15 @@ class TxData extends React.Component {
 
     this.setState({ graphs });
 
+    // Check if graph needs to be calculated before showing
     if(!graphs[index].calculatedNeighbors && !graphs[index].graphLoading) {
       graphs[index].graphLoading = true;
       this.setState({ graphs });
 
+      // Make the necessary requests to calculate the graph
       await this.calculateNeighborsGraph(graphs[index].name);
 
+      // Update graph status
       graphs[index].calculatedNeighbors = true;
       graphs[index].graphLoading = false;
       this.setState({ graphs });
