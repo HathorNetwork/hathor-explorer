@@ -12,7 +12,7 @@ class TokenList extends React.Component {
     render() {
         return (
             <div className="content-wrapper">
-                <Tokens title={<h1>Tokens</h1>} />
+                <Tokens title={"Tokens"} />
             </div>
         );
     }

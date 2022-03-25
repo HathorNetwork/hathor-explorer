@@ -6,10 +6,9 @@
  */
 
 import React from 'react';
-import ReactLoading from 'react-loading';
-import { Link } from 'react-router-dom';
-import colors from '../../index.scss';
-import TokenRow from './TokenRow';
+import PropTypes from 'prop-types';
+import TokensTable from './TokensTable';
+import TokenSearchField from './TokenSearchField';
 import {
     shouldRenderCustomTokens
 } from '../../feature';
@@ -22,85 +21,49 @@ class Tokens extends React.Component {
         super(props);
 
         this.state = {
-            tokens: [
-            ],
-            page: 1,
-            loaded: true,
+            tokens: [],
             hasAfter: false,
             hasBefore: false,
+            searchText: ""
         }
     }
 
+    onSearchButtonClicked = () => {
+        // TODO: Implement behavior when search button is clicked
+    }
+
+    onSearchTextChanged = (event) => {
+        this.setState({ searchText: event.target.value })
+    }
+
     render() {
-        const loadPagination = () => {
-            if (this.state.tokens.length === 0) {
-                return null;
-            } else {
-                return (
-                    <nav aria-label="Token pagination" className="d-flex justify-content-center">
-                        <ul className="pagination">
-                            <li ref="tokenPrevious" className={(!this.state.hasBefore || this.state.tokens.length === 0) ? "page-item mr-3 disabled" : "page-item mr-3"}>
-                                <Link to={this} className="page-link">Previous</Link>
-                            </li>
-                            <li ref="tokenNext" className={(!this.state.hasAfter || this.state.tokens.length === 0) ? "page-item disabled" : "page-item"}>
-                                <Link to={this} className="page-link">Next</Link>
-                            </li>
-                        </ul>
-                    </nav>
-                );
-            }
-        }
-
-        const loadTableBody = () => {
-            return this.state.tokens.map((token, idx) => {
-                return (
-                    <TokenRow key={token.id} token={token} />
-                );
-            });
-        }
-
-
-        const loadTable = () => {
-            return (
-                <div className="table-responsive mt-2">
-                    <table className="table table-striped" id="tx-table">
-                        <thead>
-                            <tr>
-                                <th className="d-lg-table-cell">UID</th>
-                                <th className="d-lg-table-cell">Name</th>
-                                <th className="d-lg-table-cell">Symbol</th>
-                                <th className="d-lg-table-cell">Type</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loadTableBody()}
-                        </tbody>
-                    </table>
-                </div>
-            );
-        }
-
-        const loadSearchField = () => {
-            return (
-                <div className="d-flex flex-row align-items-center navigation-search-token">
-                    <div className="d-flex flex-row align-items-center col-12">
-                        <input className="form-control mr-2" type="search" placeholder="Search ID, name, symbol, or type" aria-label="Search" ref="tokenSearch" />
-                        <i className="fa fa-search pointer"></i>
-                    </div>
-                </div>
-            )
-        }
-
         return (
             !shouldRenderCustomTokens ? null :
                 <div className="w-100">
-                    {this.props.title}
-                    {loadSearchField()}
-                    {!this.state.loaded ? <ReactLoading type='spin' color={colors.purpleHathor} delay={500} /> : loadTable()}
-                    {loadPagination()}
+                    <div className='col-12'>
+                        <h1>{this.props.title}</h1>
+                    </div>
+                    <TokenSearchField
+                        onSearchButtonClicked={this.onSearchButtonClicked}
+                        onSearchTextChanged={this.onSearchTextChanged}
+                        searchText={this.state.searchText}
+                    />
+                    <TokensTable
+                        tokens={this.state.tokens}
+                        hasBefore={this.state.hasBefore}
+                        hasAfter={this.state.hasAfter}
+                    />
                 </div>
         )
     }
 }
+
+/**
+ * title: Tokens Page title
+ */
+Tokens.propTypes = {
+    title: PropTypes.string.isRequired,
+};
+
 
 export default Tokens
