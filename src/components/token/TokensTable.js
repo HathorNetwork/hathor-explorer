@@ -27,7 +27,7 @@ class TokensTable extends React.Component {
         const loadTableBody = () => {
             return this.props.tokens.map((token, idx) => {
                 return (
-                    <TokenRow key={token.id} token={token} />
+                    <TokenRow key={token.uid} token={token} />
                 );
             });
         }
