@@ -6,7 +6,7 @@ class TokenSearchField extends React.Component {
         return (
             <div className="d-flex flex-row align-items-center navigation-search-token">
                 <div className="d-flex flex-row align-items-center col-12">
-                    <input className="form-control mr-2" type="search" value={this.props.searchText} onChange={this.props.onSearchTextChanged} placeholder="Search UID, name, symbol, or type" aria-label="Search" ref="tokenSearch" />
+                    <input className="form-control mr-2" type="search" value={this.props.searchText} onKeyPress={this.props.onSearchTextKeyPressed} onChange={this.props.onSearchTextChanged} placeholder="Search UID, name, symbol, or type" aria-label="Search" ref="tokenSearch" />
                     <i className="fa fa-search pointer" onClick={(e) => this.props.onSearchButtonClicked(e)}></i>
                 </div>
             </div>

@@ -11,9 +11,18 @@ import hathorLib from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
 
 class TokenRow extends React.Component {
+    /**
+     * Redirects to token detail screen after clicking on a table row
+     *
+     * @param {String} uid UID of token clicked
+     */
+    onRowClicked = (uid) => {
+        this.props.history.push(`/token_detail/${uid}`);
+    }
+
     render() {
         return (
-            <tr>
+            <tr onClick={(e) => this.onRowClicked(this.props.token.uid)}>
                 <td className="d-lg-table-cell pr-3">{hathorLib.helpers.getShortHash(this.props.token.uid)}</td>
                 <td className="d-lg-table-cell pr-3">{this.props.token.name}</td>
                 <td className="d-lg-table-cell pr-3">{this.props.token.symbol}</td>
