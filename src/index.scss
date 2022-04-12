@@ -177,6 +177,17 @@ i.pointer {
   border: none;
 }
 
+.navigation-search-token {
+  max-width: 400px;
+  padding-left: 0px;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.navigation-search-token i {
+  color: #000;
+}
+
 tr.tr-title {
   background-color: rgba(0,0,0,0.05);
   cursor: default !important;
