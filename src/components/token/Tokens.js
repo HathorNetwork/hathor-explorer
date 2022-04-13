@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import TokensTable from './TokensTable';
 import TokenSearchField from './TokenSearchField';
 import tokensApi from '../../api/tokensApi';
-import { get, forEach, isNil, last, find, isEmpty } from 'lodash';
+import { get, last, find, isEmpty } from 'lodash';
 
 import {
     shouldRenderCustomTokens
@@ -23,6 +23,19 @@ class Tokens extends React.Component {
     constructor(props) {
         super(props);
 
+        /**
+         * tokens: List of tokens currently being rendered
+         * hasAfter: Indicates if a next page exists
+         * hasBefore: Indicates if a previous page exists
+         * searchText: Input text written by user
+         * sortBy: Which field to sort (uid, name, symbol)
+         * order: If sorted field must be ordered asc or desc
+         * page: Current page. Used to know if there is a previous page
+         * pageSearchAfter: searchAfter param needed to get the next page
+         * loading: Initial loading, when user clicks on the Tokens navigation item
+         * isSearchLoading: Indicates if search results are being retrieved from explorer-service
+         * calculatingPage: Indicates if next page is being retrieved from explorer-service
+         */
         this.state = {
             tokens: [],
             hasAfter: false,
@@ -31,64 +44,91 @@ class Tokens extends React.Component {
             sortBy: "uid",
             order: "asc",
             page: 1,
-            //This variable stores the pages and its searchAfter params that is passed to explorer-service
             pageSearchAfter: [],
-            loading: true
+            loading: true,
+            isSearchLoading: false,
+            calculatingPage: false
         }
     }
 
-    componentDidMount = async() => {
+    componentDidMount = async () => {
         //"Click" on search to make the first query
         await this.onSearchButtonClicked();
-        this.setState({loading: false})
+        this.setState({ loading: false });
     }
 
+    /**
+     * After the search button is clicked, this function resets the page and searchAfter params
+     */
     resetPageSearchAfter = () => {
-        this.setState({pageSearchAfter: [
-            {
-                page: 1,
-                searchAfter: []
-            }
-        ]})
+        this.setState({
+            pageSearchAfter: [
+                {
+                    page: 1,
+                    searchAfter: []
+                }
+            ]
+        })
     }
 
+    /**
+     *
+     * Call explorer-service to get list of tokens according to the search criteria
+     *
+     * @param {*} searchAfter Parameter needed by ElasticSearch for pagination purposes
+     * @returns tokens
+     */
     getTokens = async (searchAfter) => {
-        const tokensRequest = await tokensApi.getList(this.state.searchText, this.state.sortBy, this.state.order, searchAfter)
-        let tokens = get(tokensRequest, 'data', {hits:[], 'has_next': false})
-        forEach(tokens.hits, (token) => {
-            if(isNil(token.uid)) {
-                token.uid = token.id
-            }
-            token.type = token.nft ? 'NFT' : 'Custom Token'
-        })
-
+        const tokensRequest = await tokensApi.getList(this.state.searchText, this.state.sortBy, this.state.order, searchAfter);
+        const tokens = get(tokensRequest, 'data', { hits: [], 'has_next': false });
+        tokens.hits = tokens.hits.map(token => ({ ...token, 'uid': token.id, 'nft': get(token, 'nft', false) }));
         return tokens;
     }
 
+    /**
+     * Process events when user clicks on search button
+     */
     onSearchButtonClicked = async () => {
+        this.setState({ isSearchLoading: true });
         //When search button is clicked, results return to the first page
         this.resetPageSearchAfter();
         const tokens = await this.getTokens([]);
 
-        this.setState({page: 1, tokens: tokens.hits, hasAfter: tokens.has_next, hasBefore: false})
+        this.setState({ isSearchLoading: false, page: 1, tokens: tokens.hits, hasAfter: tokens.has_next, hasBefore: false });
     }
 
+    /**
+     * Updates searchText state value when input field is changed
+     *
+     * @param {*} event
+     */
     onSearchTextChanged = (event) => {
-        this.setState({ searchText: event.target.value })
+        this.setState({ searchText: event.target.value });
     }
 
-    onSearchTextKeyPressed = (event) => {
-        if(event.charCode === 13) {
+    /**
+     * Checks if enter button is pressed. If so, treat as a button click on search icon
+     *
+     * @param {*} event
+     */
+    onSearchTextKeyUp = (event) => {
+        if (event.key === 'Enter') {
             this.onSearchButtonClicked();
         }
     }
 
+    /**
+     * Process events when next page is requested by user
+     *
+     * @param {*} event
+     */
     nextPageClicked = async (event) => {
-        const nextPage = this.state.page+1
-        let searchAfter = get(find(this.state.pageSearchAfter, {page: nextPage}), 'searchAfter', [])
+        this.setState({ calculatingPage: true });
+        const nextPage = this.state.page + 1;
+        let searchAfter = get(find(this.state.pageSearchAfter, { page: nextPage }), 'searchAfter', []);
 
         //Calculate searchAfter of next page if not already calculated
-        if(isEmpty(searchAfter)) {
+        if (isEmpty(searchAfter)) {
             const lastCurrentTokenSort = get(last(this.state.tokens), 'sort', []);
 
             const newEntry = {
@@ -96,27 +136,39 @@ class Tokens extends React.Component {
                 searchAfter: lastCurrentTokenSort
             }
 
-            this.setState({ pageSearchAfter: [...this.state.pageSearchAfter, newEntry]})
-            searchAfter = lastCurrentTokenSort
+            this.setState({ pageSearchAfter: [...this.state.pageSearchAfter, newEntry] });
+            searchAfter = lastCurrentTokenSort;
         }
 
         const tokens = await this.getTokens(searchAfter);
-        this.setState({tokens: tokens.hits, hasAfter: tokens.has_next, hasBefore: true, page: nextPage})
+        this.setState({ tokens: tokens.hits, hasAfter: tokens.has_next, hasBefore: true, page: nextPage, calculatingPage: false });
     }
 
-    previousPageClicked = async(event) => {
-        const previousPage = this.state.page-1;
-        const searchAfter = get(find(this.state.pageSearchAfter, {page: previousPage}), 'searchAfter', [])
+    /**
+     * Process events when previous page is requested by user
+     *
+     * @param {*} event
+     */
+    previousPageClicked = async (event) => {
+        this.setState({ calculatingPage: true });
+        const previousPage = this.state.page - 1;
+        const searchAfter = get(find(this.state.pageSearchAfter, { page: previousPage }), 'searchAfter', []);
 
         const tokens = await this.getTokens(searchAfter);
-        this.setState({tokens: tokens.hits, hasAfter: true, hasBefore: previousPage === 1 ? false : true, page: previousPage})
+        this.setState({ tokens: tokens.hits, hasAfter: true, hasBefore: previousPage === 1 ? false : true, page: previousPage, calculatingPage: false });
     }
 
-    tableHeaderClicked = async(event, header) => {
-        if(header === this.state.sortBy) {
-            await this.setState({order: this.state.order === "asc" ? "desc" : "asc"})
+    /**
+     * Process table header click. This indicates that user wants data to be sorted by a determined field
+     *
+     * @param {*} event
+     * @param {*} header
+     */
+    tableHeaderClicked = async (event, header) => {
+        if (header === this.state.sortBy) {
+            await this.setState({ order: this.state.order === "asc" ? "desc" : "asc" });
         } else {
-            await this.setState({sortBy: header})
+            await this.setState({ sortBy: header });
         }
 
         await this.onSearchButtonClicked();
@@ -133,7 +185,9 @@ class Tokens extends React.Component {
                         onSearchButtonClicked={this.onSearchButtonClicked}
                         onSearchTextChanged={this.onSearchTextChanged}
                         searchText={this.state.searchText}
-                        onSearchTextKeyPressed={this.onSearchTextKeyPressed}
+                        onSearchTextKeyUp={this.onSearchTextKeyUp}
+                        isSearchLoading={this.state.isSearchLoading}
+                        loading={this.state.loading}
                     />
                     <TokensTable
                         tokens={this.state.tokens}
@@ -145,6 +199,7 @@ class Tokens extends React.Component {
                         sortBy={this.state.sortBy}
                         order={this.state.order}
                         tableHeaderClicked={this.tableHeaderClicked}
+                        calculatingPage={this.state.calculatingPage}
                     />
                 </div>
         )

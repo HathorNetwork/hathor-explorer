@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import TokenRow from './TokenRow';
 import Loading from '../Loading';
-import colors from '../../index.scss';
 
 class TokensTable extends React.Component {
     render() {
@@ -11,16 +10,21 @@ class TokensTable extends React.Component {
                 return null;
             } else {
                 return (
-                    <nav aria-label="Token pagination" className="d-flex justify-content-center">
-                        <ul className="pagination">
-                            <li ref="tokenPrevious" className={(!this.props.hasBefore) ? "page-item mr-3 disabled" : "page-item mr-3"}>
-                                <button onClick={(e) => this.props.onPreviousPageClicked(e)} className="page-link">Previous</button>
-                            </li>
-                            <li ref="tokenNext" className={(!this.props.hasAfter) ? "page-item disabled" : "page-item"}>
-                                <button onClick={(e) => this.props.onNextPageClicked(e)} className="page-link">Next</button>
-                            </li>
-                        </ul>
-                    </nav>
+                    <div className="d-flex col-sm-12">
+                        <nav aria-label="Token pagination" className="d-flex offset-sm-4 col-sm-4 justify-content-center">
+                            <ul className="pagination">
+                                <li ref="tokenPrevious" className={(!this.props.hasBefore || this.props.calculatingPage) ? "page-item mr-3 disabled" : "page-item mr-3"}>
+                                    <button onClick={(e) => this.props.onPreviousPageClicked(e)} className="page-link">Previous</button>
+                                </li>
+                                <li ref="tokenNext" className={(!this.props.hasAfter || this.props.calculatingPage) ? "page-item disabled" : "page-item"}>
+                                    <button onClick={(e) => this.props.onNextPageClicked(e)} className="page-link">Next</button>
+                                </li>
+                            </ul>
+                        </nav>
+                        <div className="d-flex col-sm-4 page-loader">
+                            {this.props.calculatingPage ? <Loading width={35} height={35} useLoadingWrapper={false} showSlowLoadMessage={false} /> : null}
+                        </div>
+                    </div>
                 );
             }
         }
@@ -34,21 +38,20 @@ class TokensTable extends React.Component {
         }
 
         const loadTable = () => {
-
             const getArrow = (field) => {
                 if (field === this.props.sortBy) {
                     if (this.props.order === "asc") {
-                        return "↑"
+                        return "↑";
                     }
-                    return "↓"
+                    return "↓";
                 }
-                return ""
+                return "";
             }
 
-            if(this.props.loading) {
-                return(
-                    <Loading type='spin' color={colors.purpleHathor} delay={500} />
-                )
+            if (this.props.loading) {
+                return (
+                    <Loading />
+                );
             }
             else if (this.props.tokens.length === 0) {
                 return (
@@ -58,7 +61,7 @@ class TokensTable extends React.Component {
                             <strong> Ops! No tokens matched your query. </strong>
                         </span>
                     </div>
-                )
+                );
             } else {
                 return (
                     <div className="table-responsive col-12 mt-2">

@@ -16,9 +16,9 @@ const tokensApi = {
             "search_after": searchAfter.join(",")
         };
 
-        const result = await requestExplorerServiceV1.get(`tokens`, {params: data});
+        const result = await requestExplorerServiceV1.get(`tokens`, { params: data });
         return result;
     },
 };
 
-export default tokensApi
+export default tokensApi;
