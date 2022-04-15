@@ -58,20 +58,6 @@ class Tokens extends React.Component {
     }
 
     /**
-     * After the search button is clicked, this function resets the page and searchAfter params
-     */
-    resetPageSearchAfter = () => {
-        this.setState({
-            pageSearchAfter: [
-                {
-                    page: 1,
-                    searchAfter: []
-                }
-            ]
-        })
-    }
-
-    /**
      *
      * Call explorer-service to get list of tokens according to the search criteria
      *
@@ -90,11 +76,22 @@ class Tokens extends React.Component {
      */
     onSearchButtonClicked = async () => {
         this.setState({ isSearchLoading: true });
-        //When search button is clicked, results return to the first page
-        this.resetPageSearchAfter();
         const tokens = await this.getTokens([]);
 
-        this.setState({ isSearchLoading: false, page: 1, tokens: tokens.hits, hasAfter: tokens.has_next, hasBefore: false });
+        //When search button is clicked, results return to the first page
+        this.setState({
+            isSearchLoading: false,
+            page: 1,
+            tokens: tokens.hits,
+            hasAfter: tokens.has_next,
+            hasBefore: false,
+            pageSearchAfter: [
+                {
+                    page: 1,
+                    searchAfter: []
+                }
+            ]
+        });
     }
 
     /**
@@ -168,7 +165,7 @@ class Tokens extends React.Component {
         if (header === this.state.sortBy) {
             await this.setState({ order: this.state.order === "asc" ? "desc" : "asc" });
         } else {
-            await this.setState({ sortBy: header });
+            await this.setState({ sortBy: header, order: 'asc' });
         }
 
         await this.onSearchButtonClicked();
