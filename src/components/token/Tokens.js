@@ -31,7 +31,9 @@ class Tokens extends React.Component {
          * sortBy: Which field to sort (uid, name, symbol)
          * order: If sorted field must be ordered asc or desc
          * page: Current page. Used to know if there is a previous page
-         * pageSearchAfter: searchAfter param needed to get the next page
+         * pageSearchAfter: Calculates the searchAfter param that needs to be passed to explorer-service in order to get the next/previous page.
+         *                  We use this array to store already-calculated values,
+         *                  so we do not need to recalculate them if user is requesting an already-navigated page.
          * loading: Initial loading, when user clicks on the Tokens navigation item
          * isSearchLoading: Indicates if search results are being retrieved from explorer-service
          * calculatingPage: Indicates if next page is being retrieved from explorer-service
