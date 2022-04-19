@@ -24,7 +24,10 @@ class Tokens extends React.Component {
         super(props);
 
         /**
-         * tokens: List of tokens currently being rendered
+         * tokens: List of tokens currently being rendered.
+         *         Each token element must have the fields: id, name, symbol, nft, transaction_timestamp, and sort.
+         *         id, name, symbol are strings; nft is boolean; transaction_timestamp is long.
+         *         Sort is an array with two strings, The value is given by ElasticSearch and it is passed back when we want to change page
          * hasAfter: Indicates if a next page exists
          * hasBefore: Indicates if a previous page exists
          * searchText: Input text written by user
