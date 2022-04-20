@@ -9,6 +9,7 @@ import React from 'react';
 import { withRouter } from "react-router-dom";
 import hathorLib from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
+import dateFormatter from '../../utils/date';
 
 class TokenRow extends React.Component {
     /**
@@ -27,6 +28,7 @@ class TokenRow extends React.Component {
                 <td className="d-lg-table-cell pr-3">{this.props.token.name}</td>
                 <td className="d-lg-table-cell pr-3">{this.props.token.symbol}</td>
                 <td className="d-lg-table-cell pr-3">{this.props.token.nft ? 'NFT' : 'Custom Token'}</td>
+                <td className="d-lg-table-cell pr-3">{dateFormatter.parseTimestamp(this.props.token.transaction_timestamp)}</td>
             </tr>
         );
     }
@@ -38,13 +40,15 @@ class TokenRow extends React.Component {
  * name: Token name
  * symbol: Token symbol
  * nft: If token is NFT or a Custom Token
+ * transaction_timestamp: Timestamp of the transaction that created the token
  */
 TokenRow.propTypes = {
     token: PropTypes.shape({
         uid: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,
         symbol: PropTypes.string.isRequired,
-        nft: PropTypes.bool.isRequired
+        nft: PropTypes.bool.isRequired,
+        transaction_timestamp: PropTypes.number.isRequired
     })
 }
 
