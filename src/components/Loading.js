@@ -23,17 +23,19 @@ const Loading = (props) => {
   })
 
   return (
-    <div className="loading-wrapper">
+    <div className={props.useLoadingWrapper ? "loading-wrapper" : ""}>
       <ReactLoading {...props} />
-      { slowLoad ? <span>Still loading... Please, be patient.</span> : null }
+      {slowLoad && props.showSlowLoadMessage ? <span>Still loading... Please, be patient.</span> : null}
     </div>
-  ) 
-} 
+  )
+}
 
-Loading.defaultProps =  {
+Loading.defaultProps = {
   type: 'spin',
   color: colors.purpleHathor,
-  delay: 500
+  delay: 500,
+  showSlowLoadMessage: true,
+  useLoadingWrapper: true
 }
 
 export default Loading;
