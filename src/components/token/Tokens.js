@@ -116,6 +116,8 @@ class Tokens extends React.Component {
                 }
             ]
         });
+
+        // This is ultimately called when search text, sort, or sort order changes
         this.updateURL();
     }
 
