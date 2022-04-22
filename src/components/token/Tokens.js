@@ -11,6 +11,8 @@ import TokensTable from './TokensTable';
 import TokenSearchField from './TokenSearchField';
 import tokensApi from '../../api/tokensApi';
 import { get, last, find, isEmpty } from 'lodash';
+import PaginationURL from '../../utils/pagination';
+import { withRouter } from "react-router-dom";
 
 import {
     shouldRenderCustomTokens
@@ -20,6 +22,15 @@ import {
  * Displays custom tokens in a table with pagination buttons and a search bar.
  */
 class Tokens extends React.Component {
+    /**
+     * Structure that contains the attributes that will be part of the page URL
+     */
+    pagination = new PaginationURL({
+        'searchText': { required: false },
+        'sortBy': { required: false },
+        'order': { required: false },
+    });
+
     constructor(props) {
         super(props);
 
@@ -58,6 +69,14 @@ class Tokens extends React.Component {
 
     componentDidMount = async () => {
         //"Click" on search to make the first query
+        const queryParams = this.pagination.obtainQueryParams();
+
+        await this.setState({
+            searchText: get(queryParams, 'searchText', this.state.searchText),
+            sortBy: get(queryParams, 'sortBy', this.state.sortBy),
+            order: get(queryParams, 'order', this.state.order),
+        });
+
         await this.onSearchButtonClicked();
         this.setState({ loading: false });
     }
@@ -97,6 +116,9 @@ class Tokens extends React.Component {
                 }
             ]
         });
+
+        // This is ultimately called when search text, sort, or sort order changes
+        this.updateURL();
     }
 
     /**
@@ -117,6 +139,19 @@ class Tokens extends React.Component {
         if (event.key === 'Enter') {
             this.onSearchButtonClicked();
         }
+    }
+
+    /**
+     * Update the URL, so user can share the results of a search
+     */
+    updateURL = () => {
+        const newURL = this.pagination.setURLParameters({
+            searchText: this.state.searchText,
+            sortBy: this.state.sortBy,
+            order: this.state.order,
+        });
+
+        this.props.history.push(newURL);
     }
 
     /**
@@ -216,4 +251,4 @@ Tokens.propTypes = {
 };
 
 
-export default Tokens
+export default withRouter(Tokens)
