@@ -72,6 +72,7 @@ class TokensTable extends React.Component {
                                     <th className="d-lg-table-cell" onClick={(e) => this.props.tableHeaderClicked(e, "name")}>Name {getArrow("name")}</th>
                                     <th className="d-lg-table-cell" onClick={(e) => this.props.tableHeaderClicked(e, "symbol")}>Symbol {getArrow("symbol")}</th>
                                     <th className="d-lg-table-cell">Type</th>
+                                    <th className="d-lg-table-cell" onClick={(e) => this.props.tableHeaderClicked(e, "transaction_timestamp")}>Created At {getArrow("transaction_timestamp")}</th>
                                 </tr>
                             </thead>
                             <tbody>
