@@ -1,1 +1,1 @@
-export const shouldRenderCustomTokens = true;
+export const shouldRenderCustomTokens = false;
