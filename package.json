@@ -29,7 +29,9 @@
     "react-scripts": "^3.2.0",
     "redux": "^4.0.0",
     "sass": "^1.44.0",
-    "viz.js": "^2.1.2"
+    "viz.js": "^2.1.2",
+    "unleash-proxy-client": "^1.11.0",
+    "@unleash/proxy-client-react": "^1.0.4"
   },
   "scripts": {
     "build-css": "sass src:src",

@@ -11,10 +11,8 @@ import logo from '../assets/images/hathor-white-logo.png';
 import HathorAlert from './HathorAlert';
 import Version from './Version';
 import hathorLib from '@hathor/wallet-lib';
-import {
-  shouldRenderCustomTokens
-} from '../feature'
-
+import ConditionalNavigation from './ConditionalNavigation';
+import { REACT_APP_NETWORK } from '../constants';
 
 class Navigation extends React.Component {
   constructor(props) {
@@ -68,12 +66,7 @@ class Navigation extends React.Component {
               <li className="nav-item">
                 <NavLink to="/" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Transactions</NavLink>
               </li>
-              {
-                shouldRenderCustomTokens ?
-                  <li className="nav-item">
-                    <NavLink to="/tokens" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Tokens</NavLink>
-                  </li> : null
-              }
+              <ConditionalNavigation to="/tokens" label="Tokens" featureToggle={`explorer-tokens-${REACT_APP_NETWORK}.rollout`} />
               <li className="nav-item">
                 <NavLink to="/network" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Network</NavLink>
               </li>

@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import TokenRow from './TokenRow';
 import Loading from '../Loading';
+import TokenErrorMessage from './TokenErrorMessage'
 
 class TokensTable extends React.Component {
     render() {
@@ -55,12 +56,7 @@ class TokensTable extends React.Component {
             }
             else if (this.props.tokens.length === 0) {
                 return (
-                    <div className='col-12'>
-                        <span>
-                            <i className={`fa fa-frown-o`}></i>
-                            <strong> Ops! No tokens matched your query. </strong>
-                        </span>
-                    </div>
+                    <TokenErrorMessage message="Ops! No tokens matched your query." />
                 );
             } else {
                 return (

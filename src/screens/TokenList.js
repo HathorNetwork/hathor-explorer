@@ -7,15 +7,17 @@
 
 import React from 'react';
 import Tokens from '../components/token/Tokens'
+import { useFlag } from '@unleash/proxy-client-react';
+import { REACT_APP_NETWORK } from '../constants'
 
-class TokenList extends React.Component {
-    render() {
-        return (
-            <div className="content-wrapper">
-                <Tokens title={"Tokens"} />
-            </div>
-        );
-    }
-};
+const TokenList = () => {
+    const maintenanceMode = useFlag(`explorer-tokens-${REACT_APP_NETWORK}.maintenance`);
+
+    return (
+        <div className="content-wrapper">
+            <Tokens title={"Tokens"} maintenanceMode={maintenanceMode} />
+        </div>
+    );
+}
 
 export default TokenList;
