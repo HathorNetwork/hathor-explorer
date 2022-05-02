@@ -13,7 +13,7 @@ import tokensApi from '../../api/tokensApi';
 import { get, last, find, isEmpty } from 'lodash';
 import PaginationURL from '../../utils/pagination';
 import { withRouter } from "react-router-dom";
-import TokenErrorMessage from './TokenErrorMessage'
+import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon'
 
 /**
  * Displays custom tokens in a table with pagination buttons and a search bar.
@@ -93,6 +93,7 @@ class Tokens extends React.Component {
      */
     getTokens = async (searchAfter) => {
         const tokensRequest = await tokensApi.getList(this.state.searchText, this.state.sortBy, this.state.order, searchAfter);
+        this.setState({ error: get(tokensRequest, 'error', false) });
         const tokens = get(tokensRequest, 'data', { hits: [], 'has_next': false });
         tokens.hits = tokens.hits.map(token => ({ ...token, 'uid': token.id, 'nft': get(token, 'nft', false) }));
         return tokens;
@@ -215,40 +216,52 @@ class Tokens extends React.Component {
     }
 
     render() {
+        const renderSearchField = () => {
+            if (this.state.maintenanceMode) {
+                return <ErrorMessageWithIcon message="This feature is under maintenance. Please try again after some time" />;
+            }
+
+            return <TokenSearchField
+                onSearchButtonClicked={this.onSearchButtonClicked}
+                onSearchTextChanged={this.onSearchTextChanged}
+                searchText={this.state.searchText}
+                onSearchTextKeyUp={this.onSearchTextKeyUp}
+                isSearchLoading={this.state.isSearchLoading}
+                loading={this.state.loading}
+            />;
+        }
+
+        const renderTokensTable = () => {
+            if (this.state.maintenanceMode) {
+                return null;
+            }
+
+            if (this.state.error) {
+                return <ErrorMessageWithIcon message="Error loading tokens. Please try again." />;
+            }
+
+            return <TokensTable
+                tokens={this.state.tokens}
+                hasBefore={this.state.hasBefore}
+                hasAfter={this.state.hasAfter}
+                onNextPageClicked={this.nextPageClicked}
+                onPreviousPageClicked={this.previousPageClicked}
+                loading={this.state.loading}
+                sortBy={this.state.sortBy}
+                order={this.state.order}
+                tableHeaderClicked={this.tableHeaderClicked}
+                calculatingPage={this.state.calculatingPage}
+            />;
+        }
+
+
         return (
             <div className="w-100">
                 <div className='col-12'>
                     <h1>{this.props.title}</h1>
                 </div>
-                {
-                    this.state.maintenanceMode ?
-                        <TokenErrorMessage message="This feature is under maintenance. Please try again after some time" /> :
-                        <>
-                            <TokenSearchField
-                                onSearchButtonClicked={this.onSearchButtonClicked}
-                                onSearchTextChanged={this.onSearchTextChanged}
-                                searchText={this.state.searchText}
-                                onSearchTextKeyUp={this.onSearchTextKeyUp}
-                                isSearchLoading={this.state.isSearchLoading}
-                                loading={this.state.loading}
-                            />
-                            {this.state.error ?
-                                <TokenErrorMessage message="Error loading tokens. Please try again." /> :
-                                <TokensTable
-                                    tokens={this.state.tokens}
-                                    hasBefore={this.state.hasBefore}
-                                    hasAfter={this.state.hasAfter}
-                                    onNextPageClicked={this.nextPageClicked}
-                                    onPreviousPageClicked={this.previousPageClicked}
-                                    loading={this.state.loading}
-                                    sortBy={this.state.sortBy}
-                                    order={this.state.order}
-                                    tableHeaderClicked={this.tableHeaderClicked}
-                                    calculatingPage={this.state.calculatingPage}
-                                />
-                            }
-                        </>
-                }
+                {renderSearchField()}
+                {renderTokensTable()}
             </div>
         )
     }

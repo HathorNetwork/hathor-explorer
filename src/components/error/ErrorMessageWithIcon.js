@@ -1,6 +1,6 @@
 import React from "react";
 
-const TokenErrorMessage = (props) => {
+const ErrorMessageWithIcon = (props) => {
     return (
         <div className='col-12'>
             <span>
@@ -11,4 +11,4 @@ const TokenErrorMessage = (props) => {
     )
 }
 
-export default TokenErrorMessage;
+export default ErrorMessageWithIcon;
