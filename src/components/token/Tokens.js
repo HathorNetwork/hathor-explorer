@@ -13,10 +13,7 @@ import tokensApi from '../../api/tokensApi';
 import { get, last, find, isEmpty } from 'lodash';
 import PaginationURL from '../../utils/pagination';
 import { withRouter } from "react-router-dom";
-
-import {
-    shouldRenderCustomTokens
-} from '../../feature';
+import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon'
 
 /**
  * Displays custom tokens in a table with pagination buttons and a search bar.
@@ -51,6 +48,9 @@ class Tokens extends React.Component {
          * loading: Initial loading, when user clicks on the Tokens navigation item
          * isSearchLoading: Indicates if search results are being retrieved from explorer-service
          * calculatingPage: Indicates if next page is being retrieved from explorer-service
+         * error: Indicates if an unexpected error happened when calling the explorer-service
+         * maintenanceMode: Indicates if explorer-service or its downstream services are experiencing problems. If so, maintenance mode is enabled as
+         *                  a "circuit breaker" to remove additional load until the team fixes the problem
          */
         this.state = {
             tokens: [],
@@ -63,21 +63,25 @@ class Tokens extends React.Component {
             pageSearchAfter: [],
             loading: true,
             isSearchLoading: false,
-            calculatingPage: false
+            calculatingPage: false,
+            error: false,
+            maintenanceMode: this.props.maintenanceMode
         }
     }
 
     componentDidMount = async () => {
-        //"Click" on search to make the first query
-        const queryParams = this.pagination.obtainQueryParams();
+        if (!this.state.maintenanceMode) {
+            //"Click" on search to make the first query
+            const queryParams = this.pagination.obtainQueryParams();
 
-        await this.setState({
-            searchText: get(queryParams, 'searchText', this.state.searchText),
-            sortBy: get(queryParams, 'sortBy', this.state.sortBy),
-            order: get(queryParams, 'order', this.state.order),
-        });
+            await this.setState({
+                searchText: get(queryParams, 'searchText', this.state.searchText),
+                sortBy: get(queryParams, 'sortBy', this.state.sortBy),
+                order: get(queryParams, 'order', this.state.order),
+            });
 
-        await this.onSearchButtonClicked();
+            await this.onSearchButtonClicked();
+        }
         this.setState({ loading: false });
     }
 
@@ -90,6 +94,7 @@ class Tokens extends React.Component {
      */
     getTokens = async (searchAfter) => {
         const tokensRequest = await tokensApi.getList(this.state.searchText, this.state.sortBy, this.state.order, searchAfter);
+        this.setState({ error: get(tokensRequest, 'error', false) });
         const tokens = get(tokensRequest, 'data', { hits: [], 'has_next': false });
         tokens.hits = tokens.hits.map(token => ({ ...token, 'uid': token.id, 'nft': get(token, 'nft', false) }));
         return tokens;
@@ -212,42 +217,64 @@ class Tokens extends React.Component {
     }
 
     render() {
+        const renderSearchField = () => {
+            if (this.state.maintenanceMode) {
+                return <ErrorMessageWithIcon message="This feature is under maintenance. Please try again after some time" />;
+            }
+
+            return <TokenSearchField
+                onSearchButtonClicked={this.onSearchButtonClicked}
+                onSearchTextChanged={this.onSearchTextChanged}
+                searchText={this.state.searchText}
+                onSearchTextKeyUp={this.onSearchTextKeyUp}
+                isSearchLoading={this.state.isSearchLoading}
+                loading={this.state.loading}
+            />;
+        }
+
+        const renderTokensTable = () => {
+            if (this.state.maintenanceMode) {
+                return null;
+            }
+
+            if (this.state.error) {
+                return <ErrorMessageWithIcon message="Error loading tokens. Please try again." />;
+            }
+
+            return <TokensTable
+                tokens={this.state.tokens}
+                hasBefore={this.state.hasBefore}
+                hasAfter={this.state.hasAfter}
+                onNextPageClicked={this.nextPageClicked}
+                onPreviousPageClicked={this.previousPageClicked}
+                loading={this.state.loading}
+                sortBy={this.state.sortBy}
+                order={this.state.order}
+                tableHeaderClicked={this.tableHeaderClicked}
+                calculatingPage={this.state.calculatingPage}
+            />;
+        }
+
+
         return (
-            !shouldRenderCustomTokens ? null :
-                <div className="w-100">
-                    <div className='col-12'>
-                        <h1>{this.props.title}</h1>
-                    </div>
-                    <TokenSearchField
-                        onSearchButtonClicked={this.onSearchButtonClicked}
-                        onSearchTextChanged={this.onSearchTextChanged}
-                        searchText={this.state.searchText}
-                        onSearchTextKeyUp={this.onSearchTextKeyUp}
-                        isSearchLoading={this.state.isSearchLoading}
-                        loading={this.state.loading}
-                    />
-                    <TokensTable
-                        tokens={this.state.tokens}
-                        hasBefore={this.state.hasBefore}
-                        hasAfter={this.state.hasAfter}
-                        onNextPageClicked={this.nextPageClicked}
-                        onPreviousPageClicked={this.previousPageClicked}
-                        loading={this.state.loading}
-                        sortBy={this.state.sortBy}
-                        order={this.state.order}
-                        tableHeaderClicked={this.tableHeaderClicked}
-                        calculatingPage={this.state.calculatingPage}
-                    />
+            <div className="w-100">
+                <div className='col-12'>
+                    <h1>{this.props.title}</h1>
                 </div>
+                {renderSearchField()}
+                {renderTokensTable()}
+            </div>
         )
     }
 }
 
 /**
  * title: Tokens Page title
+ * maintenanceMode: A "circuit breaker" to remove additional load when a problem is affecting explorer-service or its downstream services
  */
 Tokens.propTypes = {
     title: PropTypes.string.isRequired,
+    maintenanceMode: PropTypes.bool.isRequired
 };
 
 

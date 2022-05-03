@@ -7,15 +7,17 @@
 
 import React from 'react';
 import Tokens from '../components/token/Tokens'
+import { useFlag } from '@unleash/proxy-client-react';
+import { UNLEASH_TOKENS_BASE_FEATURE_FLAG } from '../constants'
 
-class TokenList extends React.Component {
-    render() {
-        return (
-            <div className="content-wrapper">
-                <Tokens title={"Tokens"} />
-            </div>
-        );
-    }
-};
+const TokenList = () => {
+    const maintenanceMode = useFlag(`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.maintenance`);
+
+    return (
+        <div className="content-wrapper">
+            <Tokens title={"Tokens"} maintenanceMode={maintenanceMode} />
+        </div>
+    );
+}
 
 export default TokenList;

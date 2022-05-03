@@ -12,6 +12,7 @@ testnet_build:
 	export REACT_APP_BASE_URL=https://$$FULLNODE_HOST/v1a/; \
 	export REACT_APP_WS_URL=wss://$$FULLNODE_HOST/v1a/ws/; \
 	export REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.testnet.hathor.network/; \
+	export REACT_APP_NETWORK=testnet; \
 	npm run build
 
 .PHONY: testnet_s3_sync
@@ -28,6 +29,7 @@ mainnet_build:
 	export REACT_APP_WS_URL=wss://$$FULLNODE_HOST/v1a/ws/; \
 	export REACT_APP_GTM_ID=GTM-MJVX6BG; \
 	export REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.hathor.network/; \
+	export REACT_APP_NETWORK=mainnet; \
 	npm run build
 
 .PHONY: mainnet_s3_sync
@@ -47,4 +49,5 @@ testnet_local:
 	export REACT_APP_BASE_URL=https://$$FULLNODE_HOST/v1a/; \
 	export REACT_APP_WS_URL=wss://$$FULLNODE_HOST/v1a/ws/; \
 	export REACT_APP_EXPLORER_SERVICE_BASE_URL=http://localhost:3001/dev/; \
+	export REACT_APP_NETWORK=testnet; \
 	npm run start
