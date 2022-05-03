@@ -13,10 +13,14 @@ const ConditionalNavigation = ({ featureToggle, to, label }) => {
 }
 
 /**
+ * featureToggle: The feature flag that will be evaluated to check if this component must be rendered
  * label: Navigation link that will render if feature toggle is enabled
+ * to: Where this navigation link will point to
  */
 ConditionalNavigation.propTypes = {
-    label: PropTypes.string.isRequired
+    featureToggle: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    to: PropTypes.string.isRequired
 }
 
 export default ConditionalNavigation;
