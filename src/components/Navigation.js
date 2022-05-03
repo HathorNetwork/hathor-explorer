@@ -12,7 +12,7 @@ import HathorAlert from './HathorAlert';
 import Version from './Version';
 import hathorLib from '@hathor/wallet-lib';
 import ConditionalNavigation from './ConditionalNavigation';
-import { REACT_APP_NETWORK } from '../constants';
+import { UNLEASH_TOKENS_BASE_FEATURE_FLAG } from '../constants';
 
 class Navigation extends React.Component {
   constructor(props) {
@@ -66,7 +66,7 @@ class Navigation extends React.Component {
               <li className="nav-item">
                 <NavLink to="/" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Transactions</NavLink>
               </li>
-              <ConditionalNavigation to="/tokens" label="Tokens" featureToggle={`explorer-tokens-${REACT_APP_NETWORK}.rollout`} />
+              <ConditionalNavigation to="/tokens" label="Tokens" featureToggle={`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`} />
               <li className="nav-item">
                 <NavLink to="/network" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Network</NavLink>
               </li>

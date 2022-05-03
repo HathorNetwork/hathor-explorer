@@ -8,10 +8,10 @@
 import React from 'react';
 import Tokens from '../components/token/Tokens'
 import { useFlag } from '@unleash/proxy-client-react';
-import { REACT_APP_NETWORK } from '../constants'
+import { UNLEASH_TOKENS_BASE_FEATURE_FLAG } from '../constants'
 
 const TokenList = () => {
-    const maintenanceMode = useFlag(`explorer-tokens-${REACT_APP_NETWORK}.maintenance`);
+    const maintenanceMode = useFlag(`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.maintenance`);
 
     return (
         <div className="content-wrapper">

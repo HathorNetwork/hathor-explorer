@@ -48,8 +48,9 @@ class Tokens extends React.Component {
          * loading: Initial loading, when user clicks on the Tokens navigation item
          * isSearchLoading: Indicates if search results are being retrieved from explorer-service
          * calculatingPage: Indicates if next page is being retrieved from explorer-service
-         * error: Indicates if and unexpected error happened when calling the explorer-service
-         * maintenanceMode: Indicates if explorer-service or its downstream services are expecting 
+         * error: Indicates if an unexpected error happened when calling the explorer-service
+         * maintenanceMode: Indicates if explorer-service or its downstream services are experiencing problems. If so, maintenance mode is enabled as
+         *                  a "circuit breaker" to remove additional load until the team fixes the problem
          */
         this.state = {
             tokens: [],
@@ -269,9 +270,11 @@ class Tokens extends React.Component {
 
 /**
  * title: Tokens Page title
+ * maintenanceMode: A "circuit breaker" to remove additional load when a problem is affecting explorer-service or its downstream services
  */
 Tokens.propTypes = {
     title: PropTypes.string.isRequired,
+    maintenanceMode: PropTypes.bool.isRequired
 };
 
 

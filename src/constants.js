@@ -98,3 +98,5 @@ export const UNLEASH_CONFIG = {
   refreshInterval: 15,
   appName: 'explorer'
 }
+
+export const UNLEASH_TOKENS_BASE_FEATURE_FLAG = `explorer-tokens-${REACT_APP_NETWORK}`;
