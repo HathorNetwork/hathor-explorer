@@ -7,6 +7,7 @@
 
 export const BASE_URL = process.env.REACT_APP_BASE_URL || "https://node.explorer.hathor.network/v1a/";
 export const EXPLORER_SERVICE_BASE_URL = process.env.REACT_APP_EXPLORER_SERVICE_BASE_URL || "https://explorer-service.hathor.network/";
+export const REACT_APP_NETWORK = process.env.REACT_APP_NETWORK || "mainnet";
 
 let tmp_ws_url = process.env.REACT_APP_WS_URL || "wss://node.explorer.hathor.network/v1a/ws/";
 if (!(tmp_ws_url.startsWith('ws:') || tmp_ws_url.startsWith('wss:'))) {
@@ -45,7 +46,7 @@ export const TESTNET_GENESIS_TX = [
 
 export const DECIMAL_PLACES = 2;
 
-export const VERSION = '0.10.7';
+export const VERSION = '0.11.0';
 
 export const MIN_API_VERSION = '0.33.0';
 
@@ -86,3 +87,16 @@ export const AUDIO_MEDIA_TYPES_BY_EXTENSION = {
   mp3: 'audio/mpeg',
   wav: 'audio/wav'
 }
+
+
+/**
+ * Unleash config
+ */
+export const UNLEASH_CONFIG = {
+  url: 'https://unleash-proxy.b7e6a7f52ee9fefaf0c53e300cfcb014.hathor.network/proxy',
+  clientKey: 'wKNhpEXKa39aTRgIjcNsO4Im618bRGTq',
+  refreshInterval: 15,
+  appName: 'explorer'
+}
+
+export const UNLEASH_TOKENS_BASE_FEATURE_FLAG = `explorer-tokens-${REACT_APP_NETWORK}`;
