@@ -100,3 +100,4 @@ export const UNLEASH_CONFIG = {
 }
 
 export const UNLEASH_TOKENS_BASE_FEATURE_FLAG = `explorer-tokens-${REACT_APP_NETWORK}`;
+export const UNLEASH_TOKEN_BALANCES_FEATURE_FLAG = `explorer-address-list-${REACT_APP_NETWORK}`;
