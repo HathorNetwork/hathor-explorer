@@ -1,8 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import TokenRow from './TokenRow';
-import Loading from '../Loading';
-import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon';
 import SortableTable from '../SortableTable';
 
 class TokensTable extends SortableTable {
@@ -20,7 +17,7 @@ class TokensTable extends SortableTable {
   }
 
   renderTableBody() {
-    return this.props.data.map((token, idx) => {
+    return this.props.data.map((token) => {
       return (
         <TokenRow key={token.uid} token={token} />
       );

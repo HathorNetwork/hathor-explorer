@@ -8,7 +8,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import TokenBalancesTable from './TokenBalancesTable';
-import TokenSearchField from './TokenSearchField';
 import tokensApi from '../../api/tokensApi';
 import { get, last, find, isEmpty } from 'lodash';
 import PaginationURL from '../../utils/pagination';
@@ -274,15 +273,6 @@ class TokenBalances extends React.Component {
     await this.onSearchButtonClicked();
   }
 
-  /**
-   * Redirects to token detail screen after clicking on a table row
-   *
-   * @param {String} uid UID of token clicked
-   */
-  onTokenDetailsClick = (uid) => {
-    this.props.history.push(`/token_detail/${uid}`);
-  }
-
   render() {
     if (this.state.maintenanceMode) {
       return <ErrorMessageWithIcon message='This feature is under maintenance. Please try again after some time' />;
@@ -325,7 +315,7 @@ class TokenBalances extends React.Component {
           {
             this.state.tokenId !== '00' && (
               <p>
-                <a href="" onClick={() => this.onTokenDetailsClick(this.state.tokenId)}>
+                <a href={`/token_detail/${this.state.tokenId}`}>
                   Click here to see the token details
                 </a>
               </p>

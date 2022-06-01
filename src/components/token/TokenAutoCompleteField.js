@@ -1,9 +1,8 @@
-import React, { createRef } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types';
 import Loading from '../Loading';
 import tokensApi from '../../api/tokensApi';
 import { debounce, get } from 'lodash';
-import { helpers } from '@hathor/wallet-lib';
 
 const DEBOUNCE_SEARCH_TIME = 200; // ms
 

@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import TokenBalanceRow from './TokenBalanceRow';
-import Loading from '../Loading';
-import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon';
 import SortableTable from '../SortableTable';
 
 class TokenBalancesTable extends SortableTable {
