@@ -32,8 +32,9 @@ const tokensApi = {
     return result;
   },
 
-  async getBalances(searchText, sortBy, order, searchAfter) {
+  async getBalances(tokenId, searchText, sortBy, order, searchAfter) {
     const data = {
+      'token_id': tokenId,
       'search_text': searchText,
       'sort_by': sortBy,
       'order': order,
