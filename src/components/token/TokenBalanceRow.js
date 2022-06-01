@@ -23,7 +23,7 @@ class TokenBalanceRow extends React.Component {
   render() {
     return (
       <tr onClick={(e) => this.onRowClicked(this.props.address)}>
-        <td className="d-lg-table-cell pr-3">{this.props.address}</td>
+        <td className="d-lg-table-cell pr-3"><a href="#">{this.props.address}</a></td>
         <td className="d-lg-table-cell pr-3">{helpers.prettyValue(this.props.total)}</td>
         <td className="d-lg-table-cell pr-3">{helpers.prettyValue(this.props.unlocked)}</td>
         <td className="d-lg-table-cell pr-3">{helpers.prettyValue(this.props.locked)}</td>
