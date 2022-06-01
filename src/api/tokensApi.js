@@ -14,7 +14,7 @@ const tokensApi = {
       'search_text': searchText,
       'sort_by': sortBy,
       'order': order,
-      'search_after': searchAfter.join(',')
+      'search_after': searchAfter.join(','),
     };
 
     let result = await requestExplorerServiceV1.get(`tokens`, { params: data });
@@ -22,9 +22,9 @@ const tokensApi = {
     // If status is not retrieved, we assume an internal error ocurred, giving the status code 500
     // Currently 200 is always returned for success responses
     if (get(result, 'status', 500) !== 200) {
-        return {
-            'error': true
-        }
+      return {
+        'error': true,
+      };
     }
 
     result.error = false;
@@ -46,9 +46,9 @@ const tokensApi = {
     // If status is not retrieved, we assume an internal error ocurred, giving the status code 500
     // Currently 200 is always returned for success responses
     if (get(result, 'status', 500) !== 200) {
-        return {
-            'error': true
-        }
+      return {
+        'error': true,
+      };
     }
 
     result.error = false;
