@@ -79,8 +79,7 @@ class TokenBalances extends React.Component {
     // 'Click' on search to make the first query
     const queryParams = this.pagination.obtainQueryParams();
 
-    await this.setState({
-      searchText: get(queryParams, 'searchText', this.state.searchText),
+    this.setState({
       sortBy: get(queryParams, 'sortBy', this.state.sortBy),
       order: get(queryParams, 'order', this.state.order),
       loading: true,
@@ -158,7 +157,6 @@ class TokenBalances extends React.Component {
    */
   updateURL = () => {
     const newURL = this.pagination.setURLParameters({
-      searchText: this.state.searchText,
       sortBy: this.state.sortBy,
       order: this.state.order,
     });
@@ -258,6 +256,15 @@ class TokenBalances extends React.Component {
     await this.onSearchButtonClicked();
   }
 
+  /**
+   * Redirects to token detail screen after clicking on a table row
+   *
+   * @param {String} uid UID of token clicked
+   */
+  onTokenDetailsClick = (uid) => {
+    this.props.history.push(`/token_detail/${uid}`);
+  }
+
   render() {
     if (this.state.maintenanceMode) {
       return <ErrorMessageWithIcon message='This feature is under maintenance. Please try again after some time' />;
@@ -297,14 +304,22 @@ class TokenBalances extends React.Component {
         {renderSearchField()}
 
         <div className="token-balances-information-wrapper">
-          <p><a href="">Click here to see the token details</a></p>
+          {
+            this.state.tokenId !== '00' && (
+              <p>
+                <a href="" onClick={() => this.onTokenDetailsClick(this.state.tokenId)}>
+                  Click here to see the token details
+                </a>
+              </p>
+            )
+          }
           <p><b>Total number of addresses:</b> 8,212</p>
           <p><b>Total number of transactions:</b> 28,812</p>
         </div>
 
         {renderTokensTable()}
       </div>
-    )
+    );
   }
 }
 

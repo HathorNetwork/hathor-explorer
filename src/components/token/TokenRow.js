@@ -13,10 +13,10 @@ import dateFormatter from '../../utils/date';
 
 class TokenRow extends React.Component {
   /**
-    * Redirects to token detail screen after clicking on a table row
-    *
-    * @param {String} uid UID of token clicked
-    */
+   * Redirects to token detail screen after clicking on a table row
+   *
+   * @param {String} uid UID of token clicked
+   */
   onRowClicked = (uid) => {
     this.props.history.push(`/token_detail/${uid}`);
   }
