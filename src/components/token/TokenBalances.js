@@ -259,11 +259,11 @@ class TokenBalances extends React.Component {
   }
 
   render() {
-    const renderSearchField = () => {
-      if (this.state.maintenanceMode) {
-        return <ErrorMessageWithIcon message='This feature is under maintenance. Please try again after some time' />;
-      }
+    if (this.state.maintenanceMode) {
+      return <ErrorMessageWithIcon message='This feature is under maintenance. Please try again after some time' />;
+    }
 
+    const renderSearchField = () => {
       return <TokenAutoCompleteField onTokenSelected={this.onTokenSelected.bind(this)}/>;
     };
 

@@ -12,7 +12,10 @@ import HathorAlert from './HathorAlert';
 import Version from './Version';
 import hathorLib from '@hathor/wallet-lib';
 import ConditionalNavigation from './ConditionalNavigation';
-import { UNLEASH_TOKENS_BASE_FEATURE_FLAG } from '../constants';
+import {
+  UNLEASH_TOKENS_BASE_FEATURE_FLAG,
+  UNLEASH_TOKEN_BALANCES_FEATURE_FLAG,
+} from '../constants';
 
 class Navigation extends React.Component {
   constructor(props) {
