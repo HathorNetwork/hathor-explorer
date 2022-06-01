@@ -45,6 +45,8 @@ class TokenAutoCompleteField extends React.Component {
       searchResults: [],
       selectedItem: item,
     });
+
+    this.props.onTokenSelected(item);
   }
 
   /**
@@ -67,6 +69,8 @@ class TokenAutoCompleteField extends React.Component {
       searchResults: [],
       selectedItem: null,
     });
+
+    this.props.onTokenSelected(null);
   }
 
   performSearch = debounce(async () => {
@@ -150,6 +154,8 @@ class TokenAutoCompleteField extends React.Component {
  * onSearchTextChanged: Function called when search text changes
  * searchText: Search text inputted by user
  */
-TokenAutoCompleteField.propTypes = {};
+TokenAutoCompleteField.propTypes = {
+  onTokenSelected: PropTypes.func.isRequired,
+};
 
 export default TokenAutoCompleteField;
