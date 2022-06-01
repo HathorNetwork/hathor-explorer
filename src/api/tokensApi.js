@@ -8,6 +8,21 @@
 import requestExplorerServiceV1 from './axiosInstance';
 import { get } from 'lodash';
 
+const handleResponse = (response) => {
+  // If status is not retrieved, we assume an internal error ocurred, giving the status code 500
+  // Currently 200 is always returned for success responses
+  if (get(response, 'status', 500) !== 200) {
+    return {
+      'error': true,
+    };
+  }
+
+  return {
+    ...response,
+    error: false,
+  };
+};
+
 const tokensApi = {
   async getList(searchText, sortBy, order, searchAfter) {
     const data = {
@@ -17,19 +32,9 @@ const tokensApi = {
       'search_after': searchAfter.join(','),
     };
 
-    let result = await requestExplorerServiceV1.get(`tokens`, { params: data });
+    const response = await requestExplorerServiceV1.get(`tokens`, { params: data });
 
-    // If status is not retrieved, we assume an internal error ocurred, giving the status code 500
-    // Currently 200 is always returned for success responses
-    if (get(result, 'status', 500) !== 200) {
-      return {
-        'error': true,
-      };
-    }
-
-    result.error = false;
-
-    return result;
+    return handleResponse(response);
   },
 
   async getBalances(tokenId, searchText, sortBy, order, searchAfter) {
@@ -41,19 +46,9 @@ const tokensApi = {
       'search_after': searchAfter.join(',')
     };
 
-    let result = await requestExplorerServiceV1.get(`token_balances`, { params: data });
+    const response = await requestExplorerServiceV1.get(`token_balances`, { params: data });
 
-    // If status is not retrieved, we assume an internal error ocurred, giving the status code 500
-    // Currently 200 is always returned for success responses
-    if (get(result, 'status', 500) !== 200) {
-      return {
-        'error': true,
-      };
-    }
-
-    result.error = false;
-
-    return result;
+    return handleResponse(response);
   },
 };
 
