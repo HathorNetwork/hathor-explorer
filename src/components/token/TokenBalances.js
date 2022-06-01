@@ -15,6 +15,7 @@ import PaginationURL from '../../utils/pagination';
 import { withRouter } from "react-router-dom";
 import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon'
 import TokenAutoCompleteField from './TokenAutoCompleteField';
+import helpers from '../../utils/helpers';
 
 /**
  * Displays custom tokens in a table with pagination buttons and a search bar.
@@ -50,6 +51,7 @@ class TokenBalances extends React.Component {
      * isSearchLoading: Indicates if search results are being retrieved from explorer-service
      * calculatingPage: Indicates if next page is being retrieved from explorer-service
      * error: Indicates if an unexpected error happened when calling the explorer-service
+     * tokenBalanceInformationError: Indicates if an unexpected error happened when calling the token balance information service 
      * maintenanceMode: Indicates if explorer-service or its downstream services are experiencing problems. If so, maintenance mode is enabled as
      *                  a "circuit breaker" to remove additional load until the team fixes the problem
      */
@@ -67,7 +69,10 @@ class TokenBalances extends React.Component {
       isSearchLoading: false,
       calculatingPage: false,
       error: false,
+      tokenBalanceInformationError: false,
       maintenanceMode: this.props.maintenanceMode,
+      transactionsCount: 0,
+      addressesCount: 0,
     };
   }
 
@@ -103,23 +108,36 @@ class TokenBalances extends React.Component {
     this.setState({
       error: get(tokenBalancesRequest, 'error', false),
     });
-    const tokenBalances = get(tokenBalancesRequest, 'data', { hits: [], 'has_next': false });
-    console.log('Token balances:', tokenBalances);
-    return tokenBalances;
+    return get(tokenBalancesRequest, 'data', { hits: [], 'has_next': false });
+  }
+
+  loadTokenBalanceInformation = async () => {
+    const tokenBalanceInformationRequest = await tokensApi.getBalanceInformation(this.state.tokenId);
+    this.setState({
+      tokenBalanceInformationError: get(tokenBalanceInformationRequest, 'error', false),
+    });
+
+    return get(tokenBalanceInformationRequest, 'data', {
+      transactions: 0,
+      addresses: 0,
+    });
   }
 
   /**
-    * Process events when user clicks on search button
-    */
+   * Process events when user clicks on search button
+   */
   onSearchButtonClicked = async () => {
     this.setState({ isSearchLoading: true });
     const tokenBalances = await this.getTokenBalances([]);
+    const tokenBalanceInformation = await this.loadTokenBalanceInformation();
 
-    //When search button is clicked, results return to the first page
+    // When search button is clicked, results return to the first page
     this.setState({
       isSearchLoading: false,
       page: 1,
       tokenBalances: tokenBalances.hits,
+      transactionsCount: tokenBalanceInformation.transactions,
+      addressesCount: tokenBalanceInformation.addresses,
       hasAfter: tokenBalances.has_next,
       hasBefore: false,
       pageSearchAfter: [{
@@ -210,7 +228,7 @@ class TokenBalances extends React.Component {
    *
    * @param {*} event
    */
-  previousPageClicked = async (event) => {
+  previousPageClicked = async () => {
     this.setState({ calculatingPage: true });
 
     const previousPage = this.state.page - 1;
@@ -246,11 +264,11 @@ class TokenBalances extends React.Component {
    * @param {*} event
    * @param {*} header
    */
-  tableHeaderClicked = async (event, header) => {
+  tableHeaderClicked = async (_event, header) => {
     if (header === this.state.sortBy) {
-      await this.setState({ order: this.state.order === 'asc' ? 'desc' : 'asc' });
+      this.setState({ order: this.state.order === 'asc' ? 'desc' : 'asc' });
     } else {
-      await this.setState({ sortBy: header, order: 'asc' });
+      this.setState({ sortBy: header, order: 'asc' });
     }
 
     await this.onSearchButtonClicked();
@@ -313,8 +331,14 @@ class TokenBalances extends React.Component {
               </p>
             )
           }
-          <p><b>Total number of addresses:</b> 8,212</p>
-          <p><b>Total number of transactions:</b> 28,812</p>
+          {
+            !this.state.tokenBalanceInformationError && (
+              <>
+                <p><b>Total number of addresses:</b> { helpers.renderValue(this.state.addressesCount, true) }</p>
+                <p><b>Total number of transactions:</b> { helpers.renderValue(this.state.transactionsCount, true) }</p>
+              </>
+            )
+          }
         </div>
 
         {renderTokensTable()}

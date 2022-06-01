@@ -32,7 +32,7 @@ const tokensApi = {
       'search_after': searchAfter.join(','),
     };
 
-    const response = await requestExplorerServiceV1.get(`tokens`, { params: data });
+    const response = await requestExplorerServiceV1.get('tokens', { params: data });
 
     return handleResponse(response);
   },
@@ -46,7 +46,17 @@ const tokensApi = {
       'search_after': searchAfter.join(',')
     };
 
-    const response = await requestExplorerServiceV1.get(`token_balances`, { params: data });
+    const response = await requestExplorerServiceV1.get('token_balances', { params: data });
+
+    return handleResponse(response);
+  },
+
+  async getBalanceInformation(tokenId) {
+    const data = {
+      'token_id': tokenId,
+    };
+
+    const response = await requestExplorerServiceV1.get('token_balances/information', { params: data });
 
     return handleResponse(response);
   },
