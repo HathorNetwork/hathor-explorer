@@ -24,6 +24,17 @@ const handleResponse = (response) => {
 };
 
 const tokensApi = {
+  /**
+   * Downloads a list of tokens that match the searched text
+   *
+   * @param {String} searchText The text to match against the token values
+   * @param {String} sortBy field to sort by, possible values are (name, symbol, uid)
+   * @param {String} order Order to sort the fields, possible values are ('desc', 'asc')
+   * @param {Array[String]} searchAfter Search after this result, this should use the sort attribute of
+   * the returned hit
+   *
+   * @return {Promise}
+   */
   async getList(searchText, sortBy, order, searchAfter) {
     const data = {
       'search_text': searchText,
@@ -37,10 +48,20 @@ const tokensApi = {
     return handleResponse(response);
   },
 
-  async getBalances(tokenId, searchText, sortBy, order, searchAfter) {
+  /**
+   * Downloads a list of token balances given an token_id
+   *
+   * @param {String} tokenId Token id to filter token address balances
+   * @param {String} sortBy field to sort by, possible values are (total, unlocked_balance, locked_balance)
+   * @param {String} order Order to sort the fields, possible values are ('desc', 'asc')
+   * @param {Array[String]} searchAfter Search after this result, this should use the sort attribute of
+   * the returned hit
+   *
+   * @return {Promise}
+   */
+  async getBalances(tokenId, sortBy, order, searchAfter) {
     const data = {
       'token_id': tokenId,
-      'search_text': searchText,
       'sort_by': sortBy,
       'order': order,
       'search_after': searchAfter.join(',')
@@ -51,6 +72,13 @@ const tokensApi = {
     return handleResponse(response);
   },
 
+  /**
+   * Downloads address count and transaction count information for a given token_id
+   *
+   * @param {String} tokenId Token id to filter token address balance information
+   *
+   * @return {Promise}
+   */
   async getBalanceInformation(tokenId) {
     const data = {
       'token_id': tokenId,
