@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) Hathor Labs and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import Loading from './Loading';
@@ -18,12 +25,12 @@ class SortableTable extends React.Component {
 
   getArrow(field) {
     if (field === this.props.sortBy) {
-      if (this.props.order === "asc") {
-        return "↑";
+      if (this.props.order === 'asc') {
+        return '↑';
       }
-      return "↓";
+      return '↓';
     }
-    return "";
+    return '';
   }
 
   loadTable() {
