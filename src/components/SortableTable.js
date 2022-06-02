@@ -12,8 +12,7 @@ class SortableTable extends React.Component {
 
   renderTableHead() {
     return (
-      <tr>
-      </tr>
+      <tr></tr>
     );
   }
 
@@ -89,7 +88,7 @@ class SortableTable extends React.Component {
 }
 
 /**
- * data: Array of token balances to show at the moment
+ * data: Array of the data to display
  * hasAfter: Indicates if there is a next page for user to navigate
  * hasBefore: Indicates if there is a previous page for user to navigate
  * onPreviousPageClicked: Callback to be called when the user clicks the Previous button
@@ -99,7 +98,6 @@ class SortableTable extends React.Component {
  * order: If sorted field must be ordered asc or desc
  * tableHeaderClicked: This indicates that user wants data to be sorted by a determined field
  * calculatingPage: Indicates if next page is being retrieved from explorer-service
- * tokenId: The selected token id to be able to redirect the user to the token balance on a clicked address
  */
 SortableTable.propTypes = {
   data: PropTypes.array.isRequired,
