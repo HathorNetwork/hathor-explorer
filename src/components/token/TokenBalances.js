@@ -61,7 +61,7 @@ class TokenBalances extends React.Component {
       hasBefore: false,
       searchText: '',
       sortBy: 'total',
-      order: "desc",
+      order: 'desc',
       page: 1,
       pageSearchAfter: [],
       loading: false,
@@ -83,7 +83,7 @@ class TokenBalances extends React.Component {
     // 'Click' on search to make the first query
     const queryParams = this.pagination.obtainQueryParams();
 
-    this.setState({
+    await this.setState({
       sortBy: get(queryParams, 'sortBy', this.state.sortBy),
       order: get(queryParams, 'order', this.state.order),
       loading: true,
@@ -211,11 +211,11 @@ class TokenBalances extends React.Component {
       searchAfter = lastCurrentTokenSort;
     }
 
-    const tokens = await this.getTokenBalances(searchAfter);
+    const tokenBalances = await this.getTokenBalances(searchAfter);
 
     this.setState({
-      tokens: tokens.hits,
-      hasAfter: tokens.has_next,
+      tokenBalances: tokenBalances.hits,
+      hasAfter: tokenBalances.has_next,
       hasBefore: true,
       page: nextPage,
       calculatingPage: false,
@@ -232,10 +232,10 @@ class TokenBalances extends React.Component {
 
     const previousPage = this.state.page - 1;
     const searchAfter = get(find(this.state.pageSearchAfter, { page: previousPage }), 'searchAfter', []);
-    const tokens = await this.getTokenBalances(searchAfter);
+    const tokenBalances = await this.getTokenBalances(searchAfter);
 
     this.setState({
-      tokens: tokens.hits,
+      tokenBalances: tokenBalances.hits,
       hasAfter: true,
       hasBefore: previousPage === 1 ? false : true,
       page: previousPage,
@@ -243,18 +243,21 @@ class TokenBalances extends React.Component {
     });
   }
 
-  onTokenSelected(token) {
+  onTokenSelected = async (token) => {
     if (!token) {
-      this.setState({
+      await this.setState({
         tokenId: '00'
-      }, this.onSearchButtonClicked);
+      });
 
+      this.onSearchButtonClicked();
       return;
     }
 
-    this.setState({
+    await this.setState({
       tokenId: token.id,
-    }, this.onSearchButtonClicked);
+    });
+
+    this.onSearchButtonClicked();
   }
 
   /**
@@ -265,9 +268,9 @@ class TokenBalances extends React.Component {
    */
   tableHeaderClicked = async (_event, header) => {
     if (header === this.state.sortBy) {
-      this.setState({ order: this.state.order === 'asc' ? 'desc' : 'asc' });
+      await this.setState({ order: this.state.order === 'asc' ? 'desc' : 'asc' });
     } else {
-      this.setState({ sortBy: header, order: 'asc' });
+      await this.setState({ sortBy: header, order: 'asc' });
     }
 
     await this.onSearchButtonClicked();
@@ -327,6 +330,11 @@ class TokenBalances extends React.Component {
                 <p><b>Total number of addresses:</b> { helpers.renderValue(this.state.addressesCount, true) }</p>
                 <p><b>Total number of transactions:</b> { helpers.renderValue(this.state.transactionsCount, true) }</p>
               </>
+            )
+          }
+          {
+            this.state.tokenBalanceInformationError && (
+              <ErrorMessageWithIcon message='Error loading token balance information. Please try again.' />
             )
           }
         </div>
