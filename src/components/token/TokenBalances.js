@@ -24,7 +24,6 @@ class TokenBalances extends React.Component {
    * Structure that contains the attributes that will be part of the page URL
    */
   pagination = new PaginationURL({
-    'searchText': { required: false },
     'sortBy': { required: false },
     'order': { required: false },
   });
@@ -39,7 +38,6 @@ class TokenBalances extends React.Component {
      *         Sort is an array with two strings, The value is given by ElasticSearch and it is passed back when we want to change page
      * hasAfter: Indicates if a next page exists
      * hasBefore: Indicates if a previous page exists
-     * searchText: Input text written by user
      * sortBy: Which field to sort (uid, name, symbol)
      * order: If sorted field must be ordered asc or desc
      * page: Current page. Used to know if there is a previous page
@@ -59,7 +57,6 @@ class TokenBalances extends React.Component {
       tokenBalances: [],
       hasAfter: false,
       hasBefore: false,
-      searchText: '',
       sortBy: 'total',
       order: 'desc',
       page: 1,
@@ -103,7 +100,7 @@ class TokenBalances extends React.Component {
    * @returns tokens
    */
   getTokenBalances = async (searchAfter) => {
-    const tokenBalancesRequest = await tokensApi.getBalances(this.state.tokenId, this.state.searchText, this.state.sortBy, this.state.order, searchAfter);
+    const tokenBalancesRequest = await tokensApi.getBalances(this.state.tokenId, this.state.sortBy, this.state.order, searchAfter);
     this.setState({
       error: get(tokenBalancesRequest, 'error', false),
     });
@@ -147,15 +144,6 @@ class TokenBalances extends React.Component {
 
     // This is ultimately called when search text, sort, or sort order changes
     this.updateURL();
-  }
-
-  /**
-   * Updates searchText state value when input field is changed
-   *
-   * @param {*} event
-   */
-  onSearchTextChanged = (event) => {
-    this.setState({ searchText: event.target.value });
   }
 
   /**
