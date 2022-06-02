@@ -10,13 +10,13 @@ class TokenBalancesTable extends SortableTable {
         <th className="d-lg-table-cell">
           Address 
         </th>
-        <th className="d-lg-table-cell" onClick={(e) => this.props.tableHeaderClicked(e, 'total')}>
+        <th className="d-lg-table-cell sortable" onClick={(e) => this.props.tableHeaderClicked(e, 'total')}>
           Total {this.getArrow('total')}
         </th>
-        <th className="d-lg-table-cell" onClick={(e) => this.props.tableHeaderClicked(e, 'unlocked_balance')}>
+        <th className="d-lg-table-cell sortable" onClick={(e) => this.props.tableHeaderClicked(e, 'unlocked_balance')}>
           Unlocked {this.getArrow('unlocked_balance')}
         </th>
-        <th className="d-lg-table-cell" onClick={(e) => this.props.tableHeaderClicked(e, 'locked_balance')}>
+        <th className="d-lg-table-cell sortable" onClick={(e) => this.props.tableHeaderClicked(e, 'locked_balance')}>
           Locked {this.getArrow('locked_balance')}
         </th>
       </tr>
