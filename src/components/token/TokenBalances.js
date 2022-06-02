@@ -120,14 +120,13 @@ class TokenBalances extends React.Component {
   }
 
   /**
-   * Process events when user clicks on search button
+   * Calls elastic search with state data, sets loading and URL information
    */
   performSearch = async () => {
     this.setState({ isSearchLoading: true });
     const tokenBalances = await this.getTokenBalances([]);
     const tokenBalanceInformation = await this.loadTokenBalanceInformation();
 
-    // When search button is clicked, results return to the first page
     this.setState({
       isSearchLoading: false,
       page: 1,
@@ -160,10 +159,8 @@ class TokenBalances extends React.Component {
 
   /**
     * Process events when next page is requested by user
-    *
-    * @param {*} event
     */
-  nextPageClicked = async (event) => {
+  nextPageClicked = async () => {
     this.setState({ calculatingPage: true });
 
     const nextPage = this.state.page + 1;
@@ -201,8 +198,6 @@ class TokenBalances extends React.Component {
 
   /**
    * Process events when previous page is requested by user
-   *
-   * @param {*} event
    */
   previousPageClicked = async () => {
     this.setState({ calculatingPage: true });
