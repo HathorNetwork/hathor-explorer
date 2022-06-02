@@ -18,12 +18,12 @@ class SortableTable extends React.Component {
 
   getArrow(field) {
     if (field === this.props.sortBy) {
-      if (this.props.order === "asc") {
-        return "↑";
+      if (this.props.order === 'asc') {
+        return '↑';
       }
-      return "↓";
+      return '↓';
     }
-    return "";
+    return '';
   }
 
   loadTable() {
