@@ -165,7 +165,7 @@ class TokenAutoCompleteField extends React.Component {
     }
 
     return (
-      <i className="fa fa-search pointer" onClick={(e) => this.props.onSearchButtonClicked(e)} />
+      <i className="fa fa-search pointer" onClick={() => this.performSearch()} />
     );
   }
 

@@ -86,7 +86,7 @@ class TokenBalances extends React.Component {
       loading: true,
     });
 
-    await this.onSearchButtonClicked();
+    await this.performSearch();
 
     this.setState({
       loading: false,
@@ -122,7 +122,7 @@ class TokenBalances extends React.Component {
   /**
    * Process events when user clicks on search button
    */
-  onSearchButtonClicked = async () => {
+  performSearch = async () => {
     this.setState({ isSearchLoading: true });
     const tokenBalances = await this.getTokenBalances([]);
     const tokenBalanceInformation = await this.loadTokenBalanceInformation();
@@ -144,17 +144,6 @@ class TokenBalances extends React.Component {
 
     // This is ultimately called when search text, sort, or sort order changes
     this.updateURL();
-  }
-
-  /**
-   * Checks if enter button is pressed. If so, treat as a button click on search icon
-   *
-   * @param {*} event
-   */
-  onSearchTextKeyUp = (event) => {
-    if (event.key === 'Enter') {
-      this.onSearchButtonClicked();
-    }
   }
 
   /**
@@ -237,7 +226,7 @@ class TokenBalances extends React.Component {
         tokenId: '00'
       });
 
-      this.onSearchButtonClicked();
+      this.performSearch();
       return;
     }
 
@@ -245,7 +234,7 @@ class TokenBalances extends React.Component {
       tokenId: token.id,
     });
 
-    this.onSearchButtonClicked();
+    this.performSearch();
   }
 
   /**
@@ -261,7 +250,7 @@ class TokenBalances extends React.Component {
       await this.setState({ sortBy: header, order: 'asc' });
     }
 
-    await this.onSearchButtonClicked();
+    await this.performSearch();
   }
 
   render() {
