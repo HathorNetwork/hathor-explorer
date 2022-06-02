@@ -127,6 +127,41 @@ class TokenAutoCompleteField extends React.Component {
     });
   }, DEBOUNCE_SEARCH_TIME)
 
+  highlight(searchedTerm, result) {
+    const buildTextElement = (index, text) => {
+      if (index === -1) {
+        return (
+          <span>{text}</span>
+        );
+      }
+
+      const start = text.substring(0, index);
+      const term = text.substring(index, searchedTerm.length);
+      const end = text.substring(index + searchedTerm.length, text.length)
+
+      return (
+        <>
+          {start}
+          <span className="highlight">{term}</span>
+          {end}
+        </>
+      )
+    };
+
+    const lowerCaseSearchedTerm = searchedTerm.toLowerCase();
+    const nameMatchIndex = result.name.toLowerCase().indexOf(lowerCaseSearchedTerm);
+    const symbolMatchIndex = result.symbol.toLowerCase().indexOf(lowerCaseSearchedTerm);
+    const idMatchIndex = result.id.toLowerCase().indexOf(lowerCaseSearchedTerm);
+
+    return (
+      <>
+        {buildTextElement(nameMatchIndex, result.name)}&nbsp;
+        ({buildTextElement(symbolMatchIndex, result.symbol)})&nbsp;-&nbsp;
+        {buildTextElement(idMatchIndex, result.id)}
+      </>
+    );
+  }
+
   _renderInputForm() {
     if (this.state.selectedItem) {
       return (
@@ -172,7 +207,7 @@ class TokenAutoCompleteField extends React.Component {
   _renderAutocompleteResults() {
     return this.state.searchResults.map((result) => (
       <li onClick={() => this.onItemSelected(result)} className="autocomplete-result-item">
-        {result.name} ({result.symbol}) - {result.id}
+        {this.highlight(this.state.searchText, result)}
       </li>
     ));
   }
