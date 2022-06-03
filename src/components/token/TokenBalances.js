@@ -120,7 +120,7 @@ class TokenBalances extends React.Component {
   }
 
   /**
-   * Calls elastic search with state data, sets loading and URL information
+   * Calls ElasticSearch (through the Explorer Service) with state data, sets loading and URL information
    */
   performSearch = async () => {
     this.setState({ isSearchLoading: true });

@@ -7,7 +7,7 @@ class TokensTable extends SortableTable {
   renderTableHead() {
     return (
       <tr>
-        <th className="d-lg-table-cell sortable" onClick={(e) => this.props.tableHeaderClicked(e, 'uid')}>UID {this.getArrow('uid')}</th>
+        <th className="d-lg-table-cell">UID</th>
         <th className="d-lg-table-cell sortable" onClick={(e) => this.props.tableHeaderClicked(e, 'name')}>Name {this.getArrow('name')}</th>
         <th className="d-lg-table-cell sortable" onClick={(e) => this.props.tableHeaderClicked(e, 'symbol')}>Symbol {this.getArrow('symbol')}</th>
         <th className="d-lg-table-cell">Type</th>
