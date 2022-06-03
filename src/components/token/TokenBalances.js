@@ -49,8 +49,8 @@ class TokenBalances extends React.Component {
      * calculatingPage: Indicates if next page is being retrieved from explorer-service
      * error: Indicates if an unexpected error happened when calling the explorer-service
      * tokenBalanceInformationError: Indicates if an unexpected error happened when calling the token balance information service 
-     * maintenanceMode: Indicates if explorer-service or its downstream services are experiencing problems. If so, maintenance mode is enabled as
-     *                  a "circuit breaker" to remove additional load until the team fixes the problem
+     * maintenanceMode: Indicates if explorer-service or its downstream services are experiencing problems. If so, maintenance mode will be enabled on
+     *                  our feature toggle service (Unleash) to remove additional load until the team fixes the problem
      */
     this.state = {
       tokenId: '00',
