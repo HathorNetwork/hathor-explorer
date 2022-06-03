@@ -258,10 +258,6 @@ class TokenBalances extends React.Component {
     };
 
     const renderTokensTable = () => {
-      if (this.state.maintenanceMode) {
-        return null;
-      }
-
       if (this.state.error) {
         return <ErrorMessageWithIcon message='Error loading token balances. Please try again.' />;
       }
