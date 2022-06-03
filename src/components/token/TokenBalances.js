@@ -80,7 +80,7 @@ class TokenBalances extends React.Component {
     // 'Click' on search to make the first query
     const queryParams = this.pagination.obtainQueryParams();
 
-    await this.setState({
+    await helpers.setStateAsync(this, {
       sortBy: get(queryParams, 'sortBy', this.state.sortBy),
       order: get(queryParams, 'order', this.state.order),
       loading: true,
@@ -217,7 +217,7 @@ class TokenBalances extends React.Component {
 
   onTokenSelected = async (token) => {
     if (!token) {
-      await this.setState({
+      await helpers.setStateAsync(this, {
         tokenId: '00'
       });
 
@@ -225,7 +225,7 @@ class TokenBalances extends React.Component {
       return;
     }
 
-    await this.setState({
+    await helpers.setStateAsync(this, {
       tokenId: token.id,
     });
 
@@ -240,12 +240,12 @@ class TokenBalances extends React.Component {
    */
   tableHeaderClicked = async (_event, header) => {
     if (header === this.state.sortBy) {
-      await this.setState({ order: this.state.order === 'asc' ? 'desc' : 'asc' });
+      await helpers.setStateAsync(this, { order: this.state.order === 'asc' ? 'desc' : 'asc' });
     } else {
-      await this.setState({ sortBy: header, order: 'asc' });
+      await helpers.setStateAsync(this, { sortBy: header, order: 'asc' });
     }
 
-    await this.performSearch();
+    this.performSearch();
   }
 
   render() {

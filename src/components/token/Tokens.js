@@ -14,6 +14,7 @@ import { get, last, find, isEmpty } from 'lodash';
 import PaginationURL from '../../utils/pagination';
 import { withRouter } from "react-router-dom";
 import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon'
+import helpers from '../../utils/helpers';
 
 /**
  * Displays custom tokens in a table with pagination buttons and a search bar.
@@ -77,7 +78,7 @@ class Tokens extends React.Component {
     // 'Click' on search to make the first query
     const queryParams = this.pagination.obtainQueryParams();
 
-    await this.setState({
+    await helpers.setStateAsync(this, {
       searchText: get(queryParams, 'searchText', this.state.searchText),
       sortBy: get(queryParams, 'sortBy', this.state.sortBy),
       order: get(queryParams, 'order', this.state.order),
@@ -237,9 +238,9 @@ class Tokens extends React.Component {
    */
   tableHeaderClicked = async (event, header) => {
     if (header === this.state.sortBy) {
-      await this.setState({ order: this.state.order === 'asc' ? 'desc' : 'asc' });
+      await helpers.setStateAsync(this, { order: this.state.order === 'asc' ? 'desc' : 'asc' });
     } else {
-      await this.setState({ sortBy: header, order: 'asc' });
+      await helpers.setStateAsync(this, { sortBy: header, order: 'asc' });
     }
 
     await this.onSearchButtonClicked();

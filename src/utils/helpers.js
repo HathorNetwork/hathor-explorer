@@ -236,6 +236,20 @@ const helpers = {
     } else {
       return hathorLib.helpersUtils.prettyValue(amount);
     }
+  },
+
+  /**
+   * Promisifies the instance's setState method
+   *
+   * @param {Object} The Component instance to promisify the setState method
+   * @param {Object} The state to apply asyncronously
+   *
+   * @return {Promise} A promise that resolves when the state is applied
+   * @memberof Helpers
+   * @inner
+   */
+  async setStateAsync(instance, state) {
+    return new Promise((resolve) => instance.setState(state, resolve));
   }
 }
 
