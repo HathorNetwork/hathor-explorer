@@ -8,6 +8,9 @@
 import requestExplorerServiceV1 from './axiosInstance';
 import { get } from 'lodash';
 
+const TOKENS_API_DEFAULT_TIMEOUT = 10000; // ms
+
+
 const handleResponse = (response) => {
   // If status is not retrieved, we assume an internal error ocurred, giving the status code 500
   // Currently 200 is always returned for success responses
@@ -43,7 +46,7 @@ const tokensApi = {
       'search_after': searchAfter.join(','),
     };
 
-    const response = await requestExplorerServiceV1.get('tokens', { params: data });
+    const response = await requestExplorerServiceV1.get('tokens', { params: data, timeout: TOKENS_API_DEFAULT_TIMEOUT });
 
     return handleResponse(response);
   },
@@ -67,7 +70,7 @@ const tokensApi = {
       'search_after': searchAfter.join(',')
     };
 
-    const response = await requestExplorerServiceV1.get('token_balances', { params: data });
+    const response = await requestExplorerServiceV1.get('token_balances', { params: data, timeout: TOKENS_API_DEFAULT_TIMEOUT });
 
     return handleResponse(response);
   },
@@ -84,7 +87,7 @@ const tokensApi = {
       'token_id': tokenId,
     };
 
-    const response = await requestExplorerServiceV1.get('token_balances/information', { params: data });
+    const response = await requestExplorerServiceV1.get('token_balances/information', { params: data, timeout: TOKENS_API_DEFAULT_TIMEOUT});
 
     return handleResponse(response);
   },
