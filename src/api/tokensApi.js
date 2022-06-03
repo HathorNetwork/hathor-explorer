@@ -11,7 +11,7 @@ import { get } from 'lodash';
 const handleResponse = (response) => {
   // If status is not retrieved, we assume an internal error ocurred, giving the status code 500
   // Currently 200 is always returned for success responses
-  if (get(response, 'status', 500) !== 200) {
+  if (get(response, 'status', 500) > 299) {
     return {
       'error': true,
     };
