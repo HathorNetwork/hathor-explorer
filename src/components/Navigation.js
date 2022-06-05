@@ -74,7 +74,7 @@ class Navigation extends React.Component {
                   Tokens
                 </span>
                 <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <ConditionalNavigation to="/tokens" label="Tokens list" featureToggle={`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`} />
+                  <ConditionalNavigation to="/tokens" label="Token list" featureToggle={`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`} />
                   <ConditionalNavigation to="/token_balances" label="Token balances" featureToggle={`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.rollout`} />
                 </div>
               </li>
