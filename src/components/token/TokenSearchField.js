@@ -8,7 +8,8 @@ class TokenSearchField extends React.Component {
             <div className="d-flex flex-row align-items-center navigation-search-token">
                 <div className="d-flex flex-row align-items-center col-12">
                     <input className="form-control mr-2 search-input" type="search" value={this.props.searchText} onKeyUp={this.props.onSearchTextKeyUp} onChange={this.props.onSearchTextChanged} placeholder="Search UID, name, symbol, or type" aria-label="Search" ref="tokenSearch" />
-                    {(this.props.isSearchLoading && !this.props.loading) ?
+                    {
+                      (this.props.isSearchLoading && !this.props.loading) ?
                         <Loading width={25} height={25} delay={0} useLoadingWrapper={false} showSlowLoadMessage={false} /> :
                         <i className="fa fa-search pointer" onClick={(e) => this.props.onSearchButtonClicked(e)} />
                     }
