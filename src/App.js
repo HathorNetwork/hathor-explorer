@@ -20,6 +20,7 @@ import PushTx from './screens/PushTx';
 import TransactionList from './screens/TransactionList';
 import TokenList from './screens/TokenList';
 import TokenBalancesList from './screens/TokenBalances';
+import TimeSeriesDashboard from './screens/TimeSeriesDashboard';
 import BlockList from './screens/BlockList';
 import TokenDetail from './screens/TokenDetail';
 import Dag from './screens/Dag';
@@ -112,6 +113,7 @@ class Root extends React.Component {
               <NavigationRoute exact path="/transactions" component={TransactionList} />
               <NavigationRoute exact path="/tokens" component={TokenList} />
               <NavigationRoute exact path="/token_balances" component={TokenBalancesList} />
+              <NavigationRoute exact path="/timeseries" component={TimeSeriesDashboard} />
               <NavigationRoute exact path="/blocks" component={BlockList} />
               <NavigationRoute exact path="/dag" component={Dag} />
               <NavigationRoute exact path="/network/:peerId?" component={PeerAdmin} />

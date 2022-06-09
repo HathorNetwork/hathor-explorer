@@ -11,6 +11,11 @@ const dateFormatter = {
     return `${d.toLocaleDateString('en-US')} ${d.toLocaleTimeString('en-US')}`;
   },
 
+  parseTimestampFromSQLTimestamp(timestamp) {
+    const d = new Date(timestamp);
+    return `${d.toLocaleDateString('en-US')} ${d.toLocaleTimeString('en-US')}`;
+  },
+
   timestampToString(timestamp) {
     return new Date(timestamp * 1000).toString();
   },

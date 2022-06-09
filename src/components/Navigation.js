@@ -15,6 +15,7 @@ import ConditionalNavigation from './ConditionalNavigation';
 import {
   UNLEASH_TOKENS_BASE_FEATURE_FLAG,
   UNLEASH_TOKEN_BALANCES_FEATURE_FLAG,
+  UNLEASH_TIME_SERIES_FEATURE_FLAG,
 } from '../constants';
 
 class Navigation extends React.Component {
@@ -77,6 +78,9 @@ class Navigation extends React.Component {
                   <ConditionalNavigation to="/tokens" label="Token list" featureToggle={`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`} />
                   <ConditionalNavigation to="/token_balances" label="Token balances" featureToggle={`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.rollout`} />
                 </div>
+              </li>
+              <li className="nav-item">
+                <ConditionalNavigation to="/timeseries" label="Time&nbsp;Series" featureToggle={`${UNLEASH_TIME_SERIES_FEATURE_FLAG}.rollout`} />
               </li>
               <li className="nav-item">
                 <NavLink to="/network" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Network</NavLink>
