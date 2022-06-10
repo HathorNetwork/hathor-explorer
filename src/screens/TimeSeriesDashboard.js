@@ -7,8 +7,9 @@
 
 import React from 'react';
 import { useFlag } from '@unleash/proxy-client-react';
-import { UNLEASH_TIME_SERIES_FEATURE_FLAG } from '../constants';
+
 import TimeSeries from '../components/timeseries/TimeSeries';
+import { UNLEASH_TIME_SERIES_FEATURE_FLAG } from '../constants';
 
 
 const TimeSeriesDashboard = () => {
