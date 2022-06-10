@@ -104,4 +104,4 @@ export const UNLEASH_TOKEN_BALANCES_FEATURE_FLAG = `explorer-address-list-${REAC
 export const UNLEASH_TIME_SERIES_FEATURE_FLAG =  `explorer-timeseries-${REACT_APP_NETWORK}`;
 
 export const REACT_APP_TIMESERIES_DASHBOARD_ID = process.env.REACT_APP_TIMESERIES_DASHBOARD_ID;
-export const TIMESERIES_DASHBOARD_URL = `https://hathor-explorer-75a9f9.kb.eu-central-1.aws.cloud.es.io:9243/app/dashboards?auth_provider_hint=anonymous1#/view/${REACT_APP_TIMESERIES_DASHBOARD_ID}?embed=true&_g=(filters%3A!()%2CrefreshInterval%3A(pause%3A!t%2Cvalue%3A0)%2Ctime%3A(from%3Anow-1w%2Cto%3Anow))&show-time-filter=true&hide-filter-bar=true`;
+export const TIMESERIES_DASHBOARD_URL = `https://hathor-explorer-75a9f9.kb.eu-central-1.aws.cloud.es.io:9243/s/anonymous-user/app/dashboards?auth_provider_hint=anonymous1#/view/${REACT_APP_TIMESERIES_DASHBOARD_ID}?embed=true&_g=(filters%3A!()%2CrefreshInterval%3A(pause%3A!t%2Cvalue%3A0)%2Ctime%3A(from%3Anow-1w%2Cto%3Anow))&show-time-filter=true&hide-filter-bar=true`;
