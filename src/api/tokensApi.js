@@ -6,7 +6,7 @@
  */
 
 import requestExplorerServiceV1 from './axiosInstance';
-import helpers from '../utils/helpers'
+import helpers from '../utils/helpers';
 
 const TOKENS_API_DEFAULT_TIMEOUT = 10000; // ms
 

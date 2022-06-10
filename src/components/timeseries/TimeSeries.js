@@ -24,7 +24,7 @@ class TimeSeries extends React.Component {
                     <iframe title='Time Series Data' id='timeseries-iframe' className='timeseries-iframe' src={TIMESERIES_DASHBOARD_URL}></iframe>
                 </div> :
                 <ErrorMessageWithIcon message='This feature is under maintenance. Please try again after some time' />
-        )
+        );
     }
 }
 

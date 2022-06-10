@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import { get } from 'lodash';
 
 import blockApi from '../../api/blockApi';
@@ -17,7 +17,7 @@ class ScreenStatusMessage extends React.Component {
             timestamp: '',
             error: false,
             loading: true,
-        }
+        };
     }
 
     componentDidMount = async () => {
@@ -80,7 +80,7 @@ class ScreenStatusMessage extends React.Component {
                             </p>
                 }
             </div>
-        )
+        );
     }
 }
 
