@@ -15,6 +15,10 @@ import { withRouter } from "react-router-dom";
 import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon'
 import TokenAutoCompleteField from './TokenAutoCompleteField';
 import helpers from '../../utils/helpers';
+import Loading from '../Loading';
+import { constants as hathorLibConstants } from '@hathor/wallet-lib';
+
+
 
 /**
  * Displays custom tokens in a table with pagination buttons and a search bar.
@@ -26,6 +30,7 @@ class TokenBalances extends React.Component {
   pagination = new PaginationURL({
     'sortBy': { required: false },
     'order': { required: false },
+    'token': { required: false },
   });
 
   constructor(props) {
@@ -51,9 +56,13 @@ class TokenBalances extends React.Component {
      * tokenBalanceInformationError: Indicates if an unexpected error happened when calling the token balance information service 
      * maintenanceMode: Indicates if explorer-service or its downstream services are experiencing problems. If so, maintenance mode will be enabled on
      *                  our feature toggle service (Unleash) to remove additional load until the team fixes the problem
+     * transactionsCount: Number of transactions for the searched token
+     * addressesCount: Number of addressed for the searched token
+     * queryParamsParsed: Boolean to know when the query parameters are already parsed. It's important so the
+     *                    first mount of the autocomplete component already has the correct token from the URL.
      */
     this.state = {
-      tokenId: '00',
+      tokenId: hathorLibConstants.HATHOR_TOKEN_CONFIG.uid,
       tokenBalances: [],
       hasAfter: false,
       hasBefore: false,
@@ -69,6 +78,7 @@ class TokenBalances extends React.Component {
       maintenanceMode: this.props.maintenanceMode,
       transactionsCount: 0,
       addressesCount: 0,
+      queryParamsParsed: false,
     };
   }
 
@@ -83,14 +93,21 @@ class TokenBalances extends React.Component {
     await helpers.setStateAsync(this, {
       sortBy: get(queryParams, 'sortBy', this.state.sortBy),
       order: get(queryParams, 'order', this.state.order),
+      tokenId: get(queryParams, 'token', this.state.tokenId),
       loading: true,
+      queryParamsParsed: true,
     });
 
-    await this.performSearch();
+    if (this.state.tokenId === hathorLibConstants.HATHOR_TOKEN_CONFIG.uid) {
+      // If we had a custom token as queryParam
+      // then we will perform the search after the token
+      // is found in the elastic search
+      await this.performSearch();
 
-    this.setState({
-      loading: false,
-    });
+      this.setState({
+        loading: false,
+      });
+    }
   }
 
   /**
@@ -129,6 +146,7 @@ class TokenBalances extends React.Component {
 
     this.setState({
       isSearchLoading: false,
+      loading: false,
       page: 1,
       tokenBalances: tokenBalances.hits,
       transactionsCount: tokenBalanceInformation.transactions,
@@ -152,6 +170,7 @@ class TokenBalances extends React.Component {
     const newURL = this.pagination.setURLParameters({
       sortBy: this.state.sortBy,
       order: this.state.order,
+      token: this.state.tokenId,
     });
 
     this.props.history.push(newURL);
@@ -218,7 +237,7 @@ class TokenBalances extends React.Component {
   onTokenSelected = async (token) => {
     if (!token) {
       await helpers.setStateAsync(this, {
-        tokenId: '00'
+        tokenId: hathorLibConstants.HATHOR_TOKEN_CONFIG.uid
       });
 
       this.performSearch();
@@ -248,13 +267,32 @@ class TokenBalances extends React.Component {
     this.performSearch();
   }
 
+  /**
+   * Turn loading false.
+   * Useful to be used by autocomplete component when the first search doesn't find any token
+   */
+  loadingFinished = () => {
+    this.setState({ loading: false });
+  }
+
   render() {
     if (this.state.maintenanceMode) {
       return <ErrorMessageWithIcon message='This feature is under maintenance. Please try again after some time' />;
     }
 
+    if (!this.state.queryParamsParsed) {
+      return (
+        <Loading
+          width={25}
+          height={25}
+          delay={0}
+          useLoadingWrapper={false}
+          showSlowLoadMessage={false} />
+      );
+    }
+
     const renderSearchField = () => {
-      return <TokenAutoCompleteField onTokenSelected={this.onTokenSelected.bind(this)}/>;
+      return <TokenAutoCompleteField onTokenSelected={this.onTokenSelected.bind(this)} tokenId={this.state.tokenId} loadingFinished={this.loadingFinished} />;
     };
 
     const renderTokensTable = () => {
@@ -284,7 +322,7 @@ class TokenBalances extends React.Component {
 
         <div className="token-balances-information-wrapper">
           {
-            this.state.tokenId !== '00' && (
+            this.state.tokenId !== hathorLibConstants.HATHOR_TOKEN_CONFIG.uid && (
               <p>
                 <a href={`/token_detail/${this.state.tokenId}`}>
                   Click here to see the token details
