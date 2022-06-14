@@ -185,8 +185,7 @@ class TokenAutoCompleteField extends React.Component {
         onKeyUp={this.onSearchTextKeyUp}
         onChange={this.onSearchTextChanged}
         placeholder="Hathor (HTR) - Type to search for other tokens by UID, name or symbol"
-        aria-label="Search"
-        ref={ref => {this.autoCompleteInputRef = ref}} />
+        aria-label="Search" />
     )
   }
 
