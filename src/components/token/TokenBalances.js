@@ -15,7 +15,6 @@ import { withRouter } from "react-router-dom";
 import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon'
 import TokenAutoCompleteField from './TokenAutoCompleteField';
 import helpers from '../../utils/helpers';
-import Loading from '../Loading';
 import { constants as hathorLibConstants } from '@hathor/wallet-lib';
 
 
@@ -35,6 +34,13 @@ class TokenBalances extends React.Component {
 
   constructor(props) {
     super(props);
+
+    // Get default states from query params and default values
+    const queryParams = this.pagination.obtainQueryParams();
+
+    const sortBy = get(queryParams, 'sortBy', 'total');
+    const order = get(queryParams, 'order', 'desc');
+    const tokenId = get(queryParams, 'token', hathorLibConstants.HATHOR_TOKEN_CONFIG.uid);
 
     /**
      * tokenBalances: List of token balances currently being rendered.
@@ -58,19 +64,17 @@ class TokenBalances extends React.Component {
      *                  our feature toggle service (Unleash) to remove additional load until the team fixes the problem
      * transactionsCount: Number of transactions for the searched token
      * addressesCount: Number of addressed for the searched token
-     * queryParamsParsed: Boolean to know when the query parameters are already parsed. It's important so the
-     *                    first mount of the autocomplete component already has the correct token from the URL.
      */
     this.state = {
-      tokenId: hathorLibConstants.HATHOR_TOKEN_CONFIG.uid,
+      tokenId,
       tokenBalances: [],
       hasAfter: false,
       hasBefore: false,
-      sortBy: 'total',
-      order: 'desc',
+      sortBy,
+      order,
       page: 1,
       pageSearchAfter: [],
-      loading: false,
+      loading: true,
       isSearchLoading: false,
       calculatingPage: false,
       error: false,
@@ -78,7 +82,6 @@ class TokenBalances extends React.Component {
       maintenanceMode: this.props.maintenanceMode,
       transactionsCount: 0,
       addressesCount: 0,
-      queryParamsParsed: false,
     };
   }
 
@@ -87,21 +90,11 @@ class TokenBalances extends React.Component {
       return;
     }
 
-    // 'Click' on search to make the first query
-    const queryParams = this.pagination.obtainQueryParams();
-
-    await helpers.setStateAsync(this, {
-      sortBy: get(queryParams, 'sortBy', this.state.sortBy),
-      order: get(queryParams, 'order', this.state.order),
-      tokenId: get(queryParams, 'token', this.state.tokenId),
-      loading: true,
-      queryParamsParsed: true,
-    });
-
     if (this.state.tokenId === hathorLibConstants.HATHOR_TOKEN_CONFIG.uid) {
       // If we had a custom token as queryParam
       // then we will perform the search after the token
       // is found in the elastic search
+      // otherwise we just perform the search for HTR to show the default screen
       await this.performSearch();
 
       this.setState({
@@ -278,17 +271,6 @@ class TokenBalances extends React.Component {
   render() {
     if (this.state.maintenanceMode) {
       return <ErrorMessageWithIcon message='This feature is under maintenance. Please try again after some time' />;
-    }
-
-    if (!this.state.queryParamsParsed) {
-      return (
-        <Loading
-          width={25}
-          height={25}
-          delay={0}
-          useLoadingWrapper={false}
-          showSlowLoadMessage={false} />
-      );
     }
 
     const renderSearchField = () => {
