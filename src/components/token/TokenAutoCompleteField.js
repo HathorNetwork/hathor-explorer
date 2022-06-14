@@ -62,7 +62,7 @@ class TokenAutoCompleteField extends React.Component {
       // A token was selected in the query params
       // so we must search for it here to add
       // in the autocomplete input and perform the search
-      this.searchAndSelectToken(this.props.tokenId);
+      this.searchAndSelectToken();
     }
   }
 
@@ -73,10 +73,8 @@ class TokenAutoCompleteField extends React.Component {
   /**
    * The first component mount will need to find the token item in the elastic search
    * and then execute the data search, in case a token was already selected in the query
-   *
-   * @param {string} tokenId The token to pre select when first mounting the component
    */
-  searchAndSelectToken = async (tokenId) => {
+  searchAndSelectToken = async () => {
     const searchResults = await this.executeSearch(this.props.tokenId);
 
     if (searchResults.length > 0) {
