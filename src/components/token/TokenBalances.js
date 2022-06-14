@@ -18,7 +18,6 @@ import helpers from '../../utils/helpers';
 import { constants as hathorLibConstants } from '@hathor/wallet-lib';
 
 
-
 /**
  * Displays custom tokens in a table with pagination buttons and a search bar.
  */
