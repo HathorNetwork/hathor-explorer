@@ -15,7 +15,6 @@ import ConditionalNavigation from './ConditionalNavigation';
 import {
   UNLEASH_TOKENS_BASE_FEATURE_FLAG,
   UNLEASH_TOKEN_BALANCES_FEATURE_FLAG,
-  UNLEASH_TIME_SERIES_FEATURE_FLAG,
 } from '../constants';
 
 class Navigation extends React.Component {

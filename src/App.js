@@ -20,7 +20,6 @@ import PushTx from './screens/PushTx';
 import TransactionList from './screens/TransactionList';
 import TokenList from './screens/TokenList';
 import TokenBalancesList from './screens/TokenBalances';
-import TimeSeriesDashboard from './screens/TimeSeriesDashboard';
 import BlockList from './screens/BlockList';
 import TokenDetail from './screens/TokenDetail';
 import Dag from './screens/Dag';
