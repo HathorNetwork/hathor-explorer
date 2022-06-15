@@ -46,7 +46,7 @@ export const TESTNET_GENESIS_TX = [
 
 export const DECIMAL_PLACES = 2;
 
-export const VERSION = '0.11.0';
+export const VERSION = '0.12.0';
 
 export const MIN_API_VERSION = '0.33.0';
 
@@ -100,3 +100,4 @@ export const UNLEASH_CONFIG = {
 }
 
 export const UNLEASH_TOKENS_BASE_FEATURE_FLAG = `explorer-tokens-${REACT_APP_NETWORK}`;
+export const UNLEASH_TOKEN_BALANCES_FEATURE_FLAG = `explorer-address-list-${REACT_APP_NETWORK}`;

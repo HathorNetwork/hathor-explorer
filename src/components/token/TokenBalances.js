@@ -7,39 +7,47 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import TokensTable from './TokensTable';
-import TokenSearchField from './TokenSearchField';
+import TokenBalancesTable from './TokenBalancesTable';
 import tokensApi from '../../api/tokensApi';
 import { get, last, find, isEmpty } from 'lodash';
 import PaginationURL from '../../utils/pagination';
 import { withRouter } from "react-router-dom";
 import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon'
+import TokenAutoCompleteField from './TokenAutoCompleteField';
 import helpers from '../../utils/helpers';
+import { constants as hathorLibConstants } from '@hathor/wallet-lib';
+
 
 /**
  * Displays custom tokens in a table with pagination buttons and a search bar.
  */
-class Tokens extends React.Component {
+class TokenBalances extends React.Component {
   /**
    * Structure that contains the attributes that will be part of the page URL
    */
   pagination = new PaginationURL({
-    'searchText': { required: false },
     'sortBy': { required: false },
     'order': { required: false },
+    'token': { required: false },
   });
 
   constructor(props) {
     super(props);
 
+    // Get default states from query params and default values
+    const queryParams = this.pagination.obtainQueryParams();
+
+    const sortBy = get(queryParams, 'sortBy', 'total');
+    const order = get(queryParams, 'order', 'desc');
+    const tokenId = get(queryParams, 'token', hathorLibConstants.HATHOR_TOKEN_CONFIG.uid);
+
     /**
-     * tokens: List of tokens currently being rendered.
-     *         Each token element must have the fields: id, name, symbol, nft, transaction_timestamp, and sort.
+     * tokenBalances: List of token balances currently being rendered.
+     *         Each token balance element must have the fields: address, locked_balance, unlocked_balance, total, token_id and sort.
      *         id, name, symbol are strings; nft is boolean; transaction_timestamp is long.
      *         Sort is an array with two strings, The value is given by ElasticSearch and it is passed back when we want to change page
      * hasAfter: Indicates if a next page exists
      * hasBefore: Indicates if a previous page exists
-     * searchText: Input text written by user
      * sortBy: Which field to sort (uid, name, symbol)
      * order: If sorted field must be ordered asc or desc
      * page: Current page. Used to know if there is a previous page
@@ -50,23 +58,29 @@ class Tokens extends React.Component {
      * isSearchLoading: Indicates if search results are being retrieved from explorer-service
      * calculatingPage: Indicates if next page is being retrieved from explorer-service
      * error: Indicates if an unexpected error happened when calling the explorer-service
+     * tokenBalanceInformationError: Indicates if an unexpected error happened when calling the token balance information service 
      * maintenanceMode: Indicates if explorer-service or its downstream services are experiencing problems. If so, maintenance mode will be enabled on
      *                  our feature toggle service (Unleash) to remove additional load until the team fixes the problem
+     * transactionsCount: Number of transactions for the searched token
+     * addressesCount: Number of addressed for the searched token
      */
     this.state = {
-      tokens: [],
+      tokenId,
+      tokenBalances: [],
       hasAfter: false,
       hasBefore: false,
-      searchText: '',
-      sortBy: 'transaction_timestamp',
-      order: "desc",
+      sortBy,
+      order,
       page: 1,
       pageSearchAfter: [],
-      loading: false,
+      loading: true,
       isSearchLoading: false,
       calculatingPage: false,
       error: false,
+      tokenBalanceInformationError: false,
       maintenanceMode: this.props.maintenanceMode,
+      transactionsCount: 0,
+      addressesCount: 0,
     };
   }
 
@@ -75,55 +89,61 @@ class Tokens extends React.Component {
       return;
     }
 
-    // 'Click' on search to make the first query
-    const queryParams = this.pagination.obtainQueryParams();
+    if (this.state.tokenId === hathorLibConstants.HATHOR_TOKEN_CONFIG.uid) {
+      // If we had a custom token as queryParam
+      // then we will perform the search after the token
+      // is found in the elastic search
+      // otherwise we just perform the search for HTR to show the default screen
+      await this.performSearch();
 
-    await helpers.setStateAsync(this, {
-      searchText: get(queryParams, 'searchText', this.state.searchText),
-      sortBy: get(queryParams, 'sortBy', this.state.sortBy),
-      order: get(queryParams, 'order', this.state.order),
-      loading: true,
-    });
-
-    await this.onSearchButtonClicked();
-
-    this.setState({
-      loading: false,
-    });
+      this.setState({
+        loading: false,
+      });
+    }
   }
 
   /**
-   *
-   * Call explorer-service to get list of tokens according to the search criteria
+   * Call explorer-service to get list of token balances for a given tokenId
    *
    * @param {*} searchAfter Parameter needed by ElasticSearch for pagination purposes
    * @returns tokens
    */
-  getTokens = async (searchAfter) => {
-    const tokensRequest = await tokensApi.getList(this.state.searchText, this.state.sortBy, this.state.order, searchAfter);
-
+  getTokenBalances = async (searchAfter) => {
+    const tokenBalancesRequest = await tokensApi.getBalances(this.state.tokenId, this.state.sortBy, this.state.order, searchAfter);
     this.setState({
-      error: get(tokensRequest, 'error', false),
+      error: get(tokenBalancesRequest, 'error', false),
+    });
+    return get(tokenBalancesRequest, 'data', { hits: [], 'has_next': false });
+  }
+
+  loadTokenBalanceInformation = async () => {
+    const tokenBalanceInformationRequest = await tokensApi.getBalanceInformation(this.state.tokenId);
+    this.setState({
+      tokenBalanceInformationError: get(tokenBalanceInformationRequest, 'error', false),
     });
 
-    const tokens = get(tokensRequest, 'data', { hits: [], 'has_next': false });
-    tokens.hits = tokens.hits.map(token => ({ ...token, 'uid': token.id, 'nft': get(token, 'nft', false) }));
-    return tokens;
+    return get(tokenBalanceInformationRequest, 'data', {
+      transactions: 0,
+      addresses: 0,
+    });
   }
 
   /**
-    * Process events when user clicks on search button
-    */
-  onSearchButtonClicked = async () => {
+   * Calls ElasticSearch (through the Explorer Service) with state data, sets loading and URL information
+   */
+  performSearch = async () => {
     this.setState({ isSearchLoading: true });
-    const tokens = await this.getTokens([]);
+    const tokenBalances = await this.getTokenBalances([]);
+    const tokenBalanceInformation = await this.loadTokenBalanceInformation();
 
-    //When search button is clicked, results return to the first page
     this.setState({
       isSearchLoading: false,
+      loading: false,
       page: 1,
-      tokens: tokens.hits,
-      hasAfter: tokens.has_next,
+      tokenBalances: tokenBalances.hits,
+      transactionsCount: tokenBalanceInformation.transactions,
+      addressesCount: tokenBalanceInformation.addresses,
+      hasAfter: tokenBalances.has_next,
       hasBefore: false,
       pageSearchAfter: [{
         page: 1,
@@ -136,33 +156,13 @@ class Tokens extends React.Component {
   }
 
   /**
-   * Updates searchText state value when input field is changed
-   *
-   * @param {*} event
-   */
-  onSearchTextChanged = (event) => {
-    this.setState({ searchText: event.target.value });
-  }
-
-  /**
-   * Checks if enter button is pressed. If so, treat as a button click on search icon
-   *
-   * @param {*} event
-   */
-  onSearchTextKeyUp = (event) => {
-    if (event.key === 'Enter') {
-      this.onSearchButtonClicked();
-    }
-  }
-
-  /**
    * Update the URL, so user can share the results of a search
    */
   updateURL = () => {
     const newURL = this.pagination.setURLParameters({
-      searchText: this.state.searchText,
       sortBy: this.state.sortBy,
       order: this.state.order,
+      token: this.state.tokenId,
     });
 
     this.props.history.push(newURL);
@@ -170,10 +170,8 @@ class Tokens extends React.Component {
 
   /**
     * Process events when next page is requested by user
-    *
-    * @param {*} event
     */
-  nextPageClicked = async (event) => {
+  nextPageClicked = async () => {
     this.setState({ calculatingPage: true });
 
     const nextPage = this.state.page + 1;
@@ -181,7 +179,7 @@ class Tokens extends React.Component {
 
     // Calculate searchAfter of next page if not already calculated
     if (isEmpty(searchAfter)) {
-      const lastCurrentTokenSort = get(last(this.state.tokens), 'sort', []);
+      const lastCurrentTokenSort = get(last(this.state.tokenBalances), 'sort', []);
 
       const newEntry = {
         page: nextPage,
@@ -198,11 +196,11 @@ class Tokens extends React.Component {
       searchAfter = lastCurrentTokenSort;
     }
 
-    const tokens = await this.getTokens(searchAfter);
+    const tokenBalances = await this.getTokenBalances(searchAfter);
 
     this.setState({
-      tokens: tokens.hits,
-      hasAfter: tokens.has_next,
+      tokenBalances: tokenBalances.hits,
+      hasAfter: tokenBalances.has_next,
       hasBefore: true,
       page: nextPage,
       calculatingPage: false,
@@ -211,23 +209,38 @@ class Tokens extends React.Component {
 
   /**
    * Process events when previous page is requested by user
-   *
-   * @param {*} event
    */
-  previousPageClicked = async (event) => {
+  previousPageClicked = async () => {
     this.setState({ calculatingPage: true });
 
     const previousPage = this.state.page - 1;
     const searchAfter = get(find(this.state.pageSearchAfter, { page: previousPage }), 'searchAfter', []);
-    const tokens = await this.getTokens(searchAfter);
+    const tokenBalances = await this.getTokenBalances(searchAfter);
 
     this.setState({
-      tokens: tokens.hits,
+      tokenBalances: tokenBalances.hits,
       hasAfter: true,
       hasBefore: previousPage === 1 ? false : true,
       page: previousPage,
       calculatingPage: false,
     });
+  }
+
+  onTokenSelected = async (token) => {
+    if (!token) {
+      await helpers.setStateAsync(this, {
+        tokenId: hathorLibConstants.HATHOR_TOKEN_CONFIG.uid
+      });
+
+      this.performSearch();
+      return;
+    }
+
+    await helpers.setStateAsync(this, {
+      tokenId: token.id,
+    });
+
+    this.performSearch();
   }
 
   /**
@@ -236,45 +249,42 @@ class Tokens extends React.Component {
    * @param {*} event
    * @param {*} header
    */
-  tableHeaderClicked = async (event, header) => {
+  tableHeaderClicked = async (_event, header) => {
     if (header === this.state.sortBy) {
       await helpers.setStateAsync(this, { order: this.state.order === 'asc' ? 'desc' : 'asc' });
     } else {
       await helpers.setStateAsync(this, { sortBy: header, order: 'asc' });
     }
 
-    await this.onSearchButtonClicked();
+    this.performSearch();
+  }
+
+  /**
+   * Turn loading false.
+   * Useful to be used by autocomplete component when the first search doesn't find any token
+   */
+  loadingFinished = () => {
+    this.setState({ loading: false });
   }
 
   render() {
-    const renderSearchField = () => {
-      if (this.state.maintenanceMode) {
-        return <ErrorMessageWithIcon message='This feature is under maintenance. Please try again after some time' />;
-      }
-
-      return (
-        <TokenSearchField
-          onSearchButtonClicked={this.onSearchButtonClicked}
-          onSearchTextChanged={this.onSearchTextChanged}
-          searchText={this.state.searchText}
-          onSearchTextKeyUp={this.onSearchTextKeyUp}
-          isSearchLoading={this.state.isSearchLoading}
-          loading={this.state.loading} />
-      );
+    if (this.state.maintenanceMode) {
+      return <ErrorMessageWithIcon message='This feature is under maintenance. Please try again after some time' />;
     }
 
-    const renderTokensTable = () => {
-      if (this.state.maintenanceMode) {
-        return null;
-      }
+    const renderSearchField = () => {
+      return <TokenAutoCompleteField onTokenSelected={this.onTokenSelected.bind(this)} tokenId={this.state.tokenId} loadingFinished={this.loadingFinished} />;
+    };
 
+    const renderTokensTable = () => {
       if (this.state.error) {
-        return <ErrorMessageWithIcon message='Error loading tokens. Please try again.' />;
+        return <ErrorMessageWithIcon message='Error loading token balances. Please try again.' />;
       }
 
       return (
-        <TokensTable
-          data={this.state.tokens}
+        <TokenBalancesTable
+          tokenId={this.state.tokenId}
+          data={this.state.tokenBalances}
           hasBefore={this.state.hasBefore}
           hasAfter={this.state.hasAfter}
           onNextPageClicked={this.nextPageClicked}
@@ -285,28 +295,48 @@ class Tokens extends React.Component {
           tableHeaderClicked={this.tableHeaderClicked}
           calculatingPage={this.state.calculatingPage} />
       );
-    }
-
+    };
 
     return (
       <div className="w-100">
-        <div className='col-12'>
-          <h1>{this.props.title}</h1>
-        </div>
         {renderSearchField()}
+
+        <div className="token-balances-information-wrapper">
+          {
+            this.state.tokenId !== hathorLibConstants.HATHOR_TOKEN_CONFIG.uid && (
+              <p>
+                <a href={`/token_detail/${this.state.tokenId}`}>
+                  Click here to see the token details
+                </a>
+              </p>
+            )
+          }
+          {
+            !this.state.tokenBalanceInformationError && (
+              <>
+                <p><b>Total number of addresses:</b> { helpers.renderValue(this.state.addressesCount, true) }</p>
+                <p><b>Total number of transactions:</b> { helpers.renderValue(this.state.transactionsCount, true) }</p>
+              </>
+            )
+          }
+          {
+            this.state.tokenBalanceInformationError && (
+              <ErrorMessageWithIcon message='Error loading token balance information. Please try again.' />
+            )
+          }
+        </div>
+
         {renderTokensTable()}
       </div>
-    )
+    );
   }
 }
 
 /**
- * title: Tokens Page title
  * maintenanceMode: A "circuit breaker" to remove additional load when a problem is affecting explorer-service or its downstream services
  */
-Tokens.propTypes = {
-  title: PropTypes.string.isRequired,
+TokenBalances.propTypes = {
   maintenanceMode: PropTypes.bool.isRequired
 };
 
-export default withRouter(Tokens)
+export default withRouter(TokenBalances)
