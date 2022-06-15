@@ -14,6 +14,7 @@ class ScreenStatusMessage extends React.Component {
 
     constructor() {
         super();
+        this.screenStatusLoopExecution = null;
 
         this.state = {
             height: 0,
@@ -38,7 +39,9 @@ class ScreenStatusMessage extends React.Component {
 
     componentWillUnmount() {
         // We need to clear the interval object we created when user leaves the page
-        clearInterval(this.screenStatusLoopExecution);
+        if (this.screenStatusLoopExecution) {
+            clearInterval(this.screenStatusLoopExecution);
+        }
     }
 
     /**

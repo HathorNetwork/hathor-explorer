@@ -18,30 +18,26 @@ class TimeSeries extends React.Component {
     }
 
     render() {
-        const renderTitle = () => {
-            if (this.state.featureFlag) {
-                return (<h2 className='statistics-title'>Historical Data</h2>);
-            }
+        if (!this.state.featureFlag) {
+            return null;
         }
 
         const renderDashboard = () => {
-            if (this.state.featureFlag) {
-                if (this.state.maintenanceMode) {
-                    return (<ErrorMessageWithIcon message='This feature is under maintenance. Please try again after some time' />);
-                } else {
-                    return (
-                        <div>
-                            <ScreenStatusMessage />
-                            <iframe title='Time Series Data' id='timeseries-iframe' className='timeseries-iframe' src={TIMESERIES_DASHBOARD_URL}></iframe>
-                        </div>
-                    );
-                }
+            if (this.state.maintenanceMode) {
+                return (<ErrorMessageWithIcon message='This feature is under maintenance. Please try again after some time' />);
+            } else {
+                return (
+                    <div>
+                        <ScreenStatusMessage />
+                        <iframe title='Time Series Data' id='timeseries-iframe' className='timeseries-iframe' src={TIMESERIES_DASHBOARD_URL}></iframe>
+                    </div>
+                );
             }
         }
 
         return (
             <div>
-                {renderTitle()}
+                <h2 className='statistics-title'>Historical Data</h2>
                 {renderDashboard()}
             </div>
         );
