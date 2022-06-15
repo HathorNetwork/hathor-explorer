@@ -113,7 +113,6 @@ class Root extends React.Component {
               <NavigationRoute exact path="/transactions" component={TransactionList} />
               <NavigationRoute exact path="/tokens" component={TokenList} />
               <NavigationRoute exact path="/token_balances" component={TokenBalancesList} />
-              <NavigationRoute exact path="/timeseries" component={TimeSeriesDashboard} />
               <NavigationRoute exact path="/blocks" component={BlockList} />
               <NavigationRoute exact path="/dag" component={Dag} />
               <NavigationRoute exact path="/network/:peerId?" component={PeerAdmin} />

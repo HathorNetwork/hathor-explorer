@@ -2,7 +2,10 @@ import React from 'react';
 import { get } from 'lodash';
 
 import blockApi from '../../api/blockApi';
+import { SCREEN_STATUS_LOOP_INTERVAL_IN_SECONDS } from '../../constants';
 import dateFormatter from '../../utils/date';
+import helpers from '../../utils/helpers';
+
 import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon';
 import Loading from '../Loading';
 
@@ -28,40 +31,29 @@ class ScreenStatusMessage extends React.Component {
         });
 
         // Constantly execute the method to get the newest block
-        const screenStatusLoopExecution = setInterval(() => {
+        this.screenStatusLoopExecution = setInterval(() => {
             this.getBestChainHeight();
-        }, 60000); // 60 seconds. This is the interval that ElasticSearch takes to ingest data from blocks
-
-        this.setState({ screenStatusLoopExecution });
+        }, SCREEN_STATUS_LOOP_INTERVAL_IN_SECONDS * 1000);
     }
 
     componentWillUnmount() {
         // We need to clear the interval object we created when user leaves the page
-        clearInterval(this.state.screenStatusLoopExecution);
+        clearInterval(this.screenStatusLoopExecution);
     }
 
     /**
      * Calls the Explorer Service to get the best chain height
      * 
-     * @returns 
      */
     getBestChainHeight = async () => {
         const blockApiResponse = await blockApi.getBestChainHeight();
-        const blockApiResponseStatus = get(blockApiResponse, 'status', 500);
-
-        if (blockApiResponseStatus > 299) {
-            this.setState({
-                error: true,
-            });
-            return;
-        }
 
         const blockApiResponseData = get(blockApiResponse, 'data.hits[0]', []);
 
         this.setState({
             height: get(blockApiResponseData, 'height', 0),
             timestamp: get(blockApiResponseData, 'timestamp', ''),
-            error: false,
+            error: get(blockApiResponse, 'error', false),
         });
     }
 
@@ -73,9 +65,9 @@ class ScreenStatusMessage extends React.Component {
                         <ErrorMessageWithIcon message='Could not load the last block updated' /> :
                         (this.state.loading) ?
                             <Loading /> :
-                            <p>
+                            <p className='screen-status'>
                                 <strong>
-                                    This screen is updated until block at height {this.state.height} and the last update was on {dateFormatter.parseTimestampFromSQLTimestamp(this.state.timestamp)}
+                                    This screen is updated until block at height {helpers.renderValue(this.state.height, true)} and the last update was on {dateFormatter.parseTimestampFromSQLTimestamp(this.state.timestamp)}
                                 </strong>
                             </p>
                 }

@@ -12,7 +12,7 @@ const dateFormatter = {
   },
 
   parseTimestampFromSQLTimestamp(timestamp) {
-    const d = new Date(timestamp);
+    const d = new Date(timestamp); // This is the timestamp format we expect to receive: 2022-05-09T18:55:47Z
     return `${d.toLocaleDateString('en-US')} ${d.toLocaleTimeString('en-US')}`;
   },
 

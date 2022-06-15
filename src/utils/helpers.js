@@ -253,7 +253,14 @@ const helpers = {
     return new Promise((resolve) => instance.setState(state, resolve));
   },
 
-  async handleExplorerServiceResponse(response) {
+  /**
+   * Parses the response from Explorer Service and add an object `error` to the respoonse.
+   * This way, clients of this method do not have to handle status codes.
+   * 
+   * @param {Object} response 
+   * @returns Explorer Service result enriched with the `error` object
+   */
+  handleExplorerServiceResponse(response) {
     // If status is not retrieved, we assume an internal error ocurred, giving the status code 500
     // Currently 200 is always returned for success responses
     if (get(response, 'status', 500) > 299) {

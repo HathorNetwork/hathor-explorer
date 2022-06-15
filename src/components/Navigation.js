@@ -79,7 +79,6 @@ class Navigation extends React.Component {
                   <ConditionalNavigation to="/token_balances" label="Token balances" featureToggle={`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.rollout`} />
                 </div>
               </li>
-              <ConditionalNavigation to="/timeseries" label="Time&nbsp;Series" featureToggle={`${UNLEASH_TIME_SERIES_FEATURE_FLAG}.rollout`} />
               <li className="nav-item">
                 <NavLink to="/network" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Network</NavLink>
               </li>
