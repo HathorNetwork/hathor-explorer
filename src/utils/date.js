@@ -10,9 +10,13 @@ const dateFormatter = {
     const d = new Date(timestamp*1000); // new Date in js expect milliseconds
     return `${d.toLocaleDateString('en-US')} ${d.toLocaleTimeString('en-US')}`;
   },
-
+  /**
+   * Return the localized string of an SQL Timestamp value
+   * @param {String} timestamp String with YYYY-MM-DD'T'HH:MM:SS'Z' format, like 2022-05-09T18:55:47Z
+   * @returns The localized, user-friendly date string
+   */
   parseTimestampFromSQLTimestamp(timestamp) {
-    const d = new Date(timestamp); // This is the timestamp format we expect to receive: 2022-05-09T18:55:47Z
+    const d = new Date(timestamp);
     return `${d.toLocaleDateString('en-US')} ${d.toLocaleTimeString('en-US')}`;
   },
 
