@@ -11,7 +11,7 @@ const dateFormatter = {
     return `${d.toLocaleDateString('en-US')} ${d.toLocaleTimeString('en-US')}`;
   },
   /**
-   * Return the localized string of an SQL Timestamp value
+   * Return the localized string of a SQL Timestamp value
    * @param {String} timestamp String with YYYY-MM-DD'T'HH:MM:SS'Z' format, like 2022-05-09T18:55:47Z
    * @returns The localized, user-friendly date string
    */
