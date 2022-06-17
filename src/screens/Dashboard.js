@@ -10,6 +10,7 @@ import { connect } from "react-redux";
 import colors from '../index.scss';
 import ReactLoading from 'react-loading';
 import helpers from '../utils/helpers';
+import TimeSeriesDashboard from './TimeSeriesDashboard';
 
 
 const mapStateToProps = (state) => {
@@ -38,9 +39,12 @@ class Dashboard extends React.Component {
 
     return (
       <div className="content-wrapper">
+        <h2 className='statistics-title'>Real time</h2>
         <p><strong>Blocks (best height): </strong>{helpers.renderValue(height, true)}</p>
         <p><strong>Transactions: </strong>{helpers.renderValue(transactions, true)}</p>
         <p className="color-hathor"><strong>Hash rate: </strong>{hashRate}</p>
+
+        <TimeSeriesDashboard />
       </div>
     );
   }

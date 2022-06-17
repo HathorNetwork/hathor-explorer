@@ -7,6 +7,7 @@
 
 import hathorLib from '@hathor/wallet-lib';
 import { MAINNET_GENESIS_BLOCK, TESTNET_GENESIS_BLOCK, MAINNET_GENESIS_TX, TESTNET_GENESIS_TX, DECIMAL_PLACES, MIN_API_VERSION } from '../constants';
+import { get } from 'lodash';
 
 const helpers = {
   updateListWs(list, newEl, max) {
@@ -250,6 +251,28 @@ const helpers = {
    */
   async setStateAsync(instance, state) {
     return new Promise((resolve) => instance.setState(state, resolve));
+  },
+
+  /**
+   * Parses the response from Explorer Service and add an object `error` to the respoonse.
+   * This way, clients of this method do not have to handle status codes.
+   * 
+   * @param {Object} response 
+   * @returns Explorer Service result enriched with the `error` object
+   */
+  handleExplorerServiceResponse(response) {
+    // If status is not retrieved, we assume an internal error ocurred, giving the status code 500
+    // Currently 200 is always returned for success responses
+    if (get(response, 'status', 500) > 299) {
+      return {
+        'error': true,
+      };
+    }
+
+    return {
+      ...response,
+      error: false,
+    };
   }
 }
 

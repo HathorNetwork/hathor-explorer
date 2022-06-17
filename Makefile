@@ -12,6 +12,7 @@ testnet_build:
 	export REACT_APP_BASE_URL=https://$$FULLNODE_HOST/v1a/; \
 	export REACT_APP_WS_URL=wss://$$FULLNODE_HOST/v1a/ws/; \
 	export REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.testnet.hathor.network/; \
+	export REACT_APP_TIMESERIES_DASHBOARD_ID=35379840-e8c5-11ec-a7f2-0fee9be0d8ee; \
 	export REACT_APP_NETWORK=testnet; \
 	npm run build
 
@@ -29,6 +30,7 @@ mainnet_build:
 	export REACT_APP_WS_URL=wss://$$FULLNODE_HOST/v1a/ws/; \
 	export REACT_APP_GTM_ID=GTM-MJVX6BG; \
 	export REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.hathor.network/; \
+	export REACT_APP_TIMESERIES_DASHBOARD_ID=674ebc10-e8c4-11ec-a7f2-0fee9be0d8ee; \
 	export REACT_APP_NETWORK=mainnet; \
 	npm run build
 
@@ -49,5 +51,6 @@ testnet_local:
 	export REACT_APP_BASE_URL=https://$$FULLNODE_HOST/v1a/; \
 	export REACT_APP_WS_URL=wss://$$FULLNODE_HOST/v1a/ws/; \
 	export REACT_APP_EXPLORER_SERVICE_BASE_URL=http://localhost:3001/dev/; \
+	export REACT_APP_TIMESERIES_DASHBOARD_ID=35379840-e8c5-11ec-a7f2-0fee9be0d8ee; \
 	export REACT_APP_NETWORK=testnet; \
 	npm run start
