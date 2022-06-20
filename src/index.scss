@@ -606,3 +606,19 @@ p, span {
 th.sortable {
   cursor: pointer;
 }
+
+.timeseries-iframe {
+  display: flex;
+  height: 600px;
+  width: 100%;
+  border: none;
+}
+
+.statistics-title {
+  padding-top: 15px;
+  padding-bottom: 20px;
+}
+
+.screen-status {
+  padding-bottom: 20px;
+}
