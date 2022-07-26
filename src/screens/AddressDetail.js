@@ -15,51 +15,49 @@ import colors from '../index.scss';
 import WebSocketHandler from '../WebSocketHandler';
 import { TX_COUNT } from '../constants';
 import { isEqual } from 'lodash';
-import helpers from '../utils/helpers';
 import metadataApi from '../api/metadataApi';
 import addressApi from '../api/addressApi';
+import txApi from '../api/txApi';
 
 
 class AddressDetail extends React.Component {
   pagination = new PaginationURL({
-    'hash': {required: false},
+    'token': {required: true},
     'page': {required: false},
-    'token': {required: true}
   });
 
   addressSummaryRef = React.createRef();
 
   /*
    * address {String} searched address (from url)
-   * balance {Object} Object with balance of each token of this address indexed by tokenUid {uid1: {'name', 'symbol', 'received', 'spent'}}
    * selectedToken {String} UID of the selected token when address has many
-   * numberOfTransactions {Number} Total number of transactions of the list
+   * balance {Object} Object with balance of the selected token on this address
    * transactions {Array} List of transactions history to show
-   * hasAfter {boolean} If has more elements after the list page
-   * hasBefore {boolean} If has more elements before the list page
    * queryParams {Object} Object with URL parameters data
    * loadingSummary {boolean} If is waiting response of data summary request
    * loadingHistory {boolean} If is waiting response of data history request
+   * loadingTokens {boolean} If is waiting response of tokens request
    * errorMessage {String} message to be shown in case of an error
    * warningRefreshPage {boolean} If should show a warning to refresh the page to see newest data for the address
    * selectedTokenMetadata {Object} Metadata of the selected token
    * metadataLoaded {boolean} When the selected token metadata was loaded
+   * addressTokens {Object} Object with all tokens that have passed on this address, indexed by token UID, i.e. {"00": {"name": "Hathor", "symbol": "HTR", "token_id": "00"}, ...}
    */
   state = {
     address: null,
-    balance: {},
     selectedToken: '',
-    numberOfTransactions: 0,
+    balance: {},
     transactions: [],
-    hasAfter: false,
-    hasBefore: false,
     queryParams: null,
-    loadingSummary: true,
+    loadingSummary: false,
     loadingHistory: false,
+    loadingTokens: true,
     errorMessage: '',
     warningRefreshPage: false,
     selectedTokenMetadata: null,
     metadataLoaded: false,
+    addressTokens: {},
+    txCache: {},
   }
 
   componentDidMount() {
@@ -93,15 +91,16 @@ class AddressDetail extends React.Component {
         // If we don't update this state here we might execute a duplicate request
         const newQueryParams = this.pagination.obtainQueryParams();
         this.setState({ queryParams: newQueryParams }, () => {
-          this.getHistoryData(newQueryParams);
+          this.reloadTokenData(newQueryParams.token);
         });
         return;
       }
 
-      // Fetch new data, unless query params were cleared and we were already in the most recent page
-      if (queryParams.hash || this.state.hasBefore) {
-        this.getHistoryData(queryParams);
-      }
+      // update the query params state then fetch the new page
+      this.setState({ queryParams, loadingHistory: true }, () => {
+        // Fetch new data, unless query params were cleared and we were already in the most recent page
+        this.getHistoryData(+queryParams.page);
+      });
     }
   }
 
@@ -121,29 +120,6 @@ class AddressDetail extends React.Component {
   }
 
   /**
-   * Update the list with a new tx arrived in a ws message
-   * Checks if the list is on the first page, so it can have a new element
-   * Also validates if this tx is compatible with the list
-   *
-   * @param {Object} tx Data of a newly arrived tx
-   */
-  updateListWs = (tx) => {
-    // We only add new tx/blocks if it's the first page
-    if (!this.state.hasBefore) {
-      if (this.shouldUpdate(tx, true)) {
-        let transactions = this.state.transactions;
-        let hasAfter = this.state.hasAfter || transactions.length === TX_COUNT;
-        transactions = helpers.updateListWs(transactions, tx, TX_COUNT);
-
-        const newNumberOfTransactions = this.state.numberOfTransactions + 1;
-
-        // Finally we update the state again
-        this.setState({ transactions, hasAfter, numberOfTransactions: newNumberOfTransactions });
-      }
-    }
-  }
-
-  /**
    * Check if address is valid and then update the state and get data from full node
    * If not valid show error message
    *
@@ -152,19 +128,24 @@ class AddressDetail extends React.Component {
   updateAddress = (address) => {
     this.setState({ queryParams: this.pagination.obtainQueryParams() }, () => {
       if (hathorLib.transaction.isAddressValid(address)) {
-        this.setState({ address, loadingSummary: true, transactions: [], errorMessage: '' }, () => {
+        this.setState({
+          address,
+          loadingTokens: true,
+          loadingSummary: true,
+          loadingHistory: true,
+          addressTokens: {},
+          transactions: [],
+          balance: {},
+          errorMessage: '',
+        }, () => {
           const queryParams = this.pagination.obtainQueryParams();
           if (queryParams.token !== null) {
             // User already have a token selected on the URL
             this.setState({ selectedToken: queryParams.token }, () => {
-              this.getSummaryData();
-              this.getHistoryData(this.state.queryParams);
+              this.reloadData();
             });
           } else {
-            // Will get data and select the default token
-            // In this case I don't get history data because I still don't know the token
-            // When the token changes, I will fetch the history data
-            this.getSummaryData();
+            this.reloadData();
           }
         });
       } else {
@@ -178,98 +159,113 @@ class AddressDetail extends React.Component {
    *
    * @param {Object} queryParams URL parameters
    */
-  getHistoryData = (queryParams) => {
-    addressApi.search(this.state.address, TX_COUNT, queryParams.hash, queryParams.page, queryParams.token).then((response) => {
-      if (response.success) {
-        this.handleFetchedData(response, queryParams);
-      }
-      // fetch metadata for selected token
-      this.getSelectedTokenMetadata(queryParams.token);
-    });
-  }
-
-
-  /**
-   * Update component state when new list data arrives
-   *
-   * @param {Object} data Response data from the server
-   * @param {Object} queryParams URL parameters
-   */
-  handleFetchedData = (data, queryParams) => {
-    // Handle differently if is the first GET response we receive
-    // page indicates if was clicked 'previous' or 'next'
-    // Set first and last hash of the transactions
-    let hasAfter;
-    let hasBefore;
-    if (queryParams.page === 'previous') {
-      hasAfter = true;
-      hasBefore = data.has_more;
-      if (!hasBefore) {
-        // Went back to most recent page: clear URL params
-        this.pagination.clearOptionalQueryParams();
-      }
-    } else if (queryParams.page === 'next') {
-      hasBefore = true;
-      hasAfter = data.has_more;
-    } else {
-      // First load without parameters
-      hasBefore = false;
-      hasAfter = data.has_more;
+  getHistoryData = (page) => {
+    // update query parameters
+    const query = this.pagination.obtainQueryParams()
+    if (query.page !== page) {
+      query.page = page;
+      const newURL = this.pagination.setURLParameters(query);
+      this.props.history.push(newURL);
     }
 
-    this.setState({
-      transactions: data.transactions,
-      loadingHistory: false,
-      hasAfter,
-      hasBefore,
-      queryParams,
-      numberOfTransactions: data.total,
+    return addressApi.getHistory(this.state.address, this.state.selectedToken, TX_COUNT, TX_COUNT * page).then((response) => {
+      this.setState({ transactions: response }, () => {
+
+        const promises = [];
+        for (const tx of response) {
+          if (!this.state.txCache[tx.tx_id]) {
+            promises.push(txApi.getTransaction(tx.tx_id));
+          }
+        }
+
+        Promise.all(promises).then(results => {
+          const cache = {...this.state.txCache};
+          for (const result of results) {
+            const tx = {...result.tx, meta: result.meta};
+            cache[tx.hash] = tx;
+          }
+          this.setState({txCache: cache});
+        });
+      });
+      return response;
+    }).finally(() => {
+      this.setState({ loadingHistory: false });
     });
   }
 
-  /**
-   * Request data from server and update state balance
-   */
-  getSummaryData = () => {
-    addressApi.getBalance(this.state.address).then((response) => {
-      if (response.success) {
+  reloadData = () => {
+    this.setState({
+      loadingTokens: true,
+    }, () => {
+      addressApi.getTokens(this.state.address).then(response => {
         let selectedToken = '';
-        if (this.state.selectedToken && this.state.selectedToken in response.tokens_data) {
-          // If user had selected a token already, should continue the same
+
+        if (this.state.selectedToken && response[this.state.selectedToken]) {
+          // use has a selected token, we will keep the selected token
           selectedToken = this.state.selectedToken;
         } else {
           const hathorUID = hathorLib.constants.HATHOR_TOKEN_CONFIG.uid
-          if (hathorUID in response.tokens_data) {
+          if (response[hathorUID]) {
             // If HTR is in the token list of this address, it's the default selection
             selectedToken = hathorUID;
           } else {
             // Otherwise we get the first element, if there is one
-            const keys = Object.keys(response.tokens_data);
+            const keys = Object.keys(response);
             if (keys.length === 0) {
               // In case the length is 0, we have no transactions for this address
-              this.setState({ loadingSummary: false });
+              this.setState({ loadingTokens: false });
               return;
             }
             selectedToken = keys[0];
           }
         }
 
-        // Update token in the URL
-        this.updateTokenURL(selectedToken);
+        const tokenDidChange = selectedToken !== this.state.selectedToken || this.state.selectedToken === '';
 
         this.setState({
-          balance: response.tokens_data,
-          loadingSummary: false,
+          addressTokens: response,
+          loadingTokens: false,
           selectedToken,
+        }, () => {
+          if (tokenDidChange || !this.state.metadataLoaded) {
+            this.getSelectedTokenMetadata(selectedToken);
+          }
+
+          // Update token in the URL
+          this.updateTokenURL(selectedToken);
+          this.reloadTokenData(selectedToken);
         });
 
-        this.getSelectedTokenMetadata(selectedToken);
-      } else {
+      }).catch(error => {
         this.setState({
-          loadingSummary: false,
-          errorMessage: response.message,
+          loadingTokens: false,
+          errorMessage: error,
         });
-      }
+      });
+    });
+  }
+
+  reloadTokenData = (token) => {
+    this.setState({
+      loadingSummary: true,
+      loadingHistory: true,
+    }, () => {
+      addressApi.getBalance(this.state.address, token).then(response => {
+        this.setState({ balance: response});
+        return response;
+      }).then(balance => {
+        const query = this.pagination.obtainQueryParams()
+        const page = query.page && (+query.page >= this.numPages() ? 0 : +query.page) || 0;
+        return this.getHistoryData(page).then(txhistory => {
+          if (!this.state.metadataLoaded) {
+            this.getSelectedTokenMetadata(token);
+          }
+        });
+      }).catch(error => {
+        this.setState({ errorMessage: error });
+      }).finally(() => {
+        this.setState({ loadingSummary: false });
+      });
     });
   }
 
@@ -288,8 +284,16 @@ class AddressDetail extends React.Component {
    * @param {String} Value of the selected item
    */
   onTokenSelectChanged = (value) => {
-    this.setState({ selectedToken: value, metadataLoaded: false, selectedTokenMetadata: null });
-    this.updateTokenURL(value);
+    this.setState({
+      selectedToken: value,
+      metadataLoaded: false,
+      selectedTokenMetadata: null,
+      balance: {},
+      transactions: [],
+    }, () => {
+      this.updateTokenURL(value);
+      this.reloadTokenData(value);
+    });
   }
 
   /**
@@ -298,9 +302,7 @@ class AddressDetail extends React.Component {
    * @param {String} New token selected
    */
   updateTokenURL = (token) => {
-    const queryParams = this.pagination.obtainQueryParams();
-    queryParams.token = token;
-    const newURL = this.pagination.setURLParameters(queryParams);
+    const newURL = this.pagination.setURLParameters({ token });
     this.props.history.push(newURL);
   }
 
@@ -348,6 +350,10 @@ class AddressDetail extends React.Component {
     window.location.reload();
   }
 
+  numPages = () => {
+    return Math.ceil(this.state.balance.transactions / TX_COUNT);
+  }
+
   render() {
     const renderWarningAlert = () => {
       if (this.state.warningRefreshPage) {
@@ -363,6 +369,14 @@ class AddressDetail extends React.Component {
 
     const isNFT = () => {
       return this.state.selectedTokenMetadata && this.state.selectedTokenMetadata.nft;
+    }
+
+    const hasAfter = () => {
+      const queryParams = this.pagination.obtainQueryParams();
+      if (queryParams.page) {
+        return +queryParams.page < (this.numPages()-1);
+      }
+      return this.numPages() > 1;
     }
 
     const renderData = () => {
@@ -381,9 +395,9 @@ class AddressDetail extends React.Component {
               {renderWarningAlert()}
               <AddressSummary
                 address={this.state.address}
+                tokens={this.state.addressTokens}
                 balance={this.state.balance}
                 selectedToken={this.state.selectedToken}
-                numberOfTransactions={this.state.numberOfTransactions}
                 tokenSelectChanged={this.onTokenSelectChanged}
                 isNFT={isNFT()}
                 metadataLoaded={this.state.metadataLoaded}
@@ -394,8 +408,8 @@ class AddressDetail extends React.Component {
                 pagination={this.pagination}
                 selectedToken={this.state.selectedToken}
                 transactions={this.state.transactions}
-                hasAfter={this.state.hasAfter}
-                hasBefore={this.state.hasBefore}
+                txCache={this.state.txCache}
+                hasAfter={hasAfter()}
                 isNFT={isNFT()}
                 metadataLoaded={this.state.metadataLoaded}
               />

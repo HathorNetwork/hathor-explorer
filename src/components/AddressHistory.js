@@ -15,35 +15,6 @@ import helpers from '../utils/helpers';
 
 
 class AddressHistory extends React.Component {
-  /**
-   * We get the final balance of one tx of the list
-   *
-   * @param {Object} tx Transaction data
-   *
-   * @return {Number} Final tx balance value (can be negative value, in case we spent more than received for the search address)
-   */
-  calculateAddressBalance = (tx) => {
-    const token = this.props.selectedToken;
-    let value = 0;
-
-    for (let txin of tx.inputs) {
-      if (txin.token === token && txin.decoded.address === this.props.address) {
-        if (!hathorLib.wallet.isAuthorityOutput(txin)) {
-          value -= txin.value;
-        }
-      }
-    }
-
-    for (let txout of tx.outputs) {
-      if (txout.token === token && txout.decoded.address === this.props.address) {
-        if (!hathorLib.wallet.isAuthorityOutput(txout)) {
-          value += txout.value;
-        }
-      }
-    }
-
-    return value;
-  }
 
   /**
    * Check if the tx has only inputs and outputs that are authorities in the search address
@@ -73,26 +44,28 @@ class AddressHistory extends React.Component {
       return <p>This address does not have any transactions yet.</p>
     }
 
-    const getFirstHash = () => {
-      return this.props.transactions[0].tx_id;
+    const prevLink = (page, query) => {
+        return this.props.pagination.setURLParameters({...query, page: page-1});
     }
 
-    const getLastHash = () => {
-      return this.props.transactions[this.props.transactions.length-1].tx_id;
+    const nextLink = (page, query) => {
+        return this.props.pagination.setURLParameters({...query, page: page+1});
     }
 
     const loadPagination = () => {
       if (this.props.transactions.length === 0) {
         return null;
       } else {
+        const queryParams = this.props.pagination.obtainQueryParams();
+        const page = +queryParams.page;
         return (
           <nav aria-label="Tx pagination" className="d-flex justify-content-center">
             <ul className="pagination">
-              <li ref="txPrevious" className={!this.props.hasBefore ? "page-item mr-3 disabled" : "page-item mr-3"}>
-                <Link className="page-link" to={this.props.pagination.setURLParameters({hash: getFirstHash(), page: 'previous'})}>Previous</Link>
+              <li ref="txPrevious" className={page === 0 ? "page-item mr-3 disabled" : "page-item mr-3"}>
+                <Link className="page-link" to={prevLink(page, queryParams)}>Previous</Link>
               </li>
               <li ref="txNext" className={!this.props.hasAfter ? "page-item disabled" : "page-item"}>
-                <Link className="page-link" to={this.props.pagination.setURLParameters({hash: getLastHash(), page: 'next'})}>Next</Link>
+                <Link className="page-link" to={nextLink(page, queryParams)}>Next</Link>
               </li>
             </ul>
           </nav>
@@ -109,7 +82,6 @@ class AddressHistory extends React.Component {
                 <th className="d-none d-lg-table-cell">Type</th>
                 <th className="d-none d-lg-table-cell">Hash</th>
                 <th className="d-none d-lg-table-cell">Timestamp</th>
-                <th className="d-none d-lg-table-cell"></th>
                 <th className="d-none d-lg-table-cell"></th>
                 <th className="d-none d-lg-table-cell">Value</th>
                 <th className="d-table-cell d-lg-none" colSpan="3">Type<br/>Hash<br/>Timestamp</th>
@@ -133,18 +105,17 @@ class AddressHistory extends React.Component {
 
     const loadTableBody = () => {
       return this.props.transactions.map((tx, idx) => {
-        const value = this.calculateAddressBalance(tx);
         let statusElement = '';
         let trClass = '';
-        let prettyValue = renderValue(value);
-        if (value > 0) {
+        let prettyValue = renderValue(tx.balance);
+        if (tx.balance > 0) {
           if (tx.version === hathorLib.constants.CREATE_TOKEN_TX_VERSION) {
             statusElement = <span>Token creation <i className={`fa ml-3 fa-long-arrow-down`}></i></span>;
           } else {
             statusElement = <span>Received <i className={`fa ml-3 fa-long-arrow-down`}></i></span>;
           }
           trClass = 'output-tr';
-        } else if (value < 0) {
+        } else if (tx.balance < 0) {
           if (tx.version === hathorLib.constants.CREATE_TOKEN_TX_VERSION) {
             statusElement = <span>Token deposit <i className={`fa ml-3 fa-long-arrow-up`}></i></span>
           } else {
@@ -152,9 +123,11 @@ class AddressHistory extends React.Component {
           }
           trClass = 'input-tr';
         } else {
-          if (this.isAllAuthority(tx)) {
-            statusElement = <span>Authority</span>;
-            prettyValue = '--';
+          if (this.props.txCache[tx.tx_id]) {
+            if (this.isAllAuthority(this.props.txCache[tx.tx_id])) {
+              statusElement = <span>Authority</span>;
+              prettyValue = '--';
+            }
           }
         }
 
@@ -168,9 +141,8 @@ class AddressHistory extends React.Component {
             <td className="d-none d-lg-table-cell pr-3">{hathorLib.helpers.getTxType(tx)}</td>
             <td className="d-none d-lg-table-cell pr-3">{hathorLib.helpers.getShortHash(tx.tx_id)}</td>
             <td className="d-none d-lg-table-cell pr-3">{dateFormatter.parseTimestamp(tx.timestamp)}</td>
-            <td className={tx.is_voided ? 'voided state' : 'state'}>{statusElement}</td>
-            <td>{tx.is_voided && <span className="voided-element">Voided</span>}</td>
-            <td className='value'><span className={tx.is_voided ? 'voided' : ''}>{prettyValue}</span></td>
+            <td className="state">{statusElement}</td>
+            <td className="value"><span className="">{prettyValue}</span></td>
             <td className="d-lg-none d-table-cell pr-3" colSpan="3">{hathorLib.helpers.getTxType(tx)}<br/>{hathorLib.helpers.getShortHash(tx.tx_id)}<br/>{dateFormatter.parseTimestamp(tx.timestamp)}</td>
           </tr>
         );
@@ -191,9 +163,9 @@ class AddressHistory extends React.Component {
  * onRowClicked: Function executed when user clicks on the table row (receives tx_id)
  * pagination: Instance of pagination class that handles the URL parameters
  * selectedToken: UID of the selected token to show history
- * transactions: Array of transactions to show in the history
+ * transactions: Array of transaction balances to show in the history
+ * txCache: An object with the original txs in the transactions array
  * hasAfter: If has a page after to fetch new history
- * hasBefore: If has a page before to fetch history
  */
 AddressHistory.propTypes = {
   address: PropTypes.string.isRequired,
@@ -201,8 +173,8 @@ AddressHistory.propTypes = {
   pagination: PropTypes.instanceOf(PaginationURL).isRequired,
   selectedToken: PropTypes.string.isRequired,
   transactions: PropTypes.array.isRequired,
+  txCache: PropTypes.object.isRequired,
   hasAfter: PropTypes.bool.isRequired,
-  hasBefore: PropTypes.bool.isRequired,
 };
 
 

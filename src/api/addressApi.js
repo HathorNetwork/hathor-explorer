@@ -8,8 +8,8 @@
 import requestExplorerServiceV1 from './axiosInstance';
 
 const addressApi = {
-  getBalance(address) {
-    return requestExplorerServiceV1.get(`node_api/address_balance`, {params: {address}}).then((res) => {
+  getTokens(address) {
+    return requestExplorerServiceV1.get(`address/tokens`, {params: {address}}).then((res) => {
       if (res && res.data) {
         return res.data
       }
@@ -18,26 +18,33 @@ const addressApi = {
     });
   },
 
-  search(address, count, hash, page, token) {
+  getBalance(address, token) {
+    return requestExplorerServiceV1.get(`address/balance`, {params: {address, token}}).then((res) => {
+      if (res && res.data) {
+        return res.data
+      }
+    }).catch((error) => {
+      // something wrong with request
+    });
+  },
+
+  getHistory(address, token, count, skip) {
     /*
      address: address to search
-     count: int -> how many objects we want
-     hash (optional): str -> hash reference for the pagination (works together with 'page' parameter)
-     page (optional): 'previous' or 'next' -> if 'previous', we get the objects before the hash reference
-                                   if 'next', we get the objects after the hash reference
-     token (optional): str -> only fetch txs related to this token uid
+     token: str -> only fetch txs related to this token uid
+     count (optional): int -> how many objects we want
+     skip (optional): str -> skip this many transactions before fetching
     */
-    
-    const data = {address, count};
-    if (hash) {
-        data['hash'] = hash;
-        data['page'] = page;
+
+    const data = {address, token};
+    if (count) {
+        data['count'] = count;
     }
-    if (token) {
-        data['token'] = token;
+    if (skip) {
+        data['skip'] = skip;
     }
 
-    return requestExplorerServiceV1.get(`node_api/address_search`, {params: data}).then((res) => {
+    return requestExplorerServiceV1.get(`address/history`, {params: data}).then((res) => {
       if (res && res.data) {
         return res.data
       }
