@@ -255,7 +255,7 @@ class AddressDetail extends React.Component {
         return response;
       }).then(balance => {
         const query = this.pagination.obtainQueryParams()
-        const page = query.page && (+query.page >= this.numPages() ? 0 : +query.page) || 0;
+        const page = (query.page && (+query.page >= this.numPages() ? 0 : +query.page)) || 0;
         return this.getHistoryData(page).then(txhistory => {
           if (!this.state.metadataLoaded) {
             this.getSelectedTokenMetadata(token);
