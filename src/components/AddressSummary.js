@@ -65,8 +65,8 @@ class AddressSummary extends React.Component {
             Token: {renderTokenData()}<br />
             Type: {renderType()}<br />
             Number of transactions: {this.props.balance.transactions}<br />
-            Total received: {renderValue(this.props.balance.received)}<br />
-            Total spent: {renderValue(this.props.balance.spent)}<br />
+            Total received: {renderValue(this.props.balance.total_received)}<br />
+            Total spent: {renderValue(this.props.balance.total_received - this.props.balance.unlocked_balance - this.props.balance.locked_balance)}<br />
             <strong>Unlocked balance: </strong>{renderValue(this.props.balance.unlocked_balance)}<br/>
             <strong>Locked balance: </strong>{renderValue(this.props.balance.locked_balance)}
           </div>
