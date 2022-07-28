@@ -169,10 +169,11 @@ class AddressDetail extends React.Component {
     }
 
     return addressApi.getHistory(this.state.address, this.state.selectedToken, TX_COUNT, TX_COUNT * page).then((response) => {
-      this.setState({ transactions: response }, () => {
+      const txhistory = response || [];
+      this.setState({ transactions: txhistory }, () => {
 
         const promises = [];
-        for (const tx of response) {
+        for (const tx of txhistory) {
           if (!this.state.txCache[tx.tx_id]) {
             promises.push(txApi.getTransaction(tx.tx_id));
           }
@@ -187,7 +188,7 @@ class AddressDetail extends React.Component {
           this.setState({txCache: cache});
         });
       });
-      return response;
+      return txhistory;
     }).finally(() => {
       this.setState({ loadingHistory: false });
     });
@@ -200,17 +201,19 @@ class AddressDetail extends React.Component {
       addressApi.getTokens(this.state.address).then(response => {
         let selectedToken = '';
 
-        if (this.state.selectedToken && response[this.state.selectedToken]) {
+        const tokens = response || {};
+
+        if (this.state.selectedToken && tokens[this.state.selectedToken]) {
           // use has a selected token, we will keep the selected token
           selectedToken = this.state.selectedToken;
         } else {
           const hathorUID = hathorLib.constants.HATHOR_TOKEN_CONFIG.uid
-          if (response[hathorUID]) {
+          if (tokens[hathorUID]) {
             // If HTR is in the token list of this address, it's the default selection
             selectedToken = hathorUID;
           } else {
             // Otherwise we get the first element, if there is one
-            const keys = Object.keys(response);
+            const keys = Object.keys(tokens);
             if (keys.length === 0) {
               // In case the length is 0, we have no transactions for this address
               this.setState({ loadingTokens: false });
@@ -223,7 +226,7 @@ class AddressDetail extends React.Component {
         const tokenDidChange = selectedToken !== this.state.selectedToken || this.state.selectedToken === '';
 
         this.setState({
-          addressTokens: response,
+          addressTokens: tokens,
           loadingTokens: false,
           selectedToken,
         }, () => {
@@ -251,8 +254,9 @@ class AddressDetail extends React.Component {
       loadingHistory: true,
     }, () => {
       addressApi.getBalance(this.state.address, token).then(response => {
-        this.setState({ balance: response});
-        return response;
+        const balance = response || {};
+        this.setState({ balance});
+        return balance;
       }).then(balance => {
         const query = this.pagination.obtainQueryParams()
         const page = (query.page && (+query.page >= this.numPages() ? 0 : +query.page)) || 0;
