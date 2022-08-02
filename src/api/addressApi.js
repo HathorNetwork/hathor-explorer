@@ -8,8 +8,22 @@
 import requestExplorerServiceV1 from './axiosInstance';
 
 const addressApi = {
-  getTokens(address) {
-    return requestExplorerServiceV1.get(`address/tokens`, {params: {address}}).then((res) => {
+  getTokens(address, limit, offset) {
+    /*
+     address: address to search tokens on
+     limit (optional): int -> how many objects we want
+     offset (optional): str -> offset this many transactions before fetching
+    */
+
+    const data = {address};
+    if (limit) {
+        data['limit'] = limit;
+    }
+    if (offset) {
+        data['offset'] = offset;
+    }
+
+    return requestExplorerServiceV1.get(`address/tokens`, {params: data}).then((res) => {
       if (res && res.data) {
         return res.data
       }
@@ -28,20 +42,20 @@ const addressApi = {
     });
   },
 
-  getHistory(address, token, count, skip) {
+  getHistory(address, token, limit, offset) {
     /*
      address: address to search
      token: str -> only fetch txs related to this token uid
-     count (optional): int -> how many objects we want
-     skip (optional): str -> skip this many transactions before fetching
+     limit (optional): int -> how many objects we want
+     offset (optional): str -> offset this many transactions before fetching
     */
 
     const data = {address, token};
-    if (count) {
-        data['count'] = count;
+    if (limit) {
+        data['limit'] = limit;
     }
-    if (skip) {
-        data['skip'] = skip;
+    if (offset) {
+        data['offset'] = offset;
     }
 
     return requestExplorerServiceV1.get(`address/history`, {params: data}).then((res) => {

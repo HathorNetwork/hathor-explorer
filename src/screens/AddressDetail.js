@@ -39,6 +39,7 @@ class AddressDetail extends React.Component {
    * loadingTokens {boolean} If is waiting response of tokens request
    * errorMessage {String} message to be shown in case of an error
    * warningRefreshPage {boolean} If should show a warning to refresh the page to see newest data for the address
+   *warnMissingTokens {number} If there are tokens that could not be fetched, this should be the total number of tokens.
    * selectedTokenMetadata {Object} Metadata of the selected token
    * metadataLoaded {boolean} When the selected token metadata was loaded
    * addressTokens {Object} Object with all tokens that have passed on this address, indexed by token UID, i.e. {"00": {"name": "Hathor", "symbol": "HTR", "token_id": "00"}, ...}
@@ -54,6 +55,7 @@ class AddressDetail extends React.Component {
     loadingTokens: true,
     errorMessage: '',
     warningRefreshPage: false,
+    warnMissingTokens: 0,
     selectedTokenMetadata: null,
     metadataLoaded: false,
     addressTokens: {},
@@ -201,7 +203,16 @@ class AddressDetail extends React.Component {
       addressApi.getTokens(this.state.address).then(response => {
         let selectedToken = '';
 
-        const tokens = response || {};
+        const tokens = response.tokens || {};
+        const total = response.total || 0;
+
+        if (total > Object.keys(tokens).length) {
+          // There were unfetched tokens
+          this.setState({ warnMissingTokens: total });
+        } else {
+          // This will turn off the missing tokens alert
+          this.setState({ warnMissingTokens: 0 });
+        }
 
         if (this.state.selectedToken && tokens[this.state.selectedToken]) {
           // use has a selected token, we will keep the selected token
@@ -365,7 +376,19 @@ class AddressDetail extends React.Component {
           <div className="alert alert-warning refresh-alert" role="alert">
             There is a new transaction for this address. Please <a href="true" onClick={this.refreshPage}>refresh</a> the page to see the newest data.
           </div>
-        );
+        )
+      }
+
+      return null;
+    }
+
+    const renderMissingTokensAlert = () => {
+      if (this.state.warnMissingTokens) {
+        return (
+          <div className="alert alert-warning refresh-alert" role="alert">
+            Not all tokens of this address could be fetched, showing the most recent of all {this.state.warnMissingTokens}
+          </div>
+        )
       }
 
       return null;
@@ -397,6 +420,7 @@ class AddressDetail extends React.Component {
           return (
             <div>
               {renderWarningAlert()}
+              {renderMissingTokensAlert()}
               <AddressSummary
                 address={this.state.address}
                 tokens={this.state.addressTokens}
