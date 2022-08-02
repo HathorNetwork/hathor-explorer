@@ -13,7 +13,7 @@ import hathorLib from '@hathor/wallet-lib';
 import ReactLoading from 'react-loading';
 import colors from '../index.scss';
 import WebSocketHandler from '../WebSocketHandler';
-import { TX_COUNT } from '../constants';
+import { TX_COUNT, TOKEN_COUNT } from '../constants';
 import { isEqual } from 'lodash';
 import metadataApi from '../api/metadataApi';
 import addressApi from '../api/addressApi';
@@ -200,7 +200,7 @@ class AddressDetail extends React.Component {
     this.setState({
       loadingTokens: true,
     }, () => {
-      addressApi.getTokens(this.state.address).then(response => {
+      addressApi.getTokens(this.state.address, TOKEN_COUNT).then(response => {
         let selectedToken = '';
 
         const tokens = response.tokens || {};
@@ -386,7 +386,7 @@ class AddressDetail extends React.Component {
       if (this.state.warnMissingTokens) {
         return (
           <div className="alert alert-warning refresh-alert" role="alert">
-            Not all tokens of this address could be fetched, showing the most recent of all {this.state.warnMissingTokens}
+            Not all tokens of this address could be fetched, showing the {TOKEN_COUNT} most recent of all {this.state.warnMissingTokens}
           </div>
         )
       }
