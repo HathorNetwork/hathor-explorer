@@ -12,6 +12,7 @@ import hathorLib from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
 import PaginationURL from '../utils/pagination';
 import helpers from '../utils/helpers';
+import { TX_COUNT } from '../constants';
 
 
 class AddressHistory extends React.Component {
@@ -44,13 +45,27 @@ class AddressHistory extends React.Component {
       return <p>This address does not have any transactions yet.</p>
     }
 
-    const prevLink = (page, query) => {
-        return this.props.pagination.setURLParameters({...query, page: page-1});
+    const paginationLink = (page, query) => {
+        return this.props.pagination.setURLParameters({...query, page: page});
     }
 
-    const nextLink = (page, query) => {
-        return this.props.pagination.setURLParameters({...query, page: page+1});
-    }
+    const getPages = (page, total) => {
+      let start = page - 2;
+      let end = page + 2;
+      if (start < 0) {
+        // If the start is before 0, we push the end further
+        end -= start;
+        start = 0;
+      }
+
+      if (end > total) {
+        // If the start is not 0, push start back (up to 0)
+        start = start === 0 ? 0 : Math.max(start - end + total, 0);
+        end = total;
+      }
+
+      return Array(1 + end - start).fill().map((_, index) => start + index);
+    };
 
     const loadPagination = () => {
       if (this.props.transactions.length === 0) {
@@ -58,15 +73,26 @@ class AddressHistory extends React.Component {
       } else {
         const queryParams = this.props.pagination.obtainQueryParams();
         const page = +queryParams.page;
+        const lastPage = Math.ceil(this.props.numTransactions / TX_COUNT) - 1;
+        const pages = getPages(page, lastPage);
+
+        const pagesList = pages.map(index => (
+          <li className={index === page ? "page-item mr-3 active" : "page-item mr-3"}>
+            <Link className="page-link" to={paginationLink(index, queryParams)}>{index}</Link>
+          </li>));
+
         return (
           <nav aria-label="Tx pagination" className="d-flex justify-content-center">
             <ul className="pagination">
-              <li ref="txPrevious" className={page === 0 ? "page-item mr-3 disabled" : "page-item mr-3"}>
-                <Link className="page-link" to={prevLink(page, queryParams)}>Previous</Link>
-              </li>
-              <li ref="txNext" className={!this.props.hasAfter ? "page-item disabled" : "page-item"}>
-                <Link className="page-link" to={nextLink(page, queryParams)}>Next</Link>
-              </li>
+              { pages[0] > 0 ? (<li className="page-item mr-3">
+                            <Link className="page-link" to={paginationLink(0, queryParams)}>0</Link>
+                          </li>) : null }
+              { pages[0] > 1 ? (<li className='page-item mr-3'>...</li>) : null }
+              { pagesList }
+              { (lastPage-1 > pages[pages.length - 1]) ? (<li className='page-item mr-3'>...</li>) : null }
+              { (lastPage > pages[pages.length - 1]) ? (<li className="page-item mr-3">
+                            <Link className="page-link" to={paginationLink(lastPage, queryParams)}>{lastPage}</Link>
+                          </li>) : null }
             </ul>
           </nav>
         );
@@ -164,8 +190,8 @@ class AddressHistory extends React.Component {
  * pagination: Instance of pagination class that handles the URL parameters
  * selectedToken: UID of the selected token to show history
  * transactions: Array of transaction balances to show in the history
+ * numTransactions: total number of transactions
  * txCache: An object with the original txs in the transactions array
- * hasAfter: If has a page after to fetch new history
  */
 AddressHistory.propTypes = {
   address: PropTypes.string.isRequired,
@@ -173,8 +199,8 @@ AddressHistory.propTypes = {
   pagination: PropTypes.instanceOf(PaginationURL).isRequired,
   selectedToken: PropTypes.string.isRequired,
   transactions: PropTypes.array.isRequired,
+  numTransactions: PropTypes.number.isRequired,
   txCache: PropTypes.object.isRequired,
-  hasAfter: PropTypes.bool.isRequired,
 };
 
 
