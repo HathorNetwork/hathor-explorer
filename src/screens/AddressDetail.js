@@ -390,7 +390,7 @@ class AddressDetail extends React.Component {
       if (this.state.warnMissingTokens) {
         return (
           <div className="alert alert-warning refresh-alert" role="alert">
-            Not all tokens of this address could be fetched, showing the {TOKEN_COUNT} most recent of all {this.state.warnMissingTokens}
+            This address has {this.state.warnMissingTokens} tokens but we are showing only the {TOKEN_COUNT} with the most recent activity.
           </div>
         )
       }
