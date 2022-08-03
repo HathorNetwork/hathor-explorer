@@ -27,8 +27,6 @@ const addressApi = {
       if (res && res.data) {
         return res.data
       }
-    }).catch((error) => {
-      // something wrong with request
     });
   },
 
@@ -37,8 +35,6 @@ const addressApi = {
       if (res && res.data) {
         return res.data
       }
-    }).catch((error) => {
-      // something wrong with request
     });
   },
 
@@ -62,8 +58,6 @@ const addressApi = {
       if (res && res.data) {
         return res.data
       }
-    }).catch((error) => {
-      // something wrong with request
     });
   },
 };

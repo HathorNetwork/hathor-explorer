@@ -203,6 +203,10 @@ class AddressDetail extends React.Component {
       addressApi.getTokens(this.state.address, TOKEN_COUNT).then(response => {
         let selectedToken = '';
 
+        if (!response) {
+          throw new Error('Error fetching tokens');
+        }
+
         const tokens = response.tokens || {};
         const total = response.total || 0;
 
@@ -253,7 +257,7 @@ class AddressDetail extends React.Component {
       }).catch(error => {
         this.setState({
           loadingTokens: false,
-          errorMessage: error,
+          errorMessage: error.toString(),
         });
       });
     });
