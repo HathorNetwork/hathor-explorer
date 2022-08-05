@@ -113,6 +113,7 @@ class AddressSummary extends React.Component {
 
 /*
  * address: Address to show summary
+ * tokens: Object with tokens the address has a history with.
  * balance: Object with balance data of each token for the selected address {'uid': {name, symbol, received, spent}}
  * selectedToken: UID of the selected token to show history
  * tokenSelectChanged: Callback to be executed when user changes token

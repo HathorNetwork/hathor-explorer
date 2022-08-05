@@ -39,10 +39,11 @@ class AddressDetail extends React.Component {
    * loadingTokens {boolean} If is waiting response of tokens request
    * errorMessage {String} message to be shown in case of an error
    * warningRefreshPage {boolean} If should show a warning to refresh the page to see newest data for the address
-   *warnMissingTokens {number} If there are tokens that could not be fetched, this should be the total number of tokens.
+   * warnMissingTokens {number} If there are tokens that could not be fetched, this should be the total number of tokens.
    * selectedTokenMetadata {Object} Metadata of the selected token
    * metadataLoaded {boolean} When the selected token metadata was loaded
    * addressTokens {Object} Object with all tokens that have passed on this address, indexed by token UID, i.e. {"00": {"name": "Hathor", "symbol": "HTR", "token_id": "00"}, ...}
+   * txCache {Object} we save each transaction fetched to avoid making too many calls to the fullnode
    */
   state = {
     address: null,
@@ -163,7 +164,7 @@ class AddressDetail extends React.Component {
    */
   getHistoryData = (page) => {
     // update query parameters
-    const query = this.pagination.obtainQueryParams()
+    const query = this.pagination.obtainQueryParams();
     if (query.page !== page) {
       query.page = page;
       const newURL = this.pagination.setURLParameters(query);
