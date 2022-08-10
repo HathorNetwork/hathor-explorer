@@ -44,6 +44,8 @@ class AddressDetail extends React.Component {
    * metadataLoaded {boolean} When the selected token metadata was loaded
    * addressTokens {Object} Object with all tokens that have passed on this address, indexed by token UID, i.e. {"00": {"name": "Hathor", "symbol": "HTR", "token_id": "00"}, ...}
    * txCache {Object} we save each transaction fetched to avoid making too many calls to the fullnode
+   * showReloadDataButton {boolean} show a button to reload the screen data
+   * showReloadTokenButton {boolean} show a button to reload the token data
    */
   state = {
     address: null,
@@ -61,6 +63,8 @@ class AddressDetail extends React.Component {
     metadataLoaded: false,
     addressTokens: {},
     txCache: {},
+    showReloadDataButton: false,
+    showReloadTokenButton: false,
   }
 
   componentDidMount() {
@@ -172,6 +176,11 @@ class AddressDetail extends React.Component {
     }
 
     return addressApi.getHistory(this.state.address, this.state.selectedToken, TX_COUNT, TX_COUNT * page).then((response) => {
+      if (!response) {
+        // An error happened with the API call
+        this.setState({ showReloadTokenButton: true });
+        return;
+      }
       const txhistory = response || [];
       this.setState({ transactions: txhistory }, () => {
 
@@ -202,6 +211,12 @@ class AddressDetail extends React.Component {
       loadingTokens: true,
     }, () => {
       addressApi.getTokens(this.state.address, TOKEN_COUNT).then(response => {
+        if (!response) {
+          // An error happened with the API call
+          this.setState({ showReloadDataButton: true });
+          return;
+        }
+
         let selectedToken = '';
 
         if (!response) {
@@ -270,6 +285,11 @@ class AddressDetail extends React.Component {
       loadingHistory: true,
     }, () => {
       addressApi.getBalance(this.state.address, token).then(response => {
+        if (!response) {
+          // An error happened with the API call
+          this.setState({ showReloadTokenButton: true });
+          return;
+        }
         const balance = response || {};
         this.setState({ balance});
         return balance;
@@ -370,6 +390,30 @@ class AddressDetail extends React.Component {
     window.location.reload();
   }
 
+  /**
+   * Refresh all data for the selected token
+   *
+   * @param {Event} e Click event
+   */
+  refreshTokenData = (e) => {
+    e.preventDefault();
+    this.setState({ showReloadTokenButton: false }, () => {
+     this.reloadTokenData();
+    })
+  }
+
+  /**
+   * Refresh all data.
+   *
+   * @param {Event} e Click event
+   */
+  refreshPageData = (e) => {
+    e.preventDefault();
+    this.setState({ showReloadDataButton: false }, () => {
+     this.reloadData();
+    })
+  }
+
   numPages = () => {
     return Math.ceil(this.state.balance.transactions / TX_COUNT);
   }
@@ -381,6 +425,26 @@ class AddressDetail extends React.Component {
           <div className="alert alert-warning refresh-alert" role="alert">
             There is a new transaction for this address. Please <a href="true" onClick={this.refreshPage}>refresh</a> the page to see the newest data.
           </div>
+        )
+      }
+
+      return null;
+    }
+
+    const renderReloadTokenButton = () => {
+      if (this.state.showReloadTokenButton) {
+        return (
+          <button className='btn btn-hathor m-3' onClick={this.refreshTokenData}>Reload</button>
+        )
+      }
+
+      return null;
+    }
+
+    const renderReloadDataButton = () => {
+      if (this.state.showReloadDataButton) {
+        return (
+          <button className='btn btn-hathor m-3' onClick={this.refreshPageData}>Reload</button>
         )
       }
 
@@ -418,7 +482,14 @@ class AddressDetail extends React.Component {
         );
       } else if (this.state.address === null) {
         return null;
-      } else {
+      } else if (this.state.showReloadDataButton || this.state.showReloadTokenButton) {
+          return (
+            <div>
+              {renderReloadDataButton()}
+              {renderReloadTokenButton()}
+            </div>
+          );
+      }else {
         if (this.state.loadingSummary || this.state.loadingHistory) {
           return <ReactLoading type='spin' color={colors.purpleHathor} delay={500} />
         } else {
