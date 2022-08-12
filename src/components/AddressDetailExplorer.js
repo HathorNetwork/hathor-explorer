@@ -18,6 +18,7 @@ import { isEqual } from 'lodash';
 import metadataApi from '../api/metadataApi';
 import addressApi from '../api/addressApi';
 import txApi from '../api/txApi';
+import ErrorMessageWithIcon from '../components/error/ErrorMessageWithIcon'
 
 
 class AddressDetailExplorer extends React.Component {
@@ -477,6 +478,7 @@ class AddressDetailExplorer extends React.Component {
       } else if (this.state.showReloadDataButton || this.state.showReloadTokenButton) {
           return (
             <div>
+              <ErrorMessageWithIcon message='The request to get address data has failed. Try to load again, please.' />
               {renderReloadDataButton()}
               {renderReloadTokenButton()}
             </div>
