@@ -467,14 +467,6 @@ class AddressDetailExplorer extends React.Component {
       return this.state.selectedTokenMetadata && this.state.selectedTokenMetadata.nft;
     }
 
-    const hasAfter = () => {
-      const queryParams = this.pagination.obtainQueryParams();
-      if (queryParams.page) {
-        return +queryParams.page < (this.numPages()-1);
-      }
-      return this.numPages() > 1;
-    }
-
     const renderData = () => {
       if (this.state.errorMessage) {
         return (
@@ -512,8 +504,8 @@ class AddressDetailExplorer extends React.Component {
                 pagination={this.pagination}
                 selectedToken={this.state.selectedToken}
                 transactions={this.state.transactions}
+                numTransactions={this.state.balance.transactions}
                 txCache={this.state.txCache}
-                hasAfter={hasAfter()}
                 isNFT={isNFT()}
                 metadataLoaded={this.state.metadataLoaded}
               />
