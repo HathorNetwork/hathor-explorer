@@ -232,6 +232,10 @@ class TokenBalances extends React.Component {
         tokenId: hathorLibConstants.HATHOR_TOKEN_CONFIG.uid
       });
 
+      // HTR token is the default, so the search API is not called, we must forcefully call it 
+      // so we can retrieve the transactions count information
+
+
       this.performSearch();
       return;
     }
