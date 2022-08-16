@@ -96,6 +96,10 @@ class TokenBalances extends React.Component {
       // otherwise we just perform the search for HTR to show the default screen
       await this.performSearch();
 
+      // Since we did not search for the HTR token (it is the default), we need to fetch
+      // it to retrieve the transactions count
+      await this.fetchHTRTransactionCount();
+
       this.setState({
         loading: false,
       });
@@ -141,7 +145,6 @@ class TokenBalances extends React.Component {
       loading: false,
       page: 1,
       tokenBalances: tokenBalances.hits,
-      transactionsCount: tokenBalanceInformation.transactions,
       addressesCount: tokenBalanceInformation.addresses,
       hasAfter: tokenBalances.has_next,
       hasBefore: false,
@@ -226,6 +229,15 @@ class TokenBalances extends React.Component {
     });
   }
 
+  fetchHTRTransactionCount = async () => {
+    const tokenApiRequest = await tokensApi.getToken('00');
+
+    this.setState({
+      tokensApiError: get(tokenApiRequest, 'error', false),
+      transactionsCount: get(tokenApiRequest, 'data.hits[0].transactions', 0),
+    });
+  }
+
   onTokenSelected = async (token) => {
     if (!token) {
       await helpers.setStateAsync(this, {
@@ -234,7 +246,7 @@ class TokenBalances extends React.Component {
 
       // HTR token is the default, so the search API is not called, we must forcefully call it 
       // so we can retrieve the transactions count information
-
+      await this.fetchHTRTransactionCount();
 
       this.performSearch();
       return;
@@ -265,7 +277,7 @@ class TokenBalances extends React.Component {
 
   /**
    * Turn loading false.
-   * Useful to be used by autocomplete component when the first search doesn't find any token
+  * Useful to be used by autocomplete component when the first search doesn't find any token
    */
   loadingFinished = () => {
     this.setState({ loading: false });
@@ -319,7 +331,9 @@ class TokenBalances extends React.Component {
             !this.state.tokenBalanceInformationError && (
               <>
                 <p><b>Total number of addresses:</b> { helpers.renderValue(this.state.addressesCount, true) }</p>
-                <p><b>Total number of transactions:</b> { helpers.renderValue(this.state.transactionsCount, true) }</p>
+                {!this.state.tokensApiError && (
+                  <p><b>Total number of transactions:</b> { helpers.renderValue(this.state.transactionsCount, true) }</p>
+                )}
               </>
             )
           }
