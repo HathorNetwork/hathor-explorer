@@ -63,6 +63,7 @@ class TokenBalances extends React.Component {
      *                  our feature toggle service (Unleash) to remove additional load until the team fixes the problem
      * transactionsCount: Number of transactions for the searched token
      * addressesCount: Number of addressed for the searched token
+     * tokensApiError: Flag indicating if the request to the token api failed, to decide wether to display or not the total number of transactions
      */
     this.state = {
       tokenId,
@@ -81,6 +82,7 @@ class TokenBalances extends React.Component {
       maintenanceMode: this.props.maintenanceMode,
       transactionsCount: 0,
       addressesCount: 0,
+      tokensApiError: false,
     };
   }
 
@@ -254,6 +256,8 @@ class TokenBalances extends React.Component {
 
     await helpers.setStateAsync(this, {
       tokenId: token.id,
+      transactionsCount: token.transactions,
+      tokensApiError: false,
     });
 
     this.performSearch();
