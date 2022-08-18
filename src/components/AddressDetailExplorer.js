@@ -188,6 +188,11 @@ class AddressDetailExplorer extends React.Component {
         const promises = [];
         for (const tx of txhistory) {
           if (!this.state.txCache[tx.tx_id]) {
+            /**
+             * The explorer-service address api does not retrieve all metadata of the transactions
+             * So there are some information that are not retrieved, e.g. whether the transaction only has authorities
+             * We fetch the transaction with all it's metadata to make this assertions.
+             */
             promises.push(txApi.getTransaction(tx.tx_id));
           }
         }
