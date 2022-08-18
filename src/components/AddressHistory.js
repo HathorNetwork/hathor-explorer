@@ -46,21 +46,33 @@ class AddressHistory extends React.Component {
     }
 
     const paginationLink = (page, query) => {
-        return this.props.pagination.setURLParameters({...query, page: page});
+        return this.props.pagination.setURLParameters({ ...query, page: page });
     }
 
+    /**
+     * Generate an array of the pagination options for the user.
+     * We want to show the current page, the 2 previous and 2 next pages (5 total)
+     * We always show 5 options if possible with pages starting at 1.
+     *
+     * examples:
+     * getPages(5, 10) -> [3, 4, 5, 6, 7];
+     * getPages(2, 10) -> [1, 2, 3, 4, 5];
+     * getPages(1, 10) -> [1, 2, 3, 4, 5];
+     * getPages(9, 10) -> [6, 7, 8, 9, 10];
+     * getPages(2, 3) -> [1, 2, 3];
+     */
     const getPages = (page, total) => {
       let start = page - 2;
       let end = page + 2;
-      if (start < 0) {
-        // If the start is before 0, we push the end further
+      if (start < 1) {
+        // If the start is before 1, we push the end further
         end -= start;
-        start = 0;
+        start = 1;
       }
 
       if (end > total) {
-        // If the start is not 0, push start back (up to 0)
-        start = start === 0 ? 0 : Math.max(start - end + total, 0);
+        // If the start is not 1, push start back (up to 1)
+        start = start === 1 ? 1 : Math.max(start - end + total, 1);
         end = total;
       }
 
@@ -73,7 +85,7 @@ class AddressHistory extends React.Component {
       } else {
         const queryParams = this.props.pagination.obtainQueryParams();
         const page = +queryParams.page;
-        const lastPage = Math.ceil(this.props.numTransactions / TX_COUNT) - 1;
+        const lastPage = Math.ceil(this.props.numTransactions / TX_COUNT);
         const pages = getPages(page, lastPage);
 
         const pagesList = pages.map(index => (

@@ -176,7 +176,7 @@ class AddressDetailExplorer extends React.Component {
       this.props.history.push(newURL);
     }
 
-    return addressApi.getHistory(this.state.address, this.state.selectedToken, TX_COUNT, TX_COUNT * page).then((response) => {
+    return addressApi.getHistory(this.state.address, this.state.selectedToken, TX_COUNT, TX_COUNT * (page-1)).then((response) => {
       if (!response) {
         // An error happened with the API call
         this.setState({ showReloadTokenButton: true });
@@ -296,7 +296,12 @@ class AddressDetailExplorer extends React.Component {
         return balance;
       }).then(balance => {
         const query = this.pagination.obtainQueryParams()
-        const page = (query.page && (+query.page >= this.numPages() ? 0 : +query.page)) || 0;
+        let page = 1;
+        if (query.page) {
+          if((+query.page > 1) && (+query.page <= this.lastPage())) {
+            page = +query.page;
+          }
+        }
         return this.getHistoryData(page).then(txhistory => {
           if (!this.state.metadataLoaded) {
             this.getSelectedTokenMetadata(token);
@@ -386,16 +391,6 @@ class AddressDetailExplorer extends React.Component {
   }
 
   /**
-   * Refresh web page
-   *
-   * @param {Event} e Click event
-   */
-  refreshPage = (e) => {
-    e.preventDefault();
-    window.location.reload();
-  }
-
-  /**
    * Refresh all data for the selected token
    *
    * @param {Event} e Click event
@@ -414,12 +409,12 @@ class AddressDetailExplorer extends React.Component {
    */
   refreshPageData = (e) => {
     e.preventDefault();
-    this.setState({ showReloadDataButton: false }, () => {
+    this.setState({ showReloadDataButton: false, warningRefreshPage: false }, () => {
      this.reloadData();
     })
   }
 
-  numPages = () => {
+  lastPage = () => {
     return Math.ceil(this.state.balance.transactions / TX_COUNT);
   }
 
@@ -428,7 +423,7 @@ class AddressDetailExplorer extends React.Component {
       if (this.state.warningRefreshPage) {
         return (
           <div className="alert alert-warning refresh-alert" role="alert">
-            There is a new transaction for this address. Please <a href="true" onClick={this.refreshPage}>refresh</a> the page to see the newest data.
+            There is a new transaction for this address. Please <a href="true" onClick={this.refreshPageData}>refresh</a> the page to see the newest data.
           </div>
         )
       }
@@ -487,7 +482,7 @@ class AddressDetailExplorer extends React.Component {
               {renderReloadTokenButton()}
             </div>
           );
-      }else {
+      } else {
         if (this.state.loadingSummary || this.state.loadingHistory) {
           return <ReactLoading type='spin' color={colors.purpleHathor} delay={500} />
         } else {
