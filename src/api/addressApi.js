@@ -12,7 +12,7 @@ const addressApi = {
     /*
      address: address to search tokens on
      limit (optional): int -> how many objects we want
-     offset (optional): str -> offset this many transactions before fetching
+     offset (optional): int -> offset this many transactions before fetching
     */
 
     const data = {address};
@@ -43,7 +43,7 @@ const addressApi = {
      address: address to search
      token: str -> only fetch txs related to this token uid
      limit (optional): int -> how many objects we want
-     offset (optional): str -> offset this many transactions before fetching
+     offset (optional): int -> offset this many transactions before fetching
     */
 
     const data = {address, token};

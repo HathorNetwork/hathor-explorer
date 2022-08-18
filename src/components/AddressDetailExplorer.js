@@ -291,8 +291,8 @@ class AddressDetailExplorer extends React.Component {
           this.setState({ showReloadTokenButton: true });
           return;
         }
-        const balance = response || {};
-        this.setState({ balance});
+        const balance = response;
+        this.setState({ balance });
         return balance;
       }).then(balance => {
         const query = this.pagination.obtainQueryParams()
@@ -311,6 +311,10 @@ class AddressDetailExplorer extends React.Component {
   }
 
   getSelectedTokenMetadata = (selectedToken) => {
+    if (selectedToken === hathorLib.constants.HATHOR_TOKEN_CONFIG.uid) {
+      this.setState({ metadataLoaded: true });
+      return;
+    }
     metadataApi.getDagMetadata(selectedToken).then((data) => {
       if (data) {
         this.setState({ selectedTokenMetadata: data });

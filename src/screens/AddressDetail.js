@@ -12,7 +12,7 @@ import { useFlag } from '@unleash/proxy-client-react';
 import { UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG } from '../constants'
 import ErrorMessageWithIcon from '../components/error/ErrorMessageWithIcon'
 
-const AdressDetail = (props) => {
+const AddressDetail = (props) => {
   const maintenanceMode = useFlag(`${UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG}.maintenance`);
   const legacyMode = useFlag(`${UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG}.legacy`);
 
@@ -33,4 +33,4 @@ const AdressDetail = (props) => {
   );
 }
 
-export default AdressDetail;
+export default AddressDetail;

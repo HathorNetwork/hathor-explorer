@@ -22,6 +22,7 @@ export const WS_URL = tmp_ws_url;
 
 export const TX_COUNT = 10;
 
+// Maximum number of tokens to fetch when searching for tokens of an address
 export const TOKEN_COUNT = 50;
 
 export const DASHBOARD_BLOCKS_COUNT = 6;
