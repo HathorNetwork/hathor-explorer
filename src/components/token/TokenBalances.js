@@ -236,7 +236,7 @@ class TokenBalances extends React.Component {
 
     this.setState({
       tokensApiError: get(tokenApiRequest, 'error', false),
-      transactionsCount: get(tokenApiRequest, 'data.hits[0].transactions', 0),
+      transactionsCount: get(tokenApiRequest, 'data.hits[0].transactions_count', 0),
     });
   }
 
@@ -256,7 +256,7 @@ class TokenBalances extends React.Component {
 
     await helpers.setStateAsync(this, {
       tokenId: token.id,
-      transactionsCount: token.transactions,
+      transactionsCount: token.transactions_count,
       tokensApiError: false,
     });
 
@@ -285,6 +285,13 @@ class TokenBalances extends React.Component {
    */
   loadingFinished = () => {
     this.setState({ loading: false });
+  }
+
+  onRetryTokensApi = () => {
+    this.setState({
+      tokensApiError: false,
+    });
+    this.fetchHTRTransactionCount();
   }
 
   render() {
@@ -331,21 +338,18 @@ class TokenBalances extends React.Component {
               </p>
             )
           }
-          {
-            !this.state.tokenBalanceInformationError && (
-              <>
-                <p><b>Total number of addresses:</b> { helpers.renderValue(this.state.addressesCount, true) }</p>
-                {!this.state.tokensApiError && (
-                  <p><b>Total number of transactions:</b> { helpers.renderValue(this.state.transactionsCount, true) }</p>
-                )}
-              </>
-            )
-          }
-          {
-            this.state.tokenBalanceInformationError && (
-              <ErrorMessageWithIcon message='Error loading token balance information. Please try again.' />
-            )
-          }
+
+          {!this.state.tokenBalanceInformationError && (
+            <p><b>Total number of addresses:</b> { helpers.renderValue(this.state.addressesCount, true) }</p>
+          )}
+
+          {!this.state.tokensApiError && (
+            <p><b>Total number of transactions:</b> { helpers.renderValue(this.state.transactionsCount, true) }</p>
+          )}
+
+          {(this.state.tokensApiError || this.state.tokenBalanceInformationError) &&(
+            <ErrorMessageWithIcon message='Error loading the complete token balance information. Please try again.' />
+          )}
         </div>
 
         {renderTokensTable()}
