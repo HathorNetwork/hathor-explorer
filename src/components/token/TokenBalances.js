@@ -232,7 +232,7 @@ class TokenBalances extends React.Component {
   }
 
   fetchHTRTransactionCount = async () => {
-    const tokenApiRequest = await tokensApi.getToken('00');
+    const tokenApiRequest = await tokensApi.getToken(hathorLibConstants.HATHOR_TOKEN_CONFIG.uid);
 
     this.setState({
       tokensApiError: get(tokenApiRequest, 'error', false),
@@ -285,13 +285,6 @@ class TokenBalances extends React.Component {
    */
   loadingFinished = () => {
     this.setState({ loading: false });
-  }
-
-  onRetryTokensApi = () => {
-    this.setState({
-      tokensApiError: false,
-    });
-    this.fetchHTRTransactionCount();
   }
 
   render() {
