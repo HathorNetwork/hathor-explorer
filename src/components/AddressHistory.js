@@ -96,10 +96,10 @@ class AddressHistory extends React.Component {
         return (
           <nav aria-label="Tx pagination" className="d-flex justify-content-center">
             <ul className="pagination">
-              { pages[0] > 0 ? (<li className="page-item mr-3">
-                            <Link className="page-link" to={paginationLink(0, queryParams)}>0</Link>
+              { pages[0] > 1 ? (<li className="page-item mr-3">
+                            <Link className="page-link" to={paginationLink(1, queryParams)}>1</Link>
                           </li>) : null }
-              { pages[0] > 1 ? (<li className='page-item mr-3'>...</li>) : null }
+              { pages[0] > 2 ? (<li className='page-item mr-3'>...</li>) : null }
               { pagesList }
               { (lastPage-1 > pages[pages.length - 1]) ? (<li className='page-item mr-3'>...</li>) : null }
               { (lastPage > pages[pages.length - 1]) ? (<li className="page-item mr-3">

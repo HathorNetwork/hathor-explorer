@@ -128,7 +128,7 @@ class AddressDetailExplorer extends React.Component {
   }
 
   /**
-   * Check if address is valid and then update the state and get data from full node
+   * Check if address is valid and then update the state and fetch data
    * If not valid show error message
    *
    * @param {Object} address New searched address to update state
@@ -419,6 +419,16 @@ class AddressDetailExplorer extends React.Component {
     })
   }
 
+  /**
+   * Reset query params then refresh data.
+   *
+   * @param {Event} e Click event
+   */
+  reloadPage = (e) => {
+    this.pagination.clearOptionalQueryParams();
+    this.refreshPageData(e);
+  }
+
   lastPage = () => {
     return Math.ceil(this.state.balance.transactions / TX_COUNT);
   }
@@ -428,7 +438,7 @@ class AddressDetailExplorer extends React.Component {
       if (this.state.warningRefreshPage) {
         return (
           <div className="alert alert-warning refresh-alert" role="alert">
-            There is a new transaction for this address. Please <a href="true" onClick={this.refreshPageData}>refresh</a> the page to see the newest data.
+            There is a new transaction for this address. Please <a href="true" onClick={this.reloadPage}>refresh</a> the page to see the newest data.
           </div>
         )
       }
@@ -475,7 +485,10 @@ class AddressDetailExplorer extends React.Component {
     const renderData = () => {
       if (this.state.errorMessage) {
         return (
-          <p className="text-danger mt-3">{this.state.errorMessage}</p>
+          <div>
+            <p className="text-danger mt-3">{this.state.errorMessage}</p>
+            <button className='btn btn-hathor m-3' onClick={this.reloadPage}>Reload</button>
+          </div>
         );
       } else if (this.state.address === null) {
         return null;
