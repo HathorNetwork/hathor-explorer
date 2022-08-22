@@ -43,11 +43,7 @@ const tokensApi = {
    * @return {Promise}
    */
   async getToken(tokenId) {
-    const data = {
-      'token_id': tokenId,
-    };
-
-    const response = await requestExplorerServiceV1.get('token', { params: data, timeout: TOKENS_API_DEFAULT_TIMEOUT });
+    const response = await requestExplorerServiceV1.get(`tokens/${tokenId}`, { timeout: TOKENS_API_DEFAULT_TIMEOUT });
 
     return helpers.handleExplorerServiceResponse(response);
   },
