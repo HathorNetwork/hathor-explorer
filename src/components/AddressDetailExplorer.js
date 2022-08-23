@@ -303,8 +303,9 @@ class AddressDetailExplorer extends React.Component {
         const query = this.pagination.obtainQueryParams()
         let page = 1;
         if (query.page) {
-          if((+query.page > 1) && (+query.page <= this.lastPage())) {
-            page = +query.page;
+          const pageNum = +query.page;
+          if((pageNum > 1) && (pageNum <= this.lastPage())) {
+            page = pageNum;
           }
         }
         return this.getHistoryData(page).then(txhistory => {
