@@ -8,41 +8,56 @@
 import requestExplorerServiceV1 from './axiosInstance';
 
 const addressApi = {
-  getBalance(address) {
-    return requestExplorerServiceV1.get(`node_api/address_balance`, {params: {address}}).then((res) => {
+  getTokens(address, limit, offset) {
+    /*
+     address: address to search tokens on
+     limit (optional): int -> how many objects we want
+     offset (optional): int -> offset this many transactions before fetching
+    */
+
+    const data = {address};
+    if (limit) {
+        data['limit'] = limit;
+    }
+    if (offset) {
+        data['offset'] = offset;
+    }
+
+    return requestExplorerServiceV1.get(`address/tokens`, {params: data}).then((res) => {
       if (res && res.data) {
         return res.data
       }
-    }).catch((error) => {
-      // something wrong with request
     });
   },
 
-  search(address, count, hash, page, token) {
-    /*
-     address: address to search
-     count: int -> how many objects we want
-     hash (optional): str -> hash reference for the pagination (works together with 'page' parameter)
-     page (optional): 'previous' or 'next' -> if 'previous', we get the objects before the hash reference
-                                   if 'next', we get the objects after the hash reference
-     token (optional): str -> only fetch txs related to this token uid
-    */
-    
-    const data = {address, count};
-    if (hash) {
-        data['hash'] = hash;
-        data['page'] = page;
-    }
-    if (token) {
-        data['token'] = token;
-    }
-
-    return requestExplorerServiceV1.get(`node_api/address_search`, {params: data}).then((res) => {
+  getBalance(address, token) {
+    return requestExplorerServiceV1.get(`address/balance`, {params: {address, token}}).then((res) => {
       if (res && res.data) {
         return res.data
       }
-    }).catch((error) => {
-      // something wrong with request
+    });
+  },
+
+  getHistory(address, token, limit, offset) {
+    /*
+     address: address to search
+     token: str -> only fetch txs related to this token uid
+     limit (optional): int -> how many objects we want
+     offset (optional): int -> offset this many transactions before fetching
+    */
+
+    const data = {address, token};
+    if (limit) {
+        data['limit'] = limit;
+    }
+    if (offset) {
+        data['offset'] = offset;
+    }
+
+    return requestExplorerServiceV1.get(`address/history`, {params: data}).then((res) => {
+      if (res && res.data) {
+        return res.data
+      }
     });
   },
 };

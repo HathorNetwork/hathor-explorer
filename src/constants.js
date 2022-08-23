@@ -22,6 +22,9 @@ export const WS_URL = tmp_ws_url;
 
 export const TX_COUNT = 10;
 
+// Maximum number of tokens to fetch when searching for tokens of an address
+export const TOKEN_COUNT = 50;
+
 export const DASHBOARD_BLOCKS_COUNT = 6;
 
 export const DASHBOARD_TX_COUNT = 6;
@@ -99,6 +102,7 @@ export const UNLEASH_CONFIG = {
   appName: 'explorer'
 }
 
+export const UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG = `explorer-address-detail-${REACT_APP_NETWORK}`;
 export const UNLEASH_TOKENS_BASE_FEATURE_FLAG = `explorer-tokens-${REACT_APP_NETWORK}`;
 export const UNLEASH_TOKEN_BALANCES_FEATURE_FLAG = `explorer-address-list-${REACT_APP_NETWORK}`;
 export const UNLEASH_TIME_SERIES_FEATURE_FLAG =  `explorer-timeseries-${REACT_APP_NETWORK}`;
