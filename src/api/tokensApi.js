@@ -36,6 +36,19 @@ const tokensApi = {
   },
 
   /**
+   * Downloads a single token
+   *
+   * @param {String} tokenId The tokenId from the token we want to retrieve
+   *
+   * @return {Promise}
+   */
+  async getToken(tokenId) {
+    const response = await requestExplorerServiceV1.get(`tokens/${tokenId}`, { timeout: TOKENS_API_DEFAULT_TIMEOUT });
+
+    return helpers.handleExplorerServiceResponse(response);
+  },
+
+  /**
    * Downloads a list of token balances given an token_id
    *
    * @param {String} tokenId Token id to filter token address balances
