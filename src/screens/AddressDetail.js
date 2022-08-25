@@ -14,22 +14,22 @@ import ErrorMessageWithIcon from '../components/error/ErrorMessageWithIcon'
 
 const AddressDetail = (props) => {
   const maintenanceMode = useFlag(`${UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG}.maintenance`);
-  const legacyMode = useFlag(`${UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG}.legacy`);
+  const latestMode = useFlag(`${UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG}.latest`);
 
-  if(maintenanceMode) {
+  if (maintenanceMode) {
     return (
       <ErrorMessageWithIcon message='This feature is under maintenance. Please try again after some time' />
     );
   }
 
-  if (legacyMode) {
+  if (latestMode) {
     return (
-      <AddressDetailLegacy {...props} />
+      <AddressDetailExplorer {...props} />
     );
   }
 
   return (
-    <AddressDetailExplorer {...props} />
+    <AddressDetailLegacy {...props} />
   );
 }
 
