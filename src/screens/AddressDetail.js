@@ -16,7 +16,7 @@ const AddressDetail = (props) => {
   const maintenanceMode = useFlag(`${UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG}.maintenance`);
   const latestMode = useFlag(`${UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG}.latest`);
 
-  if(maintenanceMode) {
+  if (maintenanceMode) {
     return (
       <ErrorMessageWithIcon message='This feature is under maintenance. Please try again after some time' />
     );
