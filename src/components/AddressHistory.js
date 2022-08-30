@@ -84,7 +84,7 @@ class AddressHistory extends React.Component {
         return null;
       } else {
         const queryParams = this.props.pagination.obtainQueryParams();
-        const page = +queryParams.page;
+        const page = +queryParams.page || 1;
         const lastPage = Math.ceil(this.props.numTransactions / TX_COUNT);
         const pages = getPages(page, lastPage);
 
