@@ -107,7 +107,7 @@ class AddressDetailExplorer extends React.Component {
       // update the query params state then fetch the new page
       this.setState({ queryParams, loadingHistory: true }, () => {
         // Fetch new data, unless query params were cleared and we were already in the most recent page
-        this.getHistoryData(+queryParams.page);
+        this.getHistoryData(+queryParams.page || 1);
       });
     }
   }
