@@ -225,10 +225,6 @@ class AddressDetailExplorer extends React.Component {
 
         let selectedToken = '';
 
-        if (!response) {
-          throw new Error('Error fetching tokens');
-        }
-
         const tokens = response.tokens || {};
         const total = response.total || 0;
 
@@ -253,7 +249,11 @@ class AddressDetailExplorer extends React.Component {
             const keys = Object.keys(tokens);
             if (keys.length === 0) {
               // In case the length is 0, we have no transactions for this address
-              this.setState({ loadingTokens: false });
+              this.setState({
+                loadingTokens: false,
+                loadingSummary: false,
+                loadingHistory: false,
+              });
               return;
             }
             selectedToken = keys[0];
@@ -502,7 +502,7 @@ class AddressDetailExplorer extends React.Component {
             </div>
           );
       } else {
-        if (this.state.loadingSummary || this.state.loadingHistory) {
+        if (this.state.loadingSummary || this.state.loadingHistory || this.state.loadingTokens) {
           return <ReactLoading type='spin' color={colors.purpleHathor} delay={500} />
         } else {
           return (
