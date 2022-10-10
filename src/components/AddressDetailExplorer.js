@@ -59,6 +59,7 @@ class AddressDetailExplorer extends React.Component {
     loadingSummary: false,
     loadingHistory: false,
     loadingTokens: true,
+    loadingPagination: false,
     errorMessage: '',
     warningRefreshPage: false,
     warnMissingTokens: 0,
@@ -412,7 +413,10 @@ class AddressDetailExplorer extends React.Component {
    */
   refreshPageData = (e) => {
     e.preventDefault();
-    this.setState({ showReloadDataButton: false, warningRefreshPage: false }, () => {
+    this.setState({
+      showReloadDataButton: false,
+      warningRefreshPage: false
+    }, () => {
      this.reloadData();
     })
   }
@@ -432,9 +436,7 @@ class AddressDetailExplorer extends React.Component {
   }
 
   onNextPageClicked = async () => {
-    this.setState({
-      loadingHistory: true,
-    });
+    this.setState({ loadingPagination: true });
 
     const transactions = this.state.transactions;
     const { timestamp, tx_id } = transactions.at(transactions.length - 1);
@@ -462,12 +464,13 @@ class AddressDetailExplorer extends React.Component {
     this.setState({
       pageSearchAfter: newPageSearchAfter,
       hasBefore: true,
+      loadingPagination: false,
       page: nextPage,
     });
   }
 
   onPreviousPageClicked = async () => {
-    this.setState({ loadingHistory: true });
+    this.setState({ loadingPagination: true });
 
     const nextPage = this.state.page - 1;
     const { searchAfter } = find(this.state.pageSearchAfter, { page: nextPage });
@@ -478,6 +481,8 @@ class AddressDetailExplorer extends React.Component {
       hasBefore: nextPage > 0,
       page: nextPage,
     });
+
+    this.setState({ loadingPagination: false });
   }
 
   render() {
@@ -578,7 +583,7 @@ class AddressDetailExplorer extends React.Component {
                 txCache={this.state.txCache}
                 isNFT={isNFT()}
                 metadataLoaded={this.state.metadataLoaded}
-                loading={this.state.loadingHistory}
+                calculatingPage={this.state.loadingPagination}
               />
             </div>
           );
