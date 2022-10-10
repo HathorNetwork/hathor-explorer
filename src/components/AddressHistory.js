@@ -49,66 +49,12 @@ class AddressHistory extends React.Component {
         return this.props.pagination.setURLParameters({ ...query, page: page });
     }
 
-    /**
-     * Generate an array of the pagination options for the user.
-     * We want to show the current page, the 2 previous and 2 next pages (5 total)
-     * We always show 5 options if possible with pages starting at 1.
-     *
-     * examples:
-     * getPages(5, 10) -> [3, 4, 5, 6, 7];
-     * getPages(2, 10) -> [1, 2, 3, 4, 5];
-     * getPages(1, 10) -> [1, 2, 3, 4, 5];
-     * getPages(9, 10) -> [6, 7, 8, 9, 10];
-     * getPages(2, 3) -> [1, 2, 3];
-     */
-    const getPages = (page, total) => {
-      let start = page - 2;
-      let end = page + 2;
-      if (start < 1) {
-        // If the start is before 1, we push the end further
-        end -= start;
-        start = 1;
-      }
-
-      if (end > total) {
-        // If the start is not 1, push start back (up to 1)
-        start = start === 1 ? 1 : Math.max(start - end + total, 1);
-        end = total;
-      }
-
-      return Array(1 + end - start).fill().map((_, index) => start + index);
-    };
-
     const loadPagination = () => {
       if (this.props.transactions.length === 0) {
         return null;
-      } else {
-        const queryParams = this.props.pagination.obtainQueryParams();
-        const page = +queryParams.page || 1;
-        const lastPage = Math.ceil(this.props.numTransactions / TX_COUNT);
-        const pages = getPages(page, lastPage);
-
-        const pagesList = pages.map(index => (
-          <li className={index === page ? "page-item mr-3 active" : "page-item mr-3"}>
-            <Link className="page-link" to={paginationLink(index, queryParams)}>{index}</Link>
-          </li>));
-
-        return (
-          <nav aria-label="Tx pagination" className="d-flex justify-content-center">
-            <ul className="pagination">
-              { pages[0] > 1 ? (<li className="page-item mr-3">
-                            <Link className="page-link" to={paginationLink(1, queryParams)}>1</Link>
-                          </li>) : null }
-              { pages[0] > 2 ? (<li className='page-item mr-3'>...</li>) : null }
-              { pagesList }
-              { (lastPage-1 > pages[pages.length - 1]) ? (<li className='page-item mr-3'>...</li>) : null }
-              { (lastPage > pages[pages.length - 1]) ? (<li className="page-item mr-3">
-                            <Link className="page-link" to={paginationLink(lastPage, queryParams)}>{lastPage}</Link>
-                          </li>) : null }
-            </ul>
-          </nav>
-        );
       }
+
+      return null;
     }
 
     const loadTable = () => {

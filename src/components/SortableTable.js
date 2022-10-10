@@ -23,6 +23,14 @@ class SortableTable extends React.Component {
     );
   }
 
+  renderTable(content) {
+    return (
+      <table className="table table-striped" id="tx-table">
+        { content }
+      </table>
+    )
+  }
+
   getArrow(field) {
     if (field === this.props.sortBy) {
       if (this.props.order === 'asc') {
@@ -47,14 +55,16 @@ class SortableTable extends React.Component {
     } else {
       return (
         <div className="table-responsive col-12 mt-2">
-          <table className="table table-striped" id="tx-table">
-          <thead>
-            {this.renderTableHead()}
-          </thead>
-          <tbody>
-            {this.renderTableBody()}
-          </tbody>
-          </table>
+        {this.renderTable(
+          <>
+            <thead>
+              {this.renderTableHead()}
+            </thead>
+            <tbody>
+              {this.renderTableBody()}
+            </tbody>
+          </>
+        )}
         </div>
       );
     }
@@ -105,6 +115,7 @@ class SortableTable extends React.Component {
  * order: If sorted field must be ordered asc or desc
  * tableHeaderClicked: This indicates that user wants data to be sorted by a determined field
  * calculatingPage: Indicates if next page is being retrieved from explorer-service
+ * tableClasses: Extra classes to add to the table element
  */
 SortableTable.propTypes = {
   data: PropTypes.array.isRequired,
@@ -113,10 +124,10 @@ SortableTable.propTypes = {
   onNextPageClicked: PropTypes.func.isRequired,
   onPreviousPageClicked: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
-  sortBy: PropTypes.string.isRequired,
-  order: PropTypes.string.isRequired,
-  tableHeaderClicked: PropTypes.func.isRequired,
-  calculatingPage: PropTypes.bool.isRequired,
+  calculatingPage: PropTypes.bool,
+  tableHeaderClicked: PropTypes.func,
+  sortBy: PropTypes.string,
+  order: PropTypes.string,
 };
 
 export default SortableTable;

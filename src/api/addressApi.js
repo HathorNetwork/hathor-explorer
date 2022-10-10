@@ -38,20 +38,26 @@ const addressApi = {
     });
   },
 
-  getHistory(address, token, limit, offset) {
+  getHistory(address, token, limit, lastTx, lastTs) {
     /*
      address: address to search
      token: str -> only fetch txs related to this token uid
      limit (optional): int -> how many objects we want
-     offset (optional): int -> offset this many transactions before fetching
+     lastTx (optional): str -> last tx of the page, so we can retrieve the next page
+     lastTs (optional): int -> last timestamp of the page, so we can retrieve the next page
     */
 
     const data = {address, token};
     if (limit) {
         data['limit'] = limit;
     }
-    if (offset) {
-        data['offset'] = offset;
+
+    if (lastTx) {
+      data['last_tx'] = lastTx;
+    }
+
+    if (lastTs) {
+      data['last_ts'] = lastTs;
     }
 
     return requestExplorerServiceV1.get(`address/history`, {params: data}).then((res) => {
