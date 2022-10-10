@@ -7,7 +7,7 @@
 
 import React from 'react';
 import AddressSummary from './AddressSummary';
-import AddressHistory from './AddressHistory2';
+import AddressHistory from './AddressHistory';
 import PaginationURL from '../utils/pagination';
 import hathorLib from '@hathor/wallet-lib';
 import ReactLoading from 'react-loading';
@@ -114,11 +114,8 @@ class AddressDetailExplorer extends React.Component {
         return;
       }
 
-      // update the query params state then fetch the new page
-      this.setState({ queryParams, loadingHistory: true }, () => {
-        // Fetch new data, unless query params were cleared and we were already in the most recent page
-        this.getHistoryData(+queryParams.page || 1);
-      });
+      // update the query params state
+      this.setState({ queryParams, loadingHistory: true });
     }
   }
 
