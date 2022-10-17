@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@hathor/wallet-lib": "^0.29.0",
-    "axios": "^0.17.1",
+    "axios": "^0.21.2",
     "bootstrap": "^4.0.0",
     "d3-selection": "^1.3.2",
     "d3-zoom": "^1.7.3",
