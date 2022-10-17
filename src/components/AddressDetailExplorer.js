@@ -176,7 +176,6 @@ class AddressDetailExplorer extends React.Component {
    * @param {Object} queryParams URL parameters
    */
   getHistoryData = (lastTx, lastTs) => {
-    console.log('Downloading')
     return addressApi.getHistory(this.state.address, this.state.selectedToken, TX_COUNT, lastTx, lastTs).then((response) => {
       if (!response) {
         // An error happened with the API call
