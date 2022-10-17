@@ -14,7 +14,7 @@ import ReactLoading from 'react-loading';
 import colors from '../index.scss';
 import WebSocketHandler from '../WebSocketHandler';
 import { TX_COUNT, TOKEN_COUNT } from '../constants';
-import { isEqual } from 'lodash';
+import { isEqual, find } from 'lodash';
 import metadataApi from '../api/metadataApi';
 import addressApi from '../api/addressApi';
 import txApi from '../api/txApi';
@@ -24,7 +24,6 @@ import ErrorMessageWithIcon from '../components/error/ErrorMessageWithIcon'
 class AddressDetailExplorer extends React.Component {
   pagination = new PaginationURL({
     'token': {required: true},
-    'page': {required: false},
   });
 
   addressSummaryRef = React.createRef();
@@ -50,13 +49,17 @@ class AddressDetailExplorer extends React.Component {
    */
   state = {
     address: null,
+    page: 0,
     selectedToken: '',
     balance: {},
     transactions: [],
     queryParams: null,
+    hasAfter: false,
+    hasBefore: false,
     loadingSummary: false,
     loadingHistory: false,
     loadingTokens: true,
+    loadingPagination: false,
     errorMessage: '',
     warningRefreshPage: false,
     warnMissingTokens: 0,
@@ -66,6 +69,13 @@ class AddressDetailExplorer extends React.Component {
     txCache: {},
     showReloadDataButton: false,
     showReloadTokenButton: false,
+    pageSearchAfter: [{
+      page: 0,
+      searchAfter: {
+        lastTx: null,
+        lastTs: null,
+      },
+    }]
   }
 
   componentDidMount() {
@@ -94,6 +104,7 @@ class AddressDetailExplorer extends React.Component {
       if (queryParams.token !== this.state.queryParams.token && queryParams.token !== null) {
         // User selected a new token, so we must go to the first page (clear queryParams)
         this.pagination.clearOptionalQueryParams();
+
         // Need to get newQueryParams because the optional ones were cleared
         // Update state to set the new selected token on it
         // If we don't update this state here we might execute a duplicate request
@@ -104,11 +115,8 @@ class AddressDetailExplorer extends React.Component {
         return;
       }
 
-      // update the query params state then fetch the new page
-      this.setState({ queryParams, loadingHistory: true }, () => {
-        // Fetch new data, unless query params were cleared and we were already in the most recent page
-        this.getHistoryData(+queryParams.page || 1);
-      });
+      // update the query params state
+      this.setState({ queryParams, loadingHistory: true });
     }
   }
 
@@ -167,26 +175,23 @@ class AddressDetailExplorer extends React.Component {
    *
    * @param {Object} queryParams URL parameters
    */
-  getHistoryData = (page) => {
-    // update query parameters
-    const query = this.pagination.obtainQueryParams();
-    if (query.page !== page) {
-      query.page = page;
-      const newURL = this.pagination.setURLParameters(query);
-      this.props.history.push(newURL);
-    }
-
-    return addressApi.getHistory(this.state.address, this.state.selectedToken, TX_COUNT, TX_COUNT * (page-1)).then((response) => {
+  getHistoryData = (lastTx, lastTs) => {
+    return addressApi.getHistory(this.state.address, this.state.selectedToken, TX_COUNT, lastTx, lastTs).then((response) => {
       if (!response) {
         // An error happened with the API call
-        this.setState({ showReloadTokenButton: true });
+        this.setState({
+          showReloadTokenButton: true,
+        });
         return;
       }
-      const txhistory = response || [];
-      this.setState({ transactions: txhistory }, () => {
 
+      const { has_next, history } = response;
+      this.setState({
+        transactions: history,
+        hasAfter: has_next,
+      }, () => {
         const promises = [];
-        for (const tx of txhistory) {
+        for (const tx of history) {
           if (!this.state.txCache[tx.tx_id]) {
             /**
              * The explorer-service address api does not retrieve all metadata of the transactions
@@ -206,7 +211,7 @@ class AddressDetailExplorer extends React.Component {
           this.setState({txCache: cache});
         });
       });
-      return txhistory;
+      return history;
     }).finally(() => {
       this.setState({ loadingHistory: false });
     });
@@ -300,15 +305,7 @@ class AddressDetailExplorer extends React.Component {
         this.setState({ balance });
         return balance;
       }).then(balance => {
-        const query = this.pagination.obtainQueryParams()
-        let page = 1;
-        if (query.page) {
-          const pageNum = +query.page;
-          if((pageNum > 1) && (pageNum <= this.lastPage())) {
-            page = pageNum;
-          }
-        }
-        return this.getHistoryData(page).then(txhistory => {
+        return this.getHistoryData().then(txhistory => {
           if (!this.state.metadataLoaded) {
             this.getSelectedTokenMetadata(token);
           }
@@ -415,7 +412,10 @@ class AddressDetailExplorer extends React.Component {
    */
   refreshPageData = (e) => {
     e.preventDefault();
-    this.setState({ showReloadDataButton: false, warningRefreshPage: false }, () => {
+    this.setState({
+      showReloadDataButton: false,
+      warningRefreshPage: false
+    }, () => {
      this.reloadData();
     })
   }
@@ -432,6 +432,56 @@ class AddressDetailExplorer extends React.Component {
 
   lastPage = () => {
     return Math.ceil(this.state.balance.transactions / TX_COUNT);
+  }
+
+  onNextPageClicked = async () => {
+    this.setState({ loadingPagination: true });
+
+    const transactions = this.state.transactions;
+    const { timestamp, tx_id } = transactions.at(transactions.length - 1);
+
+    const nextPage = this.state.page + 1;
+
+    const lastTx = tx_id;
+    const lastTs = timestamp;
+
+    // Calculate the next page searchAfter, so it we can click previous and come back to it.
+    const searchAfter = {
+      lastTx,
+      lastTs,
+    };
+
+    const newPageSearchAfter =  [
+      ...this.state.pageSearchAfter, {
+        page: nextPage,
+        searchAfter,
+      }
+    ];
+
+    await this.getHistoryData(searchAfter.lastTx, searchAfter.lastTs);
+
+    this.setState({
+      pageSearchAfter: newPageSearchAfter,
+      hasBefore: true,
+      loadingPagination: false,
+      page: nextPage,
+    });
+  }
+
+  onPreviousPageClicked = async () => {
+    this.setState({ loadingPagination: true });
+
+    const nextPage = this.state.page - 1;
+    const { searchAfter } = find(this.state.pageSearchAfter, { page: nextPage });
+
+    await this.getHistoryData(searchAfter.lastTx, searchAfter.lastTs);
+
+    this.setState({
+      hasBefore: nextPage > 0,
+      page: nextPage,
+    });
+
+    this.setState({ loadingPagination: false });
   }
 
   render() {
@@ -523,11 +573,16 @@ class AddressDetailExplorer extends React.Component {
                 onRowClicked={this.onRowClicked}
                 pagination={this.pagination}
                 selectedToken={this.state.selectedToken}
-                transactions={this.state.transactions}
+                onNextPageClicked={this.onNextPageClicked}
+                onPreviousPageClicked={this.onPreviousPageClicked}
+                hasAfter={this.state.hasAfter}
+                hasBefore={this.state.hasBefore}
+                data={this.state.transactions}
                 numTransactions={this.state.balance.transactions}
                 txCache={this.state.txCache}
                 isNFT={isNFT()}
                 metadataLoaded={this.state.metadataLoaded}
+                calculatingPage={this.state.loadingPagination}
               />
             </div>
           );
