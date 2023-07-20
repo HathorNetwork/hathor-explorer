@@ -478,6 +478,9 @@ class TxData extends React.Component {
 
     const renderAccumulatedWeight = () => {
       if (this.props.confirmationData) {
+        if (!this.props.confirmationData.success) {
+          return 'Not available';
+        }
         let acc = helpers.roundFloat(this.props.confirmationData.accumulated_weight);
         if (this.props.confirmationData.accumulated_bigger) {
           return `Over ${acc}`;
@@ -553,10 +556,20 @@ class TxData extends React.Component {
     }
 
     const renderConfirmationLevel = () => {
+      function getConfirmationMessage(data) {
+        if (!data) {
+          return 'Retrieving confirmation level data...';
+        }
+        if (!data.success) {
+          return 'Not available';
+        }
+
+        return `${helpers.roundFloat(data.confirmation_level * 100)}%`
+      }
       return (
         <div>
           <label>Confirmation level:</label>
-          {this.props.confirmationData ? `${helpers.roundFloat(this.props.confirmationData.confirmation_level * 100)}%` : 'Retrieving confirmation level data...'}
+          {getConfirmationMessage(this.props.confirmationData)}
         </div>
       );
     }
