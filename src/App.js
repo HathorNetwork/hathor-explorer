@@ -18,6 +18,7 @@ import AddressDetail from './screens/AddressDetail';
 import DecodeTx from './screens/DecodeTx';
 import PushTx from './screens/PushTx';
 import TransactionList from './screens/TransactionList';
+import FeatureList from './screens/FeatureList';
 import TokenList from './screens/TokenList';
 import TokenBalancesList from './screens/TokenBalances';
 import BlockList from './screens/BlockList';
@@ -114,6 +115,7 @@ class Root extends React.Component {
               <NavigationRoute exact path="/token_balances" component={TokenBalancesList} />
               <NavigationRoute exact path="/blocks" component={BlockList} />
               <NavigationRoute exact path="/dag" component={Dag} />
+              <NavigationRoute exact path="/features" component={FeatureList} />
               <NavigationRoute exact path="/network/:peerId?" component={PeerAdmin} />
               <NavigationRoute exact path="/statistics" component={Dashboard} />
               <NavigationRoute exact path="/token_detail/:tokenUID" component={TokenDetail} />
