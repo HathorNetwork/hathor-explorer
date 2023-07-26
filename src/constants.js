@@ -22,6 +22,9 @@ export const WS_URL = tmp_ws_url;
 
 export const TX_COUNT = 10;
 
+// Maximum number of features shown in a single page of the features table
+export const FEATURE_COUNT = 10;
+
 // Maximum number of tokens to fetch when searching for tokens of an address
 export const TOKEN_COUNT = 50;
 
