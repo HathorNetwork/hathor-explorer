@@ -13,6 +13,7 @@ import { FEATURE_COUNT } from '../../constants';
 import FeatureRow from './FeatureRow';
 import colors from '../../index.scss';
 import PaginationURL from '../../utils/pagination';
+import PropTypes from 'prop-types';
 
 class Features extends React.Component {
   constructor(props) {
@@ -125,10 +126,10 @@ class Features extends React.Component {
       return (
         <nav aria-label="Feature pagination" className="d-flex justify-content-center">
           <ul className="pagination">
-            <li ref="featurePrevious" className={!this.hasBefore() ? "page-item mr-3 disabled" : "page-item mr-3"}>
+            <li ref="featurePrevious" className={`page-item mr-3 ${this.hasBefore() ? "" : "disabled"}`}>
               <Link className="page-link" to={this.pagination.setURLParameters({page: this.state.page - 1})}>Previous</Link>
             </li>
-            <li ref="featureNext" className={!this.hasAfter() ? "page-item disabled" : "page-item"}>
+            <li ref="featureNext" className={`page-item ${this.hasAfter() ? "" : "disabled"}`}>
               <Link className="page-link" to={this.pagination.setURLParameters({ page: this.state.page + 1})}>Next</Link>
             </li>
           </ul>
@@ -196,6 +197,13 @@ class Features extends React.Component {
       </div>
     );
   }
+}
+
+Features.propTypes = {
+  /**
+   * A function that returns all features
+   */
+  getFeatures: PropTypes.func.isRequired
 }
 
 export default Features;
