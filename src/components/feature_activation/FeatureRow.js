@@ -9,14 +9,28 @@ import React from 'react';
 
 
 class FeatureRow extends React.Component {
+  getPrettyState(state) {
+    const prettyStates = {
+      DEFINED: 'Defined',
+      STARTED: 'Started',
+      MUST_SIGNAL: 'Must Signal',
+      LOCKED_IN: 'Locked-in',
+      ACTIVE: 'Active',
+      FAILED: 'Failed',
+    };
+
+    return prettyStates[state] || state;
+  }
+
   render() {
-    const { acceptance } = this.props.feature
+    const { acceptance, state } = this.props.feature
     const acceptance_percentage = acceptance === null ? '-' : `${(acceptance * 100).toFixed(0)}%`
+    const prettyState = this.getPrettyState(state)
 
     return (
       <tr>
         <td className="d-lg-table-cell pr-3">{this.props.feature.name}</td>
-        <td className="d-lg-table-cell pr-3">{this.props.feature.state}</td>
+        <td className="d-lg-table-cell pr-3">{prettyState}</td>
         <td className="d-lg-table-cell pr-3">{acceptance_percentage}</td>
         <td className="d-lg-table-cell pr-3">{(this.props.feature.threshold * 100).toFixed(0)}%</td>
         <td className="d-lg-table-cell pr-3">{this.props.feature.start_height}</td>
