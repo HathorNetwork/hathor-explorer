@@ -15,6 +15,13 @@ const featureApi = {
     });
   },
 
+  async getSignalBits(block) {
+    return requestExplorerServiceV1.get(`node_api/feature`, { params: { block } }).then(res => {
+      return res.data.signal_bits
+    });
+  }
+  
+
 };
 
 export default featureApi;

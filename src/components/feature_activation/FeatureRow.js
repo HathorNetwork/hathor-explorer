@@ -6,26 +6,14 @@
  */
 
 import React from 'react';
+import featureActivation from '../../utils/featureActivation';
 
 
 class FeatureRow extends React.Component {
-  getPrettyState(state) {
-    const prettyStates = {
-      DEFINED: 'Defined',
-      STARTED: 'Started',
-      MUST_SIGNAL: 'Must Signal',
-      LOCKED_IN: 'Locked-in',
-      ACTIVE: 'Active',
-      FAILED: 'Failed',
-    };
-
-    return prettyStates[state] || state;
-  }
-
   render() {
     const { acceptance, state } = this.props.feature
     const acceptance_percentage = acceptance === null ? '-' : `${(acceptance * 100).toFixed(0)}%`
-    const prettyState = this.getPrettyState(state)
+    const prettyState = featureActivation.getPrettyState(state)
 
     return (
       <tr>

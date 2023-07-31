@@ -22,6 +22,8 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Link } from 'react-router-dom'
 import { Module, render } from 'viz.js/full.render.js';
 import Loading from '../Loading';
+import SignalBitRow from '../feature_activation/SignalBitRow';
+import featureApi from '../../api/featureApi';
 
 /**
  * Component that renders data of a transaction (used in TransactionDetail and DecodeTx screens)
@@ -51,6 +53,9 @@ class TxData extends React.Component {
     children: false,
     tokens: [],
     metadataLoaded: false,
+    showFeatureActivation: false,
+    loadedSignalBits: false,
+    signalBits: [],
     graphs: [
       {
         name: 'verification',
@@ -127,6 +132,21 @@ class TxData extends React.Component {
   toggleChildren = (e) => {
     e.preventDefault();
     this.setState({ children: !this.state.children });
+  }
+
+  /**
+   * Show/hide Feature Activation of the transaction
+   *
+   * @param {Object} e Event emitted when clicking link
+   */
+  toggleFeatureActivation = async (e) => {
+    e.preventDefault();
+    this.setState({ showFeatureActivation: !this.state.showFeatureActivation });
+
+    if (!this.state.loadedSignalBits) {
+      const signalBits = await featureApi.getSignalBits(this.props.transaction.hash)
+      this.setState({ signalBits, loadedSignalBits: true })
+    }
   }
 
   /**
@@ -585,6 +605,47 @@ class TxData extends React.Component {
       return tokenData && tokenData.meta && tokenData.meta.nft;
     }
 
+    const renderFeatureActivation = () => {
+      return (
+        <div className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
+          <div className="mt-3 graph-div" key="feature-activation">
+            <label className="graph-label">Feature Activation:</label>
+            <a href="true" className="ml-1" onClick={(e) => this.toggleFeatureActivation(e)}>{this.state.showFeatureActivation ? 'Click to hide' : 'Click to show'}</a>
+            { this.state.showFeatureActivation && this.state.loadedSignalBits && renderBitSignalTable() }
+            { this.state.showFeatureActivation && !this.state.loadedSignalBits && <Loading /> }
+          </div>
+        </div>
+      );
+    }
+
+    const renderBitSignalTable = () => {
+      return (
+        <div className="table-responsive mt-5">
+          <table className="table table-striped" id="features-table">
+            <thead>
+              <tr>
+                <th className="d-lg-table-cell">Bit</th>
+                <th className="d-lg-table-cell">Signal</th>
+                <th className="d-lg-table-cell">Feature</th>
+                <th className="d-lg-table-cell">Feature State</th>
+              </tr>
+            </thead>
+            <tbody>
+              {renderBitSignalTableBody()}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    const renderBitSignalTableBody = () => {
+      return this.state.signalBits.map((signalBit) => {
+        return (
+          <SignalBitRow key={signalBit.bit} signalBit={signalBit} />
+        );
+      });
+    }
+
     const loadTxData = () => {
       return (
         <div className="tx-data-wrapper">
@@ -628,6 +689,7 @@ class TxData extends React.Component {
             </div>
           </div>
           { this.state.graphs.map((graph, index) => renderGraph(index)) }
+          { hathorLib.helpers.isBlock(this.props.transaction) && renderFeatureActivation() }
           <div className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
             {this.props.showRaw ? showRawWrapper() : null}
           </div>
