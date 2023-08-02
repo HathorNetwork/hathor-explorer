@@ -22,7 +22,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Link } from 'react-router-dom'
 import { Module, render } from 'viz.js/full.render.js';
 import Loading from '../Loading';
-import SignalBitRow from '../feature_activation/SignalBitRow';
+import FeatureDataRow from '../feature_activation/FeatureDataRow';
 import featureApi from '../../api/featureApi';
 
 /**
@@ -639,9 +639,9 @@ class TxData extends React.Component {
     }
 
     const renderBitSignalTableBody = () => {
-      return this.state.signalBits.map((signalBit) => {
+      return this.state.signalBits.map((featureData) => {
         return (
-          <SignalBitRow key={signalBit.bit} signalBit={signalBit} />
+          <FeatureDataRow key={featureData.bit} featureData={featureData} />
         );
       });
     }

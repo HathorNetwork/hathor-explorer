@@ -9,9 +9,9 @@ import React from 'react';
 import featureActivation from '../../utils/featureActivation';
 
 
-class SignalBitRow extends React.Component {
+class FeatureDataRow extends React.Component {
   render() {
-    const { bit, signal, feature, feature_state } = this.props.signalBit
+    const { bit, signal, feature, feature_state } = this.props.featureData
     const prettyState = featureActivation.getPrettyState(feature_state)
     const prettySignal = signal === 1 ? '✓' : ''
 
@@ -26,4 +26,4 @@ class SignalBitRow extends React.Component {
   }
 }
 
-export default SignalBitRow;
+export default FeatureDataRow;
