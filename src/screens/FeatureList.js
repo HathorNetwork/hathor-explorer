@@ -7,18 +7,13 @@
 
 import React from 'react';
 import Features from '../components/feature_activation/Features';
-import featureApi from '../api/featureApi';
 
 
 class FeatureList extends React.Component {
-  getFeatures = () => {
-    return featureApi.getFeatures();
-  }
-
   render() {
     return (
       <div className="content-wrapper">
-        <Features title={<h1>Feature Activation</h1>} getFeatures={this.getFeatures} />
+        <Features title={<h1>Feature Activation</h1>} />
       </div>
     );
   }

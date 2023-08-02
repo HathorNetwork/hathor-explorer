@@ -13,7 +13,7 @@ import { FEATURE_COUNT } from '../../constants';
 import FeatureRow from './FeatureRow';
 import colors from '../../index.scss';
 import PaginationURL from '../../utils/pagination';
-import PropTypes from 'prop-types';
+import featureApi from '../../api/featureApi';
 
 class Features extends React.Component {
   constructor(props) {
@@ -35,7 +35,7 @@ class Features extends React.Component {
   }
 
   componentDidMount() {
-    this.props.getFeatures().then(this.handleFeatures, e => console.error(e));
+    featureApi.getFeatures().then(this.handleFeatures, e => console.error(e));
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -197,13 +197,6 @@ class Features extends React.Component {
       </div>
     );
   }
-}
-
-Features.propTypes = {
-  /**
-   * A function that returns all features
-   */
-  getFeatures: PropTypes.func.isRequired
 }
 
 export default Features;
