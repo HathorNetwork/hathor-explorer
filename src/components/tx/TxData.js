@@ -144,7 +144,7 @@ class TxData extends React.Component {
     this.setState({ showFeatureActivation: !this.state.showFeatureActivation });
 
     if (!this.state.loadedSignalBits) {
-      const signalBits = await featureApi.getSignalBits(this.props.transaction.hash)
+      const signalBits = await featureApi.getSignalBits(this.props.transaction.hash) || []
       this.setState({ signalBits, loadedSignalBits: true })
     }
   }
@@ -619,6 +619,9 @@ class TxData extends React.Component {
     }
 
     const renderBitSignalTable = () => {
+      if (this.state.signalBits.length === 0) {
+        return (<div>There are currently no features.</div>)
+      }
       return (
         <div className="table-responsive mt-5">
           <table className="table table-striped" id="features-table">
