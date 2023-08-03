@@ -181,19 +181,27 @@ class Features extends React.Component {
       })
     }
 
+    const loadFeaturesPage = () => {
+      return (
+        <div>
+          <div>Showing feature states for <Link to={`/transaction/${this.state.block_hash}`}>current best block</Link> at height {this.state.block_height}.</div>
+          {!this.state.loaded ? <ReactLoading type='spin' color={colors.purpleHathor} delay={500} /> : loadTable()}
+          {loadPagination()}
+          <div className="f-flex flex-column align-items-start common-div bordered-wrapper mt-3 mt-lg-0 w-100 feature-column-descriptions">
+            <div>
+              <label>Column descriptions: </label>
+              <a href="true" className="ml-1" onClick={(e) => this.toggleColumnDescriptions(e)}>{this.state.showColumnDescriptions ? 'Click to hide' : 'Click to show'}</a>
+            </div>
+            {this.state.showColumnDescriptions && loadColumnDescriptions()}
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div className="w-100">
         {this.props.title}
-        <div>Showing feature states for <Link to={`/transaction/${this.state.block_hash}`}>current best block</Link> at height {this.state.block_height}.</div>
-        {!this.state.loaded ? <ReactLoading type='spin' color={colors.purpleHathor} delay={500} /> : loadTable()}
-        {loadPagination()}
-        <div className="f-flex flex-column align-items-start common-div bordered-wrapper mt-3 mt-lg-0 w-100 feature-column-descriptions">
-          <div>
-            <label>Column descriptions: </label>
-            <a href="true" className="ml-1" onClick={(e) => this.toggleColumnDescriptions(e)}>{this.state.showColumnDescriptions ? 'Click to hide' : 'Click to show'}</a>
-          </div>
-          {this.state.showColumnDescriptions && loadColumnDescriptions()}
-        </div>
+        {this.state.pages.length !== 0 ? loadFeaturesPage() : <div>There are currently no features.</div>}
       </div>
     );
   }
