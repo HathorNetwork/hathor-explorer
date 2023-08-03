@@ -49,7 +49,7 @@ const txApi = {
 
   pushTx(hex_tx, force) {
     const data = {hex_tx, force}
-    return requestExplorerServiceV1.get(`node_api/push_tx`, {params: data}).then((res) => {
+    return requestExplorerServiceV1.post(`node_api/push_tx`, data).then((res) => {
       return res.data
     }, (res) => {
       throw new Error(res.data.message);

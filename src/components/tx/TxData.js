@@ -463,10 +463,13 @@ class TxData extends React.Component {
 
     const renderGraph = (graphIndex) => {
       return (
-        <div className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
+        <div key={graphIndex} className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
           <div className="mt-3 graph-div" key={`graph-${this.state.graphs[graphIndex].name}-${this.props.transaction.hash}`}>
             <label className="graph-label">{this.state.graphs[graphIndex].label}:</label>
-            <a href="true" className="ml-1" onClick={(e) => this.toggleGraph(e, graphIndex)}>{this.state.graphs[graphIndex].showNeighbors ? 'Click to hide' : 'Click to show'}</a>
+            { this.props.transaction.parents && this.props.transaction.parents.length
+            ? <a href="true" className="ml-1" onClick={(e) => this.toggleGraph(e, graphIndex)}>{this.state.graphs[graphIndex].showNeighbors ? 'Click to hide' : 'Click to show'}</a>
+            : null
+            }
             <div className={this.state.graphs[graphIndex].showNeighbors ? undefined : 'd-none'} id={`graph-${this.state.graphs[graphIndex].name}`}></div>
             {this.state.graphs[graphIndex].graphLoading ? <Loading /> : null}
           </div>
@@ -476,6 +479,9 @@ class TxData extends React.Component {
 
     const renderAccumulatedWeight = () => {
       if (this.props.confirmationData) {
+        if (!this.props.confirmationData.success) {
+          return 'Not available';
+        }
         let acc = helpers.roundFloat(this.props.confirmationData.accumulated_weight);
         if (this.props.confirmationData.accumulated_bigger) {
           return `Over ${acc}`;
@@ -551,10 +557,20 @@ class TxData extends React.Component {
     }
 
     const renderConfirmationLevel = () => {
+      function getConfirmationMessage(data) {
+        if (!data) {
+          return 'Retrieving confirmation level data...';
+        }
+        if (!data.success) {
+          return 'Not available';
+        }
+
+        return `${helpers.roundFloat(data.confirmation_level * 100)}%`
+      }
       return (
         <div>
           <label>Confirmation level:</label>
-          {this.props.confirmationData ? `${helpers.roundFloat(this.props.confirmationData.confirmation_level * 100)}%` : 'Retrieving confirmation level data...'}
+          {getConfirmationMessage(this.props.confirmationData)}
         </div>
       );
     }
