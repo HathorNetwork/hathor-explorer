@@ -22,10 +22,11 @@ const Loading = (props) => {
     return () => { clearTimeout(updateSlowLoad) }
   })
 
+  const { showSlowLoadMessage, useLoadingWrapper, ...reactLoadProps } = props;
   return (
-    <div className={props.useLoadingWrapper ? "loading-wrapper" : ""}>
-      <ReactLoading {...props} />
-      {slowLoad && props.showSlowLoadMessage ? <span>Still loading... Please, be patient.</span> : null}
+    <div className={useLoadingWrapper ? "loading-wrapper" : ""}>
+      <ReactLoading {...reactLoadProps} />
+      {slowLoad && showSlowLoadMessage ? <span>Still loading... Please, be patient.</span> : null}
     </div>
   )
 }
