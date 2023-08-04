@@ -8,8 +8,6 @@
     "bootstrap": "^4.0.0",
     "d3-selection": "^1.3.2",
     "d3-zoom": "^1.7.3",
-    "eslint-config-airbnb": "^16.1.0",
-    "eslint-plugin-react": "^7.5.1",
     "font-awesome": "^4.7.0",
     "jquery": "^3.2.1",
     "lodash": "^4.17.11",
@@ -38,7 +36,7 @@
     "watch-css": "npm run build-css && sass --watch src:src",
     "start-js": "react-scripts start",
     "start": "npm-run-all -p watch-css start-js",
-    "build-js": "react-scripts build",
+    "build-js": "react-scripts --openssl-legacy-provider build",
     "build": "npm-run-all build-css build-js",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
