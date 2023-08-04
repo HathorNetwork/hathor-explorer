@@ -94,6 +94,7 @@ class Navigation extends React.Component {
                   <NavLink to="/decode-tx/" exact className="nav-link">Decode Tx</NavLink>
                   <NavLink to="/push-tx/" exact className="nav-link">Push Tx</NavLink>
                   <NavLink to="/dag/" exact className="nav-link">DAG</NavLink>
+                  <NavLink to="/features/" exact className="nav-link">Features</NavLink>
                 </div>
               </li>
             </ul>
