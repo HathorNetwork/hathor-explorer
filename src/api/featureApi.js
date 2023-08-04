@@ -9,11 +9,18 @@ import requestExplorerServiceV1 from './axiosInstance';
 
 const featureApi = {
 
-  async getFeatures() {
-    return requestExplorerServiceV1.get(`node_api/feature`).then(res => {
+  async getFeatures(block = null) {
+    return requestExplorerServiceV1.get(`node_api/feature`, { params: { block } }).then(res => {
       return res.data
     });
   },
+
+  async getSignalBits(block) {
+    return this.getFeatures(block).then(data => {
+      return data.signal_bits
+    });
+  }
+  
 
 };
 
