@@ -39,11 +39,15 @@ class Navigation extends React.Component {
       if (regex.test(text)) {
         // It's a valid hash
         this.props.history.push(`/transaction/${text}`);
-      } else if (hathorLib.transaction.isAddressValid(text)) {
-        // It's a valid address
-        this.props.history.push(`/address/${text}`);
       } else {
-        this.showError();
+        const network = hathorLib.config.getNetwork();
+        const addressObj = new hathorLib.Address(text, { network });
+        if (addressObj.isValid()) {
+          // It's a valid address
+          this.props.history.push(`/address/${text}`);
+        } else {
+          this.showError();
+        }
       }
     }
   }

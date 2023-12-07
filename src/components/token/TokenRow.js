@@ -24,7 +24,7 @@ class TokenRow extends React.Component {
   render() {
     return (
       <tr onClick={(e) => this.onRowClicked(this.props.token.uid)}>
-        <td className="d-lg-table-cell pr-3">{hathorLib.helpers.getShortHash(this.props.token.uid)}</td>
+        <td className="d-lg-table-cell pr-3">{hathorLib.helpersUtils.getShortHash(this.props.token.uid)}</td>
         <td className="d-lg-table-cell pr-3">{this.props.token.name}</td>
         <td className="d-lg-table-cell pr-3">{this.props.token.symbol}</td>
         <td className="d-lg-table-cell pr-3">{this.props.token.nft ? 'NFT' : 'Custom Token'}</td>

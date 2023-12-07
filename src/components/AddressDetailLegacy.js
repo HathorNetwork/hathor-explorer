@@ -151,7 +151,9 @@ class AddressDetailLegacy extends React.Component {
    */
   updateAddress = (address) => {
     this.setState({ queryParams: this.pagination.obtainQueryParams() }, () => {
-      if (hathorLib.transaction.isAddressValid(address)) {
+      const network = hathorLib.config.getNetwork();
+      const addressObj = new hathorLib.Address(address, { network });
+      if (addressObj.isValid()) {
         this.setState({ address, loadingSummary: true, transactions: [], errorMessage: '' }, () => {
           const queryParams = this.pagination.obtainQueryParams();
           if (queryParams.token !== null) {

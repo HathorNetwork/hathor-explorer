@@ -7,9 +7,10 @@
 
 import React from 'react';
 import TxRow from '../components/tx/TxRow';
-import hathorLib from '@hathor/wallet-lib';
+import WebSocketHandler from '../WebSocketHandler';
 import { DASHBOARD_TX_COUNT, DASHBOARD_BLOCKS_COUNT } from '../constants';
 import txApi from '../api/txApi';
+import helpers from '../utils/helpers';
 
 
 /**
@@ -26,11 +27,11 @@ class DashboardTx extends React.Component {
 
   componentDidMount = () => {
     this.getInitialData();
-    hathorLib.WebSocketHandler.on('network', this.handleWebsocket);
+    WebSocketHandler.on('network', this.handleWebsocket);
   }
 
   componentWillUnmount = () => {
-    hathorLib.WebSocketHandler.removeListener('network', this.handleWebsocket);
+    WebSocketHandler.removeListener('network', this.handleWebsocket);
   }
 
   /**
@@ -61,14 +62,14 @@ class DashboardTx extends React.Component {
     if (tx.is_block) {
       let blocks = this.state.blocks;
 
-      blocks = hathorLib.helpers.updateListWs(blocks, tx, DASHBOARD_BLOCKS_COUNT);
+      blocks = helpers.updateListWs(blocks, tx, DASHBOARD_BLOCKS_COUNT);
 
       // Finally we update the state again
       this.setState({ blocks });
     } else {
       let transactions = this.state.transactions;
 
-      transactions = hathorLib.helpers.updateListWs(transactions, tx, DASHBOARD_TX_COUNT);
+      transactions = helpers.updateListWs(transactions, tx, DASHBOARD_TX_COUNT);
 
       // Finally we update the state again
       this.setState({ transactions });
