@@ -107,26 +107,51 @@ class Network extends React.Component {
   }
 
   buildSyncDataPolyfill(conn) {
-    const {sync_timestamp, latest_timestamp} = conn;
-    const first_timestamp = this.state.first_timestamp;
-    const server_latest_timestamp = this.state.latest_timestamp;
-    const delta = server_latest_timestamp - first_timestamp;
-    const progress = (sync_timestamp - first_timestamp) / delta;
     let state = SyncStates.UNKNOWN;
+    const {protocol_version} = conn;
 
-    if (sync_timestamp < server_latest_timestamp) {
-      state = SyncStates.BEHIND;
-    } else if (sync_timestamp === server_latest_timestamp) {
-      state = SyncStates.IN_SYNC;
-    } else if (sync_timestamp > server_latest_timestamp) {
-      state = SyncStates.AHEAD;
+    let progress = 0;
+    if (protocol_version.startsWith('sync-v2')) {
+      const server_best_block = this.state.best_block;
+      const {peer_best_block, synced_block} = conn;
+
+      if (server_best_block) {
+        progress = synced_block.height / server_best_block.height;
+        if (server_best_block.id === synced_block.id) {
+          state = SyncStates.IN_SYNC;
+        } else if (peer_best_block.height < server_best_block.height) {
+          state = SyncStates.BEHIND;
+        } else if (peer_best_block.height > server_best_block.height) {
+          state = SyncStates.AHEAD;
+        }
+      }
+      return {
+        progress,
+        state,
+        synced_block,
+        peer_best_block
+      };
+    } else if (protocol_version.startsWith('sync-v1')) {
+      const {first_timestamp, latest_timestamp} = this.state;
+      const {sync_timestamp} = conn;
+      const delta = latest_timestamp - first_timestamp;
+      progress = (sync_timestamp - first_timestamp) / delta;
+      if (sync_timestamp < latest_timestamp) {
+        state = SyncStates.BEHIND;
+      } else if (sync_timestamp === latest_timestamp) {
+        state = SyncStates.IN_SYNC;
+      } else if (sync_timestamp > latest_timestamp) {
+        state = SyncStates.AHEAD;
+      }
+      return {
+        progress,
+        state,
+        sync_timestamp,
+        latest_timestamp: conn.latest_timestamp
+      };
     }
-
     return {
-      progress,
-      state,
-      sync_timestamp,
-      latest_timestamp
+      state
     };
   }
 
@@ -151,6 +176,9 @@ class Network extends React.Component {
               Uptime: {dateFormatter.uptimeFormat(this.state.uptime)}<br />
               Version: {this.state.app_version}<br />
               Latest timestamp: {dateFormatter.timestampToString(this.state.latest_timestamp)}<br />
+              {this.state.best_block ? (
+                <>Best block: {this.state.best_block.height} ({this.state.best_block.id})<br /></>
+              ) : null }
             </div>
           </div>
           {loadTableBody()}
@@ -181,6 +209,7 @@ class Network extends React.Component {
             <div className="card-body">
               Uptime: {dateFormatter.uptimeFormat(conn.uptime)}<br />
               Version: {conn.app_version}<br />
+              Protocol: {conn.protocol_version}<br />
               Address: {conn.address}<br />
               Entrypoints: { entrypoints.join(", ") }<br />
               State: {sync_state_description}
@@ -193,6 +222,12 @@ class Network extends React.Component {
                     ) : null}
                     {sync_data.latest_timestamp ? (
                       <>Latest timestamp: {dateFormatter.timestampToString(sync_data.latest_timestamp)}</>
+                    ) : null}
+                    {sync_data.synced_block ? (
+                      <>Synced block: {sync_data.synced_block.height} ({sync_data.synced_block.id})<br /></>
+                    ) : null}
+                    {sync_data.peer_best_block ? (
+                      <>Best block: {sync_data.peer_best_block.height} ({sync_data.peer_best_block.id})<br /></>
                     ) : null}
                   </div>
                 <div className="progress">
