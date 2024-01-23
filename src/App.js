@@ -26,7 +26,6 @@ import TokenDetail from './screens/TokenDetail';
 import Dag from './screens/Dag';
 import Dashboard from './screens/Dashboard';
 import VersionError from './screens/VersionError';
-import NanoContractDetail from './screens/NanoContractDetail';
 import WebSocketHandler from './WebSocketHandler';
 import { apiLoadErrorUpdate, dashboardUpdate, isVersionAllowedUpdate } from "./actions/index";
 import { connect } from "react-redux";
@@ -118,7 +117,6 @@ class Root extends React.Component {
               <NavigationRoute exact path="/statistics" component={Dashboard} />
               <NavigationRoute exact path="/token_detail/:tokenUID" component={TokenDetail} />
               <NavigationRoute exact path="/address/:address" component={AddressDetail} />
-              <NavigationRoute exact path="/nano_contract/detail/:nc_id" component={NanoContractDetail} />
               <NavigationRoute exact path="" component={DashboardTx} />
             </Switch>
           </Router>
