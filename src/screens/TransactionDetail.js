@@ -75,7 +75,7 @@ class TransactionDetail extends React.Component {
   updateTxInfo = (id) => {
     txApi.getTransaction(id).then((data) => {
       this.txReceived(data);
-      if (data.success && !hathorLib.helpers.isBlock(data.tx)) {
+      if (data.success && !hathorLib.transactionUtils.isBlock(data.tx)) {
         this.getConfirmationData();
       }
     }, (e) => {

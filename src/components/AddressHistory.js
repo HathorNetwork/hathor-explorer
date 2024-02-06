@@ -25,13 +25,13 @@ class AddressHistory extends SortableTable {
    */
   isAllAuthority = (tx) => {
     for (let txin of tx.inputs) {
-      if (!hathorLib.wallet.isAuthorityOutput(txin) && txin.decoded.address === this.props.address) {
+      if (!hathorLib.transactionUtils.isAuthorityOutput(txin) && txin.decoded.address === this.props.address) {
         return false;
       }
     }
 
     for (let txout of tx.outputs) {
-      if (!hathorLib.wallet.isAuthorityOutput(txout) && txout.decoded.address === this.props.address) {
+      if (!hathorLib.transactionUtils.isAuthorityOutput(txout) && txout.decoded.address === this.props.address) {
         return false;
       }
     }
@@ -103,12 +103,12 @@ class AddressHistory extends SortableTable {
       }
       return (
         <tr key={tx.tx_id} className={trClass} onClick={(e) => this.props.onRowClicked(tx.tx_id)}>
-          <td className="d-none d-lg-table-cell pr-3">{hathorLib.helpers.getTxType(tx)}</td>
-          <td className="d-none d-lg-table-cell pr-3">{hathorLib.helpers.getShortHash(tx.tx_id)}</td>
+          <td className="d-none d-lg-table-cell pr-3">{hathorLib.transactionUtils.getTxType(tx)}</td>
+          <td className="d-none d-lg-table-cell pr-3">{hathorLib.helpersUtils.getShortHash(tx.tx_id)}</td>
           <td className="d-none d-lg-table-cell pr-3">{dateFormatter.parseTimestamp(tx.timestamp)}</td>
           <td className="state">{statusElement}</td>
           <td className="value"><span className="">{prettyValue}</span></td>
-          <td className="d-lg-none d-table-cell pr-3" colSpan="3">{hathorLib.helpers.getTxType(tx)}<br/>{hathorLib.helpers.getShortHash(tx.tx_id)}<br/>{dateFormatter.parseTimestamp(tx.timestamp)}</td>
+          <td className="d-lg-none d-table-cell pr-3" colSpan="3">{hathorLib.transactionUtils.getTxType(tx)}<br/>{hathorLib.helpersUtils.getShortHash(tx.tx_id)}<br/>{dateFormatter.parseTimestamp(tx.timestamp)}</td>
         </tr>
       )
     });

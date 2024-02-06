@@ -31,14 +31,11 @@ import { apiLoadErrorUpdate, dashboardUpdate, isVersionAllowedUpdate } from "./a
 import { connect } from "react-redux";
 import versionApi from './api/version';
 import helpers from './utils/helpers';
-import hathorLib from '@hathor/wallet-lib';
+import { axios as hathorLibAxios, config as hathorLibConfig } from '@hathor/wallet-lib';
 import { BASE_URL } from './constants';
 import createRequestInstance from './api/customAxiosInstance';
 
-const store = new hathorLib.MemoryStore();
-hathorLib.storage.setStore(store);
-hathorLib.storage.setItem('wallet:server', BASE_URL);
-
+hathorLibConfig.setServerUrl(BASE_URL);
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -58,11 +55,11 @@ class Root extends React.Component {
   componentDidMount() {
     WebSocketHandler.on('dashboard', this.handleWebsocket);
 
-    hathorLib.axios.registerNewCreateRequestInstance(createRequestInstance);
+    hathorLibAxios.registerNewCreateRequestInstance(createRequestInstance);
     this.props.apiLoadErrorUpdate({apiLoadError: false});
 
     versionApi.getVersion().then((data) => {
-      hathorLib.network.setNetwork(data.network.split('-')[0]);
+      hathorLibConfig.setNetwork(data.network.split('-')[0]);
       this.props.isVersionAllowedUpdate({allowed: helpers.isVersionAllowed(data.version)});
     }, (e) => {
       // Error in request

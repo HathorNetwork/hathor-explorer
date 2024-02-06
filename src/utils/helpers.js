@@ -201,7 +201,7 @@ const helpers = {
    * @inner
    */
   isMainnet() {
-    return hathorLib.network.getNetwork().name === 'mainnet';
+    return hathorLib.config.getNetwork().name === 'mainnet';
   },
 
   /**
@@ -233,9 +233,9 @@ const helpers = {
    */
   renderValue(amount, isInteger) {
     if (isInteger) {
-      return hathorLib.helpersUtils.prettyIntegerValue(amount);
+      return hathorLib.numberUtils.prettyIntegerValue(amount);
     } else {
-      return hathorLib.helpersUtils.prettyValue(amount);
+      return hathorLib.numberUtils.prettyValue(amount);
     }
   },
 
