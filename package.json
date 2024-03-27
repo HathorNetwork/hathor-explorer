@@ -3,7 +3,7 @@
   "version": "0.17.0",
   "private": true,
   "dependencies": {
-    "@hathor/wallet-lib": "1.1.0",
+    "@hathor/wallet-lib": "1.4.0",
     "axios": "0.17.1",
     "bootstrap": "4.6.2",
     "d3-selection": "1.4.2",
@@ -34,23 +34,17 @@
   "scripts": {
     "build-css": "sass src:src",
     "watch-css": "npm run build-css && sass --watch src:src",
-    "start-js": "react-scripts start",
+    "start-js": "react-scripts --openssl-legacy-provider start",
     "start": "npm-run-all -p watch-css start-js",
     "build-js": "react-scripts --openssl-legacy-provider build",
     "build": "npm-run-all build-css build-js",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  }
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }

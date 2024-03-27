@@ -94,9 +94,10 @@ class TxData extends React.Component {
       return;
     }
 
+    const network = hathorLib.config.getNetwork();
     const ncData = this.props.transaction;
     const deserializer = new hathorLib.NanoContractTransactionParser(ncData.nc_blueprint_id, ncData.nc_method, ncData.nc_pubkey, ncData.nc_args);
-    deserializer.parseAddress();
+    deserializer.parseAddress(network);
     await deserializer.parseArguments();
     this.setState({ ncDeserializer: deserializer });
   }
@@ -353,8 +354,6 @@ class TxData extends React.Component {
         case 'P2PKH':
         case 'MultiSig':
           return renderP2PKHorMultiSig(output.decoded);
-        case 'NanoContractMatchValues':
-          return renderNanoContractMatchValues(output.decoded);
         default:
           let script = output.script;
           // Try to parse as script data
@@ -394,11 +393,6 @@ class TxData extends React.Component {
         ret = `${ret} | Locked until ${dateFormatter.parseTimestamp(decoded.timelock)}`
       }
       ret = `${ret} [${decoded.type}]`;
-      return ret;
-    }
-
-    const renderNanoContractMatchValues = (decoded) => {
-      const ret = `Match values (nano contract), oracle id: ${decoded.oracle_data_id} hash: ${decoded.oracle_pubkey_hash}`;
       return ret;
     }
 
@@ -745,7 +739,7 @@ class TxData extends React.Component {
             </div>
           </div>
           { this.state.graphs.map((graph, index) => renderGraph(index)) }
-          { hathorLib.helpers.isBlock(this.props.transaction) && renderFeatureActivation() }
+          { hathorLib.transactionUtils.isBlock(this.props.transaction) && renderFeatureActivation() }
           <div className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
             {this.props.showRaw ? showRawWrapper() : null}
           </div>
