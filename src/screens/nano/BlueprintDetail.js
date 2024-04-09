@@ -127,17 +127,6 @@ function BlueprintDetail(props) {
     return `${name}(${parameters.join(', ')}): ${returnType === 'null' ? 'None' : returnType}`;
   }
 
-  const renderMethodArgsValues = (args) => {
-    return args.map((arg) => {
-      return (
-        <tr key={arg.name}>
-          <td>{arg.name}</td>
-          <td>{arg.type}</td>
-        </tr>
-      );
-    });
-  }
-
   return (
     <div className="content-wrapper">
       <h3 className="mt-4">Blueprint Information</h3>
