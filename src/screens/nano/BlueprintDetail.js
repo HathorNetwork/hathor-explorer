@@ -34,14 +34,14 @@ function BlueprintDetail(props) {
       try {
         const blueprintInformation = await nanoApi.getBlueprintInformation(blueprintId);
         if (ignore) {
-          // This is to prevent setting a state after the componenet has been already cleaned
+          // This is to prevent setting a state after the component has been already cleaned
           return;
         }
         setBlueprintInformation(blueprintInformation);
         setLoading(false);
       } catch (e) {
         if (ignore) {
-          // This is to prevent setting a state after the componenet has been already cleaned
+          // This is to prevent setting a state after the component has been already cleaned
           return;
         }
         setErrorMessage('Error getting blueprint information.');
