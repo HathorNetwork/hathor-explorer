@@ -93,15 +93,13 @@ function BlueprintDetail(props) {
     });
   }
 
-  const renderBlueprintMethods = (key) => {
+  const renderBlueprintMethods = (key, header) => {
     return (
-      <div className="table-responsive">
+      <div className="table-responsive mt-5">
         <table className="table table-striped table-bordered" id={`methods-table-${key}`}>
           <thead>
             <tr>
-              <th className="d-lg-table-cell">Name</th>
-              <th className="d-lg-table-cell">Arguments</th>
-              <th className="d-lg-table-cell">Return</th>
+              <th className="d-lg-table-cell">{header}</th>
             </tr>
           </thead>
           <tbody>
@@ -116,22 +114,17 @@ function BlueprintDetail(props) {
     return Object.entries(blueprintInformation[key]).map(([name, detail]) => {
       return (
         <tr key={name}>
-          <td>{name}</td>
-          <td>{renderMethodArgs(name, detail.args)}</td>
-          <td>{detail.return_type}</td>
+          <td>{renderMethodDetails(name, detail.args, detail.return_type)}</td>
         </tr>
       );
     });
   }
 
-  const renderMethodArgs = (name, args) => {
-    return (
-      <table className="table table-method-arguments" id={`methods-args-table-${name}`}>
-        <tbody>
-          {renderMethodArgsValues(args)}
-        </tbody>
-      </table>
+  const renderMethodDetails = (name, args, returnType) => {
+    const parameters = args.map(arg =>
+      `${arg.name}: ${arg.type}`
     );
+    return `${name}(${parameters.join(', ')}): ${returnType === 'null' ? 'None' : returnType}`;
   }
 
   const renderMethodArgsValues = (args) => {
@@ -153,10 +146,8 @@ function BlueprintDetail(props) {
         <p><strong>Name: </strong>{blueprintInformation.name}</p>
         <h4 className="mt-5 mb-4">Attributes</h4>
         { renderBlueprintAttributes() }
-        <h4 className="mt-5 mb-4">Public Methods</h4>
-        { renderBlueprintMethods('public_methods') }
-        <h4 className="mt-5 mb-4">Private Methods</h4>
-        { renderBlueprintMethods('private_methods') }
+        { renderBlueprintMethods('public_methods', 'Public Methods') }
+        { renderBlueprintMethods('private_methods', 'Private Methods') }
         <hr />
       </div>
     </div>
