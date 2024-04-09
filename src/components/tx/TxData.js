@@ -69,6 +69,7 @@ class TxData extends React.Component {
       }
     ],
     ncDeserializer: null,
+    ncLoading: true,
   };
 
   // Array of token uid that was already found to show the symbol
@@ -85,8 +86,8 @@ class TxData extends React.Component {
   }
 
   handleDataFetch = async () => {
-    await this.handleNanoContractFetch();
     this.calculateTokens();
+    await this.handleNanoContractFetch();
   }
 
   handleNanoContractFetch = async () => {
@@ -99,7 +100,7 @@ class TxData extends React.Component {
     const deserializer = new hathorLib.NanoContractTransactionParser(ncData.nc_blueprint_id, ncData.nc_method, ncData.nc_pubkey, ncData.nc_args);
     deserializer.parseAddress(network);
     await deserializer.parseArguments();
-    this.setState({ ncDeserializer: deserializer });
+    this.setState({ ncDeserializer: deserializer, ncLoading: false });
   }
 
   /**
@@ -608,6 +609,15 @@ class TxData extends React.Component {
     }
 
     const renderNCData = () => {
+      if (this.state.ncLoading) {
+        return (
+          <div className="d-flex flex-column align-items-start common-div bordered-wrapper">
+            <div>
+              <label>Loading nano contract data...</label>
+            </div>
+          </div>
+        );
+      }
       const deserializer = this.state.ncDeserializer;
       if (!deserializer) {
         // This should never happen
