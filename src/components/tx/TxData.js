@@ -69,7 +69,7 @@ class TxData extends React.Component {
       }
     ],
     ncDeserializer: null,
-    ncLoading: true,
+    ncLoading: false,
   };
 
   // Array of token uid that was already found to show the symbol
@@ -91,11 +91,12 @@ class TxData extends React.Component {
   }
 
   handleNanoContractFetch = async () => {
-    this.setState({ ncLoading: true });
     if (this.props.transaction.version !== hathorLib.constants.NANO_CONTRACTS_VERSION) {
       this.setState({ ncLoading: false });
       return;
     }
+
+    this.setState({ ncLoading: true });
 
     const network = hathorLib.config.getNetwork();
     const ncData = this.props.transaction;
