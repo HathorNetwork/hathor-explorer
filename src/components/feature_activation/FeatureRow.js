@@ -7,6 +7,7 @@
 
 import React from 'react';
 import featureActivation from '../../utils/featureActivation';
+import helpers from '../../utils/helpers';
 
 
 class FeatureRow extends React.Component {
@@ -21,9 +22,9 @@ class FeatureRow extends React.Component {
         <td className="d-lg-table-cell pr-3">{prettyState}</td>
         <td className="d-lg-table-cell pr-3">{acceptance_percentage}</td>
         <td className="d-lg-table-cell pr-3">{(this.props.feature.threshold * 100).toFixed(0)}%</td>
-        <td className="d-lg-table-cell pr-3">{this.props.feature.start_height}</td>
-        <td className="d-lg-table-cell pr-3">{this.props.feature.minimum_activation_height}</td>
-        <td className="d-lg-table-cell pr-3">{this.props.feature.timeout_height}</td>
+        <td className="d-lg-table-cell pr-3">{helpers.renderValue(this.props.feature.start_height, true)}</td>
+        <td className="d-lg-table-cell pr-3">{helpers.renderValue(this.props.feature.minimum_activation_height, true)}</td>
+        <td className="d-lg-table-cell pr-3">{helpers.renderValue(this.props.feature.timeout_height, true)}</td>
         <td className="d-lg-table-cell pr-3">{this.props.feature.lock_in_on_timeout.toString()}</td>
         <td className="d-lg-table-cell pr-3">{this.props.feature.version}</td>
       </tr>
