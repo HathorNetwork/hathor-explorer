@@ -27,18 +27,17 @@ import Dag from './screens/Dag';
 import Dashboard from './screens/Dashboard';
 import VersionError from './screens/VersionError';
 import WebSocketHandler from './WebSocketHandler';
+import NanoContractDetail from './screens/nano/NanoContractDetail';
+import BlueprintDetail from './screens/nano/BlueprintDetail';
 import { apiLoadErrorUpdate, dashboardUpdate, isVersionAllowedUpdate } from "./actions/index";
 import { connect } from "react-redux";
 import versionApi from './api/version';
 import helpers from './utils/helpers';
-import hathorLib from '@hathor/wallet-lib';
+import { axios as hathorLibAxios, config as hathorLibConfig } from '@hathor/wallet-lib';
 import { BASE_URL } from './constants';
 import createRequestInstance from './api/customAxiosInstance';
 
-const store = new hathorLib.MemoryStore();
-hathorLib.storage.setStore(store);
-hathorLib.storage.setItem('wallet:server', BASE_URL);
-
+hathorLibConfig.setServerUrl(BASE_URL);
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -58,11 +57,15 @@ class Root extends React.Component {
   componentDidMount() {
     WebSocketHandler.on('dashboard', this.handleWebsocket);
 
-    hathorLib.axios.registerNewCreateRequestInstance(createRequestInstance);
+    hathorLibAxios.registerNewCreateRequestInstance(createRequestInstance);
     this.props.apiLoadErrorUpdate({apiLoadError: false});
 
     versionApi.getVersion().then((data) => {
-      hathorLib.network.setNetwork(data.network.split('-')[0]);
+      let network = data.network;
+      if (data.network.includes('testnet')) {
+        network = 'testnet';
+      }
+      hathorLibConfig.setNetwork(network);
       this.props.isVersionAllowedUpdate({allowed: helpers.isVersionAllowed(data.version)});
     }, (e) => {
       // Error in request
@@ -120,6 +123,8 @@ class Root extends React.Component {
               <NavigationRoute exact path="/statistics" component={Dashboard} />
               <NavigationRoute exact path="/token_detail/:tokenUID" component={TokenDetail} />
               <NavigationRoute exact path="/address/:address" component={AddressDetail} />
+              <NavigationRoute exact path="/nano_contract/detail/:nc_id" component={NanoContractDetail} />
+              <NavigationRoute exact path="/blueprint/detail/:blueprint_id" component={BlueprintDetail} />
               <NavigationRoute exact path="" component={DashboardTx} />
             </Switch>
           </Router>

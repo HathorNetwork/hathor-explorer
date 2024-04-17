@@ -67,20 +67,43 @@ class TxData extends React.Component {
         label: 'Funds neighbors',
         ...this.baseItemGraph
       }
-    ]
+    ],
+    ncDeserializer: null,
+    ncLoading: false,
   };
 
   // Array of token uid that was already found to show the symbol
   tokensFound = [];
 
-  componentDidMount = () => {
-    this.calculateTokens();
+  componentDidMount = async () => {
+    await this.handleDataFetch();
   }
 
-  componentDidUpdate = (prevProps) => {
+  componentDidUpdate = async (prevProps) => {
     if (prevProps.transaction !== this.props.transaction) {
-      this.calculateTokens();
+      await this.handleDataFetch();
     }
+  }
+
+  handleDataFetch = async () => {
+    this.calculateTokens();
+    await this.handleNanoContractFetch();
+  }
+
+  handleNanoContractFetch = async () => {
+    if (this.props.transaction.version !== hathorLib.constants.NANO_CONTRACTS_VERSION) {
+      this.setState({ ncLoading: false });
+      return;
+    }
+
+    this.setState({ ncLoading: true });
+
+    const network = hathorLib.config.getNetwork();
+    const ncData = this.props.transaction;
+    const deserializer = new hathorLib.NanoContractTransactionParser(ncData.nc_blueprint_id, ncData.nc_method, ncData.nc_pubkey, ncData.nc_args);
+    deserializer.parseAddress(network);
+    await deserializer.parseArguments();
+    this.setState({ ncDeserializer: deserializer, ncLoading: false });
   }
 
   /**
@@ -255,7 +278,7 @@ class TxData extends React.Component {
 
   render() {
     const renderBlockOrTransaction = () => {
-      if (hathorLib.helpers.isBlock(this.props.transaction)) {
+      if (hathorLib.transactionUtils.isBlock(this.props.transaction)) {
         return 'block';
       } else {
         return 'transaction';
@@ -275,15 +298,15 @@ class TxData extends React.Component {
 
     const renderOutputToken = (output) => {
       return (
-        <strong>{this.getOutputToken(hathorLib.wallet.getTokenIndex(output.token_data))}</strong>
+        <strong>{this.getOutputToken(hathorLib.tokensUtils.getTokenIndexFromData(output.token_data))}</strong>
       );
     }
 
     const outputValue = (output) => {
-      if (hathorLib.wallet.isAuthorityOutput(output)) {
-        if (hathorLib.wallet.isMintOutput(output)) {
+      if (hathorLib.transactionUtils.isAuthorityOutput(output)) {
+        if (hathorLib.transactionUtils.isMint(output)) {
           return 'Mint authority';
-        } else if (hathorLib.wallet.isMeltOutput(output)) {
+        } else if (hathorLib.transactionUtils.isMelt(output)) {
           return 'Melt authority';
         } else {
           // Should never come here
@@ -297,7 +320,7 @@ class TxData extends React.Component {
         }
 
         // if it's an NFT token we should show integer value
-        const uid = this.getUIDFromTokenData(hathorLib.wallet.getTokenIndex(output.token_data));
+        const uid = this.getUIDFromTokenData(hathorLib.tokensUtils.getTokenIndexFromData(output.token_data));
         const tokenData = this.state.tokens.find((token) => token.uid === uid);
         const isNFT = tokenData && tokenData.meta && tokenData.meta.nft;
         return helpers.renderValue(output.value, isNFT);
@@ -335,8 +358,6 @@ class TxData extends React.Component {
         case 'P2PKH':
         case 'MultiSig':
           return renderP2PKHorMultiSig(output.decoded);
-        case 'NanoContractMatchValues':
-          return renderNanoContractMatchValues(output.decoded);
         default:
           let script = output.script;
           // Try to parse as script data
@@ -376,11 +397,6 @@ class TxData extends React.Component {
         ret = `${ret} | Locked until ${dateFormatter.parseTimestamp(decoded.timelock)}`
       }
       ret = `${ret} [${decoded.type}]`;
-      return ret;
-    }
-
-    const renderNanoContractMatchValues = (decoded) => {
-      const ret = `Match values (nano contract), oracle id: ${decoded.oracle_data_id} hash: ${decoded.oracle_pubkey_hash}`;
       return ret;
     }
 
@@ -595,6 +611,47 @@ class TxData extends React.Component {
       );
     }
 
+    const renderNCData = () => {
+      if (this.state.ncLoading) {
+        return (
+          <div className="d-flex flex-column align-items-start common-div bordered-wrapper">
+            <div>
+              <label>Loading nano contract data...</label>
+            </div>
+          </div>
+        );
+      }
+      const deserializer = this.state.ncDeserializer;
+      if (!deserializer) {
+        // This should never happen
+        return null;
+      }
+      return (
+        <div className="d-flex flex-column align-items-start common-div bordered-wrapper mr-3">
+          <div><label>Nano Contract ID:</label> <Link to={`/nano_contract/detail/${this.props.transaction.nc_id}`}> {this.props.transaction.nc_id}</Link></div>
+          <div><label>Address used to sign:</label> {deserializer.address.base58}</div>
+          <div><label>Method:</label> {this.props.transaction.nc_method}</div>
+          <div><label>Arguments:</label> {renderNCArguments(deserializer.parsedArgs)}</div>
+        </div>
+      );
+    }
+
+    const renderNCArguments = (args) => {
+      return args.map((arg) => (
+        <div key={arg.name}>
+          <label>{arg.name}:</label> {renderArgValue(arg)}
+        </div>
+      ));
+    }
+
+    const renderArgValue = (arg) => {
+      if (arg.type === 'bytes') {
+        return arg.parsed.toString('hex');
+      }
+
+      return arg.parsed;
+    }
+
     const isNFTCreation = () => {
       if (this.props.transaction.version !== hathorLib.constants.CREATE_TOKEN_TX_VERSION) {
         return false;
@@ -654,21 +711,24 @@ class TxData extends React.Component {
         <div className="tx-data-wrapper">
           <TxAlerts tokens={this.state.tokens}/>
           {this.props.showConflicts ? renderConflicts() : ''}
-          <div><label>{hathorLib.helpers.isBlock(this.props.transaction) ? 'Block' : 'Transaction'} ID:</label> {this.props.transaction.hash}</div>
+          <div><label>{hathorLib.transactionUtils.isBlock(this.props.transaction) ? 'Block' : 'Transaction'} ID:</label> {this.props.transaction.hash}</div>
           <div className="d-flex flex-column flex-lg-row align-items-start mt-3 mb-3">
             <div className="d-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
-              <div><label>Type:</label> {hathorLib.helpers.getTxType(this.props.transaction)} {isNFTCreation() && '(NFT)'} <TxMarkers tx={this.props.transaction} /></div>
+              <div><label>Type:</label> {hathorLib.transactionUtils.getTxType(this.props.transaction)} {isNFTCreation() && '(NFT)'} <TxMarkers tx={this.props.transaction} /></div>
               <div><label>Time:</label> {dateFormatter.parseTimestamp(this.props.transaction.timestamp)}</div>
               <div><label>Nonce:</label> {this.props.transaction.nonce}</div>
               <div><label>Weight:</label> {helpers.roundFloat(this.props.transaction.weight)}</div>
-              {!hathorLib.helpers.isBlock(this.props.transaction) && renderFirstBlockDiv()}
+              {!hathorLib.transactionUtils.isBlock(this.props.transaction) && renderFirstBlockDiv()}
             </div>
             <div className="d-flex flex-column align-items-center important-div bordered-wrapper mt-3 mt-lg-0 w-100">
-              {hathorLib.helpers.isBlock(this.props.transaction) && renderHeight()}
-              {hathorLib.helpers.isBlock(this.props.transaction) && renderScore()}
-              {!hathorLib.helpers.isBlock(this.props.transaction) && renderAccWeightDiv()}
-              {!hathorLib.helpers.isBlock(this.props.transaction) && renderConfirmationLevel()}
+              {hathorLib.transactionUtils.isBlock(this.props.transaction) && renderHeight()}
+              {hathorLib.transactionUtils.isBlock(this.props.transaction) && renderScore()}
+              {!hathorLib.transactionUtils.isBlock(this.props.transaction) && renderAccWeightDiv()}
+              {!hathorLib.transactionUtils.isBlock(this.props.transaction) && renderConfirmationLevel()}
             </div>
+          </div>
+          <div className="d-flex flex-row align-items-start mb-3">
+            {this.props.transaction.version === hathorLib.constants.NANO_CONTRACTS_VERSION && renderNCData()}
           </div>
           <div className="d-flex flex-column flex-lg-row align-items-start mb-3 w-100">
             <div className="f-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
@@ -692,7 +752,7 @@ class TxData extends React.Component {
             </div>
           </div>
           { this.state.graphs.map((graph, index) => renderGraph(index)) }
-          { hathorLib.helpers.isBlock(this.props.transaction) && renderFeatureActivation() }
+          { hathorLib.transactionUtils.isBlock(this.props.transaction) && renderFeatureActivation() }
           <div className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
             {this.props.showRaw ? showRawWrapper() : null}
           </div>

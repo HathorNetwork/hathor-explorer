@@ -14,6 +14,8 @@ import FeatureRow from './FeatureRow';
 import colors from '../../index.scss';
 import PaginationURL from '../../utils/pagination';
 import featureApi from '../../api/featureApi';
+import helpers from '../../utils/helpers';
+
 
 class Features extends React.Component {
   constructor(props) {
@@ -184,7 +186,7 @@ class Features extends React.Component {
     const loadFeaturesPage = () => {
       return (
         <div>
-          <div>Showing feature states for <Link to={`/transaction/${this.state.block_hash}`}>current best block</Link> at height {this.state.block_height}.</div>
+          <div>Showing feature states for <Link to={`/transaction/${this.state.block_hash}`}>current best block</Link> at height {helpers.renderValue(this.state.block_height, true)}.</div>
           {!this.state.loaded ? <ReactLoading type='spin' color={colors.purpleHathor} delay={500} /> : loadTable()}
           {loadPagination()}
           <div className="f-flex flex-column align-items-start common-div bordered-wrapper mt-3 mt-lg-0 w-100 feature-column-descriptions">

@@ -9,7 +9,7 @@ const TokenConfig = (props) => {
 
   const [token, setToken] = useState(props.token);
   const [successMessage, setSuccessMessage] = useState('');
-  const configurationString = hathorLib.tokens.getConfigurationString(token.uid, token.name, token.symbol);
+  const configurationString = hathorLib.tokensUtils.getConfigurationString(token.uid, token.name, token.symbol);
   const alertSuccess = useRef(null);
 
   useEffect(() => {

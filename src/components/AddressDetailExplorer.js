@@ -143,7 +143,9 @@ class AddressDetailExplorer extends React.Component {
    */
   updateAddress = (address) => {
     this.setState({ queryParams: this.pagination.obtainQueryParams() }, () => {
-      if (hathorLib.transaction.isAddressValid(address)) {
+      const network = hathorLib.config.getNetwork();
+      const addressObj = new hathorLib.Address(address, { network });
+      if (addressObj.isValid()) {
         this.setState({
           address,
           loadingTokens: true,
