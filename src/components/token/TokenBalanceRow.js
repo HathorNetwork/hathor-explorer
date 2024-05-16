@@ -8,7 +8,7 @@
 import React from 'react';
 import { withRouter } from "react-router-dom";
 import PropTypes from 'prop-types';
-import { helpers } from '@hathor/wallet-lib';
+import helpers from '../../utils/helpers';
 
 class TokenBalanceRow extends React.Component {
   /**
@@ -24,9 +24,9 @@ class TokenBalanceRow extends React.Component {
     return (
       <tr onClick={(e) => this.onRowClicked(this.props.address)}>
         <td className="d-lg-table-cell pr-3">{this.props.address}</td>
-        <td className="d-lg-table-cell pr-3">{helpers.prettyValue(this.props.total)}</td>
-        <td className="d-lg-table-cell pr-3">{helpers.prettyValue(this.props.unlocked)}</td>
-        <td className="d-lg-table-cell pr-3">{helpers.prettyValue(this.props.locked)}</td>
+        <td className="d-lg-table-cell pr-3">{helpers.renderValue(this.props.total, false)}</td>
+        <td className="d-lg-table-cell pr-3">{helpers.renderValue(this.props.unlocked, false)}</td>
+        <td className="d-lg-table-cell pr-3">{helpers.renderValue(this.props.locked, false)}</td>
       </tr>
     );
   }
