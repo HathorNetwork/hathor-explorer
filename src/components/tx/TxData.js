@@ -637,7 +637,7 @@ class TxData extends React.Component {
     }
 
     const renderNCArguments = (args) => {
-      if (!args || !args.length) {
+      if (!Array.isArray(args) || args.length === 0) {
         return " - ";
       }
 
