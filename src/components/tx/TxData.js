@@ -637,6 +637,10 @@ class TxData extends React.Component {
     }
 
     const renderNCArguments = (args) => {
+      if (!args || !args.length) {
+        return " - ";
+      }
+
       return args.map((arg) => (
         <div key={arg.name}>
           <label>{arg.name}:</label> {renderArgValue(arg)}
