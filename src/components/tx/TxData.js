@@ -716,14 +716,14 @@ class TxData extends React.Component {
           <TxAlerts tokens={this.state.tokens}/>
           {this.props.showConflicts ? renderConflicts() : ''}
           <div><label>{hathorLib.transactionUtils.isBlock(this.props.transaction) ? 'Block' : 'Transaction'} ID:</label> {this.props.transaction.hash}</div>
-          {this.props.transaction.signer && <div><label>Signer:</label> {this.props.transaction.signer.toUpperCase()}</div>}
           <div className="d-flex flex-column flex-lg-row align-items-start mt-3 mb-3">
             <div className="d-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
               <div><label>Type:</label> {hathorLib.transactionUtils.getTxType(this.props.transaction)} {isNFTCreation() && '(NFT)'} <TxMarkers tx={this.props.transaction} /></div>
               <div><label>Time:</label> {dateFormatter.parseTimestamp(this.props.transaction.timestamp)}</div>
               <div><label>Nonce:</label> {this.props.transaction.nonce}</div>
               <div><label>Weight:</label> {helpers.roundFloat(this.props.transaction.weight)}</div>
-              {this.props.transaction.signer_id && <div><label>Signer ID:</label> 0x{this.props.transaction.signer_id.toUpperCase()}</div>}
+              {this.props.transaction.signer_id && <div><label>Signer ID:</label> {this.props.transaction.signer_id.toLowerCase()}</div>}
+              {this.props.transaction.signer && <div><label>Signer:</label> {helpers.getShortHash(this.props.transaction.signer.toLowerCase())}</div>}
               {!hathorLib.transactionUtils.isBlock(this.props.transaction) && renderFirstBlockDiv()}
             </div>
             <div className="d-flex flex-column align-items-center important-div bordered-wrapper mt-3 mt-lg-0 w-100">
