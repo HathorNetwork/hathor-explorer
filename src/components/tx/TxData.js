@@ -722,6 +722,8 @@ class TxData extends React.Component {
               <div><label>Time:</label> {dateFormatter.parseTimestamp(this.props.transaction.timestamp)}</div>
               <div><label>Nonce:</label> {this.props.transaction.nonce}</div>
               <div><label>Weight:</label> {helpers.roundFloat(this.props.transaction.weight)}</div>
+              {this.props.transaction.signer_id && <div><label>Signer ID:</label> {this.props.transaction.signer_id.toLowerCase()}</div>}
+              {this.props.transaction.signer && <div><label>Signer:</label> {helpers.getShortHash(this.props.transaction.signer.toLowerCase())}</div>}
               {!hathorLib.transactionUtils.isBlock(this.props.transaction) && renderFirstBlockDiv()}
             </div>
             <div className="d-flex flex-column align-items-center important-div bordered-wrapper mt-3 mt-lg-0 w-100">
