@@ -4,8 +4,13 @@ import Loading from '../Loading';
 import tokensApi from '../../api/tokensApi';
 import { debounce, get } from 'lodash';
 import { constants as hathorLibConstants } from '@hathor/wallet-lib';
+import { connect } from "react-redux";
 
 const DEBOUNCE_SEARCH_TIME = 200; // ms
+
+const mapStateToProps = (state) => {
+  return { serverInfo: state.serverInfo };
+};
 
 class TokenAutoCompleteField extends React.Component {
   constructor() {
@@ -234,4 +239,4 @@ TokenAutoCompleteField.propTypes = {
   onTokenSelected: PropTypes.func.isRequired,
 };
 
-export default TokenAutoCompleteField;
+export default connect(mapStateToProps)(TokenAutoCompleteField);

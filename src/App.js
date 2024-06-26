@@ -44,6 +44,7 @@ const mapDispatchToProps = dispatch => {
     dashboardUpdate: data => dispatch(dashboardUpdate(data)),
     isVersionAllowedUpdate: data => dispatch(isVersionAllowedUpdate(data)),
     apiLoadErrorUpdate: data => dispatch(apiLoadErrorUpdate(data)),
+    updateServerInfo: data => dispatch(updateServerInfo(data)),
   };
 };
 
@@ -66,6 +67,7 @@ class Root extends React.Component {
         network = 'testnet';
       }
       hathorLibConfig.setNetwork(network);
+      this.props.updateServerInfo(data);
       this.props.isVersionAllowedUpdate({allowed: helpers.isVersionAllowed(data.version)});
     }, (e) => {
       // Error in request
