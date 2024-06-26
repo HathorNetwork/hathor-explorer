@@ -63,7 +63,7 @@ class TokenAutoCompleteField extends React.Component {
   componentDidMount() {
     document.addEventListener('click', this.handleClick);
 
-    if (this.props.tokenId !== hathorLibConstants.HATHOR_TOKEN_CONFIG.uid) {
+    if (this.props.tokenId !== hathorLibConstants.NATIVE_TOKEN_UID) {
       // A token was selected in the query params
       // so we must search for it here to add
       // in the autocomplete input and perform the search

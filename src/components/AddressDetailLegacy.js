@@ -240,7 +240,7 @@ class AddressDetailLegacy extends React.Component {
           // If user had selected a token already, should continue the same
           selectedToken = this.state.selectedToken;
         } else {
-          const hathorUID = hathorLib.constants.HATHOR_TOKEN_CONFIG.uid
+          const hathorUID = hathorLib.constants.NATIVE_TOKEN_UID
           if (hathorUID in response.tokens_data) {
             // If HTR is in the token list of this address, it's the default selection
             selectedToken = hathorUID;
