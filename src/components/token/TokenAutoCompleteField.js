@@ -26,6 +26,14 @@ class TokenAutoCompleteField extends React.Component {
     this.handleClick = this._handleClick.bind(this);
   }
 
+  getNativeToken() {
+    return {
+      uid: hathorLibConstants.NATIVE_TOKEN_UID,
+      name: this.props.serverInfo?.native_token?.name ?? hathorLibConstants.DEFAULT_TOKEN_CONFIG.name,
+      symbol: this.props.serverInfo?.native_token?.symbol ?? hathorLibConstants.DEFAULT_TOKEN_CONFIG.symbol,
+    };
+  }
+
   /**
    * Handles clicks on the document to decide if we should hide the autocomplete
    * results
@@ -179,6 +187,7 @@ class TokenAutoCompleteField extends React.Component {
         </div>
       );
     }
+    const nativeToken = this.getNativeToken();
 
     return (
       <input
@@ -187,7 +196,7 @@ class TokenAutoCompleteField extends React.Component {
         value={this.state.searchText}
         onKeyUp={this.onSearchTextKeyUp}
         onChange={this.onSearchTextChanged}
-        placeholder="Hathor (HTR) - Type to search for other tokens by UID, name or symbol"
+        placeholder=`${nativeToken.name} (${nativeToken.symbol}) - Type to search for other tokens by UID, name or symbol`
         aria-label="Search" />
     )
   }
