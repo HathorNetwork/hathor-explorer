@@ -196,7 +196,7 @@ class TokenAutoCompleteField extends React.Component {
         value={this.state.searchText}
         onKeyUp={this.onSearchTextKeyUp}
         onChange={this.onSearchTextChanged}
-        placeholder=`${nativeToken.name} (${nativeToken.symbol}) - Type to search for other tokens by UID, name or symbol`
+        placeholder={`${nativeToken.name} (${nativeToken.symbol}) - Type to search for other tokens by UID, name or symbol`}
         aria-label="Search" />
     )
   }
