@@ -12,6 +12,7 @@ import HathorAlert from './HathorAlert';
 import Version from './Version';
 import hathorLib from '@hathor/wallet-lib';
 import ConditionalNavigation from './ConditionalNavigation';
+import { useFlag } from '@unleash/proxy-client-react';
 import {
   UNLEASH_TOKENS_BASE_FEATURE_FLAG,
   UNLEASH_TOKEN_BALANCES_FEATURE_FLAG,
@@ -56,6 +57,11 @@ class Navigation extends React.Component {
     this.refs.alertError.show(3000);
   }
 
+  showTokensTab() {
+    return useFlag(`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`)
+      || useFlag(`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.rollout`);
+  }
+
   render() {
     return (
       <div className="main-nav">
@@ -73,17 +79,19 @@ class Navigation extends React.Component {
               <li className="nav-item">
                 <NavLink to="/" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Transactions</NavLink>
               </li>
-              <li className="nav-item dropdown">
-                <span className="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  Tokens
-                </span>
-                <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <ul>
-                    <ConditionalNavigation to="/tokens" label="Token list" featureToggle={`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`} />
-                    <ConditionalNavigation to="/token_balances" label="Token balances" featureToggle={`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.rollout`} />
-                  </ul>
-                </div>
-              </li>
+              {this.showTokensTab() && (
+                <li className="nav-item dropdown">
+                  <span className="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Tokens
+                  </span>
+                  <div className="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <ul>
+                      <ConditionalNavigation to="/tokens" label="Token list" featureToggle={`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`} />
+                      <ConditionalNavigation to="/token_balances" label="Token balances" featureToggle={`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.rollout`} />
+                    </ul>
+                  </div>
+                </li>
+              )}
               <li className="nav-item">
                 <NavLink to="/network" exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>Network</NavLink>
               </li>
