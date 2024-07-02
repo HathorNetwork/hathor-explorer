@@ -29,7 +29,7 @@ import VersionError from './screens/VersionError';
 import WebSocketHandler from './WebSocketHandler';
 import NanoContractDetail from './screens/nano/NanoContractDetail';
 import BlueprintDetail from './screens/nano/BlueprintDetail';
-import { apiLoadErrorUpdate, dashboardUpdate, isVersionAllowedUpdate } from "./actions/index";
+import { apiLoadErrorUpdate, dashboardUpdate, isVersionAllowedUpdate, updateServerInfo } from "./actions/index";
 import { connect } from "react-redux";
 import versionApi from './api/version';
 import helpers from './utils/helpers';

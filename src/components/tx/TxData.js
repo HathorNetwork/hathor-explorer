@@ -127,7 +127,7 @@ class TxData extends React.Component {
 
   getNativeToken = () => {
     const nativeToken = this.props.serverInfo?.native_token ?? hathorLib.constants.DEFAULT_NATIVE_TOKEN_CONFIG;
-    return {...nativeToken, uid: NATIVE_TOKEN_UID};
+    return {...nativeToken, uid: hathorLib.constants.NATIVE_TOKEN_UID};
   }
 
   /**

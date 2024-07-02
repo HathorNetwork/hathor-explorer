@@ -3,7 +3,7 @@
   "version": "0.18.1",
   "private": true,
   "dependencies": {
-    "@hathor/wallet-lib": "1.4.0",
+    "@hathor/wallet-lib": "1.8.0",
     "axios": "0.17.1",
     "bootstrap": "4.6.2",
     "d3-selection": "1.4.2",
