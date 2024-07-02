@@ -39,7 +39,7 @@ class TokenBalances extends React.Component {
 
     const sortBy = get(queryParams, 'sortBy', 'total');
     const order = get(queryParams, 'order', 'desc');
-    const tokenId = get(queryParams, 'token', hathorLibConstants.HATHOR_TOKEN_CONFIG.uid);
+    const tokenId = get(queryParams, 'token', hathorLibConstants.NATIVE_TOKEN_UID);
 
     /**
      * tokenBalances: List of token balances currently being rendered.
@@ -58,7 +58,7 @@ class TokenBalances extends React.Component {
      * isSearchLoading: Indicates if search results are being retrieved from explorer-service
      * calculatingPage: Indicates if next page is being retrieved from explorer-service
      * error: Indicates if an unexpected error happened when calling the explorer-service
-     * tokenBalanceInformationError: Indicates if an unexpected error happened when calling the token balance information service 
+     * tokenBalanceInformationError: Indicates if an unexpected error happened when calling the token balance information service
      * maintenanceMode: Indicates if explorer-service or its downstream services are experiencing problems. If so, maintenance mode will be enabled on
      *                  our feature toggle service (Unleash) to remove additional load until the team fixes the problem
      * transactionsCount: Number of transactions for the searched token
@@ -91,7 +91,7 @@ class TokenBalances extends React.Component {
       return;
     }
 
-    if (this.state.tokenId === hathorLibConstants.HATHOR_TOKEN_CONFIG.uid) {
+    if (this.state.tokenId === hathorLibConstants.NATIVE_TOKEN_UID) {
       // If we had a custom token as queryParam
       // then we will perform the search after the token
       // is found in the elastic search
@@ -232,7 +232,7 @@ class TokenBalances extends React.Component {
   }
 
   fetchHTRTransactionCount = async () => {
-    const tokenApiRequest = await tokensApi.getToken(hathorLibConstants.HATHOR_TOKEN_CONFIG.uid);
+    const tokenApiRequest = await tokensApi.getToken(hathorLibConstants.NATIVE_TOKEN_UID);
 
     this.setState({
       tokensApiError: get(tokenApiRequest, 'error', false),
@@ -243,10 +243,10 @@ class TokenBalances extends React.Component {
   onTokenSelected = async (token) => {
     if (!token) {
       await helpers.setStateAsync(this, {
-        tokenId: hathorLibConstants.HATHOR_TOKEN_CONFIG.uid
+        tokenId: hathorLibConstants.NATIVE_TOKEN_UID
       });
 
-      // HTR token is the default, so the search API is not called, we must forcefully call it 
+      // HTR token is the default, so the search API is not called, we must forcefully call it
       // so we can retrieve the transactions count information
       await this.fetchHTRTransactionCount();
 
@@ -323,7 +323,7 @@ class TokenBalances extends React.Component {
 
         <div className="token-balances-information-wrapper">
           {
-            this.state.tokenId !== hathorLibConstants.HATHOR_TOKEN_CONFIG.uid && (
+            this.state.tokenId !== hathorLibConstants.NATIVE_TOKEN_UID && (
               <p>
                 <a href={`/token_detail/${this.state.tokenId}`}>
                   Click here to see the token details

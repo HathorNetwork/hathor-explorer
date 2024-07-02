@@ -10,3 +10,5 @@ export const dashboardUpdate = data => ({ type: "dashboard_update", payload: dat
 export const isVersionAllowedUpdate = data => ({ type: "is_version_allowed_update", payload: data });
 
 export const apiLoadErrorUpdate = data => ({ type: 'api_load_error_update', payload: data });
+
+export const updateServerInfo = data => ({ type: 'update_server_info', payload: data });

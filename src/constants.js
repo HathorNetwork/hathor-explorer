@@ -64,11 +64,6 @@ export const MAX_GRAPH_LEVEL = 1
 export const TOKEN_AUTHORITY_MASK = 0b10000000
 
 /**
- * Hathor token config
- */
-export const HATHOR_TOKEN_CONFIG = {'name': 'Hathor', 'symbol': 'HTR', 'uid': '00'};
-
-/**
  * Hathor token default index
  */
 export const HATHOR_TOKEN_INDEX = 0;
