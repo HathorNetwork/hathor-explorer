@@ -29,8 +29,8 @@ class TokenAutoCompleteField extends React.Component {
   getNativeToken() {
     return {
       uid: hathorLibConstants.NATIVE_TOKEN_UID,
-      name: this.props.serverInfo?.native_token?.name ?? hathorLibConstants.DEFAULT_TOKEN_CONFIG.name,
-      symbol: this.props.serverInfo?.native_token?.symbol ?? hathorLibConstants.DEFAULT_TOKEN_CONFIG.symbol,
+      name: this.props.serverInfo?.native_token?.name ?? hathorLibConstants.DEFAULT_NATIVE_TOKEN_CONFIG.name,
+      symbol: this.props.serverInfo?.native_token?.symbol ?? hathorLibConstants.DEFAULT_NATIVE_TOKEN_CONFIG.symbol,
     };
   }
 
