@@ -15,7 +15,7 @@ import { withRouter } from "react-router-dom";
 import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon'
 import TokenAutoCompleteField from './TokenAutoCompleteField';
 import helpers from '../../utils/helpers';
-import { constants as hathorLibConstants } from '@hathor/wallet-lib';
+import { numberUtils, constants as hathorLibConstants } from '@hathor/wallet-lib';
 
 
 /**
@@ -333,11 +333,11 @@ class TokenBalances extends React.Component {
           }
 
           {!this.state.tokenBalanceInformationError && (
-            <p><b>Total number of addresses:</b> { helpers.renderValue(this.state.addressesCount, true) }</p>
+            <p><b>Total number of addresses:</b> { numberUtils.prettyValue(this.state.addressesCount, 0) }</p>
           )}
 
           {!this.state.tokensApiError && (
-            <p><b>Total number of transactions:</b> { helpers.renderValue(this.state.transactionsCount, true) }</p>
+            <p><b>Total number of transactions:</b> { numberUtils.prettyValue(this.state.transactionsCount, 0) }</p>
           )}
 
           {(this.state.tokensApiError || this.state.tokenBalanceInformationError) &&(

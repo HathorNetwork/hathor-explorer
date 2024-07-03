@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import helpers from '../../utils/helpers';
+import { numberUtils, constants as hathorLibConstants } from '@hathor/wallet-lib';
+import { useSelector } from 'react-redux'
 
 
 const TokenInfo = (props) => {
 
   const [token, setToken] = useState(props.token);
   const [metadataLoaded, setMetadataLoaded] = useState(props.metadataLoaded);
+  const decimalPlaces = useSelector((state) => state.serverInfo?.decimal_places ?? hathorLibConstants.DECIMAL_PLACES);
 
   useEffect(() => {
     setToken(props.token);
@@ -38,7 +41,7 @@ const TokenInfo = (props) => {
       return 'Loading...';
     }
 
-    const amount = helpers.renderValue(token.totalSupply, isNFT());
+    const amount = numberUtils.prettyValue(token.totalSupply, isNFT() ? 0 : decimalPlaces);
     return `${amount} ${token.symbol}`;
   }
 
@@ -68,7 +71,6 @@ const TokenInfo = (props) => {
       <p><strong>Total number of transactions: </strong>{token.transactionsCount}</p>
     </div>
   )
-  
 }
 
 export default TokenInfo;

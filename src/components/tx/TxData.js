@@ -27,7 +27,10 @@ import { connect } from 'react-redux';
 
 
 const mapStateToProps = (state) => {
-  return { serverInfo: state.serverInfo };
+  return {
+    nativeToken: state.serverInfo?.native_token ?? hathorLib.constants.DEFAULT_NATIVE_TOKEN_CONFIG,
+    decimalPlaces: state.serverInfo?.decimal_places ?? hathorLib.constants.DECIMAL_PLACES,
+  };
 };
 
 
@@ -126,7 +129,7 @@ class TxData extends React.Component {
   }
 
   getNativeToken = () => {
-    const nativeToken = this.props.serverInfo?.native_token ?? hathorLib.constants.DEFAULT_NATIVE_TOKEN_CONFIG;
+    const nativeToken = this.props.nativeToken;
     return {...nativeToken, uid: hathorLib.constants.NATIVE_TOKEN_UID};
   }
 
@@ -334,7 +337,7 @@ class TxData extends React.Component {
         const uid = this.getUIDFromTokenData(hathorLib.tokensUtils.getTokenIndexFromData(output.token_data));
         const tokenData = this.state.tokens.find((token) => token.uid === uid);
         const isNFT = tokenData && tokenData.meta && tokenData.meta.nft;
-        return helpers.renderValue(output.value, isNFT);
+        return hathorLib.numberUtils.prettyValue(output.value, isNFT ? 0 : this.props.decimalPlaces);
       }
     }
 

@@ -8,7 +8,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import helpers from '../utils/helpers';
+import { numberUtils, constants as hathorLibConstants } from '@hathor/wallet-lib';
+import { connect } from 'react-redux';
 
+
+const mapStateToProps = (state) => {
+  return {
+    decimalPlaces: state.serverInfo?.decimal_places ?? hathorLibConstants.DECIMAL_PLACES,
+  };
+};
 
 class AddressSummary extends React.Component {
   /**
@@ -55,7 +63,7 @@ class AddressSummary extends React.Component {
         return 'Loading...';
       }
 
-      return helpers.renderValue(value, this.props.isNFT);
+      return numberUtils.prettyValue(value, this.props.isNFT ? 0 : this.props.decimalPlaces);
     }
 
     const loadBalanceInfo = () => {
@@ -126,4 +134,4 @@ AddressSummary.propTypes = {
   tokenSelectChanged: PropTypes.func.isRequired,
 };
 
-export default AddressSummary;
+export default connect(mapStateToProps)(AddressSummary);

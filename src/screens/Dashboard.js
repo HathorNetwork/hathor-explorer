@@ -11,10 +11,14 @@ import colors from '../index.scss';
 import ReactLoading from 'react-loading';
 import helpers from '../utils/helpers';
 import TimeSeriesDashboard from './TimeSeriesDashboard';
+import { numberUtils, constants as hathorLibConstants } from '@hathor/wallet-lib';
 
 
 const mapStateToProps = (state) => {
-  return { data: state.data };
+  return {
+    data: state.data,
+    decimalPlaces: state.serverInfo?.decimal_places ?? hathorLibConstants.DECIMAL_PLACES
+  };
 };
 
 
@@ -37,11 +41,13 @@ class Dashboard extends React.Component {
     const prefix = helpers.getUnitPrefix(prettyfied.divisions);
     const hashRate = `${prettyValue} ${prefix}h/s`;
 
+    const bestBlockHeight = numberUtils.prettyValue(height, 0);
+    const ptransactions = numberUtils.prettyValue(transactions, 0);
     return (
       <div className="content-wrapper">
         <h2 className='statistics-title'>Real time</h2>
-        <p><strong>Blocks (best height): </strong>{helpers.renderValue(height, true)}</p>
-        <p><strong>Transactions: </strong>{helpers.renderValue(transactions, true)}</p>
+        <p><strong>Blocks (best height): </strong>{bestBlockHeight}</p>
+        <p><strong>Transactions: </strong>{ptransactions}</p>
         <p className="color-hathor"><strong>Hash rate: </strong>{hashRate}</p>
 
         <TimeSeriesDashboard />

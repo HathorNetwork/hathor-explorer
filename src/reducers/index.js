@@ -35,6 +35,7 @@
  * @property {Object|undefined|null} native_token
  * @property {string} native_token.name
  * @property {string} native_token.symbol
+ * @property {number} decimal_places
  */
 
 /**
