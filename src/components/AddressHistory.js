@@ -16,7 +16,7 @@ import { connect } from "react-redux";
 
 function mapStateToProps(state) {
   return {
-    decimalPlaces: state.serverInfo?.decimal_places ?? hathorLib.constants.DECIMAL_PLACES;
+    decimalPlaces: state.serverInfo?.decimal_places ?? hathorLib.constants.DECIMAL_PLACES,
   }
 }
 
