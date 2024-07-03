@@ -17,13 +17,19 @@ import hathorLib from '@hathor/wallet-lib';
 import helpers from '../../utils/helpers';
 import metadataApi from '../../api/metadataApi';
 import graphvizApi from '../../api/graphvizApi';
-import { HATHOR_TOKEN_INDEX, HATHOR_TOKEN_CONFIG } from '../../constants';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Link } from 'react-router-dom'
 import { Module, render } from 'viz.js/full.render.js';
 import Loading from '../Loading';
 import FeatureDataRow from '../feature_activation/FeatureDataRow';
 import featureApi from '../../api/featureApi';
+import { connect } from 'react-redux';
+
+
+const mapStateToProps = (state) => {
+  return { serverInfo: state.serverInfo };
+};
+
 
 /**
  * Component that renders data of a transaction (used in TransactionDetail and DecodeTx screens)
@@ -117,6 +123,11 @@ class TxData extends React.Component {
     Promise.all(metaRequests).then((metaResults) => {
       this.setState({ tokens: metaResults, metadataLoaded: true });
     });
+  }
+
+  getNativeToken = () => {
+    const nativeToken = this.props.serverInfo?.native_token ?? hathorLib.constants.DEFAULT_NATIVE_TOKEN_CONFIG;
+    return {...nativeToken, uid: hathorLib.constants.NATIVE_TOKEN_UID};
   }
 
   /**
@@ -238,8 +249,8 @@ class TxData extends React.Component {
    * @return {string} Token symbol
    */
   getOutputToken = (tokenData) => {
-    if (tokenData === HATHOR_TOKEN_INDEX) {
-      return HATHOR_TOKEN_CONFIG.symbol;
+    if (tokenData === hathorLib.constants.HATHOR_TOKEN_INDEX) {
+      return this.getNativeToken().symbol;
     }
     const tokenConfig = this.props.transaction.tokens[tokenData - 1];
     return tokenConfig.symbol;
@@ -253,8 +264,8 @@ class TxData extends React.Component {
    * @return {string} Token symbol
    */
   getSymbol = (uid) => {
-    if (uid === HATHOR_TOKEN_CONFIG.uid) {
-      return HATHOR_TOKEN_CONFIG.symbol;
+    if (uid === hathorLib.constants.NATIVE_TOKEN_UID) {
+      return this.getNativeToken().symbol;
     }
     const tokenConfig = this.state.tokens.find((token) => token.uid === uid);
     if (tokenConfig === undefined) return '';
@@ -269,8 +280,8 @@ class TxData extends React.Component {
    * @return {string} Token uid
    */
   getUIDFromTokenData = (tokenData) => {
-    if (tokenData === HATHOR_TOKEN_INDEX) {
-      return HATHOR_TOKEN_CONFIG.uid;
+    if (tokenData === hathorLib.constants.HATHOR_TOKEN_INDEX) {
+      return hathorLib.constants.NATIVE_TOKEN_UID;
     }
     const tokenConfig = this.props.transaction.tokens[tokenData - 1];
     return tokenConfig.uid;
@@ -547,7 +558,7 @@ class TxData extends React.Component {
 
     const renderTokenList = () => {
       const renderTokenUID = (token) => {
-        if (token.uid === hathorLib.constants.HATHOR_TOKEN_CONFIG.uid) {
+        if (token.uid === hathorLib.constants.NATIVE_TOKEN_UID) {
           return token.uid;
         } else {
           return <Link to={`/token_detail/${token.uid}`}>{token.uid}</Link>
@@ -789,4 +800,4 @@ class TxData extends React.Component {
   }
 }
 
-export default TxData;
+export default connect(mapStateToProps)(TxData);
