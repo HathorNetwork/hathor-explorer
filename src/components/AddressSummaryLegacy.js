@@ -7,7 +7,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import helpers from '../utils/helpers';
 import { connect } from 'react-redux';
 import { numberUtils, constants as hathorLibConstants } from '@hathor/wallet-lib';
 

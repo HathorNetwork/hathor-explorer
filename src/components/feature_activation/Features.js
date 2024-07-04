@@ -14,7 +14,6 @@ import FeatureRow from './FeatureRow';
 import colors from '../../index.scss';
 import PaginationURL from '../../utils/pagination';
 import featureApi from '../../api/featureApi';
-import helpers from '../../utils/helpers';
 import { numberUtils } from '@hathor/wallet-lib';
 
 

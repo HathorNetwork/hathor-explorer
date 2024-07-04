@@ -11,7 +11,6 @@ import dateFormatter from '../utils/date';
 import hathorLib, { numberUtils } from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
 import PaginationURL from '../utils/pagination';
-import helpers from '../utils/helpers';
 import { connect } from 'react-redux';
 
 const mapStateToProps = (state) => ({

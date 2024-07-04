@@ -4,8 +4,7 @@ import { get } from 'lodash';
 import blockApi from '../../api/blockApi';
 import { SCREEN_STATUS_LOOP_INTERVAL_IN_SECONDS } from '../../constants';
 import dateFormatter from '../../utils/date';
-import helpers from '../../utils/helpers';
-import { numberUtils, constants as hathorLibConstants } from '@hathor/wallet-lib';
+import { numberUtils } from '@hathor/wallet-lib';
 
 import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon';
 import Loading from '../Loading';
