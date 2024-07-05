@@ -14,11 +14,9 @@ import SortableTable from './SortableTable';
 import { connect } from "react-redux";
 
 
-function mapStateToProps(state) {
-  return {
-    decimalPlaces: state.serverInfo?.decimal_places ?? hathorLib.constants.DECIMAL_PLACES,
-  }
-}
+const mapStateToProps = (state) => ({
+  decimalPlaces: state.serverInfo.decimal_places,
+});
 
 
 class AddressHistory extends SortableTable {

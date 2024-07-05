@@ -7,15 +7,13 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { numberUtils, constants as hathorLibConstants } from '@hathor/wallet-lib';
+import { numberUtils } from '@hathor/wallet-lib';
 import { connect } from 'react-redux';
 
 
-const mapStateToProps = (state) => {
-  return {
-    decimalPlaces: state.serverInfo?.decimal_places ?? hathorLibConstants.DECIMAL_PLACES,
-  };
-};
+const mapStateToProps = (state) => ({
+  decimalPlaces: state.serverInfo.decimal_places,
+});
 
 class AddressSummary extends React.Component {
   /**

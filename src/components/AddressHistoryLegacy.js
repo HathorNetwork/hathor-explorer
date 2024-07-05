@@ -14,7 +14,7 @@ import PaginationURL from '../utils/pagination';
 import { connect } from 'react-redux';
 
 const mapStateToProps = (state) => ({
-  decimalPlaces: state.serverInfo?.decimal_places ?? hathorLib.constants.DECIMAL_PLACES,
+  decimalPlaces: state.serverInfo.decimal_places,
 });
 
 

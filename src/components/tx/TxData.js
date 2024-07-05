@@ -26,12 +26,10 @@ import featureApi from '../../api/featureApi';
 import { connect } from 'react-redux';
 
 
-const mapStateToProps = (state) => {
-  return {
-    nativeToken: state.serverInfo?.native_token ?? hathorLib.constants.DEFAULT_NATIVE_TOKEN_CONFIG,
-    decimalPlaces: state.serverInfo?.decimal_places ?? hathorLib.constants.DECIMAL_PLACES,
-  };
-};
+const mapStateToProps = (state) => ({
+  nativeToken: state.serverInfo.native_token,
+  decimalPlaces: state.serverInfo.decimal_places,
+});
 
 
 /**

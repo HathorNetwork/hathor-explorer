@@ -11,15 +11,12 @@ import colors from '../index.scss';
 import ReactLoading from 'react-loading';
 import helpers from '../utils/helpers';
 import TimeSeriesDashboard from './TimeSeriesDashboard';
-import { numberUtils, constants as hathorLibConstants } from '@hathor/wallet-lib';
+import { numberUtils } from '@hathor/wallet-lib';
 
 
-const mapStateToProps = (state) => {
-  return {
-    data: state.data,
-    decimalPlaces: state.serverInfo?.decimal_places ?? hathorLibConstants.DECIMAL_PLACES
-  };
-};
+const mapStateToProps = (state) => ({
+  data: state.data,
+});
 
 
 class Dashboard extends React.Component {
