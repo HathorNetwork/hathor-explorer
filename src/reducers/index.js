@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { constants: { DECIMAL_PLACES, DEFAULT_NATIVE_TOKEN_CONFIG } } from '@hathor/wallet-lib';
+import { constants } from '@hathor/wallet-lib';
 import { cloneDeep } from 'lodash';
 
 /**
@@ -58,8 +58,8 @@ const initialState = {
   data: null,
   isVersionAllowed: undefined,
   serverInfo: {
-    native_token: DEFAULT_NATIVE_TOKEN_CONFIG,
-    decimal_places: DECIMAL_PLACES,
+    native_token: constants.DEFAULT_NATIVE_TOKEN_CONFIG,
+    decimal_places: constants.DECIMAL_PLACES,
   },
   apiLoadError: false,
 };
@@ -90,8 +90,8 @@ const rootReducer = (state = initialState, action) => {
 const setServerInfo = (state, { payload }) => {
   const serverInfo = cloneDeep(payload);
   // Default values
-  serverInfo.decimal_places ??= DECIMAL_PLACES;
-  serverInfo.native_token ??= DEFAULT_NATIVE_TOKEN_CONFIG;
+  serverInfo.decimal_places ??= constants.DECIMAL_PLACES;
+  serverInfo.native_token ??= constants.DEFAULT_NATIVE_TOKEN_CONFIG;
 
   return {
     ...state,
