@@ -82,7 +82,7 @@ const rootReducer = (state = initialState, action) => {
 /**
  * Set the server info a.k.a '/version' data on storage.
  * Will update keys based on default values.
- * 
+ *
  * @param {ReduxStore} state - Current store state.
  * @param {payload} ServerInfo - Server info to save on storage.
  * @returns {ReduxStore} New state for the store.
@@ -90,8 +90,8 @@ const rootReducer = (state = initialState, action) => {
 const setServerInfo = (state, { payload }) => {
   const serverInfo = cloneDeep(payload);
   // Default values
-  serverInfo.decimal_places ??= constants.DECIMAL_PLACES;
-  serverInfo.native_token ??= constants.DEFAULT_NATIVE_TOKEN_CONFIG;
+  serverInfo.decimal_places = serverInfo.decimal_places ?? constants.DECIMAL_PLACES;
+  serverInfo.native_token = serverInfo.native_token ?? constants.DEFAULT_NATIVE_TOKEN_CONFIG;
 
   return {
     ...state,
