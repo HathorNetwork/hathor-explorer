@@ -6,7 +6,7 @@
  */
 
 import hathorLib from '@hathor/wallet-lib';
-import { MAINNET_GENESIS_BLOCK, TESTNET_GENESIS_BLOCK, MAINNET_GENESIS_TX, TESTNET_GENESIS_TX, DECIMAL_PLACES, MIN_API_VERSION } from '../constants';
+import { MAINNET_GENESIS_BLOCK, TESTNET_GENESIS_BLOCK, MAINNET_GENESIS_TX, TESTNET_GENESIS_TX, MIN_API_VERSION } from '../constants';
 import { get } from 'lodash';
 
 const helpers = {
@@ -40,10 +40,6 @@ const helpers = {
 
   roundFloat(n) {
     return Math.round(n*100)/100
-  },
-
-  prettyValue(value) {
-    return (value/10**DECIMAL_PLACES).toFixed(DECIMAL_PLACES);
   },
 
   isVersionAllowed(version) {
@@ -222,24 +218,6 @@ const helpers = {
   },
 
   /**
-   * Render value to integer or decimal
-   *
-   * @param {number} amount Amount to render
-   * @param {boolean} isInteger If it's an integer or decimal
-   *
-   * @return {string} rendered value
-   * @memberof Helpers
-   * @inner
-   */
-  renderValue(amount, isInteger) {
-    if (isInteger) {
-      return hathorLib.numberUtils.prettyIntegerValue(amount);
-    } else {
-      return hathorLib.numberUtils.prettyValue(amount);
-    }
-  },
-
-  /**
    * Promisifies the instance's setState method
    *
    * @param {Object} The Component instance to promisify the setState method
@@ -256,8 +234,8 @@ const helpers = {
   /**
    * Parses the response from Explorer Service and add an object `error` to the respoonse.
    * This way, clients of this method do not have to handle status codes.
-   * 
-   * @param {Object} response 
+   *
+   * @param {Object} response
    * @returns Explorer Service result enriched with the `error` object
    */
   handleExplorerServiceResponse(response) {

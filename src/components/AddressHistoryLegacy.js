@@ -8,10 +8,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import dateFormatter from '../utils/date';
-import hathorLib from '@hathor/wallet-lib';
+import hathorLib, { numberUtils } from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
 import PaginationURL from '../utils/pagination';
-import helpers from '../utils/helpers';
+import { connect } from 'react-redux';
+
+const mapStateToProps = (state) => ({
+  decimalPlaces: state.serverInfo.decimal_places,
+});
 
 
 class AddressHistory extends React.Component {
@@ -128,7 +132,7 @@ class AddressHistory extends React.Component {
         return 'Loading...';
       }
 
-      return helpers.renderValue(value, this.props.isNFT);
+      return numberUtils.prettyValue(value, this.props.isNFT ? 0 : this.props.decimalPlaces);
     }
 
     const loadTableBody = () => {
@@ -206,4 +210,4 @@ AddressHistory.propTypes = {
 };
 
 
-export default AddressHistory;
+export default connect(mapStateToProps)(AddressHistory);
