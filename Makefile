@@ -18,7 +18,7 @@ nano_testnet_build:
 
 .PHONY: nano_testnet_s3_sync
 nano_testnet_s3_sync:
-	aws s3 sync --delete ./build/ s3://hathor-nano-testnet-public-explorer-2 --profile nano-testnet
+	aws s3 sync --delete ./build/ s3://hathor-nano-testnet-public-explorer-2
 
 .PHONY: nano_testnet_deploy
 nano_testnet_deploy: check_version nano_testnet_s3_sync clear_cloudfront_cache
@@ -35,7 +35,7 @@ ekvilibro_testnet_build:
 
 .PHONY: ekvilibro_testnet_s3_sync
 ekvilibro_testnet_s3_sync:
-	aws s3 sync --delete ./build/ s3://hathor-ekvilibro-testnet-public-explorer --profile ekvilibro
+	aws s3 sync --delete ./build/ s3://hathor-ekvilibro-testnet-public-explorer
 
 .PHONY: ekvilibro_testnet_deploy
 ekvilibro_testnet_deploy: check_version ekvilibro_testnet_s3_sync clear_cloudfront_cache
