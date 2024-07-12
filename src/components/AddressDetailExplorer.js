@@ -247,7 +247,7 @@ class AddressDetailExplorer extends React.Component {
           // use has a selected token, we will keep the selected token
           selectedToken = this.state.selectedToken;
         } else {
-          const hathorUID = hathorLib.constants.HATHOR_TOKEN_CONFIG.uid
+          const hathorUID = hathorLib.constants.NATIVE_TOKEN_UID
           if (tokens[hathorUID]) {
             // If HTR is in the token list of this address, it's the default selection
             selectedToken = hathorUID;
@@ -321,7 +321,7 @@ class AddressDetailExplorer extends React.Component {
   }
 
   getSelectedTokenMetadata = (selectedToken) => {
-    if (selectedToken === hathorLib.constants.HATHOR_TOKEN_CONFIG.uid) {
+    if (selectedToken === hathorLib.constants.NATIVE_TOKEN_UID) {
       this.setState({ metadataLoaded: true });
       return;
     }

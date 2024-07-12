@@ -4,8 +4,13 @@ import Loading from '../Loading';
 import tokensApi from '../../api/tokensApi';
 import { debounce, get } from 'lodash';
 import { constants as hathorLibConstants } from '@hathor/wallet-lib';
+import { connect } from "react-redux";
 
 const DEBOUNCE_SEARCH_TIME = 200; // ms
+
+const mapStateToProps = (state) => {
+  return { serverInfo: state.serverInfo };
+};
 
 class TokenAutoCompleteField extends React.Component {
   constructor() {
@@ -19,6 +24,14 @@ class TokenAutoCompleteField extends React.Component {
     };
 
     this.handleClick = this._handleClick.bind(this);
+  }
+
+  getNativeToken() {
+    return {
+      uid: hathorLibConstants.NATIVE_TOKEN_UID,
+      name: this.props.serverInfo?.native_token?.name ?? hathorLibConstants.DEFAULT_NATIVE_TOKEN_CONFIG.name,
+      symbol: this.props.serverInfo?.native_token?.symbol ?? hathorLibConstants.DEFAULT_NATIVE_TOKEN_CONFIG.symbol,
+    };
   }
 
   /**
@@ -58,7 +71,7 @@ class TokenAutoCompleteField extends React.Component {
   componentDidMount() {
     document.addEventListener('click', this.handleClick);
 
-    if (this.props.tokenId !== hathorLibConstants.HATHOR_TOKEN_CONFIG.uid) {
+    if (this.props.tokenId !== hathorLibConstants.NATIVE_TOKEN_UID) {
       // A token was selected in the query params
       // so we must search for it here to add
       // in the autocomplete input and perform the search
@@ -174,6 +187,7 @@ class TokenAutoCompleteField extends React.Component {
         </div>
       );
     }
+    const nativeToken = this.getNativeToken();
 
     return (
       <input
@@ -182,7 +196,7 @@ class TokenAutoCompleteField extends React.Component {
         value={this.state.searchText}
         onKeyUp={this.onSearchTextKeyUp}
         onChange={this.onSearchTextChanged}
-        placeholder="Hathor (HTR) - Type to search for other tokens by UID, name or symbol"
+        placeholder={`${nativeToken.name} (${nativeToken.symbol}) - Type to search for other tokens by UID, name or symbol`}
         aria-label="Search" />
     )
   }
@@ -234,4 +248,4 @@ TokenAutoCompleteField.propTypes = {
   onTokenSelected: PropTypes.func.isRequired,
 };
 
-export default TokenAutoCompleteField;
+export default connect(mapStateToProps)(TokenAutoCompleteField);

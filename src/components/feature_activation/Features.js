@@ -14,7 +14,7 @@ import FeatureRow from './FeatureRow';
 import colors from '../../index.scss';
 import PaginationURL from '../../utils/pagination';
 import featureApi from '../../api/featureApi';
-import helpers from '../../utils/helpers';
+import { numberUtils } from '@hathor/wallet-lib';
 
 
 class Features extends React.Component {
@@ -184,9 +184,10 @@ class Features extends React.Component {
     }
 
     const loadFeaturesPage = () => {
+      const height = numberUtils.prettyValue(this.state.block_height, 0);
       return (
         <div>
-          <div>Showing feature states for <Link to={`/transaction/${this.state.block_hash}`}>current best block</Link> at height {helpers.renderValue(this.state.block_height, true)}.</div>
+          <div>Showing feature states for <Link to={`/transaction/${this.state.block_hash}`}>current best block</Link> at height {height}.</div>
           {!this.state.loaded ? <ReactLoading type='spin' color={colors.purpleHathor} delay={500} /> : loadTable()}
           {loadPagination()}
           <div className="f-flex flex-column align-items-start common-div bordered-wrapper mt-3 mt-lg-0 w-100 feature-column-descriptions">

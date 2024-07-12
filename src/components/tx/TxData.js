@@ -17,13 +17,20 @@ import hathorLib from '@hathor/wallet-lib';
 import helpers from '../../utils/helpers';
 import metadataApi from '../../api/metadataApi';
 import graphvizApi from '../../api/graphvizApi';
-import { HATHOR_TOKEN_INDEX, HATHOR_TOKEN_CONFIG } from '../../constants';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Link } from 'react-router-dom'
 import { Module, render } from 'viz.js/full.render.js';
 import Loading from '../Loading';
 import FeatureDataRow from '../feature_activation/FeatureDataRow';
 import featureApi from '../../api/featureApi';
+import { connect } from 'react-redux';
+
+
+const mapStateToProps = (state) => ({
+  nativeToken: state.serverInfo.native_token,
+  decimalPlaces: state.serverInfo.decimal_places,
+});
+
 
 /**
  * Component that renders data of a transaction (used in TransactionDetail and DecodeTx screens)
@@ -117,6 +124,11 @@ class TxData extends React.Component {
     Promise.all(metaRequests).then((metaResults) => {
       this.setState({ tokens: metaResults, metadataLoaded: true });
     });
+  }
+
+  getNativeToken = () => {
+    const nativeToken = this.props.nativeToken;
+    return {...nativeToken, uid: hathorLib.constants.NATIVE_TOKEN_UID};
   }
 
   /**
@@ -238,8 +250,8 @@ class TxData extends React.Component {
    * @return {string} Token symbol
    */
   getOutputToken = (tokenData) => {
-    if (tokenData === HATHOR_TOKEN_INDEX) {
-      return HATHOR_TOKEN_CONFIG.symbol;
+    if (tokenData === hathorLib.constants.HATHOR_TOKEN_INDEX) {
+      return this.getNativeToken().symbol;
     }
     const tokenConfig = this.props.transaction.tokens[tokenData - 1];
     return tokenConfig.symbol;
@@ -253,8 +265,8 @@ class TxData extends React.Component {
    * @return {string} Token symbol
    */
   getSymbol = (uid) => {
-    if (uid === HATHOR_TOKEN_CONFIG.uid) {
-      return HATHOR_TOKEN_CONFIG.symbol;
+    if (uid === hathorLib.constants.NATIVE_TOKEN_UID) {
+      return this.getNativeToken().symbol;
     }
     const tokenConfig = this.state.tokens.find((token) => token.uid === uid);
     if (tokenConfig === undefined) return '';
@@ -269,8 +281,8 @@ class TxData extends React.Component {
    * @return {string} Token uid
    */
   getUIDFromTokenData = (tokenData) => {
-    if (tokenData === HATHOR_TOKEN_INDEX) {
-      return HATHOR_TOKEN_CONFIG.uid;
+    if (tokenData === hathorLib.constants.HATHOR_TOKEN_INDEX) {
+      return hathorLib.constants.NATIVE_TOKEN_UID;
     }
     const tokenConfig = this.props.transaction.tokens[tokenData - 1];
     return tokenConfig.uid;
@@ -323,7 +335,7 @@ class TxData extends React.Component {
         const uid = this.getUIDFromTokenData(hathorLib.tokensUtils.getTokenIndexFromData(output.token_data));
         const tokenData = this.state.tokens.find((token) => token.uid === uid);
         const isNFT = tokenData && tokenData.meta && tokenData.meta.nft;
-        return helpers.renderValue(output.value, isNFT);
+        return hathorLib.numberUtils.prettyValue(output.value, isNFT ? 0 : this.props.decimalPlaces);
       }
     }
 
@@ -547,7 +559,7 @@ class TxData extends React.Component {
 
     const renderTokenList = () => {
       const renderTokenUID = (token) => {
-        if (token.uid === hathorLib.constants.HATHOR_TOKEN_CONFIG.uid) {
+        if (token.uid === hathorLib.constants.NATIVE_TOKEN_UID) {
           return token.uid;
         } else {
           return <Link to={`/token_detail/${token.uid}`}>{token.uid}</Link>
@@ -722,6 +734,8 @@ class TxData extends React.Component {
               <div><label>Time:</label> {dateFormatter.parseTimestamp(this.props.transaction.timestamp)}</div>
               <div><label>Nonce:</label> {this.props.transaction.nonce}</div>
               <div><label>Weight:</label> {helpers.roundFloat(this.props.transaction.weight)}</div>
+              {this.props.transaction.signer_id && <div><label>Signer ID:</label> {this.props.transaction.signer_id.toLowerCase()}</div>}
+              {this.props.transaction.signer && <div><label>Signer:</label> {helpers.getShortHash(this.props.transaction.signer.toLowerCase())}</div>}
               {!hathorLib.transactionUtils.isBlock(this.props.transaction) && renderFirstBlockDiv()}
             </div>
             <div className="d-flex flex-column align-items-center important-div bordered-wrapper mt-3 mt-lg-0 w-100">
@@ -787,4 +801,4 @@ class TxData extends React.Component {
   }
 }
 
-export default TxData;
+export default connect(mapStateToProps)(TxData);

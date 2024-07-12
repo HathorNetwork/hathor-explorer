@@ -50,9 +50,7 @@ export const TESTNET_GENESIS_TX = [
   '00975897028ceb037307327c953f5e7ad4d3f42402d71bd3d11ecb63ac39f01a',
 ];
 
-export const DECIMAL_PLACES = 2;
-
-export const VERSION = '0.18.1';
+export const VERSION = '0.19.0';
 
 export const MIN_API_VERSION = '0.33.0';
 
@@ -62,11 +60,6 @@ export const MAX_GRAPH_LEVEL = 1
 // Token maks
 // First bit in the index byte indicates whether it's an authority output
 export const TOKEN_AUTHORITY_MASK = 0b10000000
-
-/**
- * Hathor token config
- */
-export const HATHOR_TOKEN_CONFIG = {'name': 'Hathor', 'symbol': 'HTR', 'uid': '00'};
 
 /**
  * Hathor token default index

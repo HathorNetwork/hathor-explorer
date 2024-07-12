@@ -29,7 +29,7 @@ import VersionError from './screens/VersionError';
 import WebSocketHandler from './WebSocketHandler';
 import NanoContractDetail from './screens/nano/NanoContractDetail';
 import BlueprintDetail from './screens/nano/BlueprintDetail';
-import { apiLoadErrorUpdate, dashboardUpdate, isVersionAllowedUpdate } from "./actions/index";
+import { apiLoadErrorUpdate, dashboardUpdate, isVersionAllowedUpdate, updateServerInfo } from "./actions/index";
 import { connect } from "react-redux";
 import versionApi from './api/version';
 import helpers from './utils/helpers';
@@ -44,6 +44,7 @@ const mapDispatchToProps = dispatch => {
     dashboardUpdate: data => dispatch(dashboardUpdate(data)),
     isVersionAllowedUpdate: data => dispatch(isVersionAllowedUpdate(data)),
     apiLoadErrorUpdate: data => dispatch(apiLoadErrorUpdate(data)),
+    updateServerInfo: data => dispatch(updateServerInfo(data)),
   };
 };
 
@@ -66,6 +67,7 @@ class Root extends React.Component {
         network = 'testnet';
       }
       hathorLibConfig.setNetwork(network);
+      this.props.updateServerInfo(data);
       this.props.isVersionAllowedUpdate({allowed: helpers.isVersionAllowed(data.version)});
     }, (e) => {
       // Error in request
@@ -95,7 +97,7 @@ class Root extends React.Component {
         <Router>
           <>
             <Navigation />
-            { this.props.apiLoadError ? 
+            { this.props.apiLoadError ?
               <div className="content-wrapper">
                 <h3 className="text-danger">Error loading the explorer. Please reload the page to try again.</h3>
               </div>

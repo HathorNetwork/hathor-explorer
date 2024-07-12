@@ -115,7 +115,7 @@ class Network extends React.Component {
       const server_best_block = this.state.best_block;
       const {peer_best_block, synced_block} = conn;
 
-      if (server_best_block) {
+      if (server_best_block && synced_block && peer_best_block) {
         progress = synced_block.height / server_best_block.height;
         if (server_best_block.id === synced_block.id) {
           state = SyncStates.IN_SYNC;
@@ -124,6 +124,8 @@ class Network extends React.Component {
         } else if (peer_best_block.height > server_best_block.height) {
           state = SyncStates.AHEAD;
         }
+      } else {
+        state = SyncStates.UNKNOWN;
       }
       return {
         progress,

@@ -10,8 +10,13 @@ import dateFormatter from '../utils/date';
 import hathorLib from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
 import PaginationURL from '../utils/pagination';
-import helpers from '../utils/helpers';
 import SortableTable from './SortableTable';
+import { connect } from "react-redux";
+
+
+const mapStateToProps = (state) => ({
+  decimalPlaces: state.serverInfo.decimal_places,
+});
 
 
 class AddressHistory extends SortableTable {
@@ -65,7 +70,7 @@ class AddressHistory extends SortableTable {
       return 'Loading...';
     }
 
-    return helpers.renderValue(value, this.props.isNFT);
+    return hathorLib.numberUtils.prettyValue(value, this.props.isNFT ? 0 : this.props.decimalPlaces);
   }
 
   renderTableBody() {
@@ -135,4 +140,4 @@ AddressHistory.propTypes = {
 };
 
 
-export default AddressHistory;
+export default connect(mapStateToProps)(AddressHistory);

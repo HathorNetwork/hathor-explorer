@@ -8,7 +8,13 @@
 import React from 'react';
 import { withRouter } from "react-router-dom";
 import PropTypes from 'prop-types';
-import helpers from '../../utils/helpers';
+import { numberUtils } from '@hathor/wallet-lib';
+import { connect } from 'react-redux';
+
+
+const mapStateToProps = (state) => ({
+  decimalPlaces: state.serverInfo.decimal_places,
+});
 
 class TokenBalanceRow extends React.Component {
   /**
@@ -24,9 +30,9 @@ class TokenBalanceRow extends React.Component {
     return (
       <tr onClick={(e) => this.onRowClicked(this.props.address)}>
         <td className="d-lg-table-cell pr-3">{this.props.address}</td>
-        <td className="d-lg-table-cell pr-3">{helpers.renderValue(this.props.total, false)}</td>
-        <td className="d-lg-table-cell pr-3">{helpers.renderValue(this.props.unlocked, false)}</td>
-        <td className="d-lg-table-cell pr-3">{helpers.renderValue(this.props.locked, false)}</td>
+        <td className="d-lg-table-cell pr-3">{numberUtils.prettyValue(this.props.total, this.props.decimalPlaces)}</td>
+        <td className="d-lg-table-cell pr-3">{numberUtils.prettyValue(this.props.unlocked, this.props.decimalPlaces)}</td>
+        <td className="d-lg-table-cell pr-3">{numberUtils.prettyValue(this.props.locked, this.props.decimalPlaces)}</td>
       </tr>
     );
   }
@@ -48,4 +54,4 @@ TokenBalanceRow.propTypes = {
   tokenId: PropTypes.string.isRequired,
 }
 
-export default withRouter(TokenBalanceRow);
+export default connect(mapStateToProps)(withRouter(TokenBalanceRow));
