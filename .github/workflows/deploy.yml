@@ -2,7 +2,7 @@ name: deploy
 
 on:
   push:
-    branches: [master]
+    branches: [master, ci/deploy-to-sub-accounts]
     tags: ['v*']
 
 permissions:
@@ -109,7 +109,7 @@ jobs:
           CLOUDFRONT_ID: EN58551BWE3XZ
 
   deploy-ekvilibro-testnet-explorer:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/ci/deploy-to-sub-accounts'
     needs: dependencies
     runs-on: ubuntu-latest
     steps:
