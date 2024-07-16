@@ -18,7 +18,7 @@ import {
   UNLEASH_TOKEN_BALANCES_FEATURE_FLAG,
 } from '../constants';
 
-function Navigation(props) {
+function Navigation({ history }) {
   const alertErrorRef = useRef(null);
   const txSearchRef = useRef(null);
   const isTokensBaseEnabled = useFlag(`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`);
@@ -38,13 +38,13 @@ function Navigation(props) {
       const regex = /[A-Fa-f\d]{64}/g;
       if (regex.test(text)) {
         // It's a valid hash
-        props.history.push(`/transaction/${text}`);
+        history.push(`/transaction/${text}`);
       } else {
         const network = hathorLib.config.getNetwork();
         const addressObj = new hathorLib.Address(text, { network });
         if (addressObj.isValid()) {
           // It's a valid address
-          props.history.push(`/address/${text}`);
+          history.push(`/address/${text}`);
         } else {
           showError();
         }
