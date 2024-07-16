@@ -6,7 +6,7 @@
  */
 
 import { EXPLORER_SERVICE_BASE_URL } from '../constants.js';
-const axios = require('axios');
+import axios from 'axios';
 
 const errorHandler = (error) => {
   console.log("ERROR RESPONSE", error);
