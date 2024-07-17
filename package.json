@@ -1,6 +1,10 @@
 {
   "name": "hathor-admin",
   "version": "0.19.1",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
   "private": true,
   "dependencies": {
     "@hathor/wallet-lib": "1.8.0",
