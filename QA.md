@@ -115,6 +115,7 @@ Some useful links and strings to use on the QAs:
 
 ### 8. Token details
 1. Verify that the screen contains all information about the token on a single section
+1. Check that there are (ℹ) icons explaining the _mint_ and _melt_ fields
 1. Verify that there is another section containing the configuration string in the following forms:
    - A QR Code
    - A component that allows copying to clipboard
@@ -141,6 +142,7 @@ Some useful links and strings to use on the QAs:
 
 ### 11. Tools - Push Tx
 1. Try submitting the raw data from an existing transaction and see that it gives an error `Transaction already exists {tx_id}`.
+1. Try submitting the raw data from an existing block and see that it gives an error because the transaction has no inputs.
 1. Generate a signed transaction data on the headless wallet and try sending it through here
 
 ### 12. Tools - DAG
