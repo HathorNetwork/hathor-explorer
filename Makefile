@@ -40,6 +40,23 @@ ekvilibro_testnet_s3_sync:
 .PHONY: ekvilibro_testnet_deploy
 ekvilibro_testnet_deploy: check_version ekvilibro_testnet_s3_sync clear_cloudfront_cache
 
+.PHONY: ekvilibro_mainnet_build
+ekvilibro_mainnet_build:
+	FULLNODE_HOST=node-side-dag.ekvilibro-mainnet.hathor.network; \
+	export REACT_APP_BASE_URL=https://$$FULLNODE_HOST/v1a/; \
+	export REACT_APP_WS_URL=wss://$$FULLNODE_HOST/v1a/ws/; \
+	export REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.ekvilibro-mainnet.hathor.network/; \
+	export REACT_APP_TIMESERIES_DASHBOARD_ID=; \
+	export REACT_APP_NETWORK=ekvilibro-mainnet; \
+	npm run build
+
+.PHONY: ekvilibro_mainnet_s3_sync
+ekvilibro_mainnet_s3_sync:
+	aws s3 sync --delete ./build/ s3://hathor-ekvilibro-mainnet-public-explorer
+
+.PHONY: ekvilibro_mainnet_deploy
+ekvilibro_mainnet_deploy: check_version ekvilibro_mainnet_s3_sync clear_cloudfront_cache
+
 .PHONY: testnet_build
 testnet_build:
 	FULLNODE_HOST=node.explorer.testnet.hathor.network; \
