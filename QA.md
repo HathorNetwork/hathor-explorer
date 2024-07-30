@@ -61,7 +61,7 @@ Some useful links and strings to use on the QAs:
 1. Click a token row and confirm it navigates to `/token_detail/{uid}`
 
 #### 4.1 Tokens Search
-1. Search for a transaction `uid` and confirm it's the only one to show as a result
+1. Search for a token `uid` (see example in the References section) and confirm it's the only one to show as a result
 1. Search for a string with common keywords ( for example `Test NFT Token` ) and verify that the search is not executed by the full string, but by each of the words used: there should be many results
 1. Search for a rarer term ( for example `TK002` on `mainnet` ) and confirm the results are fewer
 
