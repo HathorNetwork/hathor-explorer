@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { select, event } from 'd3-selection';
+import { select } from 'd3-selection';
 import { zoom, zoomIdentity } from 'd3-zoom';
 
 // TODO
@@ -133,7 +133,7 @@ class DagComponent extends React.Component {
           newLinks.push(linkData);
           this.graph[parent]["links"].push(data.tx_id);
           this.graph[data.tx_id]["links"].push(parent);
-        } 
+        }
       }
       // Add new links to graph
       this.newLinks(newLinks);
@@ -234,7 +234,7 @@ class DagComponent extends React.Component {
 
   newTxs(txs) {
     // Add new txs to the svg
-    
+
     // Add g auxiliar element
     var tx = this.gTxs
       .selectAll()
@@ -256,12 +256,12 @@ class DagComponent extends React.Component {
       this.createTooltip(d);
     })
     .on('mouseover.fade', this.fade(0.1))
-    .on("mouseout.tooltip", () => {
-      this.removeTooltip();
+    .on("mouseout.tooltip", (e) => {
+      this.removeTooltip(e);
     })
     .on('mouseout.fade', this.fade(1))
-    .on("mousemove", () => {
-      this.moveTooltip();
+    .on("mousemove", (e) => {
+      this.moveTooltip(e);
     })
 
     // Add text to show tx info
@@ -280,7 +280,7 @@ class DagComponent extends React.Component {
 
   newBlocks(blocks) {
     // Add new blocks to the svg
-    
+
     // Create g auxiliar element
     var block = this.gBlocks
       .selectAll()
@@ -295,14 +295,14 @@ class DagComponent extends React.Component {
       this.createTooltip(d);
     })
     .on('mouseover.fade', this.fade(0.1))
-    .on("mouseout.tooltip", () => {
-      this.removeTooltip();
+    .on("mouseout.tooltip", (e) => {
+      this.removeTooltip(e);
     })
     .on('mouseout.fade', this.fade(1))
-    .on("mousemove", () => {
-      this.moveTooltip();
+    .on("mousemove", (e) => {
+      this.moveTooltip(e);
     })
-      
+
     // Add rectangle with block data
     block.append("rect")
       .attr("fill", this.blockColor)
@@ -330,7 +330,7 @@ class DagComponent extends React.Component {
       .selectAll()
       .data(data)
       .enter().append("g")
-      .attr("class", "throttle-bg") 
+      .attr("class", "throttle-bg")
       .append("rect")
       .attr("fill", this.throttleBackground.color)
       .attr("width", this.throttleBackground.size)
@@ -387,7 +387,9 @@ class DagComponent extends React.Component {
 
   fade(opacity) {
     // On mouseover in an element we fade the ones that are not connected
-    return d => {
+    return mouseEvent => {
+      /** Data from the tx being hovered */
+      const d = mouseEvent.currentTarget.__data__;
       if (this.tx) {
         this.tx.style('stroke-opacity', function (o) {
           const thisOpacity = (d.links.indexOf(o.id) > -1 || d.id === o.id) ? 1 : opacity;
@@ -411,7 +413,7 @@ class DagComponent extends React.Component {
     };
   }
 
-  zoomed() {
+  zoomed(event) {
     // TODO
     // I am blocking zoom in right now because I was having a bug to auto translate when zoomed in
     if (event.transform.k > 1) {
@@ -429,14 +431,17 @@ class DagComponent extends React.Component {
     this.gMain.node().__zoom = event.transform;
   }
 
-  createTooltip(data) {
+  createTooltip(mouseEvent) {
+    /** Data from the tx being hovered */
+    const data = mouseEvent.currentTarget.__data__;
+
     // Create tooltip on mouse over in a block or tx to show their info
     this.tooltip.transition()
       .duration(300)
       .style("opacity", 1);
-    this.tooltip.html("<strong>Hash:</strong>" + data.id + "<br/><strong>Timestamp: </strong>" + data.timestamp)
-      .style("left", (event.pageX) + "px")
-      .style("top", (event.pageY + 10) + "px");
+    this.tooltip.html(`<strong>Hash:</strong>${ data.id }<br/><strong>Timestamp: </strong>${ data.timestamp }`)
+      .style("left", (mouseEvent.pageX) + "px")
+      .style("top", (mouseEvent.pageY + 10) + "px");
   }
 
   removeTooltip() {
@@ -446,7 +451,7 @@ class DagComponent extends React.Component {
       .style("opacity", 0);
   }
 
-  moveTooltip() {
+  moveTooltip(event) {
     // Move tooltip when mouse move in a block or tx
     this.tooltip.style("left", (event.pageX) + "px")
       .style("top", (event.pageY + 10) + "px");
