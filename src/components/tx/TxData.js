@@ -109,9 +109,9 @@ class TxData extends React.Component {
       ncData.nc_blueprint_id,
       ncData.nc_method,
       ncData.nc_pubkey,
+      network,
       ncData.nc_args
     );
-    deserializer.parseAddress(network);
     await deserializer.parseArguments();
     this.setState({ ncDeserializer: deserializer, ncLoading: false });
   };
@@ -767,8 +767,17 @@ class TxData extends React.Component {
     };
 
     const renderArgValue = arg => {
-      if (arg.type === 'bytes') {
+      const typeBytesOrigin = ['bytes', 'TxOutputScript', 'TokenUid', 'VertexId'];
+      if (typeBytesOrigin.includes(arg.type)) {
         return arg.parsed.toString('hex');
+      }
+
+      if (arg.type === 'Timestamp') {
+        return dateFormatter.parseTimestamp(arg.parsed);
+      }
+
+      if (arg.type === 'Amount') {
+        return hathorLib.numberUtils.prettyValue(arg.parsed, this.props.decimalPlaces);
       }
 
       return arg.parsed;
