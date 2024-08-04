@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import App from './App';
 import FlagProvider from '@unleash/proxy-client-react';
 
@@ -19,11 +19,12 @@ import store from "./store/index";
 import { Provider } from "react-redux";
 import { UNLEASH_CONFIG } from './constants';
 
-ReactDOM.render(
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(
   <FlagProvider config={UNLEASH_CONFIG}>
     <Provider store={store}>
       <App />
     </Provider>
-  </FlagProvider>,
-  document.getElementById('root')
+  </FlagProvider>
 );
