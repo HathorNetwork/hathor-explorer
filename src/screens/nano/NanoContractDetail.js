@@ -22,6 +22,10 @@ import txApi from '../../api/txApi';
 function NanoContractDetail(props) {
   const ncId = props.match.params.nc_id;
 
+  const { decimalPlaces } = useSelector((state) => {
+    return { decimalPlaces: state.serverInfo.decimal_places }
+  });
+
   // ncState {Object | null} Nano contract state
   const [ncState, setNcState] = useState(null);
   // blueprintInformation {Object | null} Blueprint Information from API
@@ -150,8 +154,29 @@ function NanoContractDetail(props) {
     // In this case, we will show only the attribute type
     // In the future, we plan to have a query feature, so the user can
     // query these attributes until they get the value they need
-    return 'value' in data ? data.value : blueprintInformation.attributes[name];
-  };
+    if (!('value' in data)) {
+      // If the value is a dict, we show only the type for now
+      return blueprintInformation.attributes[name];
+    }
+
+    if (data.value == null) {
+      // If value is null or undefined, we show empty string
+      return null;
+    }
+
+    // Get type of value but removing possible optional mark (?) to format the value correctly
+    const type = blueprintInformation.attributes[name].replace('?', '');
+
+    if (type === 'Timestamp') {
+      return hathorLib.dateUtils.parseTimestamp(data.value);
+    }
+
+    if (type === 'Amount') {
+      return hathorLib.numberUtils.prettyValue(data.value, decimalPlaces);
+    }
+
+    return data.value;
+  }
 
   const renderAttributes = () => {
     return Object.entries(ncState.fields).map(([name, data]) => {
