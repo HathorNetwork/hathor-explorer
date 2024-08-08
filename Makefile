@@ -6,6 +6,57 @@ check_version:
 check_tag:
 	./scripts/check_tag
 
+.PHONY: nano_testnet_build
+nano_testnet_build:
+	FULLNODE_HOST=node1.nano-testnet.hathor.network; \
+	export REACT_APP_BASE_URL=https://$$FULLNODE_HOST/v1a/; \
+	export REACT_APP_WS_URL=wss://$$FULLNODE_HOST/v1a/ws/; \
+	export REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.nano-testnet.hathor.network/; \
+	export REACT_APP_TIMESERIES_DASHBOARD_ID=59683ac0-237a-11ef-8f75-578bca86e218; \
+	export REACT_APP_NETWORK=nano-testnet-alpha; \
+	npm run build
+
+.PHONY: nano_testnet_s3_sync
+nano_testnet_s3_sync:
+	aws s3 sync --delete ./build/ s3://hathor-nano-testnet-public-explorer-2
+
+.PHONY: nano_testnet_deploy
+nano_testnet_deploy: check_version nano_testnet_s3_sync clear_cloudfront_cache
+
+.PHONY: ekvilibro_testnet_build
+ekvilibro_testnet_build:
+	FULLNODE_HOST=node-side-dag.ekvilibro-testnet.hathor.network; \
+	export REACT_APP_BASE_URL=https://$$FULLNODE_HOST/v1a/; \
+	export REACT_APP_WS_URL=wss://$$FULLNODE_HOST/v1a/ws/; \
+	export REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.ekvilibro-testnet.hathor.network/; \
+	export REACT_APP_TIMESERIES_DASHBOARD_ID=; \
+	export REACT_APP_NETWORK=ekvilibro-testnet; \
+	npm run build
+
+.PHONY: ekvilibro_testnet_s3_sync
+ekvilibro_testnet_s3_sync:
+	aws s3 sync --delete ./build/ s3://hathor-ekvilibro-testnet-public-explorer
+
+.PHONY: ekvilibro_testnet_deploy
+ekvilibro_testnet_deploy: check_version ekvilibro_testnet_s3_sync clear_cloudfront_cache
+
+.PHONY: ekvilibro_mainnet_build
+ekvilibro_mainnet_build:
+	FULLNODE_HOST=node-side-dag.ekvilibro-mainnet.hathor.network; \
+	export REACT_APP_BASE_URL=https://$$FULLNODE_HOST/v1a/; \
+	export REACT_APP_WS_URL=wss://$$FULLNODE_HOST/v1a/ws/; \
+	export REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.ekvilibro-mainnet.hathor.network/; \
+	export REACT_APP_TIMESERIES_DASHBOARD_ID=; \
+	export REACT_APP_NETWORK=ekvilibro-mainnet; \
+	npm run build
+
+.PHONY: ekvilibro_mainnet_s3_sync
+ekvilibro_mainnet_s3_sync:
+	aws s3 sync --delete ./build/ s3://hathor-ekvilibro-mainnet-public-explorer
+
+.PHONY: ekvilibro_mainnet_deploy
+ekvilibro_mainnet_deploy: check_version ekvilibro_mainnet_s3_sync clear_cloudfront_cache
+
 .PHONY: testnet_build
 testnet_build:
 	FULLNODE_HOST=node.explorer.testnet.hathor.network; \
