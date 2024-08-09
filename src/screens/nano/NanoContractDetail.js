@@ -57,7 +57,7 @@ function NanoContractDetail(props) {
 
         const blueprintInformation = await nanoApi.getBlueprintInformation(transactionData.tx.nc_blueprint_id);
         // TODO get all balances after hathor-core supports it
-        const dataState = await nanoApi.getState(ncId, Object.keys(blueprintInformation.attributes), [], []);
+        const dataState = await nanoApi.getState(ncId, Object.keys(blueprintInformation.attributes), ['__all__'], []);
         if (ignore) {
           // This is to prevent setting a state after the componenet has been already cleaned
           return;
@@ -144,6 +144,35 @@ function NanoContractDetail(props) {
     });
   }
 
+  const renderBalances = () => {
+    return Object.entries(ncState.balances).map(([token, data]) => {
+      return (
+        <tr key={token}>
+          <td>{data.value}</td>
+          <td>{token === hathorLib.constants.NATIVE_TOKEN_UID ? token : <Link to={`/token_detail/${token}`}>{token}</Link>}</td>
+        </tr>
+      );
+    });
+  }
+
+  const renderNCBalances = () => {
+    return (
+      <div className="table-responsive">
+        <table className="table table-striped table-bordered" id="attributes-table">
+          <thead>
+            <tr>
+              <th className="d-lg-table-cell">Amount</th>
+              <th className="d-lg-table-cell">Token</th>
+            </tr>
+          </thead>
+          <tbody>
+            {renderBalances()}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
   const renderNCAttributes = () => {
     return (
       <div className="table-responsive">
@@ -191,6 +220,8 @@ function NanoContractDetail(props) {
         <p><strong>Blueprint: </strong>{ncState.blueprint_name} (<Link to={`/blueprint/detail/${txData.nc_blueprint_id}`}>{txData.nc_blueprint_id}</Link>)</p>
         <h4 className="mt-5 mb-4">Attributes</h4>
         { renderNCAttributes() }
+        <h4 className="mt-3 mb-4">Balances</h4>
+        { renderNCBalances() }
         <hr />
         <h3 className="mt-4">History</h3>
         {history && loadTable()}
