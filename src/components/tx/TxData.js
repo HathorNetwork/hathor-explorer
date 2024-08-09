@@ -24,6 +24,7 @@ import Loading from '../Loading';
 import FeatureDataRow from '../feature_activation/FeatureDataRow';
 import featureApi from '../../api/featureApi';
 import { connect } from 'react-redux';
+import { get, upperFirst } from 'lodash';
 
 
 const mapStateToProps = (state) => ({
@@ -623,6 +624,29 @@ class TxData extends React.Component {
       );
     }
 
+    const renderNCActionsList = () => {
+      return this.props.transaction.nc_context.actions.map((action, index) => (
+        <div key={index} className="d-flex flex-column align-items-start">
+          <div>
+            <label>Type:</label> {upperFirst(action.type)}
+          </div>
+          <div>
+            <label>Amount:</label> {hathorLib.numberUtils.prettyValue(action.amount, this.props.decimalPlaces)} {this.getSymbol(action.token_uid)}
+          </div>
+        </div>
+      ));
+    }
+
+    const renderNCActions = () => {
+      const actionsCount = get(this.props.transaction, 'nc_context.actions.length', 0);
+      return (
+        <div className="d-flex flex-column align-items-start common-div bordered-wrapper mr-3">
+          <div><label>Actions ({ actionsCount })</label></div>
+          {actionsCount > 0 && renderNCActionsList()}
+        </div>
+      );
+    }
+
     const renderNCData = () => {
       if (this.state.ncLoading) {
         return (
@@ -747,6 +771,9 @@ class TxData extends React.Component {
           </div>
           <div className="d-flex flex-row align-items-start mb-3">
             {this.props.transaction.version === hathorLib.constants.NANO_CONTRACTS_VERSION && renderNCData()}
+          </div>
+          <div className="d-flex flex-row align-items-start mb-3">
+            {this.props.transaction.version === hathorLib.constants.NANO_CONTRACTS_VERSION && renderNCActions()}
           </div>
           <div className="d-flex flex-column flex-lg-row align-items-start mb-3 w-100">
             <div className="f-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
