@@ -102,7 +102,7 @@ case $command in
     echo "REACT_APP_TIMESERIES_DASHBOARD_ID: $REACT_APP_TIMESERIES_DASHBOARD_ID"
     echo "REACT_APP_NETWORK: $REACT_APP_NETWORK"
     # Run the build command
-    # npm run build
+    npm run build
     ;;
   sync)
     echo "Syncing for site: $site"
