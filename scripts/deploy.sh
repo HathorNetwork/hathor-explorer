@@ -110,7 +110,7 @@ case $command in
     ;;
   clear_cache)
     echo "Clearing CloudFront cache for site: $site"
-	aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/index.html"
+    aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/index.html"
     ;;
   start)
     echo "Starting for site: $site"
