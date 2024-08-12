@@ -72,13 +72,11 @@ jobs:
       - name: Build
         run: |
           tar -xf node_modules.tar
-          make testnet_build
+          make build site=testnet
 
       - name: Deploy Testnet Explorer
         run: |
-          make testnet_deploy
-        env:
-          CLOUDFRONT_ID: E2TGO5SVP34CC3
+          make deploy site=testnet
 
   deploy-nano-testnet-explorer:
     if: github.ref == 'refs/heads/master'
@@ -101,12 +99,10 @@ jobs:
       - name: Build
         run: |
           tar -xf node_modules.tar
-          make nano_testnet_build
+          make build site=nano-testnet
       - name: Deploy Nano Testnet Explorer
         run: |
-          make nano_testnet_deploy
-        env:
-          CLOUDFRONT_ID: EN58551BWE3XZ
+          make deploy site=nano-testnet
 
   deploy-ekvilibro-testnet-explorer:
     if: github.ref == 'refs/heads/master'
@@ -129,12 +125,10 @@ jobs:
       - name: Build
         run: |
           tar -xf node_modules.tar
-          make ekvilibro_testnet_build
+          make build site=ekvilibro-testnet
       - name: Deploy Ekvilibro Testnet Explorer
         run: |
-          make ekvilibro_testnet_deploy
-        env:
-          CLOUDFRONT_ID: E3SRP23QB7K3DQ
+          make deploy site=ekvilibro-testnet
   deploy-ekvilibro-mainnet-explorer:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: dependencies
@@ -156,12 +150,10 @@ jobs:
       - name: Build
         run: |
           tar -xf node_modules.tar
-          make ekvilibro_mainnet_build
+          make build site=ekvilibro-mainnet
       - name: Deploy Ekvilibro Mainnet Explorer
         run: |
-          make ekvilibro_mainnet_deploy
-        env:
-          CLOUDFRONT_ID: E1NI147Y237J4M
+          make deploy site=ekvilibro-mainnet
   deploy-mainnet-explorer:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: dependencies
@@ -184,10 +176,8 @@ jobs:
       - name: Build
         run: |
           tar -xf node_modules.tar
-          make mainnet_build
+          make build site=mainnet
 
       - name: Deploy Mainnet Explorer
         run: |
-          make mainnet_deploy
-        env:
-          CLOUDFRONT_ID: ETOC9JKCK86OG
+          make deploy site=mainnet

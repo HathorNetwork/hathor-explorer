@@ -30,4 +30,4 @@ jobs:
 
       - name: Build
         run: |
-          make testnet_build
+          make build site=testnet
