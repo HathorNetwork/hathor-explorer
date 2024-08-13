@@ -31,3 +31,7 @@ jobs:
       - name: Build
         run: |
           make build site=testnet
+
+      - name: Format
+        run: |
+          npm run format:check
