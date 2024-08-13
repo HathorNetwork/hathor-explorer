@@ -8,6 +8,7 @@
   "private": true,
   "dependencies": {
     "@hathor/wallet-lib": "1.8.0",
+    "@unleash/proxy-client-react": "1.0.4",
     "axios": "1.7.2",
     "bootstrap": "4.6.2",
     "d3-selection": "3.0.0",
@@ -31,9 +32,8 @@
     "react-scripts": "3.4.4",
     "redux": "4.2.1",
     "sass": "1.77.8",
-    "viz.js": "2.1.2",
     "unleash-proxy-client": "1.11.0",
-    "@unleash/proxy-client-react": "1.0.4"
+    "viz.js": "2.1.2"
   },
   "scripts": {
     "build-css": "sass src:src",
@@ -43,6 +43,10 @@
     "build-js": "react-scripts --openssl-legacy-provider build",
     "build": "npm-run-all build-css build-js",
     "test": "react-scripts test --env=jsdom",
+    "lint": "eslint 'src/**/*.js'",
+    "lint:fix": "eslint 'src/**/*.js' --fix",
+    "format": "prettier --write 'src/**/*.js'",
+    "format:check": "prettier --check 'src/**/*.js'",
     "eject": "react-scripts eject"
   },
   "browserslist": [
@@ -50,5 +54,12 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "eslint-config-airbnb-base": "15.0.0",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-prettier": "5.2.1",
+    "eslint-plugin-react": "7.35.0",
+    "prettier": "3.3.3"
+  }
 }
