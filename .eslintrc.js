@@ -66,6 +66,8 @@ module.exports = {
       },
     ],
     'jest/no-disabled-tests': 'off', // It's useful to have skipped tests on our suites
+
+    camelcase: 'off', // Conflicts with variables obtained directly from the fullnode endpoints
   },
   settings: {
     react: {
