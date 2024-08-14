@@ -61,11 +61,6 @@ export const MAX_GRAPH_LEVEL = 1
 // First bit in the index byte indicates whether it's an authority output
 export const TOKEN_AUTHORITY_MASK = 0b10000000
 
-/**
- * Hathor token default index
- */
-export const HATHOR_TOKEN_INDEX = 0;
-
 export const GTM_ID = process.env.REACT_APP_GTM_ID;
 
 export const NFT_MEDIA_TYPES = {
