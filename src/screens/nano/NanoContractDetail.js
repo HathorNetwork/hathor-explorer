@@ -11,7 +11,8 @@ import TxRow from '../../components/tx/TxRow';
 import hathorLib from '@hathor/wallet-lib';
 import nanoApi from '../../api/nanoApi';
 import txApi from '../../api/txApi';
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 
 /**
@@ -36,6 +37,11 @@ function NanoContractDetail(props) {
   const [loadingHistory, setLoadingHistory] = useState(true);
   // errorMessage {string | null} Error message in case a request to get nano contract data fails
   const [errorMessage, setErrorMessage] = useState(null);
+
+
+  const { decimalPlaces } = useSelector((state) => {
+    return { decimalPlaces: state.serverInfo.decimal_places }
+  });
 
   useEffect(() => {
     let ignore = false;
@@ -148,8 +154,8 @@ function NanoContractDetail(props) {
     return Object.entries(ncState.balances).map(([token, data]) => {
       return (
         <tr key={token}>
-          <td>{data.value}</td>
           <td>{token === hathorLib.constants.NATIVE_TOKEN_UID ? token : <Link to={`/token_detail/${token}`}>{token}</Link>}</td>
+          <td>{hathorLib.numberUtils.prettyValue(data.value, decimalPlaces)}</td>
         </tr>
       );
     });
@@ -161,8 +167,8 @@ function NanoContractDetail(props) {
         <table className="table table-striped table-bordered" id="attributes-table">
           <thead>
             <tr>
-              <th className="d-lg-table-cell">Amount</th>
               <th className="d-lg-table-cell">Token</th>
+              <th className="d-lg-table-cell">Amount</th>
             </tr>
           </thead>
           <tbody>
@@ -210,8 +216,6 @@ function NanoContractDetail(props) {
       );
     });
   }
-
-  // TODO identify that attribute is a token and show as NFT, in case it is.
   return (
     <div className="content-wrapper">
       <h3 className="mt-4">Nano Contract Detail</h3>
