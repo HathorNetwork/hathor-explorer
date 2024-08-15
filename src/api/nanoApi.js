@@ -34,19 +34,28 @@ const nanoApi = {
    * Get the history of transactions of a nano contract
    *
    * @param {string} id Nano contract id
+   * @param {number | null} count Number of elements to get the history
+   * @param {string | null} after Hash of the tx to get as reference for after pagination
+   * @param {string | null} before Hash of the tx to get as reference for before pagination
    *
    * For more details, see full node api docs
    */
-  getHistory(id) {
+  getHistory(id, count, after, before) {
     const data = { id };
-    return requestExplorerServiceV1.get(`node_api/nc_history`, { params: data }).then(
-      res => {
-        return res.data;
-      },
-      res => {
-        throw new Error(res.data.message);
-      }
-    );
+    if (count) {
+      data['count'] = count;
+    }
+    if (after) {
+      data['after'] = after;
+    }
+    if (before) {
+      data['before'] = before;
+    }
+    return requestExplorerServiceV1.get(`node_api/nc_history`, {params: data}).then((res) => {
+      return res.data
+    }, (res) => {
+      throw new Error(res.data.message);
+    });
   },
 
   /**
