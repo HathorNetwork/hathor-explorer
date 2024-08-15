@@ -11,7 +11,8 @@ import TxRow from '../../components/tx/TxRow';
 import hathorLib from '@hathor/wallet-lib';
 import nanoApi from '../../api/nanoApi';
 import txApi from '../../api/txApi';
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 
 /**
@@ -37,6 +38,11 @@ function NanoContractDetail(props) {
   // errorMessage {string | null} Error message in case a request to get nano contract data fails
   const [errorMessage, setErrorMessage] = useState(null);
 
+
+  const { decimalPlaces } = useSelector((state) => {
+    return { decimalPlaces: state.serverInfo.decimal_places }
+  });
+
   useEffect(() => {
     let ignore = false;
 
@@ -56,8 +62,7 @@ function NanoContractDetail(props) {
         }
 
         const blueprintInformation = await nanoApi.getBlueprintInformation(transactionData.tx.nc_blueprint_id);
-        // TODO get all balances after hathor-core supports it
-        const dataState = await nanoApi.getState(ncId, Object.keys(blueprintInformation.attributes), [], []);
+        const dataState = await nanoApi.getState(ncId, Object.keys(blueprintInformation.attributes), ['__all__'], []);
         if (ignore) {
           // This is to prevent setting a state after the componenet has been already cleaned
           return;
@@ -144,6 +149,33 @@ function NanoContractDetail(props) {
     });
   }
 
+  const renderBalances = () => {
+    return Object.entries(ncState.balances).map(([tokenUid, data]) => (
+      <tr key={tokenUid}>
+        <td>{tokenUid === hathorLib.constants.NATIVE_TOKEN_UID ? tokenUid : <Link to={`/token_detail/${tokenUid}`}>{tokenUid}</Link>}</td>
+        <td>{hathorLib.numberUtils.prettyValue(data.value, decimalPlaces)}</td>
+      </tr>
+    ));
+  }
+
+  const renderNCBalances = () => {
+    return (
+      <div className="table-responsive">
+        <table className="table table-striped table-bordered" id="attributes-table">
+          <thead>
+            <tr>
+              <th className="d-lg-table-cell">Token</th>
+              <th className="d-lg-table-cell">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {renderBalances()}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
   const renderNCAttributes = () => {
     return (
       <div className="table-responsive">
@@ -181,8 +213,6 @@ function NanoContractDetail(props) {
       );
     });
   }
-
-  // TODO identify that attribute is a token and show as NFT, in case it is.
   return (
     <div className="content-wrapper">
       <h3 className="mt-4">Nano Contract Detail</h3>
@@ -191,6 +221,8 @@ function NanoContractDetail(props) {
         <p><strong>Blueprint: </strong>{ncState.blueprint_name} (<Link to={`/blueprint/detail/${txData.nc_blueprint_id}`}>{txData.nc_blueprint_id}</Link>)</p>
         <h4 className="mt-5 mb-4">Attributes</h4>
         { renderNCAttributes() }
+        <h4 className="mt-3 mb-4">Balances</h4>
+        { renderNCBalances() }
         <hr />
         <h3 className="mt-4">History</h3>
         {history && loadTable()}
