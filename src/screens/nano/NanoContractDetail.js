@@ -150,9 +150,9 @@ function NanoContractDetail(props) {
   }
 
   const renderBalances = () => {
-    return Object.entries(ncState.balances).map(([token, data]) => (
-      <tr key={token}>
-        <td>{token === hathorLib.constants.NATIVE_TOKEN_UID ? token : <Link to={`/token_detail/${token}`}>{token}</Link>}</td>
+    return Object.entries(ncState.balances).map(([tokenUid, data]) => (
+      <tr key={tokenUid}>
+        <td>{tokenUid === hathorLib.constants.NATIVE_TOKEN_UID ? tokenUid : <Link to={`/token_detail/${tokenUid}`}>{tokenUid}</Link>}</td>
         <td>{hathorLib.numberUtils.prettyValue(data.value, decimalPlaces)}</td>
       </tr>
     ));
