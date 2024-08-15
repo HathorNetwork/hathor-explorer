@@ -62,7 +62,6 @@ function NanoContractDetail(props) {
         }
 
         const blueprintInformation = await nanoApi.getBlueprintInformation(transactionData.tx.nc_blueprint_id);
-        // TODO get all balances after hathor-core supports it
         const dataState = await nanoApi.getState(ncId, Object.keys(blueprintInformation.attributes), ['__all__'], []);
         if (ignore) {
           // This is to prevent setting a state after the componenet has been already cleaned
@@ -151,14 +150,12 @@ function NanoContractDetail(props) {
   }
 
   const renderBalances = () => {
-    return Object.entries(ncState.balances).map(([token, data]) => {
-      return (
-        <tr key={token}>
-          <td>{token === hathorLib.constants.NATIVE_TOKEN_UID ? token : <Link to={`/token_detail/${token}`}>{token}</Link>}</td>
-          <td>{hathorLib.numberUtils.prettyValue(data.value, decimalPlaces)}</td>
-        </tr>
-      );
-    });
+    return Object.entries(ncState.balances).map(([token, data]) => (
+      <tr key={token}>
+        <td>{token === hathorLib.constants.NATIVE_TOKEN_UID ? token : <Link to={`/token_detail/${token}`}>{token}</Link>}</td>
+        <td>{hathorLib.numberUtils.prettyValue(data.value, decimalPlaces)}</td>
+      </tr>
+    ));
   }
 
   const renderNCBalances = () => {
