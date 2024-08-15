@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Loading from '../../components/Loading';
 import { Link, useLocation } from 'react-router-dom';
 import { NANO_CONTRACT_TX_HISTORY_COUNT } from '../../constants';
@@ -33,10 +33,14 @@ import { reverse } from 'lodash';
  *   page = "next"
  */
 function NanoContractHistory({ ncId }) {
-  const pagination = new PaginationURL({
-    'hash': {'required': false},
-    'page': {'required': false}
-  });
+  // We must use memo here because we were creating a new pagination
+  // object in every new render, so the useEffect was being called forever
+  const pagination = useMemo(() =>
+    new PaginationURL({
+      'hash': {'required': false},
+      'page': {'required': false}
+    })
+  , []);
 
   const location = useLocation();
 
@@ -51,32 +55,32 @@ function NanoContractHistory({ ncId }) {
   // hasAfter {boolean} If 'Next' button should be enabled 
   const [hasAfter, setHasAfter] = useState(false);
 
-  useEffect(() => {
-    const queryParams = pagination.obtainQueryParams();
-    let after = null;
-    let before = null;
-    if (queryParams.hash) {
-      if (queryParams.page === 'previous') {
-        before = queryParams.hash;
-      } else if (queryParams.page === 'next') {
-        after = queryParams.hash;
-      } else {
-        // Params are wrong
-        pagination.clearOptionalQueryParams();
+  // useCallback is important here to update this method with new history state
+  // otherwise it would be fixed the moment the event listener is started in the useEffect
+  // with the history as an empty array
+  const updateListWs = useCallback((tx) => {
+    // We only add to the list if it's the first page and it's a new tx from this nano
+    if (!hasBefore) {
+      if (tx.version === hathorLib.constants.NANO_CONTRACTS_VERSION && tx.nc_id === ncId) {
+        let nanoHistory = [...history];
+        const willHaveAfter = (hasAfter || nanoHistory.length === NANO_CONTRACT_TX_HISTORY_COUNT)
+        // This updates the list with the new element at first
+        nanoHistory = helpers.updateListWs(nanoHistory, tx, NANO_CONTRACT_TX_HISTORY_COUNT);
+
+        // Now update the history
+        setHistory(nanoHistory);
+        setHasAfter(willHaveAfter);
       }
     }
+  }, [history, hasAfter, hasBefore, ncId]);
 
-    loadData(after, before);
-
-    // Handle new txs in the network to update the list in real time
-    WebSocketHandler.on('network', handleWebsocket);
-
-    return () => {
-      WebSocketHandler.removeListener('network', handleWebsocket);
-    };
-  }, [location]);
-
-  const loadData = async (after, before) => {
+  /**
+   * useCallback is needed here because this method is used as a dependency in the useEffect
+   *
+   * after {string | null} Hash to use for pagination when user clicks to fetch the next page
+   * before {string | null} Hash to use for pagination when user clicks to fetch the previous page
+   */
+  const loadData = useCallback(async (after, before) => {
     try {
       const data = await nanoApi.getHistory(ncId, NANO_CONTRACT_TX_HISTORY_COUNT, after, before);
       if (data.history.length === 0) {
@@ -143,27 +147,40 @@ function NanoContractHistory({ ncId }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [ncId, pagination]);
+
+  useEffect(() => {
+    // Handle load history depending on the query params in the URL
+    const queryParams = pagination.obtainQueryParams();
+    let after = null;
+    let before = null;
+    if (queryParams.hash) {
+      if (queryParams.page === 'previous') {
+        before = queryParams.hash;
+      } else if (queryParams.page === 'next') {
+        after = queryParams.hash;
+      } else {
+        // Params are wrong
+        pagination.clearOptionalQueryParams();
+      }
+    }
+
+    loadData(after, before);
+
+  }, [location, loadData, pagination]);
+
+  useEffect(() => {
+    // Handle new txs in the network to update the list in real time
+    WebSocketHandler.on('network', handleWebsocket);
+
+    return () => {
+      WebSocketHandler.removeListener('network', handleWebsocket);
+    };
+  });
 
   const handleWebsocket = (wsData) => {
     if (wsData.type === 'network:new_tx_accepted') {
       updateListWs(wsData);
-    }
-  }
-
-  const updateListWs = (tx) => {
-    // We only add to the list if it's the first page and it's a new tx from this nano
-    if (!hasBefore) {
-      if (tx.version === hathorLib.constants.NANO_CONTRACTS_VERSION && tx.nc_id === ncId) {
-        let nanoHistory = [...history];
-        const willHaveAfter = (hasAfter || nanoHistory.length === NANO_CONTRACT_TX_HISTORY_COUNT)
-        // This updates the list with the new element at first
-        nanoHistory = helpers.updateListWs(nanoHistory, tx, NANO_CONTRACT_TX_HISTORY_COUNT);
-
-        // Now update the history
-        setHistory(nanoHistory);
-        setHasAfter(willHaveAfter);
-      }
     }
   }
 
