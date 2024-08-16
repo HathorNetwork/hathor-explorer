@@ -8,12 +8,10 @@
 import React, { useEffect } from 'react';
 
 import { GTM_ID } from '../constants';
-import CookieConsent from "react-cookie-consent";
+import CookieConsent from 'react-cookie-consent';
 import TagManager from 'react-gtm-module';
 
-
 const GDPRConsent = () => {
-
   useEffect(() => {
     // Just to ensure that when we initialize GTM, the message on this component will be shown
     TagManager.initialize({ gtmId: GTM_ID });
@@ -28,9 +26,17 @@ const GDPRConsent = () => {
       buttonClasses="btn btn-hathor m-3"
     >
       This website uses cookies to ensure you get the best experience on our website.
-      <a href="https://hathor.network/terms-and-conditions/" target="_blank" rel="noopener noreferrer" > Learn more</a>.
+      <a
+        href="https://hathor.network/terms-and-conditions/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {' '}
+        Learn more
+      </a>
+      .
     </CookieConsent>
-  )
-}
+  );
+};
 
 export default GDPRConsent;

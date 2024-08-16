@@ -7,7 +7,7 @@
 
 const dateFormatter = {
   parseTimestamp(timestamp) {
-    const d = new Date(timestamp*1000); // new Date in js expect milliseconds
+    const d = new Date(timestamp * 1000); // new Date in js expect milliseconds
     return `${d.toLocaleDateString('en-US')} ${d.toLocaleTimeString('en-US')}`;
   },
   /**
@@ -33,15 +33,14 @@ const dateFormatter = {
     const minutes = Math.floor(uptime / 60);
     uptime = uptime % 60;
     const seconds = uptime;
-    const pad = (n) => (Math.abs(n) >= 10 ? n : '0' + n);
+    const pad = n => (Math.abs(n) >= 10 ? n : '0' + n);
     const uptime_str = days + ' days, ' + pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
     return uptime_str;
   },
 
   dateToTimestamp(date) {
     return Math.floor(date.getTime() / 1000);
-  }
+  },
 };
-
 
 export default dateFormatter;

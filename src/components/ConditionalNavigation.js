@@ -1,16 +1,23 @@
-import React from "react";
+import React from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { useFlag } from '@unleash/proxy-client-react';
 
 const ConditionalNavigation = ({ featureToggle, to, label }) => {
-    return (
-        useFlag(featureToggle) ?
-            <li className="nav-item">
-                <NavLink to={to} exact className="nav-link" activeClassName="active" activeStyle={{ fontWeight: 'bold' }}>{label}</NavLink>
-            </li> : null
-    )
-}
+  return useFlag(featureToggle) ? (
+    <li className="nav-item">
+      <NavLink
+        to={to}
+        exact
+        className="nav-link"
+        activeClassName="active"
+        activeStyle={{ fontWeight: 'bold' }}
+      >
+        {label}
+      </NavLink>
+    </li>
+  ) : null;
+};
 
 /**
  * featureToggle: The feature flag that will be evaluated to check if this component must be rendered
@@ -18,9 +25,9 @@ const ConditionalNavigation = ({ featureToggle, to, label }) => {
  * to: Where this navigation link will point to
  */
 ConditionalNavigation.propTypes = {
-    featureToggle: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired,
-    to: PropTypes.string.isRequired
-}
+  featureToggle: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  to: PropTypes.string.isRequired,
+};
 
 export default ConditionalNavigation;

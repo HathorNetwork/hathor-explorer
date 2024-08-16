@@ -24,13 +24,16 @@ const tokensApi = {
    */
   async getList(searchText, sortBy, order, searchAfter) {
     const data = {
-      'search_text': searchText,
-      'sort_by': sortBy,
-      'order': order,
-      'search_after': searchAfter.join(','),
+      search_text: searchText,
+      sort_by: sortBy,
+      order: order,
+      search_after: searchAfter.join(','),
     };
 
-    const response = await requestExplorerServiceV1.get('tokens', { params: data, timeout: TOKENS_API_DEFAULT_TIMEOUT });
+    const response = await requestExplorerServiceV1.get('tokens', {
+      params: data,
+      timeout: TOKENS_API_DEFAULT_TIMEOUT,
+    });
 
     return helpers.handleExplorerServiceResponse(response);
   },
@@ -43,7 +46,9 @@ const tokensApi = {
    * @return {Promise}
    */
   async getToken(tokenId) {
-    const response = await requestExplorerServiceV1.get(`tokens/${tokenId}`, { timeout: TOKENS_API_DEFAULT_TIMEOUT });
+    const response = await requestExplorerServiceV1.get(`tokens/${tokenId}`, {
+      timeout: TOKENS_API_DEFAULT_TIMEOUT,
+    });
 
     return helpers.handleExplorerServiceResponse(response);
   },
@@ -61,13 +66,16 @@ const tokensApi = {
    */
   async getBalances(tokenId, sortBy, order, searchAfter) {
     const data = {
-      'token_id': tokenId,
-      'sort_by': sortBy,
-      'order': order,
-      'search_after': searchAfter.join(',')
+      token_id: tokenId,
+      sort_by: sortBy,
+      order: order,
+      search_after: searchAfter.join(','),
     };
 
-    const response = await requestExplorerServiceV1.get('token_balances', { params: data, timeout: TOKENS_API_DEFAULT_TIMEOUT });
+    const response = await requestExplorerServiceV1.get('token_balances', {
+      params: data,
+      timeout: TOKENS_API_DEFAULT_TIMEOUT,
+    });
 
     return helpers.handleExplorerServiceResponse(response);
   },
@@ -81,10 +89,13 @@ const tokensApi = {
    */
   async getBalanceInformation(tokenId) {
     const data = {
-      'token_id': tokenId,
+      token_id: tokenId,
     };
 
-    const response = await requestExplorerServiceV1.get('token_balances/information', { params: data, timeout: TOKENS_API_DEFAULT_TIMEOUT});
+    const response = await requestExplorerServiceV1.get('token_balances/information', {
+      params: data,
+      timeout: TOKENS_API_DEFAULT_TIMEOUT,
+    });
 
     return helpers.handleExplorerServiceResponse(response);
   },

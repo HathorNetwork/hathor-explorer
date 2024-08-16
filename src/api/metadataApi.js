@@ -9,14 +9,17 @@ import requestExplorerServiceV1 from './axiosInstance';
 
 const metadataApi = {
   getDagMetadata(id) {
-    return requestExplorerServiceV1.get(`metadata/dag`, {params: {id}}).then((res) => {
-      if (res && id in res.data) {
-        return res.data[id]
-      }
-    }).catch((error) => {
-      // something wrong with request
-    });
-  }
+    return requestExplorerServiceV1
+      .get(`metadata/dag`, { params: { id } })
+      .then(res => {
+        if (res && id in res.data) {
+          return res.data[id];
+        }
+      })
+      .catch(error => {
+        // something wrong with request
+      });
+  },
 };
 
 export default metadataApi;

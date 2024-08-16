@@ -6,9 +6,9 @@
  */
 
 import React from 'react';
-import TokenBalances from '../components/token/TokenBalances'
+import TokenBalances from '../components/token/TokenBalances';
 import { useFlag } from '@unleash/proxy-client-react';
-import { UNLEASH_TOKEN_BALANCES_FEATURE_FLAG } from '../constants'
+import { UNLEASH_TOKEN_BALANCES_FEATURE_FLAG } from '../constants';
 
 const TokenBalancesList = () => {
   const maintenanceMode = useFlag(`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.maintenance`);
@@ -18,6 +18,6 @@ const TokenBalancesList = () => {
       <TokenBalances maintenanceMode={maintenanceMode} />
     </div>
   );
-}
+};
 
 export default TokenBalancesList;

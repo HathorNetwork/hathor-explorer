@@ -6,7 +6,13 @@
  */
 
 import hathorLib from '@hathor/wallet-lib';
-import { MAINNET_GENESIS_BLOCK, TESTNET_GENESIS_BLOCK, MAINNET_GENESIS_TX, TESTNET_GENESIS_TX, MIN_API_VERSION } from '../constants';
+import {
+  MAINNET_GENESIS_BLOCK,
+  TESTNET_GENESIS_BLOCK,
+  MAINNET_GENESIS_TX,
+  TESTNET_GENESIS_TX,
+  MIN_API_VERSION,
+} from '../constants';
 import { get } from 'lodash';
 
 const helpers = {
@@ -39,7 +45,7 @@ const helpers = {
   },
 
   roundFloat(n) {
-    return Math.round(n*100)/100
+    return Math.round(n * 100) / 100;
   },
 
   isVersionAllowed(version) {
@@ -54,7 +60,7 @@ const helpers = {
     // Check for each value if the version is allowed
     let versionTestArr = this.getCleanVersionArray(version);
     let minVersionArr = this.getCleanVersionArray(MIN_API_VERSION);
-    for (let i=0; i<minVersionArr.length; i++) {
+    for (let i = 0; i < minVersionArr.length; i++) {
       if (minVersionArr[i] > versionTestArr[i]) {
         return false;
       } else if (minVersionArr[i] < versionTestArr[i]) {
@@ -101,7 +107,7 @@ const helpers = {
    *
    */
   getShortHash(hash) {
-    return `${hash.substring(0,12)}...${hash.substring(52,64)}`;
+    return `${hash.substring(0, 12)}...${hash.substring(52, 64)}`;
   },
 
   /**
@@ -127,7 +133,7 @@ const helpers = {
       6: 'E',
       7: 'Z',
       8: 'Y',
-    }
+    };
     return unitMap[divisions];
   },
 
@@ -147,12 +153,12 @@ const helpers = {
    */
   divideValueIntoPrefix(value) {
     let divisions = 0;
-    while ((value / 1000) > 1) {
+    while (value / 1000 > 1) {
       value /= 1000;
       divisions += 1;
     }
 
-    return {value: value.toFixed(2), divisions};
+    return { value: value.toFixed(2), divisions };
   },
 
   /**
@@ -228,7 +234,7 @@ const helpers = {
    * @inner
    */
   async setStateAsync(instance, state) {
-    return new Promise((resolve) => instance.setState(state, resolve));
+    return new Promise(resolve => instance.setState(state, resolve));
   },
 
   /**
@@ -243,7 +249,7 @@ const helpers = {
     // Currently 200 is always returned for success responses
     if (get(response, 'status', 500) > 299) {
       return {
-        'error': true,
+        error: true,
       };
     }
 
@@ -251,7 +257,7 @@ const helpers = {
       ...response,
       error: false,
     };
-  }
-}
+  },
+};
 
 export default helpers;

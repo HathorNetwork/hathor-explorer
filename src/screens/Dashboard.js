@@ -6,25 +6,23 @@
  */
 
 import React from 'react';
-import { connect } from "react-redux";
+import { connect } from 'react-redux';
 import colors from '../index.scss';
 import ReactLoading from 'react-loading';
 import helpers from '../utils/helpers';
 import TimeSeriesDashboard from './TimeSeriesDashboard';
 import { numberUtils } from '@hathor/wallet-lib';
 
-
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   data: state.data,
 });
-
 
 class Dashboard extends React.Component {
   render() {
     if (this.props.data === null) {
       return (
         <div className="content-wrapper">
-          <ReactLoading type='spin' color={colors.purpleHathor} delay={500} />
+          <ReactLoading type="spin" color={colors.purpleHathor} delay={500} />
         </div>
       );
     }
@@ -42,10 +40,19 @@ class Dashboard extends React.Component {
     const ptransactions = numberUtils.prettyValue(transactions, 0);
     return (
       <div className="content-wrapper">
-        <h2 className='statistics-title'>Real time</h2>
-        <p><strong>Blocks (best height): </strong>{bestBlockHeight}</p>
-        <p><strong>Transactions: </strong>{ptransactions}</p>
-        <p className="color-hathor"><strong>Hash rate: </strong>{hashRate}</p>
+        <h2 className="statistics-title">Real time</h2>
+        <p>
+          <strong>Blocks (best height): </strong>
+          {bestBlockHeight}
+        </p>
+        <p>
+          <strong>Transactions: </strong>
+          {ptransactions}
+        </p>
+        <p className="color-hathor">
+          <strong>Hash rate: </strong>
+          {hashRate}
+        </p>
 
         <TimeSeriesDashboard />
       </div>

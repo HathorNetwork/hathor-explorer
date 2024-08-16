@@ -9,7 +9,6 @@ import React, { useEffect, useState } from 'react';
 import Loading from '../../components/Loading';
 import nanoApi from '../../api/nanoApi';
 
-
 /**
  * Details of a Nano Contract
  *
@@ -52,12 +51,11 @@ function BlueprintDetail(props) {
     loadBlueprintInformation();
     return () => {
       ignore = true;
-    }
+    };
   }, [blueprintId]);
 
-
   if (errorMessage) {
-    return <p className='text-danger mb-4'>{errorMessage}</p>;
+    return <p className="text-danger mb-4">{errorMessage}</p>;
   }
 
   if (loading) {
@@ -74,13 +72,11 @@ function BlueprintDetail(props) {
               <th className="d-lg-table-cell">Type</th>
             </tr>
           </thead>
-          <tbody>
-            {renderAttributes()}
-          </tbody>
+          <tbody>{renderAttributes()}</tbody>
         </table>
       </div>
     );
-  }
+  };
 
   const renderAttributes = () => {
     return Object.entries(blueprintInformation.attributes).map(([name, type]) => {
@@ -91,7 +87,7 @@ function BlueprintDetail(props) {
         </tr>
       );
     });
-  }
+  };
 
   const renderBlueprintMethods = (key, header) => {
     return (
@@ -102,15 +98,13 @@ function BlueprintDetail(props) {
               <th className="d-lg-table-cell">{header}</th>
             </tr>
           </thead>
-          <tbody>
-            {renderMethods(key)}
-          </tbody>
+          <tbody>{renderMethods(key)}</tbody>
         </table>
       </div>
     );
-  }
+  };
 
-  const renderMethods = (key) => {
+  const renderMethods = key => {
     return Object.entries(blueprintInformation[key]).map(([name, detail]) => {
       return (
         <tr key={name}>
@@ -118,25 +112,29 @@ function BlueprintDetail(props) {
         </tr>
       );
     });
-  }
+  };
 
   const renderMethodDetails = (name, args, returnType) => {
-    const parameters = args.map(arg =>
-      `${arg.name}: ${arg.type}`
-    );
+    const parameters = args.map(arg => `${arg.name}: ${arg.type}`);
     return `${name}(${parameters.join(', ')}): ${returnType === 'null' ? 'None' : returnType}`;
-  }
+  };
 
   return (
     <div className="content-wrapper">
       <h3 className="mt-4">Blueprint Information</h3>
       <div className="mt-5">
-        <p><strong>ID: </strong>{blueprintId}</p>
-        <p><strong>Name: </strong>{blueprintInformation.name}</p>
+        <p>
+          <strong>ID: </strong>
+          {blueprintId}
+        </p>
+        <p>
+          <strong>Name: </strong>
+          {blueprintInformation.name}
+        </p>
         <h4 className="mt-5 mb-4">Attributes</h4>
-        { renderBlueprintAttributes() }
-        { renderBlueprintMethods('public_methods', 'Public Methods') }
-        { renderBlueprintMethods('private_methods', 'Private Methods') }
+        {renderBlueprintAttributes()}
+        {renderBlueprintMethods('public_methods', 'Public Methods')}
+        {renderBlueprintMethods('private_methods', 'Private Methods')}
         <hr />
       </div>
     </div>

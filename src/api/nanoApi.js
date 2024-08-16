@@ -20,11 +20,14 @@ const nanoApi = {
    */
   getState(id, fields, balances, calls) {
     const data = { id, fields, balances, calls };
-    return requestExplorerServiceV1.get(`node_api/nc_state`, {params: data}).then((res) => {
-      return res.data
-    }, (res) => {
-      throw new Error(res.data.message);
-    });
+    return requestExplorerServiceV1.get(`node_api/nc_state`, { params: data }).then(
+      res => {
+        return res.data;
+      },
+      res => {
+        throw new Error(res.data.message);
+      }
+    );
   },
 
   /**
@@ -36,11 +39,14 @@ const nanoApi = {
    */
   getHistory(id) {
     const data = { id };
-    return requestExplorerServiceV1.get(`node_api/nc_history`, {params: data}).then((res) => {
-      return res.data
-    }, (res) => {
-      throw new Error(res.data.message);
-    });
+    return requestExplorerServiceV1.get(`node_api/nc_history`, { params: data }).then(
+      res => {
+        return res.data;
+      },
+      res => {
+        throw new Error(res.data.message);
+      }
+    );
   },
 
   /**
@@ -52,11 +58,14 @@ const nanoApi = {
    */
   getBlueprintInformation(blueprintId) {
     const data = { blueprint_id: blueprintId };
-    return requestExplorerServiceV1.get(`node_api/nc_blueprint_information`, {params: data}).then((res) => {
-      return res.data
-    }, (res) => {
-      throw new Error(res.data.message);
-    });
+    return requestExplorerServiceV1.get(`node_api/nc_blueprint_information`, { params: data }).then(
+      res => {
+        return res.data;
+      },
+      res => {
+        throw new Error(res.data.message);
+      }
+    );
   },
 };
 

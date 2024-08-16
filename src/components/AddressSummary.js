@@ -10,8 +10,7 @@ import PropTypes from 'prop-types';
 import { numberUtils } from '@hathor/wallet-lib';
 import { connect } from 'react-redux';
 
-
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
 });
 
@@ -21,9 +20,9 @@ class AddressSummary extends React.Component {
    *
    * @param {Object} e Event emitted when select is changed
    */
-  selectChanged = (e) => {
+  selectChanged = e => {
     this.props.tokenSelectChanged(e.target.value);
-  }
+  };
 
   render() {
     if (Object.keys(this.props.tokens).length === 0) {
@@ -34,12 +33,13 @@ class AddressSummary extends React.Component {
       return (
         <div className="card text-white bg-dark mb-3">
           <div className="card-body">
-            Address: {this.props.address}<br />
+            Address: {this.props.address}
+            <br />
             Number of tokens: {Object.keys(this.props.tokens).length}
           </div>
         </div>
       );
-    }
+    };
 
     // We show 'Loading' until all metadatas are loaded
     // to prevent switching from decimal to integer if one of the tokens is an NFT
@@ -53,36 +53,53 @@ class AddressSummary extends React.Component {
       } else {
         return 'Custom token';
       }
-    }
+    };
 
-    const renderValue = (value) => {
+    const renderValue = value => {
       if (!this.props.metadataLoaded) {
         return 'Loading...';
       }
 
       return numberUtils.prettyValue(value, this.props.isNFT ? 0 : this.props.decimalPlaces);
-    }
+    };
 
     const loadBalanceInfo = () => {
       return (
         <div className="card bg-light mb-3">
           <div className="card-body">
-            Token: {renderTokenData()}<br />
-            Type: {renderType()}<br />
-            Number of transactions: {this.props.balance.transactions}<br />
-            Total received: {renderValue(this.props.balance.total_received)}<br />
-            Total spent: {renderValue(this.props.balance.total_received - this.props.balance.unlocked_balance - this.props.balance.locked_balance)}<br />
-            <strong>Unlocked balance: </strong>{renderValue(this.props.balance.unlocked_balance)}<br/>
-            <strong>Locked balance: </strong>{renderValue(this.props.balance.locked_balance)}
+            Token: {renderTokenData()}
+            <br />
+            Type: {renderType()}
+            <br />
+            Number of transactions: {this.props.balance.transactions}
+            <br />
+            Total received: {renderValue(this.props.balance.total_received)}
+            <br />
+            Total spent:{' '}
+            {renderValue(
+              this.props.balance.total_received -
+                this.props.balance.unlocked_balance -
+                this.props.balance.locked_balance
+            )}
+            <br />
+            <strong>Unlocked balance: </strong>
+            {renderValue(this.props.balance.unlocked_balance)}
+            <br />
+            <strong>Locked balance: </strong>
+            {renderValue(this.props.balance.locked_balance)}
           </div>
         </div>
       );
-    }
+    };
 
     const renderTokenData = () => {
       if (Object.keys(this.props.tokens).length === 1) {
         const token = this.props.tokens[this.props.selectedToken];
-        return <span>{token.name} ({token.symbol})</span>
+        return (
+          <span>
+            {token.name} ({token.symbol})
+          </span>
+        );
       } else {
         return (
           <select value={this.props.selectedToken} onChange={this.selectChanged}>
@@ -90,14 +107,18 @@ class AddressSummary extends React.Component {
           </select>
         );
       }
-    }
+    };
 
     const renderTokenOptions = () => {
-      return Object.keys(this.props.tokens).map((uid) => {
+      return Object.keys(this.props.tokens).map(uid => {
         const token = this.props.tokens[uid];
-        return <option value={uid} key={uid}>{token.name} ({token.symbol})</option>;
+        return (
+          <option value={uid} key={uid}>
+            {token.name} ({token.symbol})
+          </option>
+        );
       });
-    }
+    };
 
     const loadSummary = () => {
       return (
@@ -106,13 +127,9 @@ class AddressSummary extends React.Component {
           {loadBalanceInfo()}
         </div>
       );
-    }
+    };
 
-    return (
-      <div className="w-100">
-        {loadSummary()}
-      </div>
-    );
+    return <div className="w-100">{loadSummary()}</div>;
   }
 }
 

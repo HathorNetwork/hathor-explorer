@@ -10,8 +10,7 @@ import React, { useEffect, useState } from 'react';
 import ReactLoading from 'react-loading';
 import colors from '../index.scss';
 
-const Loading = (props) => {
-
+const Loading = props => {
   const slowDelay = props.slowDelay || 3000;
 
   const [slowLoad, setSlowLoad] = useState(false);
@@ -19,24 +18,26 @@ const Loading = (props) => {
   useEffect(() => {
     const updateSlowLoad = setTimeout(() => setSlowLoad(true), slowDelay);
 
-    return () => { clearTimeout(updateSlowLoad) }
-  })
+    return () => {
+      clearTimeout(updateSlowLoad);
+    };
+  });
 
   const { showSlowLoadMessage, useLoadingWrapper, ...reactLoadProps } = props;
   return (
-    <div className={useLoadingWrapper ? "loading-wrapper" : ""}>
+    <div className={useLoadingWrapper ? 'loading-wrapper' : ''}>
       <ReactLoading {...reactLoadProps} />
       {slowLoad && showSlowLoadMessage ? <span>Still loading... Please, be patient.</span> : null}
     </div>
-  )
-}
+  );
+};
 
 Loading.defaultProps = {
   type: 'spin',
   color: colors.purpleHathor,
   delay: 500,
   showSlowLoadMessage: true,
-  useLoadingWrapper: true
-}
+  useLoadingWrapper: true,
+};
 
 export default Loading;

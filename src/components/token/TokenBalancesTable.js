@@ -7,16 +7,23 @@ class TokenBalancesTable extends SortableTable {
   renderTableHead() {
     return (
       <tr>
-        <th className="d-lg-table-cell">
-          Address 
-        </th>
-        <th className="d-lg-table-cell sortable" onClick={(e) => this.props.tableHeaderClicked(e, 'total')}>
+        <th className="d-lg-table-cell">Address</th>
+        <th
+          className="d-lg-table-cell sortable"
+          onClick={e => this.props.tableHeaderClicked(e, 'total')}
+        >
           Total {this.getArrow('total')}
         </th>
-        <th className="d-lg-table-cell sortable" onClick={(e) => this.props.tableHeaderClicked(e, 'unlocked_balance')}>
+        <th
+          className="d-lg-table-cell sortable"
+          onClick={e => this.props.tableHeaderClicked(e, 'unlocked_balance')}
+        >
           Unlocked {this.getArrow('unlocked_balance')}
         </th>
-        <th className="d-lg-table-cell sortable" onClick={(e) => this.props.tableHeaderClicked(e, 'locked_balance')}>
+        <th
+          className="d-lg-table-cell sortable"
+          onClick={e => this.props.tableHeaderClicked(e, 'locked_balance')}
+        >
           Locked {this.getArrow('locked_balance')}
         </th>
       </tr>
@@ -24,7 +31,7 @@ class TokenBalancesTable extends SortableTable {
   }
 
   renderTableBody() {
-    return this.props.data.map((tokenBalance) => {
+    return this.props.data.map(tokenBalance => {
       return (
         <TokenBalanceRow
           key={`${tokenBalance.address}_${this.props.token_id}`}
@@ -32,7 +39,8 @@ class TokenBalancesTable extends SortableTable {
           unlocked={tokenBalance.unlocked_balance}
           locked={tokenBalance.locked_balance}
           total={tokenBalance.total}
-          tokenId={this.props.tokenId} />
+          tokenId={this.props.tokenId}
+        />
       );
     });
   }
@@ -41,6 +49,6 @@ class TokenBalancesTable extends SortableTable {
 TokenBalancesTable.propTypes = {
   ...SortableTable.propTypes,
   tokenId: PropTypes.string.isRequired,
-}
+};
 
 export default TokenBalancesTable;

@@ -8,12 +8,11 @@
 import React from 'react';
 import featureActivation from '../../utils/featureActivation';
 
-
 class FeatureDataRow extends React.Component {
   render() {
-    const { bit, signal, feature, feature_state } = this.props.featureData
-    const prettyState = featureActivation.getPrettyState(feature_state)
-    const prettySignal = signal === 1 ? '✓' : ''
+    const { bit, signal, feature, feature_state } = this.props.featureData;
+    const prettyState = featureActivation.getPrettyState(feature_state);
+    const prettySignal = signal === 1 ? '✓' : '';
 
     return (
       <tr>

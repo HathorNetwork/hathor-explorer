@@ -23,6 +23,6 @@ const createRequestInstance = (resolve, timeout) => {
   // Will override lib axios instance increasing the default request timeout
   const instance = hathorLib.axios.defaultCreateRequestInstance(resolve, 30000);
   return instance;
-}
+};
 
 export default createRequestInstance;

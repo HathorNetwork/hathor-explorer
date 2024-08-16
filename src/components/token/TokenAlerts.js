@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { tokenBannedMessage } from '../../messages';
 
-
-const TokenAlerts = (props) => {
+const TokenAlerts = props => {
   const [token, setToken] = useState(props.token);
 
   useEffect(() => {
@@ -17,10 +16,10 @@ const TokenAlerts = (props) => {
     return (
       <div className="alert alert-danger backup-alert" role="alert">
         <i className="fa fa-exclamation-triangle mr-2" title="Banned Token"></i>
-          {tokenBannedMessage}
+        {tokenBannedMessage}
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <>
@@ -30,6 +29,6 @@ const TokenAlerts = (props) => {
       {bannedAlert()}
     </>
   );
-}
+};
 
 export default TokenAlerts;

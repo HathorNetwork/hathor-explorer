@@ -14,7 +14,6 @@ import txApi from '../../api/txApi';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-
 /**
  * Details of a Nano Contract
  *
@@ -38,9 +37,8 @@ function NanoContractDetail(props) {
   // errorMessage {string | null} Error message in case a request to get nano contract data fails
   const [errorMessage, setErrorMessage] = useState(null);
 
-
-  const { decimalPlaces } = useSelector((state) => {
-    return { decimalPlaces: state.serverInfo.decimal_places }
+  const { decimalPlaces } = useSelector(state => {
+    return { decimalPlaces: state.serverInfo.decimal_places };
   });
 
   useEffect(() => {
@@ -61,8 +59,15 @@ function NanoContractDetail(props) {
           return;
         }
 
-        const blueprintInformation = await nanoApi.getBlueprintInformation(transactionData.tx.nc_blueprint_id);
-        const dataState = await nanoApi.getState(ncId, Object.keys(blueprintInformation.attributes), ['__all__'], []);
+        const blueprintInformation = await nanoApi.getBlueprintInformation(
+          transactionData.tx.nc_blueprint_id
+        );
+        const dataState = await nanoApi.getState(
+          ncId,
+          Object.keys(blueprintInformation.attributes),
+          ['__all__'],
+          []
+        );
         if (ignore) {
           // This is to prevent setting a state after the componenet has been already cleaned
           return;
@@ -108,12 +113,11 @@ function NanoContractDetail(props) {
 
     return () => {
       ignore = true;
-    }
+    };
   }, [ncId]);
 
-
   if (errorMessage) {
-    return <p className='text-danger mb-4'>{errorMessage}</p>;
+    return <p className="text-danger mb-4">{errorMessage}</p>;
   }
 
   if (loadingHistory || loadingDetail) {
@@ -128,35 +132,41 @@ function NanoContractDetail(props) {
             <tr>
               <th className="d-none d-lg-table-cell">Hash</th>
               <th className="d-none d-lg-table-cell">Timestamp</th>
-              <th className="d-table-cell d-lg-none" colSpan="2">Hash<br/>Timestamp</th>
+              <th className="d-table-cell d-lg-none" colSpan="2">
+                Hash
+                <br />
+                Timestamp
+              </th>
             </tr>
           </thead>
-          <tbody>
-            {loadTableBody()}
-          </tbody>
+          <tbody>{loadTableBody()}</tbody>
         </table>
       </div>
     );
-  }
+  };
 
   const loadTableBody = () => {
     return history.map((tx, idx) => {
       // For some reason this API returns tx.hash instead of tx.tx_id like the others
       tx.tx_id = tx.hash;
-      return (
-        <TxRow key={tx.tx_id} tx={tx} />
-      );
+      return <TxRow key={tx.tx_id} tx={tx} />;
     });
-  }
+  };
 
   const renderBalances = () => {
     return Object.entries(ncState.balances).map(([tokenUid, data]) => (
       <tr key={tokenUid}>
-        <td>{tokenUid === hathorLib.constants.NATIVE_TOKEN_UID ? tokenUid : <Link to={`/token_detail/${tokenUid}`}>{tokenUid}</Link>}</td>
+        <td>
+          {tokenUid === hathorLib.constants.NATIVE_TOKEN_UID ? (
+            tokenUid
+          ) : (
+            <Link to={`/token_detail/${tokenUid}`}>{tokenUid}</Link>
+          )}
+        </td>
         <td>{hathorLib.numberUtils.prettyValue(data.value, decimalPlaces)}</td>
       </tr>
     ));
-  }
+  };
 
   const renderNCBalances = () => {
     return (
@@ -168,13 +178,11 @@ function NanoContractDetail(props) {
               <th className="d-lg-table-cell">Amount</th>
             </tr>
           </thead>
-          <tbody>
-            {renderBalances()}
-          </tbody>
+          <tbody>{renderBalances()}</tbody>
         </table>
       </div>
     );
-  }
+  };
 
   const renderNCAttributes = () => {
     return (
@@ -186,13 +194,11 @@ function NanoContractDetail(props) {
               <th className="d-lg-table-cell">Value (or Type)</th>
             </tr>
           </thead>
-          <tbody>
-            {renderAttributes()}
-          </tbody>
+          <tbody>{renderAttributes()}</tbody>
         </table>
       </div>
     );
-  }
+  };
 
   const renderAttributeValue = (name, data) => {
     // If the attribute is a dict, it won't return the value of it
@@ -201,7 +207,7 @@ function NanoContractDetail(props) {
     // In the future, we plan to have a query feature, so the user can
     // query these attributes until they get the value they need
     return 'value' in data ? data.value : blueprintInformation.attributes[name];
-  }
+  };
 
   const renderAttributes = () => {
     return Object.entries(ncState.fields).map(([name, data]) => {
@@ -212,17 +218,24 @@ function NanoContractDetail(props) {
         </tr>
       );
     });
-  }
+  };
   return (
     <div className="content-wrapper">
       <h3 className="mt-4">Nano Contract Detail</h3>
       <div className="mt-5">
-        <p><strong>Nano Contract ID: </strong>{ncId}</p>
-        <p><strong>Blueprint: </strong>{ncState.blueprint_name} (<Link to={`/blueprint/detail/${txData.nc_blueprint_id}`}>{txData.nc_blueprint_id}</Link>)</p>
+        <p>
+          <strong>Nano Contract ID: </strong>
+          {ncId}
+        </p>
+        <p>
+          <strong>Blueprint: </strong>
+          {ncState.blueprint_name} (
+          <Link to={`/blueprint/detail/${txData.nc_blueprint_id}`}>{txData.nc_blueprint_id}</Link>)
+        </p>
         <h4 className="mt-5 mb-4">Attributes</h4>
-        { renderNCAttributes() }
+        {renderNCAttributes()}
         <h4 className="mt-3 mb-4">Balances</h4>
-        { renderNCBalances() }
+        {renderNCBalances()}
         <hr />
         <h3 className="mt-4">History</h3>
         {history && loadTable()}

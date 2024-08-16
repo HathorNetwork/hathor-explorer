@@ -11,12 +11,11 @@ import TokenBalancesTable from './TokenBalancesTable';
 import tokensApi from '../../api/tokensApi';
 import { get, last, find, isEmpty } from 'lodash';
 import PaginationURL from '../../utils/pagination';
-import { withRouter } from "react-router-dom";
-import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon'
+import { withRouter } from 'react-router-dom';
+import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon';
 import TokenAutoCompleteField from './TokenAutoCompleteField';
 import helpers from '../../utils/helpers';
 import { numberUtils, constants as hathorLibConstants } from '@hathor/wallet-lib';
-
 
 /**
  * Displays custom tokens in a table with pagination buttons and a search bar.
@@ -26,9 +25,9 @@ class TokenBalances extends React.Component {
    * Structure that contains the attributes that will be part of the page URL
    */
   pagination = new PaginationURL({
-    'sortBy': { required: false },
-    'order': { required: false },
-    'token': { required: false },
+    sortBy: { required: false },
+    order: { required: false },
+    token: { required: false },
   });
 
   constructor(props) {
@@ -106,7 +105,7 @@ class TokenBalances extends React.Component {
         loading: false,
       });
     }
-  }
+  };
 
   /**
    * Call explorer-service to get list of token balances for a given tokenId
@@ -114,16 +113,23 @@ class TokenBalances extends React.Component {
    * @param {*} searchAfter Parameter needed by ElasticSearch for pagination purposes
    * @returns tokens
    */
-  getTokenBalances = async (searchAfter) => {
-    const tokenBalancesRequest = await tokensApi.getBalances(this.state.tokenId, this.state.sortBy, this.state.order, searchAfter);
+  getTokenBalances = async searchAfter => {
+    const tokenBalancesRequest = await tokensApi.getBalances(
+      this.state.tokenId,
+      this.state.sortBy,
+      this.state.order,
+      searchAfter
+    );
     this.setState({
       error: get(tokenBalancesRequest, 'error', false),
     });
-    return get(tokenBalancesRequest, 'data', { hits: [], 'has_next': false });
-  }
+    return get(tokenBalancesRequest, 'data', { hits: [], has_next: false });
+  };
 
   loadTokenBalanceInformation = async () => {
-    const tokenBalanceInformationRequest = await tokensApi.getBalanceInformation(this.state.tokenId);
+    const tokenBalanceInformationRequest = await tokensApi.getBalanceInformation(
+      this.state.tokenId
+    );
     this.setState({
       tokenBalanceInformationError: get(tokenBalanceInformationRequest, 'error', false),
     });
@@ -132,7 +138,7 @@ class TokenBalances extends React.Component {
       transactions: 0,
       addresses: 0,
     });
-  }
+  };
 
   /**
    * Calls ElasticSearch (through the Explorer Service) with state data, sets loading and URL information
@@ -150,15 +156,17 @@ class TokenBalances extends React.Component {
       addressesCount: tokenBalanceInformation.addresses,
       hasAfter: tokenBalances.has_next,
       hasBefore: false,
-      pageSearchAfter: [{
-        page: 1,
-        searchAfter: []
-      }],
+      pageSearchAfter: [
+        {
+          page: 1,
+          searchAfter: [],
+        },
+      ],
     });
 
     // This is ultimately called when search text, sort, or sort order changes
     this.updateURL();
-  }
+  };
 
   /**
    * Update the URL, so user can share the results of a search
@@ -171,11 +179,11 @@ class TokenBalances extends React.Component {
     });
 
     this.props.history.push(newURL);
-  }
+  };
 
   /**
-    * Process events when next page is requested by user
-    */
+   * Process events when next page is requested by user
+   */
   nextPageClicked = async () => {
     this.setState({ calculatingPage: true });
 
@@ -189,13 +197,10 @@ class TokenBalances extends React.Component {
       const newEntry = {
         page: nextPage,
         searchAfter: lastCurrentTokenSort,
-      }
+      };
 
       this.setState({
-        pageSearchAfter: [
-          ...this.state.pageSearchAfter,
-          newEntry,
-        ],
+        pageSearchAfter: [...this.state.pageSearchAfter, newEntry],
       });
 
       searchAfter = lastCurrentTokenSort;
@@ -210,7 +215,7 @@ class TokenBalances extends React.Component {
       page: nextPage,
       calculatingPage: false,
     });
-  }
+  };
 
   /**
    * Process events when previous page is requested by user
@@ -219,7 +224,11 @@ class TokenBalances extends React.Component {
     this.setState({ calculatingPage: true });
 
     const previousPage = this.state.page - 1;
-    const searchAfter = get(find(this.state.pageSearchAfter, { page: previousPage }), 'searchAfter', []);
+    const searchAfter = get(
+      find(this.state.pageSearchAfter, { page: previousPage }),
+      'searchAfter',
+      []
+    );
     const tokenBalances = await this.getTokenBalances(searchAfter);
 
     this.setState({
@@ -229,7 +238,7 @@ class TokenBalances extends React.Component {
       page: previousPage,
       calculatingPage: false,
     });
-  }
+  };
 
   fetchHTRTransactionCount = async () => {
     const tokenApiRequest = await tokensApi.getToken(hathorLibConstants.NATIVE_TOKEN_UID);
@@ -238,12 +247,12 @@ class TokenBalances extends React.Component {
       tokensApiError: get(tokenApiRequest, 'error', false),
       transactionsCount: get(tokenApiRequest, 'data.hits[0].transactions_count', 0),
     });
-  }
+  };
 
-  onTokenSelected = async (token) => {
+  onTokenSelected = async token => {
     if (!token) {
       await helpers.setStateAsync(this, {
-        tokenId: hathorLibConstants.NATIVE_TOKEN_UID
+        tokenId: hathorLibConstants.NATIVE_TOKEN_UID,
       });
 
       // HTR token is the default, so the search API is not called, we must forcefully call it
@@ -261,7 +270,7 @@ class TokenBalances extends React.Component {
     });
 
     this.performSearch();
-  }
+  };
 
   /**
    * Process table header click. This indicates that user wants data to be sorted by a determined field
@@ -277,28 +286,36 @@ class TokenBalances extends React.Component {
     }
 
     this.performSearch();
-  }
+  };
 
   /**
    * Turn loading false.
-  * Useful to be used by autocomplete component when the first search doesn't find any token
+   * Useful to be used by autocomplete component when the first search doesn't find any token
    */
   loadingFinished = () => {
     this.setState({ loading: false });
-  }
+  };
 
   render() {
     if (this.state.maintenanceMode) {
-      return <ErrorMessageWithIcon message='This feature is under maintenance. Please try again after some time' />;
+      return (
+        <ErrorMessageWithIcon message="This feature is under maintenance. Please try again after some time" />
+      );
     }
 
     const renderSearchField = () => {
-      return <TokenAutoCompleteField onTokenSelected={this.onTokenSelected.bind(this)} tokenId={this.state.tokenId} loadingFinished={this.loadingFinished} />;
+      return (
+        <TokenAutoCompleteField
+          onTokenSelected={this.onTokenSelected.bind(this)}
+          tokenId={this.state.tokenId}
+          loadingFinished={this.loadingFinished}
+        />
+      );
     };
 
     const renderTokensTable = () => {
       if (this.state.error) {
-        return <ErrorMessageWithIcon message='Error loading token balances. Please try again.' />;
+        return <ErrorMessageWithIcon message="Error loading token balances. Please try again." />;
       }
 
       return (
@@ -313,7 +330,8 @@ class TokenBalances extends React.Component {
           sortBy={this.state.sortBy}
           order={this.state.order}
           tableHeaderClicked={this.tableHeaderClicked}
-          calculatingPage={this.state.calculatingPage} />
+          calculatingPage={this.state.calculatingPage}
+        />
       );
     };
 
@@ -322,26 +340,30 @@ class TokenBalances extends React.Component {
         {renderSearchField()}
 
         <div className="token-balances-information-wrapper">
-          {
-            this.state.tokenId !== hathorLibConstants.NATIVE_TOKEN_UID && (
-              <p>
-                <a href={`/token_detail/${this.state.tokenId}`}>
-                  Click here to see the token details
-                </a>
-              </p>
-            )
-          }
+          {this.state.tokenId !== hathorLibConstants.NATIVE_TOKEN_UID && (
+            <p>
+              <a href={`/token_detail/${this.state.tokenId}`}>
+                Click here to see the token details
+              </a>
+            </p>
+          )}
 
           {!this.state.tokenBalanceInformationError && (
-            <p><b>Total number of addresses:</b> { numberUtils.prettyValue(this.state.addressesCount, 0) }</p>
+            <p>
+              <b>Total number of addresses:</b>{' '}
+              {numberUtils.prettyValue(this.state.addressesCount, 0)}
+            </p>
           )}
 
           {!this.state.tokensApiError && (
-            <p><b>Total number of transactions:</b> { numberUtils.prettyValue(this.state.transactionsCount, 0) }</p>
+            <p>
+              <b>Total number of transactions:</b>{' '}
+              {numberUtils.prettyValue(this.state.transactionsCount, 0)}
+            </p>
           )}
 
-          {(this.state.tokensApiError || this.state.tokenBalanceInformationError) &&(
-            <ErrorMessageWithIcon message='Error loading the complete token balance information. Please try again.' />
+          {(this.state.tokensApiError || this.state.tokenBalanceInformationError) && (
+            <ErrorMessageWithIcon message="Error loading the complete token balance information. Please try again." />
           )}
         </div>
 
@@ -355,7 +377,7 @@ class TokenBalances extends React.Component {
  * maintenanceMode: A "circuit breaker" to remove additional load when a problem is affecting explorer-service or its downstream services
  */
 TokenBalances.propTypes = {
-  maintenanceMode: PropTypes.bool.isRequired
+  maintenanceMode: PropTypes.bool.isRequired,
 };
 
-export default withRouter(TokenBalances)
+export default withRouter(TokenBalances);

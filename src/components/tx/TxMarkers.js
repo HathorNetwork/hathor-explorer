@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-
-const TxMarkers = (props) => {
+const TxMarkers = props => {
   const [tx, setTx] = useState(props.tx);
 
   useEffect(() => {
@@ -13,10 +12,8 @@ const TxMarkers = (props) => {
       return null;
     }
 
-    return (
-      <span className="text-info">[GENESIS]</span>
-    )
-  }
+    return <span className="text-info">[GENESIS]</span>;
+  };
 
   const infoMarker = () => {
     if (!tx.meta || !tx.meta.context) {
@@ -25,13 +22,11 @@ const TxMarkers = (props) => {
 
     return (
       <button className="info-hover-wrapper btn btn-link pl-1">
-        <i className="fa fa-certificate text-info" title={tx.meta.context} ></i>
-        <span className="subtitle info-hover-popover">
-          {tx.meta.context}
-        </span>
+        <i className="fa fa-certificate text-info" title={tx.meta.context}></i>
+        <span className="subtitle info-hover-popover">{tx.meta.context}</span>
       </button>
-    )
-  }
+    );
+  };
 
   return (
     <>
@@ -39,6 +34,6 @@ const TxMarkers = (props) => {
       {infoMarker()}
     </>
   );
-}
+};
 
 export default TxMarkers;
