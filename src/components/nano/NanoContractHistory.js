@@ -55,9 +55,13 @@ function NanoContractHistory({ ncId }) {
   // hasAfter {boolean} If 'Next' button should be enabled 
   const [hasAfter, setHasAfter] = useState(false);
 
-  // useCallback is important here to update this method with new history state
-  // otherwise it would be fixed the moment the event listener is started in the useEffect
-  // with the history as an empty array
+  /**
+   * useCallback is important here to update this method with new history state
+   * otherwise it would be fixed the moment the event listener is started in the useEffect
+   * with the history as an empty array
+   *
+   * tx {Transaction} Transaction object that arrived from the websocket
+   */
   const updateListWs = useCallback((tx) => {
     // We only add to the list if it's the first page and it's a new tx from this nano
     if (!hasBefore) {
@@ -83,23 +87,6 @@ function NanoContractHistory({ ncId }) {
   const loadData = useCallback(async (after, before) => {
     try {
       const data = await nanoApi.getHistory(ncId, NANO_CONTRACT_TX_HISTORY_COUNT, after, before);
-      if (data.history.length === 0) {
-        // XXX
-        // The hathor-core API does not return if it has more or not, so if the last page
-        // has exactly the number of elements of the list, we need to fetch another page
-        // to understand that the previous was the final one. In that case, we just
-        // return without updating the state
-        if (before) {
-          // It means we reached the first page going back, then we clear the query params
-          pagination.clearOptionalQueryParams();
-          setHasBefore(false);
-        }
-        if (after) {
-          // It means we reached the last page going forward
-          setHasAfter(false);
-        }
-        return;
-      }
       if (before) {
         // When we are querying the previous set of transactions
         // the API return the oldest first, so we need to revert the history
@@ -107,39 +94,33 @@ function NanoContractHistory({ ncId }) {
       }
       setHistory(data.history);
 
-      if (data.history.length < NANO_CONTRACT_TX_HISTORY_COUNT) {
-        // This was the last page
-        if (!after && !before) {
-          // This is the first load without query params, so we do nothing because
-          // previous and next are already disabled
-          return;
-        }
+      if (!after && !before) {
+        // This is the first load without query params, so if has_more === true
+        // we must enable next button
+        setHasAfter(data.has_more);
+        setHasBefore(false);
+        return;
+      }
 
-        if (after) {
-          setHasAfter(false);
-          setHasBefore(true);
-          return;
-        }
-
-        if (before) {
-          setHasAfter(true);
-          setHasBefore(false);
-          return;
-        }
-      } else {
-        // This is not the last page
-        if (!after && !before) {
-          // This is the first load without query params, so we need to
-          // enable only the next button
-          setHasAfter(true);
-          setHasBefore(false);
-          return;
-        }
-
-        // In all other cases, we must enable both buttons
-        // because this is not the last page
-        setHasAfter(true);
+      if (after) {
+        // We clicked the next button, so we have before page
+        // and we will have the next page if has_more === true
+        setHasAfter(data.has_more);
         setHasBefore(true);
+        return;
+      }
+
+      if (before) {
+        // We clicked the previous button, so we have next page
+        // and we will have the previous page if has_more === true
+        setHasAfter(true);
+        setHasBefore(data.has_more);
+        if (!data.has_more) {
+          // We are in the first page and clicked the Previous button
+          // so we must clear the query params
+          pagination.clearOptionalQueryParams();
+        }
+        return;
       }
     } catch (e) {
       // Error in request
@@ -178,6 +159,12 @@ function NanoContractHistory({ ncId }) {
     };
   });
 
+  /**
+   * Method to handle websocket messages that arrive in the network scope
+   * This method will discard any messages that are not new transactions
+   *
+   * wsData {Object} Data send in the websocket message
+   */
   const handleWebsocket = (wsData) => {
     if (wsData.type === 'network:new_tx_accepted') {
       updateListWs(wsData);
