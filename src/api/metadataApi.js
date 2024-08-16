@@ -15,8 +15,9 @@ const metadataApi = {
         if (res && id in res.data) {
           return res.data[id];
         }
+        return undefined;
       })
-      .catch(error => {
+      .catch(_error => {
         // something wrong with request
       });
   },

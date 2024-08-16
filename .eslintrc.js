@@ -15,7 +15,7 @@ module.exports = {
   plugins: ['react', 'prettier'],
   rules: {
     'react/prop-types': 'off', // Disable prop-types rule as this is used selectively in this repo
-    'no-console': 'warn', // Warn on console statements
+    'no-console': 'off', // Do not warn on console statements: they are expected on this application
     'react/react-in-jsx-scope': 'off', // React 17 specific jsx-runtime enabled, so React import is not required
     'prettier/prettier': 'error', // Add Prettier errors as ESLint errors
     'arrow-parens': ['error', 'as-needed'],
@@ -50,6 +50,7 @@ module.exports = {
         vars: 'all',
         args: 'after-used',
         varsIgnorePattern: '^_', // Allow variables starting with _ to be unused
+        argsIgnorePattern: '^_', // Allow parameters starting with _ to be unused
       },
     ],
     'no-underscore-dangle': 0,
@@ -68,6 +69,9 @@ module.exports = {
     'jest/no-disabled-tests': 'off', // It's useful to have skipped tests on our suites
 
     camelcase: 'off', // Conflicts with variables obtained directly from the fullnode endpoints
+    'import/no-named-as-default-member': 'off', // This will require a more complex refactor to fix
+    'react/no-string-refs': 'off', // This rule will be enforced only when the screens are refactored as functional components
+    'class-methods-use-this': 'off', // This rule will be enforced only when the screens are refactored as functional components
   },
   settings: {
     react: {

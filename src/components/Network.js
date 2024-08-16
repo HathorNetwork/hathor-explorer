@@ -65,7 +65,7 @@ class Network extends React.Component {
         this.setState({ peers }, () => {
           let peerId = peers.find(target => target === params.peerId);
           if (!peerId) {
-            peerId = peers[0];
+            [peerId] = peers;
           }
           this.onPeerChange(peerId);
         });
@@ -289,7 +289,7 @@ class Network extends React.Component {
     };
 
     const loadTableBody = () => {
-      return this.state.known_peers.map((peer, idx) => {
+      return this.state.known_peers.map((peer, _idx) => {
         const conn = this.getConnection(peer);
         const isConnected = !!conn;
         if (isConnected) {

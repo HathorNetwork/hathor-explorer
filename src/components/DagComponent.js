@@ -463,9 +463,11 @@ class DagComponent extends React.Component {
     // TODO
     // I am blocking zoom in right now because I was having a bug to auto translate when zoomed in
     if (event.transform.k > 1) {
+      /* eslint-disable no-param-reassign */
       event.transform.x = this.lastZoomX;
       event.transform.y = this.lastZoomY;
       event.transform.k = this.lastZoomScale;
+      /* eslint-enable no-param-reassign */
       return;
     }
     this.gDraw.attr('transform', event.transform);

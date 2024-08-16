@@ -27,6 +27,7 @@ const addressApi = {
       if (res && res.data) {
         return res.data;
       }
+      return undefined;
     });
   },
 
@@ -37,6 +38,7 @@ const addressApi = {
         if (res && res.data) {
           return res.data;
         }
+        return undefined;
       });
   },
 
@@ -66,6 +68,7 @@ const addressApi = {
       if (res && res.data) {
         return res.data;
       }
+      return undefined;
     });
   },
 };
