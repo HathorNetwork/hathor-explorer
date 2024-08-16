@@ -15,27 +15,29 @@ const addressApi = {
      offset (optional): int -> offset this many transactions before fetching
     */
 
-    const data = {address};
+    const data = { address };
     if (limit) {
-        data['limit'] = limit;
+      data.limit = limit;
     }
     if (offset) {
-        data['offset'] = offset;
+      data.offset = offset;
     }
 
-    return requestExplorerServiceV1.get(`address/tokens`, {params: data}).then((res) => {
+    return requestExplorerServiceV1.get(`address/tokens`, { params: data }).then(res => {
       if (res && res.data) {
-        return res.data
+        return res.data;
       }
     });
   },
 
   getBalance(address, token) {
-    return requestExplorerServiceV1.get(`address/balance`, {params: {address, token}}).then((res) => {
-      if (res && res.data) {
-        return res.data
-      }
-    });
+    return requestExplorerServiceV1
+      .get(`address/balance`, { params: { address, token } })
+      .then(res => {
+        if (res && res.data) {
+          return res.data;
+        }
+      });
   },
 
   getHistory(address, token, limit, lastTx, lastTs) {
@@ -47,22 +49,22 @@ const addressApi = {
      lastTs (optional): int -> last timestamp of the page, so we can retrieve the next page
     */
 
-    const data = {address, token};
+    const data = { address, token };
     if (limit) {
-        data['limit'] = limit;
+      data.limit = limit;
     }
 
     if (lastTx) {
-      data['last_tx'] = lastTx;
+      data.last_tx = lastTx;
     }
 
     if (lastTs) {
-      data['last_ts'] = lastTs;
+      data.last_ts = lastTs;
     }
 
-    return requestExplorerServiceV1.get(`address/history`, {params: data}).then((res) => {
+    return requestExplorerServiceV1.get(`address/history`, { params: data }).then(res => {
       if (res && res.data) {
-        return res.data
+        return res.data;
       }
     });
   },

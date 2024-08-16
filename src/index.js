@@ -7,16 +7,16 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App';
 import FlagProvider from '@unleash/proxy-client-react';
+import App from './App';
 
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'font-awesome/css/font-awesome.min.css';
 import './index.css';
 
-import store from "./store/index";
-import { Provider } from "react-redux";
+import store from './store/index';
+import { Provider } from 'react-redux';
 import { UNLEASH_CONFIG } from './constants';
 
 const container = document.getElementById('root');

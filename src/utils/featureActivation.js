@@ -10,7 +10,7 @@ const featureActivation = {
     };
 
     return prettyStates[state] || state;
-  }
-}
+  },
+};
 
-export default featureActivation
+export default featureActivation;

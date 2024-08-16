@@ -9,12 +9,15 @@ import requestExplorerServiceV1 from './axiosInstance';
 
 const versionApi = {
   getVersion() {
-    return requestExplorerServiceV1.get(`node_api/version`).then((res) => {
-      return res.data
-    }, (res) => {
-      throw new Error(res.data.message);
-    });
-  }
+    return requestExplorerServiceV1.get(`node_api/version`).then(
+      res => {
+        return res.data;
+      },
+      res => {
+        throw new Error(res.data.message);
+      }
+    );
+  },
 };
 
 export default versionApi;

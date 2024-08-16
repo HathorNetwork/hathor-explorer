@@ -8,7 +8,6 @@
 import React from 'react';
 import Features from '../components/feature_activation/Features';
 
-
 class FeatureList extends React.Component {
   render() {
     return (

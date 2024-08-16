@@ -9,13 +9,16 @@ import requestExplorerServiceV1 from './axiosInstance';
 
 const addressApi = {
   getBalance(address) {
-    return requestExplorerServiceV1.get(`node_api/address_balance`, {params: {address}}).then((res) => {
-      if (res && res.data) {
-        return res.data
-      }
-    }).catch((error) => {
-      // something wrong with request
-    });
+    return requestExplorerServiceV1
+      .get(`node_api/address_balance`, { params: { address } })
+      .then(res => {
+        if (res && res.data) {
+          return res.data;
+        }
+      })
+      .catch(error => {
+        // something wrong with request
+      });
   },
 
   search(address, count, hash, page, token) {
@@ -27,23 +30,26 @@ const addressApi = {
                                    if 'next', we get the objects after the hash reference
      token (optional): str -> only fetch txs related to this token uid
     */
-    
-    const data = {address, count};
+
+    const data = { address, count };
     if (hash) {
-        data['hash'] = hash;
-        data['page'] = page;
+      data.hash = hash;
+      data.page = page;
     }
     if (token) {
-        data['token'] = token;
+      data.token = token;
     }
 
-    return requestExplorerServiceV1.get(`node_api/address_search`, {params: data}).then((res) => {
-      if (res && res.data) {
-        return res.data
-      }
-    }).catch((error) => {
-      // something wrong with request
-    });
+    return requestExplorerServiceV1
+      .get(`node_api/address_search`, { params: data })
+      .then(res => {
+        if (res && res.data) {
+          return res.data;
+        }
+      })
+      .catch(error => {
+        // something wrong with request
+      });
   },
 };
 

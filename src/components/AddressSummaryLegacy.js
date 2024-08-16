@@ -10,8 +10,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { numberUtils } from '@hathor/wallet-lib';
 
-
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
 });
 
@@ -21,9 +20,9 @@ class AddressSummary extends React.Component {
    *
    * @param {Object} e Event emitted when select is changed
    */
-  selectChanged = (e) => {
+  selectChanged = e => {
     this.props.tokenSelectChanged(e.target.value);
-  }
+  };
 
   render() {
     if (Object.keys(this.props.balance).length === 0) {
@@ -34,12 +33,13 @@ class AddressSummary extends React.Component {
       return (
         <div className="card text-white bg-dark mb-3">
           <div className="card-body">
-            Address: {this.props.address}<br />
+            Address: {this.props.address}
+            <br />
             Number of tokens: {Object.keys(this.props.balance).length}
           </div>
         </div>
       );
-    }
+    };
 
     // We show 'Loading' until all metadatas are loaded
     // to prevent switching from decimal to integer if one of the tokens is an NFT
@@ -53,36 +53,46 @@ class AddressSummary extends React.Component {
       } else {
         return 'Custom token';
       }
-    }
+    };
 
-    const renderValue = (value) => {
+    const renderValue = value => {
       if (!this.props.metadataLoaded) {
         return 'Loading...';
       }
 
       return numberUtils.prettyValue(value, this.props.isNFT ? 0 : this.props.decimalPlaces);
-    }
+    };
 
     const loadBalanceInfo = () => {
       const balance = this.props.balance[this.props.selectedToken];
       return (
         <div className="card bg-light mb-3">
           <div className="card-body">
-            Token: {renderTokenData()}<br />
-            Type: {renderType()}<br />
-            Number of transactions: {this.props.numberOfTransactions}<br />
-            Total received: {renderValue(balance.received)}<br />
-            Total spent: {renderValue(balance.spent)}<br />
-            <strong>Final balance: </strong>{renderValue(balance.received - balance.spent)}
+            Token: {renderTokenData()}
+            <br />
+            Type: {renderType()}
+            <br />
+            Number of transactions: {this.props.numberOfTransactions}
+            <br />
+            Total received: {renderValue(balance.received)}
+            <br />
+            Total spent: {renderValue(balance.spent)}
+            <br />
+            <strong>Final balance: </strong>
+            {renderValue(balance.received - balance.spent)}
           </div>
         </div>
       );
-    }
+    };
 
     const renderTokenData = () => {
       if (Object.keys(this.props.balance).length === 1) {
         const balance = this.props.balance[this.props.selectedToken];
-        return <span>{balance.name} ({balance.symbol})</span>
+        return (
+          <span>
+            {balance.name} ({balance.symbol})
+          </span>
+        );
       } else {
         return (
           <select value={this.props.selectedToken} onChange={this.selectChanged}>
@@ -90,14 +100,18 @@ class AddressSummary extends React.Component {
           </select>
         );
       }
-    }
+    };
 
     const renderTokenOptions = () => {
-      return Object.keys(this.props.balance).map((uid) => {
+      return Object.keys(this.props.balance).map(uid => {
         const tokenData = this.props.balance[uid];
-        return <option value={uid} key={uid}>{tokenData.name} ({tokenData.symbol})</option>;
+        return (
+          <option value={uid} key={uid}>
+            {tokenData.name} ({tokenData.symbol})
+          </option>
+        );
       });
-    }
+    };
 
     const loadSummary = () => {
       return (
@@ -106,13 +120,9 @@ class AddressSummary extends React.Component {
           {loadBalanceInfo()}
         </div>
       );
-    }
+    };
 
-    return (
-      <div className="w-100">
-        {loadSummary()}
-      </div>
-    );
+    return <div className="w-100">{loadSummary()}</div>;
   }
 }
 

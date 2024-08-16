@@ -6,8 +6,14 @@
  */
 
 import hathorLib from '@hathor/wallet-lib';
-import { MAINNET_GENESIS_BLOCK, TESTNET_GENESIS_BLOCK, MAINNET_GENESIS_TX, TESTNET_GENESIS_TX, MIN_API_VERSION } from '../constants';
 import { get } from 'lodash';
+import {
+  MAINNET_GENESIS_BLOCK,
+  TESTNET_GENESIS_BLOCK,
+  MAINNET_GENESIS_TX,
+  TESTNET_GENESIS_TX,
+  MIN_API_VERSION,
+} from '../constants';
 
 const helpers = {
   updateListWs(list, newEl, max) {
@@ -23,15 +29,14 @@ const helpers = {
   getTxType(tx) {
     if (this.isGenesisTx(tx.hash)) {
       return 'Tx';
-    } else if (this.isGenesisBlock(tx.hash)) {
-      return 'Block';
-    } else {
-      if (tx.inputs.length > 0) {
-        return 'Tx';
-      } else {
-        return 'Block';
-      }
     }
+    if (this.isGenesisBlock(tx.hash)) {
+      return 'Block';
+    }
+    if (tx.inputs.length > 0) {
+      return 'Tx';
+    }
+    return 'Block';
   },
 
   isBlock(tx) {
@@ -39,7 +44,7 @@ const helpers = {
   },
 
   roundFloat(n) {
-    return Math.round(n*100)/100
+    return Math.round(n * 100) / 100;
   },
 
   isVersionAllowed(version) {
@@ -52,12 +57,13 @@ const helpers = {
 
     // Clean the version string to have an array of integers
     // Check for each value if the version is allowed
-    let versionTestArr = this.getCleanVersionArray(version);
-    let minVersionArr = this.getCleanVersionArray(MIN_API_VERSION);
-    for (let i=0; i<minVersionArr.length; i++) {
+    const versionTestArr = this.getCleanVersionArray(version);
+    const minVersionArr = this.getCleanVersionArray(MIN_API_VERSION);
+    for (let i = 0; i < minVersionArr.length; i++) {
       if (minVersionArr[i] > versionTestArr[i]) {
         return false;
-      } else if (minVersionArr[i] < versionTestArr[i]) {
+      }
+      if (minVersionArr[i] < versionTestArr[i]) {
         return true;
       }
     }
@@ -84,9 +90,8 @@ const helpers = {
   plural(quantity, singular, plural) {
     if (quantity === 1) {
       return singular;
-    } else {
-      return plural;
     }
+    return plural;
   },
 
   /**
@@ -101,7 +106,7 @@ const helpers = {
    *
    */
   getShortHash(hash) {
-    return `${hash.substring(0,12)}...${hash.substring(52,64)}`;
+    return `${hash.substring(0, 12)}...${hash.substring(52, 64)}`;
   },
 
   /**
@@ -127,7 +132,7 @@ const helpers = {
       6: 'E',
       7: 'Z',
       8: 'Y',
-    }
+    };
     return unitMap[divisions];
   },
 
@@ -147,12 +152,12 @@ const helpers = {
    */
   divideValueIntoPrefix(value) {
     let divisions = 0;
-    while ((value / 1000) > 1) {
+    while (value / 1000 > 1) {
       value /= 1000;
       divisions += 1;
     }
 
-    return {value: value.toFixed(2), divisions};
+    return { value: value.toFixed(2), divisions };
   },
 
   /**
@@ -228,7 +233,7 @@ const helpers = {
    * @inner
    */
   async setStateAsync(instance, state) {
-    return new Promise((resolve) => instance.setState(state, resolve));
+    return new Promise(resolve => instance.setState(state, resolve));
   },
 
   /**
@@ -243,7 +248,7 @@ const helpers = {
     // Currently 200 is always returned for success responses
     if (get(response, 'status', 500) > 299) {
       return {
-        'error': true,
+        error: true,
       };
     }
 
@@ -251,7 +256,7 @@ const helpers = {
       ...response,
       error: false,
     };
-  }
-}
+  },
+};
 
 export default helpers;

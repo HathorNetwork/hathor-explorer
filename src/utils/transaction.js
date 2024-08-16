@@ -23,8 +23,8 @@ const transaction = {
    * @inner
    */
   isAuthorityOutput(output) {
-    return (output.token_data & TOKEN_AUTHORITY_MASK) > 0
+    return (output.token_data & TOKEN_AUTHORITY_MASK) > 0;
   },
-}
+};
 
 export default transaction;

@@ -12,7 +12,6 @@ import tokenApi from '../api/tokenApi';
 import TokenDetailsTop from '../components/token/TokenDetailsTop';
 import TokenAlerts from '../components/token/TokenAlerts';
 
-
 /**
  * Screen to manage a token. See total amount, if can mint/melt and the history of transaction
  *
@@ -46,7 +45,9 @@ class TokenDetail extends React.Component {
   };
 
   componentDidMount() {
-    const { match: { params } } = this.props;
+    const {
+      match: { params },
+    } = this.props;
 
     this.setTokenId(params.tokenUID);
   }
@@ -59,10 +60,10 @@ class TokenDetail extends React.Component {
   /**
    * Upadte token info getting data from the full node (can mint, can melt, total supply)
    */
-  updateTokenInfo = (id) => {
+  updateTokenInfo = id => {
     tokenApi.get(id).then(response => {
       if (response.success) {
-        this.setState((oldState) => {
+        this.setState(oldState => {
           return {
             token: {
               ...oldState.token,
@@ -74,30 +75,30 @@ class TokenDetail extends React.Component {
               canMelt: response.melt.length > 0,
               transactionsCount: response.transactions_count,
             },
-          }
+          };
         });
       } else {
         this.setState({ errorMessage: response.message });
       }
     });
-  }
+  };
 
-  updateTokenMetadata = (id) => {
-    metadataApi.getDagMetadata(id).then((data) => {
+  updateTokenMetadata = id => {
+    metadataApi.getDagMetadata(id).then(data => {
       if (data) {
-        this.setState((oldState) => {
+        this.setState(oldState => {
           return {
             token: {
               ...oldState.token,
               uid: id,
-              meta: data
-            }
-          }
+              meta: data,
+            },
+          };
         });
       }
       this.setState({ metadataLoaded: true });
     });
-  }
+  };
 
   /**
    * Checks if the recently arrived transaction should trigger an update on the list
@@ -107,7 +108,7 @@ class TokenDetail extends React.Component {
    *
    * @return {boolean} True if should update the list, false otherwise
    */
-  shouldUpdateList = (tx) => {
+  shouldUpdateList = tx => {
     for (const input of tx.inputs) {
       if (input.token === this.state.token.uid) {
         return true;
@@ -121,7 +122,7 @@ class TokenDetail extends React.Component {
     }
 
     return false;
-  }
+  };
 
   /*
    * Method called when updating the list with new data
@@ -140,7 +141,7 @@ class TokenDetail extends React.Component {
       });
     });
     return promise;
-  }
+  };
 
   render() {
     if (this.state.errorMessage) {
@@ -148,7 +149,7 @@ class TokenDetail extends React.Component {
         <div className="content-wrapper flex align-items-start">
           <p className="text-danger">{this.state.errorMessage}</p>
         </div>
-      )
+      );
     }
 
     if (!this.state.token) return null;
@@ -157,11 +158,15 @@ class TokenDetail extends React.Component {
       <div className="content-wrapper flex align-items-center">
         <TokenAlerts token={this.state.token} />
         <TokenDetailsTop token={this.state.token} metadataLoaded={this.state.metadataLoaded} />
-        <div className='d-flex flex-column align-items-start justify-content-center mt-5'>
-          <Transactions title={<h2>Transaction History</h2>} shouldUpdateList={this.shouldUpdateList} updateData={this.updateListData} />
+        <div className="d-flex flex-column align-items-start justify-content-center mt-5">
+          <Transactions
+            title={<h2>Transaction History</h2>}
+            shouldUpdateList={this.shouldUpdateList}
+            updateData={this.updateListData}
+          />
         </div>
       </div>
-    )
+    );
   }
 }
 
