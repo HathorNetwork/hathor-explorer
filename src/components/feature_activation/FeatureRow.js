@@ -6,8 +6,8 @@
  */
 
 import React from 'react';
-import featureActivation from '../../utils/featureActivation';
 import { numberUtils } from '@hathor/wallet-lib';
+import featureActivation from '../../utils/featureActivation';
 
 class FeatureRow extends React.Component {
   render() {

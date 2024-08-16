@@ -26,7 +26,7 @@ const tokensApi = {
     const data = {
       search_text: searchText,
       sort_by: sortBy,
-      order: order,
+      order,
       search_after: searchAfter.join(','),
     };
 
@@ -68,7 +68,7 @@ const tokensApi = {
     const data = {
       token_id: tokenId,
       sort_by: sortBy,
-      order: order,
+      order,
       search_after: searchAfter.join(','),
     };
 

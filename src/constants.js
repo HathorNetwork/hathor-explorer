@@ -19,12 +19,9 @@ if (!(tmp_ws_url.startsWith('ws:') || tmp_ws_url.startsWith('wss:'))) {
       window.location.host +
       tmp_ws_url;
   } else {
-    tmp_ws_url =
-      (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
+    tmp_ws_url = `${(window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
       window.location.host +
-      window.location.pathname +
-      '/' +
-      tmp_ws_url;
+      window.location.pathname}/${tmp_ws_url}`;
   }
 }
 
@@ -107,6 +104,6 @@ export const UNLEASH_TOKENS_BASE_FEATURE_FLAG = `explorer-tokens-${REACT_APP_NET
 export const UNLEASH_TOKEN_BALANCES_FEATURE_FLAG = `explorer-address-list-${REACT_APP_NETWORK}`;
 export const UNLEASH_TIME_SERIES_FEATURE_FLAG = `explorer-timeseries-${REACT_APP_NETWORK}`;
 
-export const REACT_APP_TIMESERIES_DASHBOARD_ID = process.env.REACT_APP_TIMESERIES_DASHBOARD_ID;
+export const { REACT_APP_TIMESERIES_DASHBOARD_ID } = process.env;
 export const TIMESERIES_DASHBOARD_URL = `https://hathor-explorer-75a9f9.kb.eu-central-1.aws.cloud.es.io:9243/s/anonymous-user/app/dashboards?auth_provider_hint=anonymous1#/view/${REACT_APP_TIMESERIES_DASHBOARD_ID}?embed=true&_g=(filters%3A!()%2CrefreshInterval%3A(pause%3A!t%2Cvalue%3A0)%2Ctime%3A(from%3Anow-1w%2Cto%3Anow))&show-time-filter=true&hide-filter-bar=true`;
 export const SCREEN_STATUS_LOOP_INTERVAL_IN_SECONDS = 60; // This is the interval that ElasticSearch takes to ingest data from blocks

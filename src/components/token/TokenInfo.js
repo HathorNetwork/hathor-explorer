@@ -31,9 +31,8 @@ const TokenInfo = props => {
 
     if (isNFT()) {
       return 'NFT';
-    } else {
-      return 'Custom token';
     }
+    return 'Custom token';
   };
 
   const getTotalSupplyPretty = () => {

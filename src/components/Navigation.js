@@ -7,12 +7,12 @@
 
 import React, { useRef } from 'react';
 import { NavLink, Link } from 'react-router-dom';
+import hathorLib from '@hathor/wallet-lib';
+import { useFlag } from '@unleash/proxy-client-react';
 import logo from '../assets/images/hathor-white-logo.png';
 import HathorAlert from './HathorAlert';
 import Version from './Version';
-import hathorLib from '@hathor/wallet-lib';
 import ConditionalNavigation from './ConditionalNavigation';
-import { useFlag } from '@unleash/proxy-client-react';
 import {
   UNLEASH_TOKENS_BASE_FEATURE_FLAG,
   UNLEASH_TOKEN_BALANCES_FEATURE_FLAG,

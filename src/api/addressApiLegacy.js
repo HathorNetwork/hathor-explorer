@@ -33,11 +33,11 @@ const addressApi = {
 
     const data = { address, count };
     if (hash) {
-      data['hash'] = hash;
-      data['page'] = page;
+      data.hash = hash;
+      data.page = page;
     }
     if (token) {
-      data['token'] = token;
+      data.token = token;
     }
 
     return requestExplorerServiceV1

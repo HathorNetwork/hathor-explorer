@@ -19,9 +19,9 @@ const txApi = {
     */
     const data = { type, count };
     if (hash) {
-      data['hash'] = hash;
-      data['timestamp'] = timestamp;
-      data['page'] = page;
+      data.hash = hash;
+      data.timestamp = timestamp;
+      data.page = page;
     }
     return requestExplorerServiceV1
       .get(`node_api/transactions`, { params: data })

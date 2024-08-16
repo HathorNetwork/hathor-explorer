@@ -84,8 +84,8 @@ class DagComponent extends React.Component {
 
   getTxY() {
     // We show same timestamp tx in a vertical axis alternating top and bottom from the block line
-    let signal = this.currentTimestampIndex % 2 === 0 ? -1 : 1;
-    let multiplier = Math.floor(this.currentTimestampIndex / 2) + 1;
+    const signal = this.currentTimestampIndex % 2 === 0 ? -1 : 1;
+    const multiplier = Math.floor(this.currentTimestampIndex / 2) + 1;
     return this.height / 2 + signal * multiplier * this.txMargin;
   }
 
@@ -101,21 +101,21 @@ class DagComponent extends React.Component {
     if (isBlock) {
       // Calculate new x value to add this block
       x = this.startBlockX + this.indexBlock * this.txMargin;
-      let graphData = {
+      const graphData = {
         id: data.tx_id,
         isBlock: true,
-        x: x,
+        x,
         y: this.blockY,
         links: [],
         timestamp: data.timestamp,
       };
       this.graph[data.tx_id] = graphData;
-      let newLinks = [];
-      for (let parent of parents) {
+      const newLinks = [];
+      for (const parent of parents) {
         // Validate if parent is in the data, otherwise no need to add a link
         if (this.graph.hasOwnProperty(parent)) {
           // Creating link for each parent
-          let linkData = {
+          const linkData = {
             source: {
               id: data.tx_id,
               x: x + this.blockWidth / 2,
@@ -129,8 +129,8 @@ class DagComponent extends React.Component {
           };
           this.links.push(linkData);
           newLinks.push(linkData);
-          this.graph[parent]['links'].push(data.tx_id);
-          this.graph[data.tx_id]['links'].push(parent);
+          this.graph[parent].links.push(data.tx_id);
+          this.graph[data.tx_id].links.push(parent);
         }
       }
       // Add new links to graph
@@ -149,24 +149,24 @@ class DagComponent extends React.Component {
       }
       // Calculate new x value to add this tx
       x = this.startTxX + this.indexTx * this.txMargin;
-      let graphData = {
+      const graphData = {
         id: data.tx_id,
         isBlock: false,
-        x: x,
+        x,
         y: this.getTxY(),
         links: [],
         timestamp: data.timestamp,
       };
       this.graph[data.tx_id] = graphData;
-      let newLinks = [];
-      for (let parent of parents) {
+      const newLinks = [];
+      for (const parent of parents) {
         // Validate if parent is in the data, otherwise no need to add a link
         if (this.graph.hasOwnProperty(parent)) {
           // Creating link for each parent
-          let linkData = {
+          const linkData = {
             source: {
               id: data.tx_id,
-              x: x,
+              x,
               y: this.getTxY(),
             },
             target: {
@@ -176,8 +176,8 @@ class DagComponent extends React.Component {
             },
           };
           this.links.push(linkData);
-          this.graph[parent]['links'].push(data.tx_id);
-          this.graph[data.tx_id]['links'].push(parent);
+          this.graph[parent].links.push(data.tx_id);
+          this.graph[data.tx_id].links.push(parent);
           newLinks.push(linkData);
         }
       }
@@ -202,7 +202,7 @@ class DagComponent extends React.Component {
   translateGraph(x) {
     // Translate the graph to show the last added element
     // Get diff from last x to the one that is being added
-    let diff = x - ((this.width - this.txMargin) / this.lastZoomScale - this.lastZoomX);
+    const diff = x - ((this.width - this.txMargin) / this.lastZoomScale - this.lastZoomX);
     if (diff > 0) {
       // If diff > 0, means that it's not appearing, so we translate the graph
       this.gDraw
@@ -248,7 +248,7 @@ class DagComponent extends React.Component {
     // Add new txs to the svg
 
     // Add g auxiliar element
-    var tx = this.gTxs
+    const tx = this.gTxs
       .selectAll()
       .data(txs)
       .enter()
@@ -305,7 +305,7 @@ class DagComponent extends React.Component {
     // Add new blocks to the svg
 
     // Create g auxiliar element
-    var block = this.gBlocks
+    const block = this.gBlocks
       .selectAll()
       .data(blocks)
       .enter()
@@ -416,13 +416,13 @@ class DagComponent extends React.Component {
     // Handle initial data translating in the end to last X
     let maxX = 0;
 
-    for (let tx of this.props.txs) {
-      let newX = this.newData(tx, false, true);
+    for (const tx of this.props.txs) {
+      const newX = this.newData(tx, false, true);
       maxX = Math.max(maxX, newX);
     }
 
-    for (let block of this.props.blocks) {
-      let newX = this.newData(block, true, true);
+    for (const block of this.props.blocks) {
+      const newX = this.newData(block, true, true);
       maxX = Math.max(maxX, newX);
     }
 
@@ -451,7 +451,7 @@ class DagComponent extends React.Component {
       }
 
       if (this.link) {
-        let linkOpacity = opacity === 1 ? 1 : 0;
+        const linkOpacity = opacity === 1 ? 1 : 0;
         this.link.style('stroke-opacity', o => {
           return o.source.id === d.id || o.target.id === d.id ? 1 : linkOpacity;
         });
@@ -488,8 +488,8 @@ class DagComponent extends React.Component {
       .style('opacity', 1);
     this.tooltip
       .html(`<strong>Hash:</strong>${data.id}<br/><strong>Timestamp: </strong>${data.timestamp}`)
-      .style('left', mouseEvent.pageX + 'px')
-      .style('top', mouseEvent.pageY + 10 + 'px');
+      .style('left', `${mouseEvent.pageX}px`)
+      .style('top', `${mouseEvent.pageY + 10}px`);
   }
 
   removeTooltip() {
@@ -502,7 +502,7 @@ class DagComponent extends React.Component {
 
   moveTooltip(event) {
     // Move tooltip when mouse move in a block or tx
-    this.tooltip.style('left', event.pageX + 'px').style('top', event.pageY + 10 + 'px');
+    this.tooltip.style('left', `${event.pageX}px`).style('top', `${event.pageY + 10}px`);
   }
 
   render() {

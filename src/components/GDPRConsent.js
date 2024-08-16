@@ -7,9 +7,9 @@
 
 import React, { useEffect } from 'react';
 
-import { GTM_ID } from '../constants';
 import CookieConsent from 'react-cookie-consent';
 import TagManager from 'react-gtm-module';
+import { GTM_ID } from '../constants';
 
 const GDPRConsent = () => {
   useEffect(() => {

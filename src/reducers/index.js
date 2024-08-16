@@ -67,11 +67,11 @@ const initialState = {
 const rootReducer = (state = initialState, action) => {
   switch (action.type) {
     case 'dashboard_update':
-      return Object.assign({}, state, { data: action.payload });
+      return { ...state, data: action.payload };
     case 'is_version_allowed_update':
-      return Object.assign({}, state, { isVersionAllowed: action.payload.allowed });
+      return { ...state, isVersionAllowed: action.payload.allowed };
     case 'api_load_error_update':
-      return Object.assign({}, state, { apiLoadError: action.payload.apiLoadError });
+      return { ...state, apiLoadError: action.payload.apiLoadError };
     case 'update_server_info':
       return setServerInfo(state, action);
     default:

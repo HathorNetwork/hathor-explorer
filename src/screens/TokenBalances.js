@@ -6,8 +6,8 @@
  */
 
 import React from 'react';
-import TokenBalances from '../components/token/TokenBalances';
 import { useFlag } from '@unleash/proxy-client-react';
+import TokenBalances from '../components/token/TokenBalances';
 import { UNLEASH_TOKEN_BALANCES_FEATURE_FLAG } from '../constants';
 
 const TokenBalancesList = () => {

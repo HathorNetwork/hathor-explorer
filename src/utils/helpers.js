@@ -6,6 +6,7 @@
  */
 
 import hathorLib from '@hathor/wallet-lib';
+import { get } from 'lodash';
 import {
   MAINNET_GENESIS_BLOCK,
   TESTNET_GENESIS_BLOCK,
@@ -13,7 +14,6 @@ import {
   TESTNET_GENESIS_TX,
   MIN_API_VERSION,
 } from '../constants';
-import { get } from 'lodash';
 
 const helpers = {
   updateListWs(list, newEl, max) {
@@ -29,15 +29,14 @@ const helpers = {
   getTxType(tx) {
     if (this.isGenesisTx(tx.hash)) {
       return 'Tx';
-    } else if (this.isGenesisBlock(tx.hash)) {
-      return 'Block';
-    } else {
-      if (tx.inputs.length > 0) {
-        return 'Tx';
-      } else {
-        return 'Block';
-      }
     }
+    if (this.isGenesisBlock(tx.hash)) {
+      return 'Block';
+    }
+    if (tx.inputs.length > 0) {
+      return 'Tx';
+    }
+    return 'Block';
   },
 
   isBlock(tx) {
@@ -58,12 +57,13 @@ const helpers = {
 
     // Clean the version string to have an array of integers
     // Check for each value if the version is allowed
-    let versionTestArr = this.getCleanVersionArray(version);
-    let minVersionArr = this.getCleanVersionArray(MIN_API_VERSION);
+    const versionTestArr = this.getCleanVersionArray(version);
+    const minVersionArr = this.getCleanVersionArray(MIN_API_VERSION);
     for (let i = 0; i < minVersionArr.length; i++) {
       if (minVersionArr[i] > versionTestArr[i]) {
         return false;
-      } else if (minVersionArr[i] < versionTestArr[i]) {
+      }
+      if (minVersionArr[i] < versionTestArr[i]) {
         return true;
       }
     }
@@ -90,9 +90,8 @@ const helpers = {
   plural(quantity, singular, plural) {
     if (quantity === 1) {
       return singular;
-    } else {
-      return plural;
     }
+    return plural;
   },
 
   /**

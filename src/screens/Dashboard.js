@@ -7,11 +7,11 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
-import colors from '../index.scss';
 import ReactLoading from 'react-loading';
+import { numberUtils } from '@hathor/wallet-lib';
+import colors from '../index.scss';
 import helpers from '../utils/helpers';
 import TimeSeriesDashboard from './TimeSeriesDashboard';
-import { numberUtils } from '@hathor/wallet-lib';
 
 const mapStateToProps = state => ({
   data: state.data,
@@ -27,7 +27,7 @@ class Dashboard extends React.Component {
       );
     }
 
-    const transactions = this.props.data.transactions;
+    const { transactions } = this.props.data;
     const height = this.props.data.best_block_height;
 
     const hashRateValue = parseFloat(this.props.data.hash_rate.toFixed(2));

@@ -26,19 +26,18 @@ class TimeSeries extends React.Component {
         return (
           <ErrorMessageWithIcon message="This feature is under maintenance. Please try again after some time" />
         );
-      } else {
-        return (
-          <div>
-            <ScreenStatusMessage />
-            <iframe
-              title="Time Series Data"
-              id="timeseries-iframe"
-              className="timeseries-iframe"
-              src={TIMESERIES_DASHBOARD_URL}
-            ></iframe>
-          </div>
-        );
       }
+      return (
+        <div>
+          <ScreenStatusMessage />
+          <iframe
+            title="Time Series Data"
+            id="timeseries-iframe"
+            className="timeseries-iframe"
+            src={TIMESERIES_DASHBOARD_URL}
+          ></iframe>
+        </div>
+      );
     };
 
     return (

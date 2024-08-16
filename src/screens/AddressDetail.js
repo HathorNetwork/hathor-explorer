@@ -6,9 +6,9 @@
  */
 
 import React from 'react';
+import { useFlag } from '@unleash/proxy-client-react';
 import AddressDetailExplorer from '../components/AddressDetailExplorer';
 import AddressDetailLegacy from '../components/AddressDetailLegacy';
-import { useFlag } from '@unleash/proxy-client-react';
 import { UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG } from '../constants';
 import ErrorMessageWithIcon from '../components/error/ErrorMessageWithIcon';
 

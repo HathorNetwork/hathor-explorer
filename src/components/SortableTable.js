@@ -44,18 +44,17 @@ class SortableTable extends React.Component {
 
     if (this.props.data.length === 0) {
       return <ErrorMessageWithIcon message="No matches for your query." />;
-    } else {
-      return (
-        <div className="table-responsive col-12 mt-2">
-          {this.renderTable(
-            <>
-              <thead>{this.renderTableHead()}</thead>
-              <tbody>{this.renderTableBody()}</tbody>
-            </>
-          )}
-        </div>
-      );
     }
+    return (
+      <div className="table-responsive col-12 mt-2">
+        {this.renderTable(
+          <>
+            <thead>{this.renderTableHead()}</thead>
+            <tbody>{this.renderTableBody()}</tbody>
+          </>
+        )}
+      </div>
+    );
   }
 
   loadPagination() {

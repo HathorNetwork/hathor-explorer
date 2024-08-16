@@ -150,7 +150,8 @@ class Network extends React.Component {
         synced_block,
         peer_best_block,
       };
-    } else if (protocol_version.startsWith('sync-v1')) {
+    }
+    if (protocol_version.startsWith('sync-v1')) {
       const { first_timestamp, latest_timestamp } = this.state;
       const { sync_timestamp } = conn;
       const delta = latest_timestamp - first_timestamp;
@@ -274,11 +275,11 @@ class Network extends React.Component {
               <div className="progress">
                 <div
                   className="progress-bar bg-success"
-                  style={{ width: synced_percent + '%' }}
+                  style={{ width: `${synced_percent}%` }}
                 ></div>
                 <div
                   className="progress-bar bg-warning"
-                  style={{ width: general_percent + '%' }}
+                  style={{ width: `${general_percent}%` }}
                 ></div>
               </div>
             </li>
@@ -293,9 +294,8 @@ class Network extends React.Component {
         const isConnected = !!conn;
         if (isConnected) {
           return renderConnected(peer, conn);
-        } else {
-          return null;
         }
+        return null;
       });
     };
 
