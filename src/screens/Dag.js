@@ -209,7 +209,7 @@ class Dag extends React.Component {
             value={this.state.inputTimeframe}
             onChange={this.handleTimeframeChange}
           />
-          <button className="btn btn-secondary ml-3" onClick={this.handleReset}>
+          <button className="btn btn-secondary ms-3" onClick={this.handleReset}>
             Reset
           </button>
         </div>

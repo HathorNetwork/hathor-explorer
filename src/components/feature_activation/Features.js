@@ -209,7 +209,7 @@ class Features extends React.Component {
           <div className="f-flex flex-column align-items-start common-div bordered-wrapper mt-3 mt-lg-0 w-100 feature-column-descriptions">
             <div>
               <label>Column descriptions: </label>
-              <a href="true" className="ml-1" onClick={e => this.toggleColumnDescriptions(e)}>
+              <a href="true" className="ms-1" onClick={e => this.toggleColumnDescriptions(e)}>
                 {this.state.showColumnDescriptions ? 'Click to hide' : 'Click to show'}
               </a>
             </div>

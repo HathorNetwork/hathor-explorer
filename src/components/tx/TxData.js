@@ -570,7 +570,7 @@ class TxData extends React.Component {
           >
             <label className="graph-label">{this.state.graphs[graphIndex].label}:</label>
             {this.props.transaction.parents && this.props.transaction.parents.length ? (
-              <a href="true" className="ml-1" onClick={e => this.toggleGraph(e, graphIndex)}>
+              <a href="true" className="ms-1" onClick={e => this.toggleGraph(e, graphIndex)}>
                 {this.state.graphs[graphIndex].showNeighbors ? 'Click to hide' : 'Click to show'}
               </a>
             ) : null}
@@ -789,7 +789,7 @@ class TxData extends React.Component {
         <div className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
           <div className="mt-3 graph-div" key="feature-activation">
             <label className="graph-label">Feature Activation:</label>
-            <a href="true" className="ml-1" onClick={e => this.toggleFeatureActivation(e)}>
+            <a href="true" className="ms-1" onClick={e => this.toggleFeatureActivation(e)}>
               {this.state.showFeatureActivation ? 'Click to hide' : 'Click to show'}
             </a>
             {this.state.showFeatureActivation &&
@@ -911,7 +911,7 @@ class TxData extends React.Component {
               <div>
                 <label>Children: </label>
                 {this.props.meta.children.length > 0 && (
-                  <a href="true" className="ml-1" onClick={e => this.toggleChildren(e)}>
+                  <a href="true" className="ms-1" onClick={e => this.toggleChildren(e)}>
                     {this.state.children ? 'Click to hide' : 'Click to show'}
                   </a>
                 )}
@@ -936,7 +936,7 @@ class TxData extends React.Component {
           </a>
           {this.state.raw ? (
             <CopyToClipboard text={this.props.transaction.raw} onCopy={this.copied}>
-              <i className="fa fa-clone pointer ml-1" title="Copy raw tx to clipboard"></i>
+              <i className="fa fa-clone pointer ms-1" title="Copy raw tx to clipboard"></i>
             </CopyToClipboard>
           ) : null}
           <p className="mt-3" ref="rawTx" style={{ display: 'none' }}>

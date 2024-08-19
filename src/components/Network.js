@@ -329,7 +329,7 @@ class Network extends React.Component {
               Select a peer to check its network status.
             </span>
           </button>
-          <button className="btn btn-hathor ml-auto" onClick={this.loadData}>
+          <button className="btn btn-hathor ms-auto" onClick={this.loadData}>
             Reload data
           </button>
         </div>
