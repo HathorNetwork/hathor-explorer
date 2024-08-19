@@ -129,7 +129,7 @@ class Features extends React.Component {
           <ul className="pagination">
             <li
               ref="featurePrevious"
-              className={`page-item mr-3 ${this.hasBefore() ? '' : 'disabled'}`}
+              className={`page-item me-3 ${this.hasBefore() ? '' : 'disabled'}`}
             >
               <Link
                 className="page-link"

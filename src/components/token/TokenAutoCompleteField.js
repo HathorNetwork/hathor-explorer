@@ -177,7 +177,7 @@ class TokenAutoCompleteField extends React.Component {
   _renderInputForm() {
     if (this.state.selectedItem) {
       return (
-        <div className="selectedItemWrapper mr-2 form-control">
+        <div className="selectedItemWrapper me-2 form-control">
           <div className="autocomplete-selected-item">
             <span>
               {this.state.selectedItem.name} ({this.state.selectedItem.symbol}) -{' '}
@@ -195,7 +195,7 @@ class TokenAutoCompleteField extends React.Component {
 
     return (
       <input
-        className="form-control mr-2 autocomplete-input"
+        className="form-control me-2 autocomplete-input"
         type="search"
         value={this.state.searchText}
         onKeyUp={this.onSearchTextKeyUp}

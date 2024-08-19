@@ -180,8 +180,8 @@ class Transactions extends React.Component {
                 ref="txPrevious"
                 className={
                   !this.state.hasBefore || this.state.transactions.length === 0
-                    ? 'page-item mr-3 disabled'
-                    : 'page-item mr-3'
+                    ? 'page-item me-3 disabled'
+                    : 'page-item me-3'
                 }
               >
                 <Link

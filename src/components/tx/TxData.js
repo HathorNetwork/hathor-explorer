@@ -708,7 +708,7 @@ class TxData extends React.Component {
     const renderNCActions = () => {
       const actionsCount = get(this.props.transaction, 'nc_context.actions.length', 0);
       return (
-        <div className="d-flex flex-column align-items-start common-div bordered-wrapper mr-3">
+        <div className="d-flex flex-column align-items-start common-div bordered-wrapper me-3">
           <div>
             <label>Actions ({actionsCount})</label>
           </div>
@@ -733,7 +733,7 @@ class TxData extends React.Component {
         return null;
       }
       return (
-        <div className="d-flex flex-column align-items-start common-div bordered-wrapper mr-3">
+        <div className="d-flex flex-column align-items-start common-div bordered-wrapper me-3">
           <div>
             <label>Nano Contract ID:</label>{' '}
             <Link to={`/nano_contract/detail/${this.props.transaction.nc_id}`}>
@@ -841,7 +841,7 @@ class TxData extends React.Component {
             {this.props.transaction.hash}
           </div>
           <div className="d-flex flex-column flex-lg-row align-items-start mt-3 mb-3">
-            <div className="d-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
+            <div className="d-flex flex-column align-items-start common-div bordered-wrapper me-lg-3 w-100">
               <div>
                 <label>Type:</label> {hathorLib.transactionUtils.getTxType(this.props.transaction)}{' '}
                 {isNFTCreation() && '(NFT)'} <TxMarkers tx={this.props.transaction} />
@@ -886,7 +886,7 @@ class TxData extends React.Component {
               renderNCActions()}
           </div>
           <div className="d-flex flex-column flex-lg-row align-items-start mb-3 w-100">
-            <div className="f-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
+            <div className="f-flex flex-column align-items-start common-div bordered-wrapper me-lg-3 w-100">
               <div>
                 <label>Inputs ({this.props.transaction.inputs.length})</label>
               </div>
@@ -901,7 +901,7 @@ class TxData extends React.Component {
           </div>
           {this.state.tokens.length > 0 && renderTokenList()}
           <div className="d-flex flex-column flex-lg-row align-items-start mb-3">
-            <div className="f-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
+            <div className="f-flex flex-column align-items-start common-div bordered-wrapper me-lg-3 w-100">
               <div>
                 <label>Parents:</label>
               </div>

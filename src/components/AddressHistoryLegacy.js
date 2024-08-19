@@ -99,7 +99,7 @@ class AddressHistory extends React.Component {
             <ul className="pagination">
               <li
                 ref="txPrevious"
-                className={!this.props.hasBefore ? 'page-item mr-3 disabled' : 'page-item mr-3'}
+                className={!this.props.hasBefore ? 'page-item me-3 disabled' : 'page-item me-3'}
               >
                 <Link
                   className="page-link"

@@ -8,7 +8,7 @@ class TokenSearchField extends React.Component {
       <div className="d-flex flex-row align-items-center navigation-search-token">
         <div className="d-flex flex-row align-items-center col-12">
           <input
-            className="form-control mr-2 search-input"
+            className="form-control me-2 search-input"
             type="search"
             value={this.props.searchText}
             onKeyUp={this.props.onSearchTextKeyUp}
