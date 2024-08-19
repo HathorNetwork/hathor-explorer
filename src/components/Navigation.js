@@ -58,7 +58,7 @@ function Navigation({ history }) {
 
   return (
     <div className="main-nav">
-      <nav className="navbar navbar-expand-lg navbar-dark pl-3 pl-lg-0">
+      <nav className="navbar navbar-expand-lg navbar-dark ps-3 ps-lg-0">
         <div className="d-flex flex-column align-items-center">
           <Link className="navbar-brand" to="/" href="/">
             <img src={logo} alt="" />
@@ -67,8 +67,8 @@ function Navigation({ history }) {
         <button
           className="navbar-toggler"
           type="button"
-          data-toggle="collapse"
-          data-target="#navbarSupportedContent"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
           aria-controls="navbarSupportedContent"
           aria-expanded="false"
           aria-label="Toggle navigation"
@@ -94,7 +94,7 @@ function Navigation({ history }) {
                   className="nav-link dropdown-toggle"
                   id="navbarDropdown"
                   role="button"
-                  data-toggle="dropdown"
+                  data-bs-toggle="dropdown"
                   aria-haspopup="true"
                   aria-expanded="false"
                 >
@@ -143,7 +143,7 @@ function Navigation({ history }) {
                 className="nav-link dropdown-toggle"
                 id="navbarDropdown"
                 role="button"
-                data-toggle="dropdown"
+                data-bs-toggle="dropdown"
                 aria-haspopup="true"
                 aria-expanded="false"
               >
@@ -165,10 +165,10 @@ function Navigation({ history }) {
               </div>
             </li>
           </ul>
-          <div className="navbar-right d-flex flex-row align-items-center navigation-search">
+          <div className="d-flex flex-row align-items-center ms-auto navigation-search">
             <div className="d-flex flex-row align-items-center">
               <input
-                className="form-control mr-2"
+                className="form-control me-2"
                 type="search"
                 placeholder="Search tx or address"
                 aria-label="Search"
