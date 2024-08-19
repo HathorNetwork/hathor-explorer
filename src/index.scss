@@ -206,6 +206,28 @@ tr.tr-title {
   cursor: default !important;
 }
 
+.table {
+  thead {
+    tr {
+      border-top: 1px solid #dee2e6;
+    }
+    th {
+      border-bottom: 2px solid #dee2e6;
+    }
+  }
+
+  tbody {
+    tr.tr-title td { // Trying to fix table header background color
+      background-color: rgb(242,242,242);
+      cursor: default !important;
+    }
+
+    td {
+      padding: 12px; // The default on Bootstrap 5 is 0.5rem
+    }
+  }
+}
+
 tr.tr-title td {
   font-weight: bold;
 }
