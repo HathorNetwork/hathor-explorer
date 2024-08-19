@@ -15,6 +15,7 @@ html, body, #root {
   height: 100%;
   width: 100%;
   word-wrap: break-word;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 a {
@@ -630,6 +631,7 @@ th.sortable {
 .table-method-arguments tbody tr {
   background-color: transparent !important;
 }
+
 
 .source-code code {
   background-color: #f2f2f2;
