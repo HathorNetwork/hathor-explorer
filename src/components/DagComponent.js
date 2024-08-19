@@ -113,7 +113,7 @@ class DagComponent extends React.Component {
       const newLinks = [];
       for (const parent of parents) {
         // Validate if parent is in the data, otherwise no need to add a link
-        if (this.graph.hasOwnProperty(parent)) {
+        if (this.graph[parent]) {
           // Creating link for each parent
           const linkData = {
             source: {
@@ -161,7 +161,7 @@ class DagComponent extends React.Component {
       const newLinks = [];
       for (const parent of parents) {
         // Validate if parent is in the data, otherwise no need to add a link
-        if (this.graph.hasOwnProperty(parent)) {
+        if (this.graph[parent]) {
           // Creating link for each parent
           const linkData = {
             source: {
