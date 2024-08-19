@@ -631,6 +631,23 @@ th.sortable {
   background-color: transparent !important;
 }
 
-.source-code {
+.source-code code {
   background-color: #f2f2f2;
+}
+
+.source-code pre {
+  height: 100%;
+}
+
+.source-code {
+  -webkit-transition: all 1s ease;
+  -moz-transition: all 1s ease;
+  transition: all 1s ease;
+  height: 0;
+  opacity: 0;
+}
+
+.source-code.show {
+  height: auto !important;
+  opacity: 1 !important;
 }
