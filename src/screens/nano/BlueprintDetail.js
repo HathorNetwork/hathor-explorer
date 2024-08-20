@@ -6,10 +6,10 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import Loading from '../../components/Loading';
-import nanoApi from '../../api/nanoApi';
 import hljs from 'highlight.js/lib/core';
 import python from 'highlight.js/lib/languages/python';
+import Loading from '../../components/Loading';
+import nanoApi from '../../api/nanoApi';
 
 hljs.registerLanguage('python', python);
 
@@ -41,14 +41,14 @@ function BlueprintDetail(props) {
       setLoading(true);
       setBlueprintInformation(null);
       try {
-        const blueprintInformation = await nanoApi.getBlueprintInformation(blueprintId);
-        const blueprintSourceCode = await nanoApi.getBlueprintSourceCode(blueprintId);
+        const blueprintInformationData = await nanoApi.getBlueprintInformation(blueprintId);
+        const blueprintSourceCodeData = await nanoApi.getBlueprintSourceCode(blueprintId);
         if (ignore) {
           // This is to prevent setting a state after the component has been already cleaned
           return;
         }
-        setBlueprintInformation(blueprintInformation);
-        setBlueprintSourceCode(blueprintSourceCode.source_code);
+        setBlueprintInformation(blueprintInformationData);
+        setBlueprintSourceCode(blueprintSourceCodeData.source_code);
       } catch (e) {
         if (ignore) {
           // This is to prevent setting a state after the component has been already cleaned
@@ -142,10 +142,10 @@ function BlueprintDetail(props) {
    *
    * @param {Event} e Click event
    */
-  const onToggleShowCode = (e) => {
+  const onToggleShowCode = e => {
     e.preventDefault();
     setShowCode(!showCode);
-  }
+  };
 
   return (
     <div className="content-wrapper">
@@ -160,16 +160,20 @@ function BlueprintDetail(props) {
           {blueprintInformation.name}
         </p>
         <h4 className="mt-5 mb-4">Attributes</h4>
-        { renderBlueprintAttributes() }
-        { renderBlueprintMethods('public_methods', 'Public Methods') }
-        { renderBlueprintMethods('private_methods', 'Private Methods') }
+        {renderBlueprintAttributes()}
+        {renderBlueprintMethods('public_methods', 'Public Methods')}
+        {renderBlueprintMethods('private_methods', 'Private Methods')}
         <div className="d-flex flex-row align-items-center mb-4 mt-4">
           <h4 className="mb-0 mr-3">Source Code</h4>
-          <a href="true" onClick={(e) => onToggleShowCode(e)}>{showCode ? 'Hide' : 'Show'}</a>
+          <a href="true" onClick={e => onToggleShowCode(e)}>
+            {showCode ? 'Hide' : 'Show'}
+          </a>
         </div>
         <div className={`source-code ${showCode ? 'show' : ''}`}>
           <pre>
-            <code ref={codeRef} className='language-python'>{blueprintSourceCode}</code>
+            <code ref={codeRef} className="language-python">
+              {blueprintSourceCode}
+            </code>
           </pre>
         </div>
       </div>
