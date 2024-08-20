@@ -14,7 +14,7 @@ const TokenMarkers = props => {
     }
 
     return (
-      <button className="info-hover-wrapper btn btn-link pl-2">
+      <button className="info-hover-wrapper btn btn-link ps-2">
         <i className="fa fa-check-circle fa-lg text-info" title="Verified"></i>
         <span className="subtitle info-hover-popover">
           This is a verified token. <a href="https://hathor.network">Learn more.</a>
@@ -37,7 +37,7 @@ const TokenMarkers = props => {
       );
     }
 
-    return <button className="info-hover-wrapper btn btn-link pl-2">{banIcon}</button>;
+    return <button className="info-hover-wrapper btn btn-link ps-2">{banIcon}</button>;
   };
 
   return (

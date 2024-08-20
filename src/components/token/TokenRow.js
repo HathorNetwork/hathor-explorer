@@ -24,13 +24,13 @@ class TokenRow extends React.Component {
   render() {
     return (
       <tr onClick={e => this.onRowClicked(this.props.token.uid)}>
-        <td className="d-lg-table-cell pr-3">
+        <td className="d-lg-table-cell pe-3">
           {hathorLib.helpersUtils.getShortHash(this.props.token.uid)}
         </td>
-        <td className="d-lg-table-cell pr-3">{this.props.token.name}</td>
-        <td className="d-lg-table-cell pr-3">{this.props.token.symbol}</td>
-        <td className="d-lg-table-cell pr-3">{this.props.token.nft ? 'NFT' : 'Custom Token'}</td>
-        <td className="d-lg-table-cell pr-3">
+        <td className="d-lg-table-cell pe-3">{this.props.token.name}</td>
+        <td className="d-lg-table-cell pe-3">{this.props.token.symbol}</td>
+        <td className="d-lg-table-cell pe-3">{this.props.token.nft ? 'NFT' : 'Custom Token'}</td>
+        <td className="d-lg-table-cell pe-3">
           {dateFormatter.parseTimestamp(this.props.token.transaction_timestamp)}
         </td>
       </tr>
