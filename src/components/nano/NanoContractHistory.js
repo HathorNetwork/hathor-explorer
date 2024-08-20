@@ -6,17 +6,16 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import Loading from '../../components/Loading';
 import { Link, useLocation } from 'react-router-dom';
+import hathorLib from '@hathor/wallet-lib';
+import { reverse } from 'lodash';
+import Loading from '../Loading';
 import { NANO_CONTRACT_TX_HISTORY_COUNT } from '../../constants';
 import TxRow from '../tx/TxRow';
 import helpers from '../../utils/helpers';
 import nanoApi from '../../api/nanoApi';
 import WebSocketHandler from '../../WebSocketHandler';
 import PaginationURL from '../../utils/pagination';
-import hathorLib from '@hathor/wallet-lib';
-import { reverse } from 'lodash';
-
 
 /**
  * Displays nano tx history in a table with pagination buttons. As the user navigates through the history,
@@ -35,12 +34,14 @@ import { reverse } from 'lodash';
 function NanoContractHistory({ ncId }) {
   // We must use memo here because we were creating a new pagination
   // object in every new render, so the useEffect was being called forever
-  const pagination = useMemo(() =>
-    new PaginationURL({
-      'hash': {'required': false},
-      'page': {'required': false}
-    })
-  , []);
+  const pagination = useMemo(
+    () =>
+      new PaginationURL({
+        hash: { required: false },
+        page: { required: false },
+      }),
+    []
+  );
 
   const location = useLocation();
 
@@ -50,9 +51,9 @@ function NanoContractHistory({ ncId }) {
   const [history, setHistory] = useState([]);
   // errorMessage {string} Message to show when error happens on history load
   const [errorMessage, setErrorMessage] = useState('');
-  // hasBefore {boolean} If 'Previous' button should be enabled 
+  // hasBefore {boolean} If 'Previous' button should be enabled
   const [hasBefore, setHasBefore] = useState(false);
-  // hasAfter {boolean} If 'Next' button should be enabled 
+  // hasAfter {boolean} If 'Next' button should be enabled
   const [hasAfter, setHasAfter] = useState(false);
 
   /**
@@ -62,25 +63,28 @@ function NanoContractHistory({ ncId }) {
    *
    * @param {Transaction} tx Transaction object that arrived from the websocket
    */
-  const updateListWs = useCallback((tx) => {
-    // We only add to the list if it's the first page and it's a new tx from this nano
-    if (hasBefore) {
-      return;
-    }
+  const updateListWs = useCallback(
+    tx => {
+      // We only add to the list if it's the first page and it's a new tx from this nano
+      if (hasBefore) {
+        return;
+      }
 
-    if (tx.version !== hathorLib.constants.NANO_CONTRACTS_VERSION || tx.nc_id !== ncId) {
-      return;
-    }
+      if (tx.version !== hathorLib.constants.NANO_CONTRACTS_VERSION || tx.nc_id !== ncId) {
+        return;
+      }
 
-    let nanoHistory = [...history];
-    const willHaveAfter = (hasAfter || nanoHistory.length === NANO_CONTRACT_TX_HISTORY_COUNT)
-    // This updates the list with the new element at first
-    nanoHistory = helpers.updateListWs(nanoHistory, tx, NANO_CONTRACT_TX_HISTORY_COUNT);
+      let nanoHistory = [...history];
+      const willHaveAfter = hasAfter || nanoHistory.length === NANO_CONTRACT_TX_HISTORY_COUNT;
+      // This updates the list with the new element at first
+      nanoHistory = helpers.updateListWs(nanoHistory, tx, NANO_CONTRACT_TX_HISTORY_COUNT);
 
-    // Now update the history
-    setHistory(nanoHistory);
-    setHasAfter(willHaveAfter);
-  }, [history, hasAfter, hasBefore, ncId]);
+      // Now update the history
+      setHistory(nanoHistory);
+      setHasAfter(willHaveAfter);
+    },
+    [history, hasAfter, hasBefore, ncId]
+  );
 
   /**
    * useCallback is needed here because this method is used as a dependency in the useEffect
@@ -88,51 +92,54 @@ function NanoContractHistory({ ncId }) {
    * @param {string | null} after Hash to use for pagination when user clicks to fetch the next page
    * @param {string | null} before Hash to use for pagination when user clicks to fetch the previous page
    */
-  const loadData = useCallback(async (after, before) => {
-    try {
-      const data = await nanoApi.getHistory(ncId, NANO_CONTRACT_TX_HISTORY_COUNT, after, before);
-      if (before) {
-        // When we are querying the previous set of transactions
-        // the API return the oldest first, so we need to revert the history
-        reverse(data.history);
-      }
-      setHistory(data.history);
-
-      if (!after && !before) {
-        // This is the first load without query params, so if has_more === true
-        // we must enable next button
-        setHasAfter(data.has_more);
-        setHasBefore(false);
-        return;
-      }
-
-      if (after) {
-        // We clicked the next button, so we have before page
-        // and we will have the next page if has_more === true
-        setHasAfter(data.has_more);
-        setHasBefore(true);
-        return;
-      }
-
-      if (before) {
-        // We clicked the previous button, so we have next page
-        // and we will have the previous page if has_more === true
-        setHasAfter(true);
-        setHasBefore(data.has_more);
-        if (!data.has_more) {
-          // We are in the first page and clicked the Previous button
-          // so we must clear the query params
-          pagination.clearOptionalQueryParams();
+  const loadData = useCallback(
+    async (after, before) => {
+      try {
+        const data = await nanoApi.getHistory(ncId, NANO_CONTRACT_TX_HISTORY_COUNT, after, before);
+        if (before) {
+          // When we are querying the previous set of transactions
+          // the API return the oldest first, so we need to revert the history
+          reverse(data.history);
         }
-        return;
+        setHistory(data.history);
+
+        if (!after && !before) {
+          // This is the first load without query params, so if has_more === true
+          // we must enable next button
+          setHasAfter(data.has_more);
+          setHasBefore(false);
+          return;
+        }
+
+        if (after) {
+          // We clicked the next button, so we have before page
+          // and we will have the next page if has_more === true
+          setHasAfter(data.has_more);
+          setHasBefore(true);
+          return;
+        }
+
+        if (before) {
+          // We clicked the previous button, so we have next page
+          // and we will have the previous page if has_more === true
+          setHasAfter(true);
+          setHasBefore(data.has_more);
+          if (!data.has_more) {
+            // We are in the first page and clicked the Previous button
+            // so we must clear the query params
+            pagination.clearOptionalQueryParams();
+          }
+          return;
+        }
+      } catch (e) {
+        // Error in request
+        setErrorMessage('Error getting nano contract history.');
+      } finally {
+        setLoading(false);
       }
-    } catch (e) {
-      // Error in request
-      setErrorMessage('Error getting nano contract history.');
-    } finally {
-      setLoading(false);
-    }
-  }, [ncId, pagination]);
+    },
+    [ncId, pagination]
+  );
 
   useEffect(() => {
     // Handle load history depending on the query params in the URL
@@ -151,7 +158,6 @@ function NanoContractHistory({ ncId }) {
     }
 
     loadData(after, before);
-
   }, [location, loadData, pagination]);
 
   useEffect(() => {
@@ -169,14 +175,14 @@ function NanoContractHistory({ ncId }) {
    *
    * wsData {Object} Data send in the websocket message
    */
-  const handleWebsocket = (wsData) => {
+  const handleWebsocket = wsData => {
     if (wsData.type === 'network:new_tx_accepted') {
       updateListWs(wsData);
     }
-  }
+  };
 
   if (errorMessage) {
-    return <p className='text-danger mb-4'>{errorMessage}</p>;
+    return <p className="text-danger mb-4">{errorMessage}</p>;
   }
 
   if (loading) {
@@ -191,45 +197,59 @@ function NanoContractHistory({ ncId }) {
             <tr>
               <th className="d-none d-lg-table-cell">Hash</th>
               <th className="d-none d-lg-table-cell">Timestamp</th>
-              <th className="d-table-cell d-lg-none" colSpan="2">Hash<br/>Timestamp</th>
+              <th className="d-table-cell d-lg-none" colSpan="2">
+                Hash
+                <br />
+                Timestamp
+              </th>
             </tr>
           </thead>
-          <tbody>
-            {loadTableBody()}
-          </tbody>
+          <tbody>{loadTableBody()}</tbody>
         </table>
       </div>
     );
-  }
+  };
 
   const loadTableBody = () => {
-    return history.map((tx, idx) => {
+    return history.map(tx => {
       // For some reason this API returns tx.hash instead of tx.tx_id like the others
-      tx.tx_id = tx.hash;
-      return (
-        <TxRow key={tx.tx_id} tx={tx} />
-      );
+      const rowTx = { ...tx };
+      rowTx.tx_id = rowTx.hash;
+      return <TxRow key={rowTx.tx_id} tx={rowTx} />;
     });
-  }
+  };
 
   const loadPagination = () => {
     if (history.length === 0) {
       return null;
-    } else {
-      return (
-        <nav aria-label="nano history tx pagination" className="d-flex justify-content-center">
-          <ul className="pagination">
-            <li className={(!hasBefore || history.length === 0) ? "page-item mr-3 disabled" : "page-item mr-3"}>
-              <Link className="page-link" to={pagination.setURLParameters({hash: history[0].hash, page: 'previous'})}>Previous</Link>
-            </li>
-            <li className={(!hasAfter || history.length === 0) ? "page-item disabled" : "page-item"}>
-              <Link className="page-link" to={pagination.setURLParameters({hash: history.slice(-1).pop().hash, page: 'next'})}>Next</Link>
-            </li>
-          </ul>
-        </nav>
-      );
     }
-  }
+    return (
+      <nav aria-label="nano history tx pagination" className="d-flex justify-content-center">
+        <ul className="pagination">
+          <li
+            className={
+              !hasBefore || history.length === 0 ? 'page-item mr-3 disabled' : 'page-item mr-3'
+            }
+          >
+            <Link
+              className="page-link"
+              to={pagination.setURLParameters({ hash: history[0].hash, page: 'previous' })}
+            >
+              Previous
+            </Link>
+          </li>
+          <li className={!hasAfter || history.length === 0 ? 'page-item disabled' : 'page-item'}>
+            <Link
+              className="page-link"
+              to={pagination.setURLParameters({ hash: history.slice(-1).pop().hash, page: 'next' })}
+            >
+              Next
+            </Link>
+          </li>
+        </ul>
+      </nav>
+    );
+  };
 
   return (
     <div className="w-100">
