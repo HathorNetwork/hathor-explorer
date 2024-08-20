@@ -157,7 +157,7 @@ function NanoContractHistory({ ncId }) {
     return () => {
       WebSocketHandler.removeListener('network', handleWebsocket);
     };
-  });
+  }, []);
 
   /**
    * Method to handle websocket messages that arrive in the network scope
