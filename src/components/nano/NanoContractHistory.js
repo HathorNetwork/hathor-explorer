@@ -60,7 +60,7 @@ function NanoContractHistory({ ncId }) {
    * otherwise it would be fixed the moment the event listener is started in the useEffect
    * with the history as an empty array
    *
-   * tx {Transaction} Transaction object that arrived from the websocket
+   * @param {Transaction} tx Transaction object that arrived from the websocket
    */
   const updateListWs = useCallback((tx) => {
     // We only add to the list if it's the first page and it's a new tx from this nano
@@ -81,8 +81,8 @@ function NanoContractHistory({ ncId }) {
   /**
    * useCallback is needed here because this method is used as a dependency in the useEffect
    *
-   * after {string | null} Hash to use for pagination when user clicks to fetch the next page
-   * before {string | null} Hash to use for pagination when user clicks to fetch the previous page
+   * @param {string | null} after Hash to use for pagination when user clicks to fetch the next page
+   * @param {string | null} before Hash to use for pagination when user clicks to fetch the previous page
    */
   const loadData = useCallback(async (after, before) => {
     try {
