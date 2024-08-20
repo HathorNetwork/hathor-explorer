@@ -15,12 +15,14 @@ html, body, #root {
   height: 100%;
   width: 100%;
   word-wrap: break-word;
+
+  // Keeping the same font family from Bootstrap 4
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 a {
   color: $purpleHathor;
-  text-decoration: none;
+  text-decoration: none; // Keeping style from Bootstrap 4
 }
 
 a:hover {
@@ -207,6 +209,7 @@ tr.tr-title {
   cursor: default !important;
 }
 
+// Class to keep the same visual aspect from Bootstrap 4
 .table {
   thead {
     tr {
@@ -218,13 +221,13 @@ tr.tr-title {
   }
 
   tbody {
-    tr.tr-title td { // Trying to fix table header background color
+    tr.tr-title td {
       background-color: rgb(242,242,242);
       cursor: default !important;
     }
 
     td {
-      padding: 12px; // The default on Bootstrap 5 is 0.5rem
+      padding: 12px;
     }
   }
 }
