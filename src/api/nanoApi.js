@@ -43,19 +43,22 @@ const nanoApi = {
   getHistory(id, count, after, before) {
     const data = { id };
     if (count) {
-      data['count'] = count;
+      data.count = count;
     }
     if (after) {
-      data['after'] = after;
+      data.after = after;
     }
     if (before) {
-      data['before'] = before;
+      data.before = before;
     }
-    return requestExplorerServiceV1.get(`node_api/nc_history`, {params: data}).then((res) => {
-      return res.data
-    }, (res) => {
-      throw new Error(res.data.message);
-    });
+    return requestExplorerServiceV1.get(`node_api/nc_history`, { params: data }).then(
+      res => {
+        return res.data;
+      },
+      res => {
+        throw new Error(res.data.message);
+      }
+    );
   },
 
   /**

@@ -6,10 +6,10 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import NanoContractHistory from '../../components/nano/NanoContractHistory';
 import hathorLib from '@hathor/wallet-lib';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import NanoContractHistory from '../../components/nano/NanoContractHistory';
 import Loading from '../../components/Loading';
 import nanoApi from '../../api/nanoApi';
 import txApi from '../../api/txApi';
@@ -55,12 +55,12 @@ function NanoContractDetail(props) {
           return;
         }
 
-        const blueprintInformation = await nanoApi.getBlueprintInformation(
+        const blueprintInformationData = await nanoApi.getBlueprintInformation(
           transactionData.tx.nc_blueprint_id
         );
         const dataState = await nanoApi.getState(
           ncId,
-          Object.keys(blueprintInformation.attributes),
+          Object.keys(blueprintInformationData.attributes),
           ['__all__'],
           []
         );
@@ -68,7 +68,7 @@ function NanoContractDetail(props) {
           // This is to prevent setting a state after the componenet has been already cleaned
           return;
         }
-        setBlueprintInformation(blueprintInformation);
+        setBlueprintInformation(blueprintInformationData);
         setNcState(dataState);
         setTxData(transactionData.tx);
         setLoadingDetail(false);
