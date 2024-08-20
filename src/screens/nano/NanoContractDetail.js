@@ -11,7 +11,6 @@ import hathorLib from '@hathor/wallet-lib';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Loading from '../../components/Loading';
-import TxRow from '../../components/tx/TxRow';
 import nanoApi from '../../api/nanoApi';
 import txApi from '../../api/txApi';
 
