@@ -64,18 +64,22 @@ function NanoContractHistory({ ncId }) {
    */
   const updateListWs = useCallback((tx) => {
     // We only add to the list if it's the first page and it's a new tx from this nano
-    if (!hasBefore) {
-      if (tx.version === hathorLib.constants.NANO_CONTRACTS_VERSION && tx.nc_id === ncId) {
-        let nanoHistory = [...history];
-        const willHaveAfter = (hasAfter || nanoHistory.length === NANO_CONTRACT_TX_HISTORY_COUNT)
-        // This updates the list with the new element at first
-        nanoHistory = helpers.updateListWs(nanoHistory, tx, NANO_CONTRACT_TX_HISTORY_COUNT);
-
-        // Now update the history
-        setHistory(nanoHistory);
-        setHasAfter(willHaveAfter);
-      }
+    if (hasBefore) {
+      return;
     }
+
+    if (tx.version !== hathorLib.constants.NANO_CONTRACTS_VERSION || tx.nc_id !== ncId) {
+      return;
+    }
+
+    let nanoHistory = [...history];
+    const willHaveAfter = (hasAfter || nanoHistory.length === NANO_CONTRACT_TX_HISTORY_COUNT)
+    // This updates the list with the new element at first
+    nanoHistory = helpers.updateListWs(nanoHistory, tx, NANO_CONTRACT_TX_HISTORY_COUNT);
+
+    // Now update the history
+    setHistory(nanoHistory);
+    setHasAfter(willHaveAfter);
   }, [history, hasAfter, hasBefore, ncId]);
 
   /**
