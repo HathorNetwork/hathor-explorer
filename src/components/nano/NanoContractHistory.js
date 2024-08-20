@@ -141,6 +141,21 @@ function NanoContractHistory({ ncId }) {
     [ncId, pagination]
   );
 
+  /**
+   * useCallback is needed here because this method is used as a dependency in the useEffect
+   *
+   * Method to handle websocket messages that arrive in the network scope
+   * This method will discard any messages that are not new transactions
+   *
+   * wsData {Object} Data send in the websocket message
+   */
+  const handleWebsocket = useCallback(
+    wsData => {
+    if (wsData.type === 'network:new_tx_accepted') {
+      updateListWs(wsData);
+    }
+  }, [updateListWs]);
+
   useEffect(() => {
     // Handle load history depending on the query params in the URL
     const queryParams = pagination.obtainQueryParams();
@@ -167,19 +182,7 @@ function NanoContractHistory({ ncId }) {
     return () => {
       WebSocketHandler.removeListener('network', handleWebsocket);
     };
-  }, []);
-
-  /**
-   * Method to handle websocket messages that arrive in the network scope
-   * This method will discard any messages that are not new transactions
-   *
-   * wsData {Object} Data send in the websocket message
-   */
-  const handleWebsocket = wsData => {
-    if (wsData.type === 'network:new_tx_accepted') {
-      updateListWs(wsData);
-    }
-  };
+  }, [handleWebsocket]);
 
   if (errorMessage) {
     return <p className="text-danger mb-4">{errorMessage}</p>;
