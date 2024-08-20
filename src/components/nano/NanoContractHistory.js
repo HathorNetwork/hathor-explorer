@@ -151,10 +151,12 @@ function NanoContractHistory({ ncId }) {
    */
   const handleWebsocket = useCallback(
     wsData => {
-    if (wsData.type === 'network:new_tx_accepted') {
-      updateListWs(wsData);
-    }
-  }, [updateListWs]);
+      if (wsData.type === 'network:new_tx_accepted') {
+        updateListWs(wsData);
+      }
+    },
+    [updateListWs]
+  );
 
   useEffect(() => {
     // Handle load history depending on the query params in the URL
