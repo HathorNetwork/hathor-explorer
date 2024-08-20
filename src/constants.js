@@ -107,3 +107,6 @@ export const UNLEASH_TIME_SERIES_FEATURE_FLAG = `explorer-timeseries-${REACT_APP
 export const { REACT_APP_TIMESERIES_DASHBOARD_ID } = process.env;
 export const TIMESERIES_DASHBOARD_URL = `https://hathor-explorer-75a9f9.kb.eu-central-1.aws.cloud.es.io:9243/s/anonymous-user/app/dashboards?auth_provider_hint=anonymous1#/view/${REACT_APP_TIMESERIES_DASHBOARD_ID}?embed=true&_g=(filters%3A!()%2CrefreshInterval%3A(pause%3A!t%2Cvalue%3A0)%2Ctime%3A(from%3Anow-1w%2Cto%3Anow))&show-time-filter=true&hide-filter-bar=true`;
 export const SCREEN_STATUS_LOOP_INTERVAL_IN_SECONDS = 60; // This is the interval that ElasticSearch takes to ingest data from blocks
+
+// Number of elements in the nano contract transaction history table
+export const NANO_CONTRACT_TX_HISTORY_COUNT = 5;

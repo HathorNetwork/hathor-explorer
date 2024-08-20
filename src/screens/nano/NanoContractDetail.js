@@ -9,8 +9,8 @@ import React, { useEffect, useState } from 'react';
 import hathorLib from '@hathor/wallet-lib';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import NanoContractHistory from '../../components/nano/NanoContractHistory';
 import Loading from '../../components/Loading';
-import TxRow from '../../components/tx/TxRow';
 import nanoApi from '../../api/nanoApi';
 import txApi from '../../api/txApi';
 
@@ -26,14 +26,10 @@ function NanoContractDetail(props) {
   const [ncState, setNcState] = useState(null);
   // blueprintInformation {Object | null} Blueprint Information from API
   const [blueprintInformation, setBlueprintInformation] = useState(null);
-  // history {Array | null} Nano contract history
-  const [history, setHistory] = useState(null);
   // txData {Object | null} Nano contract transaction data
   const [txData, setTxData] = useState(null);
   // loadingDetail {boolean} Bool to show/hide loading when getting transaction detail
   const [loadingDetail, setLoadingDetail] = useState(true);
-  // loadingHistory {boolean} Bool to show/hide loading when getting nano history
-  const [loadingHistory, setLoadingHistory] = useState(true);
   // errorMessage {string | null} Error message in case a request to get nano contract data fails
   const [errorMessage, setErrorMessage] = useState(null);
 
@@ -52,19 +48,19 @@ function NanoContractDetail(props) {
         const transactionData = await txApi.getTransaction(ncId);
         if (transactionData.tx.version !== hathorLib.constants.NANO_CONTRACTS_VERSION) {
           if (ignore) {
-            // This is to prevent setting a state after the componenet has been already cleaned
+            // This is to prevent setting a state after the component has been already cleaned
             return;
           }
           setErrorMessage('Transaction is not a nano contract.');
           return;
         }
 
-        const blueprintInformation = await nanoApi.getBlueprintInformation(
+        const blueprintInformationData = await nanoApi.getBlueprintInformation(
           transactionData.tx.nc_blueprint_id
         );
         const dataState = await nanoApi.getState(
           ncId,
-          Object.keys(blueprintInformation.attributes),
+          Object.keys(blueprintInformationData.attributes),
           ['__all__'],
           []
         );
@@ -72,7 +68,7 @@ function NanoContractDetail(props) {
           // This is to prevent setting a state after the componenet has been already cleaned
           return;
         }
-        setBlueprintInformation(blueprintInformation);
+        setBlueprintInformation(blueprintInformationData);
         setNcState(dataState);
         setTxData(transactionData.tx);
         setLoadingDetail(false);
@@ -86,30 +82,7 @@ function NanoContractDetail(props) {
       }
     }
 
-    async function loadNCHistory() {
-      setLoadingHistory(true);
-      setHistory(null);
-
-      try {
-        const data = await nanoApi.getHistory(ncId);
-        if (ignore) {
-          // This is to prevent setting a state after the componenet has been already cleaned
-          return;
-        }
-        setHistory(data.history);
-        setLoadingHistory(false);
-      } catch (e) {
-        if (ignore) {
-          // This is to prevent setting a state after the componenet has been already cleaned
-          return;
-        }
-        // Error in request
-        setErrorMessage('Error getting nano contract history.');
-        setLoadingHistory(false);
-      }
-    }
     loadBlueprintInformation();
-    loadNCHistory();
 
     return () => {
       ignore = true;
@@ -120,38 +93,9 @@ function NanoContractDetail(props) {
     return <p className="text-danger mb-4">{errorMessage}</p>;
   }
 
-  if (loadingHistory || loadingDetail) {
+  if (loadingDetail) {
     return <Loading />;
   }
-
-  const loadTable = () => {
-    return (
-      <div className="table-responsive mt-5">
-        <table className="table table-striped" id="tx-table">
-          <thead>
-            <tr>
-              <th className="d-none d-lg-table-cell">Hash</th>
-              <th className="d-none d-lg-table-cell">Timestamp</th>
-              <th className="d-table-cell d-lg-none" colSpan="2">
-                Hash
-                <br />
-                Timestamp
-              </th>
-            </tr>
-          </thead>
-          <tbody>{loadTableBody()}</tbody>
-        </table>
-      </div>
-    );
-  };
-
-  const loadTableBody = () => {
-    return history.map((tx, idx) => {
-      // For some reason this API returns tx.hash instead of tx.tx_id like the others
-      tx.tx_id = tx.hash;
-      return <TxRow key={tx.tx_id} tx={tx} />;
-    });
-  };
 
   const renderBalances = () => {
     return Object.entries(ncState.balances).map(([tokenUid, data]) => (
@@ -238,7 +182,7 @@ function NanoContractDetail(props) {
         {renderNCBalances()}
         <hr />
         <h3 className="mt-4">History</h3>
-        {history && loadTable()}
+        <NanoContractHistory ncId={ncId} />
       </div>
     </div>
   );
