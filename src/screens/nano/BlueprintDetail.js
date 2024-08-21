@@ -5,12 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import hljs from 'highlight.js/lib/core';
+import python from 'highlight.js/lib/languages/python';
 import Loading from '../../components/Loading';
 import nanoApi from '../../api/nanoApi';
 
+hljs.registerLanguage('python', python);
+
 /**
- * Details of a Nano Contract
+ * Details of a Blueprint
  *
  * @memberof Screens
  */
@@ -19,10 +23,16 @@ function BlueprintDetail(props) {
 
   // blueprintInformation {Object | null} Blueprint information
   const [blueprintInformation, setBlueprintInformation] = useState(null);
+  // blueprintSourceCode {string | null} Blueprint source code
+  const [blueprintSourceCode, setBlueprintSourceCode] = useState(null);
   // loading {boolean} Bool to show/hide loading when getting blueprint information
   const [loading, setLoading] = useState(true);
   // errorMessage {string | null} Error message in case a request to get nano contract data fails
   const [errorMessage, setErrorMessage] = useState(null);
+  // showCode {boolean} If should show the blueprint source code
+  const [showCode, setShowCode] = useState(false);
+
+  const codeRef = useRef();
 
   useEffect(() => {
     let ignore = false;
@@ -31,19 +41,21 @@ function BlueprintDetail(props) {
       setLoading(true);
       setBlueprintInformation(null);
       try {
-        const blueprintInformation = await nanoApi.getBlueprintInformation(blueprintId);
+        const blueprintInformationData = await nanoApi.getBlueprintInformation(blueprintId);
+        const blueprintSourceCodeData = await nanoApi.getBlueprintSourceCode(blueprintId);
         if (ignore) {
           // This is to prevent setting a state after the component has been already cleaned
           return;
         }
-        setBlueprintInformation(blueprintInformation);
-        setLoading(false);
+        setBlueprintInformation(blueprintInformationData);
+        setBlueprintSourceCode(blueprintSourceCodeData.source_code);
       } catch (e) {
         if (ignore) {
           // This is to prevent setting a state after the component has been already cleaned
           return;
         }
         setErrorMessage('Error getting blueprint information.');
+      } finally {
         setLoading(false);
       }
     }
@@ -53,6 +65,12 @@ function BlueprintDetail(props) {
       ignore = true;
     };
   }, [blueprintId]);
+
+  useEffect(() => {
+    if (codeRef && codeRef.current) {
+      hljs.highlightBlock(codeRef.current);
+    }
+  }, [blueprintSourceCode]);
 
   if (errorMessage) {
     return <p className="text-danger mb-4">{errorMessage}</p>;
@@ -119,6 +137,16 @@ function BlueprintDetail(props) {
     return `${name}(${parameters.join(', ')}): ${returnType === 'null' ? 'None' : returnType}`;
   };
 
+  /**
+   * Handle toggle click to hide or show the blueprint source code
+   *
+   * @param {Event} e Click event
+   */
+  const onToggleShowCode = e => {
+    e.preventDefault();
+    setShowCode(!showCode);
+  };
+
   return (
     <div className="content-wrapper">
       <h3 className="mt-4">Blueprint Information</h3>
@@ -135,7 +163,19 @@ function BlueprintDetail(props) {
         {renderBlueprintAttributes()}
         {renderBlueprintMethods('public_methods', 'Public Methods')}
         {renderBlueprintMethods('private_methods', 'Private Methods')}
-        <hr />
+        <div className="d-flex flex-row align-items-center mb-4 mt-4">
+          <h4 className="mb-0 mr-3">Source Code</h4>
+          <a href="true" onClick={e => onToggleShowCode(e)}>
+            {showCode ? 'Hide' : 'Show'}
+          </a>
+        </div>
+        <div className={`source-code ${showCode ? 'show' : ''}`}>
+          <pre>
+            <code ref={codeRef} className="language-python">
+              {blueprintSourceCode}
+            </code>
+          </pre>
+        </div>
       </div>
     </div>
   );

@@ -79,6 +79,25 @@ const nanoApi = {
       }
     );
   },
+
+  /**
+   * Get the blueprint source code
+   *
+   * @param {string} blueprintId ID of the blueprint
+   *
+   * For more details, see full node api docs
+   */
+  getBlueprintSourceCode(blueprintId) {
+    const data = { blueprint_id: blueprintId };
+    return requestExplorerServiceV1.get(`node_api/nc_blueprint_source_code`, { params: data }).then(
+      res => {
+        return res.data;
+      },
+      res => {
+        throw new Error(res.data.message);
+      }
+    );
+  },
 };
 
 export default nanoApi;

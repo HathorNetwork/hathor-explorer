@@ -13,6 +13,7 @@ import App from './App';
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'font-awesome/css/font-awesome.min.css';
+import 'highlight.js/styles/github.css';
 import './index.css';
 
 import store from './store/index';
