@@ -8,7 +8,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import TxRow from '../components/tx/TxRow';
 import WebSocketHandler from '../WebSocketHandler';
-import { DASHBOARD_TX_COUNT, DASHBOARD_BLOCKS_COUNT } from '../constants';
+import { DASHBOARD_BLOCKS_COUNT, DASHBOARD_TX_COUNT } from '../constants';
 import txApi from '../api/txApi';
 import helpers from '../utils/helpers';
 
@@ -24,73 +24,53 @@ function DashboardTx() {
   const [blocks, setBlocks] = useState([]);
 
   /**
-   * Get initial data to fill the screen and update the state with this data
+   * Handles a websocket message and checks if it should update the list.
+   * If so, which list should be updated.
+   * @param {unknown} wsData Websocket message object
    */
-  const getInitialData = useCallback(() => {
-    txApi
-      .getDashboardTx(DASHBOARD_BLOCKS_COUNT, DASHBOARD_TX_COUNT)
-      .then(res => {
-        updateData(res.transactions, res.blocks);
-      })
-      .catch(e => {
-        // Error in request
-        console.log(e);
-      });
-  }, []);
+  const handleWebsocket = useCallback(wsData => {
+    // Discard any message that is not of the expected type
+    if (wsData.type !== 'network:new_tx_accepted') {
+      return;
+    }
 
-  /**
-   * Update list because a new element arrived
-   */
-  const updateListWs = useCallback(tx => {
-    if (tx.is_block) {
+    if (wsData.is_block) {
+      // Updates the Blocks list
       setBlocks(currentBlocks => {
         // Create a new array to be mutated by the helper
         const oldBlocks = [...currentBlocks];
-        const newBlocks = helpers.updateListWs(oldBlocks, tx, DASHBOARD_BLOCKS_COUNT);
 
         // Finally we update the state again
-        return newBlocks;
+        return helpers.updateListWs(oldBlocks, wsData, DASHBOARD_BLOCKS_COUNT);
       });
     } else {
+      // Updates the Transactions list
       setTransactions(currentTxs => {
         // Create a new array to be mutated by the helper
         const oldTransactions = [...currentTxs];
-        const newTransactions = helpers.updateListWs(oldTransactions, tx, DASHBOARD_TX_COUNT);
 
         // Finally we update the state again
-        return newTransactions;
+        return helpers.updateListWs(oldTransactions, wsData, DASHBOARD_TX_COUNT);
       });
     }
   }, []);
 
-  /**
-   * Handle websocket message to see if should update the list
-   */
-  const handleWebsocket = useCallback(
-    wsData => {
-      if (wsData.type === 'network:new_tx_accepted') {
-        updateListWs(wsData);
-      }
-    },
-    [updateListWs]
-  );
-
   useEffect(() => {
-    getInitialData();
+    // Fetches initial data for the screen
+    txApi
+      .getDashboardTx(DASHBOARD_BLOCKS_COUNT, DASHBOARD_TX_COUNT)
+      .then(dashboardData => {
+        setTransactions(dashboardData.transactions);
+        setBlocks(dashboardData.blocks);
+      })
+      .catch(e => console.error(e));
+
     WebSocketHandler.on('network', handleWebsocket);
 
     return () => {
       WebSocketHandler.removeListener('network', handleWebsocket);
     };
-  }, [getInitialData, handleWebsocket]);
-
-  /**
-   * Update state data for transactions and blocks
-   */
-  const updateData = (transactionsData, blocksData) => {
-    setTransactions(transactionsData);
-    setBlocks(blocksData);
-  };
+  }, [handleWebsocket]);
 
   const renderTableBody = () => {
     return (
