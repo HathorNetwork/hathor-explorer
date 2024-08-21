@@ -73,8 +73,8 @@ class SortableTable extends React.Component {
               ref="pagePrevious"
               className={
                 !this.props.hasBefore || this.props.calculatingPage
-                  ? 'page-item mr-3 disabled'
-                  : 'page-item mr-3'
+                  ? 'page-item me-3 disabled'
+                  : 'page-item me-3'
               }
             >
               <button onClick={e => this.props.onPreviousPageClicked(e)} className="page-link">

@@ -28,14 +28,14 @@ class TokenBalanceRow extends React.Component {
   render() {
     return (
       <tr onClick={e => this.onRowClicked(this.props.address)}>
-        <td className="d-lg-table-cell pr-3">{this.props.address}</td>
-        <td className="d-lg-table-cell pr-3">
+        <td className="d-lg-table-cell pe-3">{this.props.address}</td>
+        <td className="d-lg-table-cell pe-3">
           {numberUtils.prettyValue(this.props.total, this.props.decimalPlaces)}
         </td>
-        <td className="d-lg-table-cell pr-3">
+        <td className="d-lg-table-cell pe-3">
           {numberUtils.prettyValue(this.props.unlocked, this.props.decimalPlaces)}
         </td>
-        <td className="d-lg-table-cell pr-3">
+        <td className="d-lg-table-cell pe-3">
           {numberUtils.prettyValue(this.props.locked, this.props.decimalPlaces)}
         </td>
       </tr>

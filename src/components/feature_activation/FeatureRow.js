@@ -17,21 +17,21 @@ class FeatureRow extends React.Component {
 
     return (
       <tr>
-        <td className="d-lg-table-cell pr-3">{this.props.feature.name}</td>
-        <td className="d-lg-table-cell pr-3">{prettyState}</td>
-        <td className="d-lg-table-cell pr-3">{acceptance_percentage}</td>
-        <td className="d-lg-table-cell pr-3">{(this.props.feature.threshold * 100).toFixed(0)}%</td>
-        <td className="d-lg-table-cell pr-3">
+        <td className="d-lg-table-cell pe-3">{this.props.feature.name}</td>
+        <td className="d-lg-table-cell pe-3">{prettyState}</td>
+        <td className="d-lg-table-cell pe-3">{acceptance_percentage}</td>
+        <td className="d-lg-table-cell pe-3">{(this.props.feature.threshold * 100).toFixed(0)}%</td>
+        <td className="d-lg-table-cell pe-3">
           {numberUtils.prettyValue(this.props.feature.start_height, 0)}
         </td>
-        <td className="d-lg-table-cell pr-3">
+        <td className="d-lg-table-cell pe-3">
           {numberUtils.prettyValue(this.props.feature.minimum_activation_height, 0)}
         </td>
-        <td className="d-lg-table-cell pr-3">
+        <td className="d-lg-table-cell pe-3">
           {numberUtils.prettyValue(this.props.feature.timeout_height, 0)}
         </td>
-        <td className="d-lg-table-cell pr-3">{this.props.feature.lock_in_on_timeout.toString()}</td>
-        <td className="d-lg-table-cell pr-3">{this.props.feature.version}</td>
+        <td className="d-lg-table-cell pe-3">{this.props.feature.lock_in_on_timeout.toString()}</td>
+        <td className="d-lg-table-cell pe-3">{this.props.feature.version}</td>
       </tr>
     );
   }

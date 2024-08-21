@@ -570,7 +570,7 @@ class TxData extends React.Component {
           >
             <label className="graph-label">{this.state.graphs[graphIndex].label}:</label>
             {this.props.transaction.parents && this.props.transaction.parents.length ? (
-              <a href="true" className="ml-1" onClick={e => this.toggleGraph(e, graphIndex)}>
+              <a href="true" className="ms-1" onClick={e => this.toggleGraph(e, graphIndex)}>
                 {this.state.graphs[graphIndex].showNeighbors ? 'Click to hide' : 'Click to show'}
               </a>
             ) : null}
@@ -708,7 +708,7 @@ class TxData extends React.Component {
     const renderNCActions = () => {
       const actionsCount = get(this.props.transaction, 'nc_context.actions.length', 0);
       return (
-        <div className="d-flex flex-column align-items-start common-div bordered-wrapper mr-3">
+        <div className="d-flex flex-column align-items-start common-div bordered-wrapper me-3">
           <div>
             <label>Actions ({actionsCount})</label>
           </div>
@@ -733,7 +733,7 @@ class TxData extends React.Component {
         return null;
       }
       return (
-        <div className="d-flex flex-column align-items-start common-div bordered-wrapper mr-3">
+        <div className="d-flex flex-column align-items-start common-div bordered-wrapper me-3">
           <div>
             <label>Nano Contract ID:</label>{' '}
             <Link to={`/nano_contract/detail/${this.props.transaction.nc_id}`}>
@@ -789,7 +789,7 @@ class TxData extends React.Component {
         <div className="d-flex flex-column flex-lg-row align-items-start mb-3 common-div bordered-wrapper w-100">
           <div className="mt-3 graph-div" key="feature-activation">
             <label className="graph-label">Feature Activation:</label>
-            <a href="true" className="ml-1" onClick={e => this.toggleFeatureActivation(e)}>
+            <a href="true" className="ms-1" onClick={e => this.toggleFeatureActivation(e)}>
               {this.state.showFeatureActivation ? 'Click to hide' : 'Click to show'}
             </a>
             {this.state.showFeatureActivation &&
@@ -841,7 +841,7 @@ class TxData extends React.Component {
             {this.props.transaction.hash}
           </div>
           <div className="d-flex flex-column flex-lg-row align-items-start mt-3 mb-3">
-            <div className="d-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
+            <div className="d-flex flex-column align-items-start common-div bordered-wrapper me-lg-3 w-100">
               <div>
                 <label>Type:</label> {hathorLib.transactionUtils.getTxType(this.props.transaction)}{' '}
                 {isNFTCreation() && '(NFT)'} <TxMarkers tx={this.props.transaction} />
@@ -886,7 +886,7 @@ class TxData extends React.Component {
               renderNCActions()}
           </div>
           <div className="d-flex flex-column flex-lg-row align-items-start mb-3 w-100">
-            <div className="f-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
+            <div className="f-flex flex-column align-items-start common-div bordered-wrapper me-lg-3 w-100">
               <div>
                 <label>Inputs ({this.props.transaction.inputs.length})</label>
               </div>
@@ -901,7 +901,7 @@ class TxData extends React.Component {
           </div>
           {this.state.tokens.length > 0 && renderTokenList()}
           <div className="d-flex flex-column flex-lg-row align-items-start mb-3">
-            <div className="f-flex flex-column align-items-start common-div bordered-wrapper mr-lg-3 w-100">
+            <div className="f-flex flex-column align-items-start common-div bordered-wrapper me-lg-3 w-100">
               <div>
                 <label>Parents:</label>
               </div>
@@ -911,7 +911,7 @@ class TxData extends React.Component {
               <div>
                 <label>Children: </label>
                 {this.props.meta.children.length > 0 && (
-                  <a href="true" className="ml-1" onClick={e => this.toggleChildren(e)}>
+                  <a href="true" className="ms-1" onClick={e => this.toggleChildren(e)}>
                     {this.state.children ? 'Click to hide' : 'Click to show'}
                   </a>
                 )}
@@ -936,7 +936,7 @@ class TxData extends React.Component {
           </a>
           {this.state.raw ? (
             <CopyToClipboard text={this.props.transaction.raw} onCopy={this.copied}>
-              <i className="fa fa-clone pointer ml-1" title="Copy raw tx to clipboard"></i>
+              <i className="fa fa-clone pointer ms-1" title="Copy raw tx to clipboard"></i>
             </CopyToClipboard>
           ) : null}
           <p className="mt-3" ref="rawTx" style={{ display: 'none' }}>

@@ -71,7 +71,7 @@ const TokenConfig = props => {
             {getShortConfigurationString()}
             <CopyToClipboard text={configurationString} onCopy={copied}>
               <i
-                className="fa fa-lg fa-clone pointer ml-1 float-right"
+                className="fa fa-lg fa-clone pointer ms-1 float-right"
                 title="Copy to clipboard"
               ></i>
             </CopyToClipboard>
@@ -85,7 +85,7 @@ const TokenConfig = props => {
             href="true"
           >
             Download
-            <i className="fa fa-download ml-1 float-right" title="Download QRCode"></i>
+            <i className="fa fa-download ms-1 float-right" title="Download QRCode"></i>
           </a>
         </p>
       </div>

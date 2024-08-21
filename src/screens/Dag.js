@@ -194,11 +194,11 @@ class Dag extends React.Component {
   render() {
     return (
       <div className="d-flex align-items-start flex-column content-wrapper dag-visualizer">
-        <button className="btn btn-secondary mr-5" onClick={this.handlePause}>
+        <button className="btn btn-secondary me-5" onClick={this.handlePause}>
           {this.state.isPaused ? 'Play' : 'Pause'}
         </button>
         <div className="d-flex align-items-center mt-3">
-          <label htmlFor="timeframe" className="mr-3">
+          <label htmlFor="timeframe" className="me-3">
             Timeframe (in seconds):
           </label>
           <input
@@ -209,7 +209,7 @@ class Dag extends React.Component {
             value={this.state.inputTimeframe}
             onChange={this.handleTimeframeChange}
           />
-          <button className="btn btn-secondary ml-3" onClick={this.handleReset}>
+          <button className="btn btn-secondary ms-3" onClick={this.handleReset}>
             Reset
           </button>
         </div>

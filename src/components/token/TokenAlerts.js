@@ -15,7 +15,7 @@ const TokenAlerts = props => {
 
     return (
       <div className="alert alert-danger backup-alert" role="alert">
-        <i className="fa fa-exclamation-triangle mr-2" title="Banned Token"></i>
+        <i className="fa fa-exclamation-triangle me-2" title="Banned Token"></i>
         {tokenBannedMessage}
       </div>
     );

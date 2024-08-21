@@ -16,10 +16,10 @@ class FeatureDataRow extends React.Component {
 
     return (
       <tr>
-        <td className="d-lg-table-cell pr-3">{bit}</td>
-        <td className="d-lg-table-cell pr-3">{prettySignal}</td>
-        <td className="d-lg-table-cell pr-3">{feature || '—'}</td>
-        <td className="d-lg-table-cell pr-3">{prettyState || '—'}</td>
+        <td className="d-lg-table-cell pe-3">{bit}</td>
+        <td className="d-lg-table-cell pe-3">{prettySignal}</td>
+        <td className="d-lg-table-cell pe-3">{feature || '—'}</td>
+        <td className="d-lg-table-cell pe-3">{prettyState || '—'}</td>
       </tr>
     );
   }
