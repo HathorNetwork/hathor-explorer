@@ -113,7 +113,7 @@ class DagComponent extends React.Component {
       const newLinks = [];
       for (const parent of parents) {
         // Validate if parent is in the data, otherwise no need to add a link
-        if (this.graph.hasOwnProperty(parent)) {
+        if (this.graph[parent]) {
           // Creating link for each parent
           const linkData = {
             source: {
@@ -161,7 +161,7 @@ class DagComponent extends React.Component {
       const newLinks = [];
       for (const parent of parents) {
         // Validate if parent is in the data, otherwise no need to add a link
-        if (this.graph.hasOwnProperty(parent)) {
+        if (this.graph[parent]) {
           // Creating link for each parent
           const linkData = {
             source: {
@@ -228,18 +228,10 @@ class DagComponent extends React.Component {
       .append('g')
       .attr('class', 'link')
       .append('line')
-      .attr('x1', function(d) {
-        return d.source.x;
-      })
-      .attr('y1', function(d) {
-        return d.source.y;
-      })
-      .attr('x2', function(d) {
-        return d.target.x;
-      })
-      .attr('y2', function(d) {
-        return d.target.y;
-      });
+      .attr('x1', d => d.source.x)
+      .attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x)
+      .attr('y2', d => d.target.y);
 
     this.link = this.gLinks.selectAll('line');
   }
@@ -252,9 +244,7 @@ class DagComponent extends React.Component {
       .selectAll()
       .data(txs)
       .enter()
-      .filter(function(d) {
-        return !d.isBlock;
-      })
+      .filter(d => !d.isBlock)
       .append('g')
       .attr('class', 'tx');
 
@@ -294,9 +284,7 @@ class DagComponent extends React.Component {
       .attr('y', d => {
         return d.y;
       })
-      .text(function(d) {
-        return d.id.substring(0, 4);
-      });
+      .text(d => d.id.substring(0, 4));
 
     this.tx = this.gTxs.selectAll('circle');
   }
@@ -309,9 +297,7 @@ class DagComponent extends React.Component {
       .selectAll()
       .data(blocks)
       .enter()
-      .filter(function(d) {
-        return d.isBlock;
-      })
+      .filter(d => d.isBlock)
       .append('g')
       .attr('class', 'block');
 
@@ -344,9 +330,7 @@ class DagComponent extends React.Component {
 
     // Add text to show block info
     block
-      .filter(function(d) {
-        return d.isBlock;
-      })
+      .filter(d => d.isBlock)
       .append('text')
       .append('tspan')
       .attr('class', 'block-text')
@@ -358,9 +342,7 @@ class DagComponent extends React.Component {
       .attr('y', d => {
         return d.y + this.blockHeight / 2;
       })
-      .text(function(d) {
-        return d.id.substring(0, 4);
-      });
+      .text(d => d.id.substring(0, 4));
 
     this.block = this.gBlocks.selectAll('rect');
   }
@@ -435,7 +417,7 @@ class DagComponent extends React.Component {
       /** Data from the tx being hovered */
       const d = mouseEvent.currentTarget.__data__;
       if (this.tx) {
-        this.tx.style('stroke-opacity', function(o) {
+        this.tx.style('stroke-opacity', function changeStrokeOpacity(o) {
           const thisOpacity = d.links.indexOf(o.id) > -1 || d.id === o.id ? 1 : opacity;
           this.setAttribute('fill-opacity', thisOpacity);
           return thisOpacity;
@@ -443,7 +425,7 @@ class DagComponent extends React.Component {
       }
 
       if (this.block) {
-        this.block.style('stroke-opacity', function(o) {
+        this.block.style('stroke-opacity', function changeStrokeOpacity(o) {
           const thisOpacity = d.links.indexOf(o.id) > -1 || d.id === o.id ? 1 : opacity;
           this.setAttribute('fill-opacity', thisOpacity);
           return thisOpacity;
@@ -463,9 +445,11 @@ class DagComponent extends React.Component {
     // TODO
     // I am blocking zoom in right now because I was having a bug to auto translate when zoomed in
     if (event.transform.k > 1) {
+      /* eslint-disable no-param-reassign */
       event.transform.x = this.lastZoomX;
       event.transform.y = this.lastZoomY;
       event.transform.k = this.lastZoomScale;
+      /* eslint-enable no-param-reassign */
       return;
     }
     this.gDraw.attr('transform', event.transform);

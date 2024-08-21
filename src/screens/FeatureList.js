@@ -8,14 +8,12 @@
 import React from 'react';
 import Features from '../components/feature_activation/Features';
 
-class FeatureList extends React.Component {
-  render() {
-    return (
-      <div className="content-wrapper">
-        <Features title={<h1>Feature Activation</h1>} />
-      </div>
-    );
-  }
+function FeatureList() {
+  return (
+    <div className="content-wrapper">
+      <Features title={<h1>Feature Activation</h1>} />
+    </div>
+  );
 }
 
 export default FeatureList;

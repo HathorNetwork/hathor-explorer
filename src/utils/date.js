@@ -25,14 +25,15 @@ const dateFormatter = {
   },
 
   uptimeFormat(uptime) {
-    uptime = Math.floor(uptime);
-    const days = Math.floor(uptime / 3600 / 24);
-    uptime %= 3600 * 24;
-    const hours = Math.floor(uptime / 3600);
-    uptime %= 3600;
-    const minutes = Math.floor(uptime / 60);
-    uptime %= 60;
-    const seconds = uptime;
+    let tmpUptime = uptime;
+    tmpUptime = Math.floor(tmpUptime);
+    const days = Math.floor(tmpUptime / 3600 / 24);
+    tmpUptime %= 3600 * 24;
+    const hours = Math.floor(tmpUptime / 3600);
+    tmpUptime %= 3600;
+    const minutes = Math.floor(tmpUptime / 60);
+    tmpUptime %= 60;
+    const seconds = tmpUptime;
     const pad = n => (Math.abs(n) >= 10 ? n : `0${n}`);
     const uptime_str = `${days} days, ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
     return uptime_str;

@@ -151,13 +151,14 @@ const helpers = {
    * @inner
    */
   divideValueIntoPrefix(value) {
+    let tmpValue = value;
     let divisions = 0;
-    while (value / 1000 > 1) {
-      value /= 1000;
+    while (tmpValue / 1000 > 1) {
+      tmpValue /= 1000;
       divisions += 1;
     }
 
-    return { value: value.toFixed(2), divisions };
+    return { value: tmpValue.toFixed(2), divisions };
   },
 
   /**

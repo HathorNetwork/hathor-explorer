@@ -8,6 +8,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import FlagProvider from '@unleash/proxy-client-react';
+import { Provider } from 'react-redux';
 import App from './App';
 
 import 'bootstrap';
@@ -17,7 +18,6 @@ import 'highlight.js/styles/github.css';
 import './index.css';
 
 import store from './store/index';
-import { Provider } from 'react-redux';
 import { UNLEASH_CONFIG } from './constants';
 
 const container = document.getElementById('root');
