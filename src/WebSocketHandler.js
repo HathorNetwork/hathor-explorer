@@ -12,64 +12,65 @@ const HEARTBEAT_TMO = 30000; // 30s
 
 class WS extends EventEmitter {
   constructor() {
-    if (!WS.instance) {
-      super();
-      this.connected = false;
-      this.setup();
-    }
+    super();
+    this.connected = false;
+    this.setup = this.setup.bind(this);
+    this.sendPing = this.sendPing.bind(this);
+    this.sendMessage = this.sendMessage.bind(this);
 
-    return WS.instance;
+    this.setup();
   }
 
-  setup = () => {
+  setup() {
     if (this.connected) {
       return;
     }
     console.log('ws setup');
+    this.ws = null;
     this.ws = new WebSocket(WS_URL);
 
-    this.ws.onopen = this.onOpen;
-    this.ws.onmessage = this.onMessage;
-    this.ws.onerror = this.onError;
-    this.ws.onclose = this.onClose;
-  };
+    this.ws.onopen = this.onOpen.bind(this);
+    this.ws.onmessage = this.onMessage.bind(this);
+    this.ws.onerror = this.onError.bind(this);
+    this.ws.onclose = this.onClose.bind(this);
+  }
 
-  onMessage = evt => {
+  onMessage(evt) {
     const message = JSON.parse(evt.data);
     const _type = message.type.split(':')[0];
     this.emit(_type, message);
-  };
+  }
 
-  onOpen = () => {
+  onOpen() {
     this.connected = true;
     console.log('ws connection established');
     this.heartbeat = setInterval(this.sendPing, HEARTBEAT_TMO);
-  };
+  }
 
-  onClose = () => {
+  onClose() {
     this.connected = false;
-    setTimeout(this.setup, 500);
+    setTimeout(this.setup, 5000);
     clearInterval(this.heartbeat);
     console.log('ws connection closed');
-  };
+  }
 
-  onError = evt => {
+  onError(evt) {
     console.log('ws error', evt);
-  };
+  }
 
-  sendMessage = msg => {
+  sendMessage(msg) {
     if (!this.connected) {
       console.log('ws not connected, cannot send message');
       return;
     }
 
     this.ws.send(msg);
-  };
+  }
 
-  sendPing = () => {
+  sendPing() {
     const msg = JSON.stringify({ type: 'ping' });
     this.sendMessage(msg);
-  };
+  }
 }
 
 const instance = new WS();
