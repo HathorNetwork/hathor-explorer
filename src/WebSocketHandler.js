@@ -47,8 +47,11 @@ class WS extends EventEmitter {
     this.heartbeat = setInterval(this.sendPing, HEARTBEAT_TMO);
   }
 
-  onClose() {
+  onClose(evt) {
     this.connected = false;
+    if (evt?.code === 1006) {
+      console.warn('Abnormal ws connection closure. Are you using a secure ws connection?');
+    }
     setTimeout(this.setup, 5000);
     clearInterval(this.heartbeat);
     console.log('ws connection closed');
