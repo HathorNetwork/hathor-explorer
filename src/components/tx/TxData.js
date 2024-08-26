@@ -112,6 +112,7 @@ class TxData extends React.Component {
       network,
       ncData.nc_args
     );
+    deserializer.parseAddress();
     await deserializer.parseArguments();
     this.setState({ ncDeserializer: deserializer, ncLoading: false });
   };

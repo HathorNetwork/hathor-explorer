@@ -22,10 +22,6 @@ import txApi from '../../api/txApi';
 function NanoContractDetail(props) {
   const ncId = props.match.params.nc_id;
 
-  const { decimalPlaces } = useSelector((state) => {
-    return { decimalPlaces: state.serverInfo.decimal_places }
-  });
-
   // ncState {Object | null} Nano contract state
   const [ncState, setNcState] = useState(null);
   // blueprintInformation {Object | null} Blueprint Information from API
