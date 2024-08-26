@@ -172,7 +172,7 @@ function NanoContractDetail(props) {
     }
 
     return data.value;
-  }
+  };
 
   const renderAttributes = () => {
     return Object.entries(ncState.fields).map(([name, data]) => {
