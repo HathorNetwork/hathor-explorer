@@ -20,7 +20,7 @@ function DecodeTx() {
   /* transaction {Object} Decoded transaction */
   const [transaction, setTransaction] = useState(null);
   /* success {boolean} If had success decoding transaction on the server */
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState(null);
   /* dataToDecode {string} Text written by the user as the serialized transaction to be decoded */
   const [dataToDecode, setDataToDecode] = useState(null);
   /* meta {Object} Metadata of decoded transaction received from the server */
@@ -45,7 +45,7 @@ function DecodeTx() {
   const buttonClicked = async () => {
     try {
       const data = await txApi.decodeTx(dataToDecode);
-      setSuccess(!!data.success);
+      setSuccess(data.success);
       if (!data.success) {
         setTransaction(null);
         setConfirmationData(null);
