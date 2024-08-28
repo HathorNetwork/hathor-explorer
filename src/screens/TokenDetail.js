@@ -45,8 +45,8 @@ function TokenDetail() {
   const { tokenUID } = useParams();
 
   useEffect(() => {
-    updateTokenInfo(tokenUID);
-    updateTokenMetadata(tokenUID);
+    updateTokenInfo(tokenUID).catch(e => console.error(e));
+    updateTokenMetadata(tokenUID).catch(e => console.error(e));
   }, [tokenUID]);
 
   /**
