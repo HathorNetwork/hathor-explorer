@@ -233,7 +233,7 @@ function NanoContractHistory({ ncId }) {
         <ul className="pagination">
           <li
             className={
-              !hasBefore || history.length === 0 ? 'page-item mr-3 disabled' : 'page-item mr-3'
+              !hasBefore || history.length === 0 ? 'page-item me-3 disabled' : 'page-item me-3'
             }
           >
             <Link
