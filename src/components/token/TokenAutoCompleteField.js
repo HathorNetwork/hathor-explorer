@@ -1,14 +1,14 @@
-import React from 'react'
+import React from 'react';
 import PropTypes from 'prop-types';
 import Loading from '../Loading';
 import tokensApi from '../../api/tokensApi';
 import { debounce, get } from 'lodash';
 import { constants as hathorLibConstants } from '@hathor/wallet-lib';
-import { connect } from "react-redux";
+import { connect } from 'react-redux';
 
 const DEBOUNCE_SEARCH_TIME = 200; // ms
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return { serverInfo: state.serverInfo };
 };
 
@@ -29,8 +29,12 @@ class TokenAutoCompleteField extends React.Component {
   getNativeToken() {
     return {
       uid: hathorLibConstants.NATIVE_TOKEN_UID,
-      name: this.props.serverInfo?.native_token?.name ?? hathorLibConstants.DEFAULT_NATIVE_TOKEN_CONFIG.name,
-      symbol: this.props.serverInfo?.native_token?.symbol ?? hathorLibConstants.DEFAULT_NATIVE_TOKEN_CONFIG.symbol,
+      name:
+        this.props.serverInfo?.native_token?.name ??
+        hathorLibConstants.DEFAULT_NATIVE_TOKEN_CONFIG.name,
+      symbol:
+        this.props.serverInfo?.native_token?.symbol ??
+        hathorLibConstants.DEFAULT_NATIVE_TOKEN_CONFIG.symbol,
     };
   }
 
@@ -46,11 +50,7 @@ class TokenAutoCompleteField extends React.Component {
       return;
     }
 
-    const whiteList = [
-      'autocomplete-results',
-      'autocomplete-input',
-      'autocomplete-result-item',
-    ];
+    const whiteList = ['autocomplete-results', 'autocomplete-input', 'autocomplete-result-item'];
 
     const classList = [...target.classList];
 
@@ -96,34 +96,34 @@ class TokenAutoCompleteField extends React.Component {
       // The token uid in the query params didn't find any token
       this.props.loadingFinished();
     }
-  }
+  };
 
   /**
    * Called when an item is called on the autocomplete result list
    *
    * @param {object} item
    */
-  onItemSelected = (item) => {
+  onItemSelected = item => {
     this.setState({
       searchResults: [],
       selectedItem: item,
     });
 
     this.props.onTokenSelected(item);
-  }
+  };
 
   /**
    * Updates searchText state value when input field is changed
    *
    * @param {*} event
    */
-  onSearchTextChanged = (event) => {
+  onSearchTextChanged = event => {
     this.setState({
       searchText: event.target.value,
     });
 
     this.performSearchDebounce();
-  }
+  };
 
   /**
    * Called when the user clicks the "clear" button on a selected token
@@ -136,7 +136,7 @@ class TokenAutoCompleteField extends React.Component {
     });
 
     this.props.onTokenSelected(null);
-  }
+  };
 
   /**
    * Called from onSearchTextChanged after DEBOUNCE_SEARCH_TIME ms from
@@ -155,34 +155,38 @@ class TokenAutoCompleteField extends React.Component {
     this.setState({
       searchResults,
     });
-
-  }, DEBOUNCE_SEARCH_TIME)
+  }, DEBOUNCE_SEARCH_TIME);
 
   /**
    * Execute explorer service search to find the list of tokens that match the search text
    *
    * @params {string} searchText Text written by the user in the search input
    */
-  executeSearch = async (searchText) => {
+  executeSearch = async searchText => {
     const tokensRequest = await tokensApi.getList(searchText, 'transaction_timestamp', 'desc', []);
     this.setState({
       error: get(tokensRequest, 'error', false),
     });
 
-    const tokens = get(tokensRequest, 'data', { hits: [], 'has_next': false });
+    const tokens = get(tokensRequest, 'data', { hits: [], has_next: false });
     const searchResults = tokens.hits;
 
     return searchResults;
-  }
-
+  };
 
   _renderInputForm() {
     if (this.state.selectedItem) {
       return (
-        <div className="selectedItemWrapper mr-2 form-control">
+        <div className="selectedItemWrapper me-2 form-control">
           <div className="autocomplete-selected-item">
-            <span>{this.state.selectedItem.name} ({this.state.selectedItem.symbol}) - {this.state.selectedItem.id}</span>
-            <i className="fa fa-times-circle pointer close-icon" onClick={() => this.onClearSelectedItem()} />
+            <span>
+              {this.state.selectedItem.name} ({this.state.selectedItem.symbol}) -{' '}
+              {this.state.selectedItem.id}
+            </span>
+            <i
+              className="fa fa-times-circle pointer close-icon"
+              onClick={() => this.onClearSelectedItem()}
+            />
           </div>
         </div>
       );
@@ -191,14 +195,15 @@ class TokenAutoCompleteField extends React.Component {
 
     return (
       <input
-        className="form-control mr-2 autocomplete-input"
+        className="form-control me-2 autocomplete-input"
         type="search"
         value={this.state.searchText}
         onKeyUp={this.onSearchTextKeyUp}
         onChange={this.onSearchTextChanged}
         placeholder={`${nativeToken.name} (${nativeToken.symbol}) - Type to search for other tokens by UID, name or symbol`}
-        aria-label="Search" />
-    )
+        aria-label="Search"
+      />
+    );
   }
 
   _renderSearchIcon() {
@@ -209,17 +214,16 @@ class TokenAutoCompleteField extends React.Component {
           height={25}
           delay={0}
           useLoadingWrapper={false}
-          showSlowLoadMessage={false} />
+          showSlowLoadMessage={false}
+        />
       );
     }
 
-    return (
-      <i className="fa fa-search pointer" onClick={() => this.performSearchDebounce()} />
-    );
+    return <i className="fa fa-search pointer" onClick={() => this.performSearchDebounce()} />;
   }
 
   _renderAutocompleteResults() {
-    return this.state.searchResults.map((result) => (
+    return this.state.searchResults.map(result => (
       <li onClick={() => this.onItemSelected(result)} className="autocomplete-result-item">
         {result.name} ({result.symbol}) - {result.id}
       </li>
@@ -230,14 +234,18 @@ class TokenAutoCompleteField extends React.Component {
     return (
       <div className="d-flex align-items-center navigation-autocomplete-token">
         <div className="d-flex flex-row align-items-center col-12">
-          { this._renderInputForm() }
-          { this._renderSearchIcon() }
+          {this._renderInputForm()}
+          {this._renderSearchIcon()}
         </div>
-        <ul className={`autocomplete-results ${this.state.searchResults.length === 0 ? 'hidden' : ''}`}>
-          { this._renderAutocompleteResults() }
+        <ul
+          className={`autocomplete-results ${
+            this.state.searchResults.length === 0 ? 'hidden' : ''
+          }`}
+        >
+          {this._renderAutocompleteResults()}
         </ul>
       </div>
-    )
+    );
   }
 }
 

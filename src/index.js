@@ -6,24 +6,26 @@
  */
 
 import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
+import { createRoot } from 'react-dom/client';
 import FlagProvider from '@unleash/proxy-client-react';
+import { Provider } from 'react-redux';
+import App from './App';
 
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'font-awesome/css/font-awesome.min.css';
+import 'highlight.js/styles/github.css';
 import './index.css';
 
-import store from "./store/index";
-import { Provider } from "react-redux";
+import store from './store/index';
 import { UNLEASH_CONFIG } from './constants';
 
-ReactDOM.render(
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(
   <FlagProvider config={UNLEASH_CONFIG}>
     <Provider store={store}>
       <App />
     </Provider>
-  </FlagProvider>,
-  document.getElementById('root')
+  </FlagProvider>
 );

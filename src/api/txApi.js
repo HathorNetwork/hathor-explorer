@@ -17,52 +17,67 @@ const txApi = {
      page (optional): 'previous' or 'next' -> if 'previous', we get the objects before the hash reference
                                    if 'next', we get the objects after the hash reference
     */
-    const data = {type, count};
+    const data = { type, count };
     if (hash) {
-      data['hash'] = hash;
-      data['timestamp'] = timestamp;
-      data['page'] = page;
+      data.hash = hash;
+      data.timestamp = timestamp;
+      data.page = page;
     }
-    return requestExplorerServiceV1.get(`node_api/transactions`, {params: data}).then(res => {
-      return res.data
-    }).catch(e => {
-      throw new Error(e);
-    });
+    return requestExplorerServiceV1
+      .get(`node_api/transactions`, { params: data })
+      .then(res => {
+        return res.data;
+      })
+      .catch(e => {
+        throw new Error(e);
+      });
   },
 
   getTransaction(id) {
-    return requestExplorerServiceV1.get(`node_api/transaction`, {params: {id}}).then(res => {
-      return res.data
-    }).catch(e => {
-      throw new Error(e);
-    });
+    return requestExplorerServiceV1
+      .get(`node_api/transaction`, { params: { id } })
+      .then(res => {
+        return res.data;
+      })
+      .catch(e => {
+        throw new Error(e);
+      });
   },
 
   decodeTx(hex_tx) {
-    const data = {hex_tx}
-    return requestExplorerServiceV1.get(`node_api/decode_tx`, {params: data}).then((res) => {
-      return res.data
-    }, (res) => {
-      throw new Error(res.data.message);
-    });
+    const data = { hex_tx };
+    return requestExplorerServiceV1.get(`node_api/decode_tx`, { params: data }).then(
+      res => {
+        return res.data;
+      },
+      res => {
+        throw new Error(res.data.message);
+      }
+    );
   },
 
   pushTx(hex_tx, force) {
-    const data = {hex_tx, force}
-    return requestExplorerServiceV1.post(`node_api/push_tx`, data).then((res) => {
-      return res.data
-    }, (res) => {
-      throw new Error(res.data.message);
-    });
+    const data = { hex_tx, force };
+    return requestExplorerServiceV1.post(`node_api/push_tx`, data).then(
+      res => {
+        return res.data;
+      },
+      res => {
+        throw new Error(res.data.message);
+      }
+    );
   },
 
   getDashboardTx(block, tx) {
-    const data = {block, tx}
-    return requestExplorerServiceV1.get(`node_api/dashboard_tx`, {params: data}).then((res) => {
-      return res.data
-    }, (res) => {
-      throw new Error(res.data.message);
-    });
+    const data = { block, tx };
+    return requestExplorerServiceV1.get(`node_api/dashboard_tx`, { params: data }).then(
+      res => {
+        return res.data;
+      },
+      res => {
+        throw new Error(res.data.message);
+      }
+    );
   },
 
   /*
@@ -75,12 +90,15 @@ const txApi = {
    * @inner
    */
   getConfirmationData(id) {
-    const data = {id};
-    return requestExplorerServiceV1.get(`node_api/transaction_acc_weight`, {params: data}).then((res) => {
-      return res.data;
-    }, (res) => {
-      return Promise.reject(res);
-    });
+    const data = { id };
+    return requestExplorerServiceV1.get(`node_api/transaction_acc_weight`, { params: data }).then(
+      res => {
+        return res.data;
+      },
+      res => {
+        return Promise.reject(res);
+      }
+    );
   },
 };
 

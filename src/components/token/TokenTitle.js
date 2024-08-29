@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TokenMarkers from './TokenMarkers';
 
-
-const TokenTitle = (props) => {
-
+const TokenTitle = props => {
   const [token, setToken] = useState(props.token);
 
   useEffect(() => {
@@ -15,16 +13,17 @@ const TokenTitle = (props) => {
       return '';
     }
 
-    return 'text-danger'
-  }
+    return 'text-danger';
+  };
 
   return (
     <>
-      <strong className={bannedClassName()} >{token.name} ({token.symbol})</strong>
+      <strong className={bannedClassName()}>
+        {token.name} ({token.symbol})
+      </strong>
       <TokenMarkers token={token} />
     </>
-  )
-  
-}
+  );
+};
 
 export default TokenTitle;

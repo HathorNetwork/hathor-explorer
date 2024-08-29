@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { withRouter } from "react-router-dom";
+import { withRouter } from 'react-router-dom';
 import hathorLib from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
 import dateFormatter from '../../utils/date';
@@ -17,23 +17,26 @@ class TokenRow extends React.Component {
    *
    * @param {String} uid UID of token clicked
    */
-  onRowClicked = (uid) => {
+  onRowClicked = uid => {
     this.props.history.push(`/token_detail/${uid}`);
-  }
+  };
 
   render() {
     return (
-      <tr onClick={(e) => this.onRowClicked(this.props.token.uid)}>
-        <td className="d-lg-table-cell pr-3">{hathorLib.helpersUtils.getShortHash(this.props.token.uid)}</td>
-        <td className="d-lg-table-cell pr-3">{this.props.token.name}</td>
-        <td className="d-lg-table-cell pr-3">{this.props.token.symbol}</td>
-        <td className="d-lg-table-cell pr-3">{this.props.token.nft ? 'NFT' : 'Custom Token'}</td>
-        <td className="d-lg-table-cell pr-3">{dateFormatter.parseTimestamp(this.props.token.transaction_timestamp)}</td>
+      <tr onClick={e => this.onRowClicked(this.props.token.uid)}>
+        <td className="d-lg-table-cell pe-3">
+          {hathorLib.helpersUtils.getShortHash(this.props.token.uid)}
+        </td>
+        <td className="d-lg-table-cell pe-3">{this.props.token.name}</td>
+        <td className="d-lg-table-cell pe-3">{this.props.token.symbol}</td>
+        <td className="d-lg-table-cell pe-3">{this.props.token.nft ? 'NFT' : 'Custom Token'}</td>
+        <td className="d-lg-table-cell pe-3">
+          {dateFormatter.parseTimestamp(this.props.token.transaction_timestamp)}
+        </td>
       </tr>
     );
   }
 }
-
 
 /**
  * uid: Token UID
@@ -48,8 +51,8 @@ TokenRow.propTypes = {
     name: PropTypes.string.isRequired,
     symbol: PropTypes.string.isRequired,
     nft: PropTypes.bool.isRequired,
-    transaction_timestamp: PropTypes.number.isRequired
+    transaction_timestamp: PropTypes.number.isRequired,
   }),
-}
+};
 
 export default withRouter(TokenRow);

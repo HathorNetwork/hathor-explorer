@@ -9,13 +9,12 @@ import React from 'react';
 import ReactLoading from 'react-loading';
 import { Link } from 'react-router-dom';
 import { isEqual } from 'lodash';
-import {TX_COUNT} from '../../constants';
+import { TX_COUNT } from '../../constants';
 import TxRow from './TxRow';
 import helpers from '../../utils/helpers';
 import WebSocketHandler from '../../WebSocketHandler';
 import colors from '../../index.scss';
 import PaginationURL from '../../utils/pagination';
-
 
 /**
  * Displays transactions history in a table with pagination buttons. As the user navigates through the history,
@@ -38,9 +37,9 @@ class Transactions extends React.Component {
     super(props);
 
     this.pagination = new PaginationURL({
-      'ts': {'required': false},
-      'hash': {'required': false},
-      'page': {'required': false}
+      ts: { required: false },
+      hash: { required: false },
+      page: { required: false },
     });
 
     this.state = {
@@ -53,7 +52,7 @@ class Transactions extends React.Component {
       hasAfter: false,
       hasBefore: false,
       queryParams: this.pagination.obtainQueryParams(),
-    }
+    };
   }
 
   componentDidMount() {
@@ -78,30 +77,38 @@ class Transactions extends React.Component {
     WebSocketHandler.removeListener('network', this.handleWebsocket);
   }
 
-  handleWebsocket = (wsData) => {
+  handleWebsocket = wsData => {
     if (wsData.type === 'network:new_tx_accepted') {
       this.updateListWs(wsData);
     }
-  }
+  };
 
-  updateListWs = (tx) => {
+  updateListWs = tx => {
     // We only add new tx/blocks if it's the first page
     if (!this.state.hasBefore) {
       if (this.props.shouldUpdateList(tx)) {
         let transactions = this.state.transactions;
-        let hasAfter = (this.state.hasAfter || (transactions.length === TX_COUNT && !this.state.hasAfter))
+        let hasAfter =
+          this.state.hasAfter || (transactions.length === TX_COUNT && !this.state.hasAfter);
         transactions = helpers.updateListWs(transactions, tx, TX_COUNT);
 
         let firstHash = transactions[0].tx_id;
         let firstTimestamp = transactions[0].timestamp;
-        let lastHash = transactions[transactions.length-1].tx_id;
-        let lastTimestamp = transactions[transactions.length-1].timestamp;
+        let lastHash = transactions[transactions.length - 1].tx_id;
+        let lastTimestamp = transactions[transactions.length - 1].timestamp;
 
         // Finally we update the state again
-        this.setState({ transactions, hasAfter, firstHash, lastHash, firstTimestamp, lastTimestamp });
+        this.setState({
+          transactions,
+          hasAfter,
+          firstHash,
+          lastHash,
+          firstTimestamp,
+          lastTimestamp,
+        });
       }
     }
-  }
+  };
 
   handleDataFetched = (data, queryParams) => {
     // Handle differently if is the first GET response we receive
@@ -113,9 +120,9 @@ class Transactions extends React.Component {
     let lastTimestamp = null;
     if (data.transactions.length) {
       firstHash = data.transactions[0].tx_id;
-      lastHash = data.transactions[data.transactions.length-1].tx_id;
+      lastHash = data.transactions[data.transactions.length - 1].tx_id;
       firstTimestamp = data.transactions[0].timestamp;
-      lastTimestamp = data.transactions[data.transactions.length-1].timestamp;
+      lastTimestamp = data.transactions[data.transactions.length - 1].timestamp;
     }
 
     let hasAfter;
@@ -147,15 +154,18 @@ class Transactions extends React.Component {
       hasBefore,
       queryParams,
     });
-  }
+  };
 
   getData(queryParams) {
-    this.props.updateData(queryParams.ts, queryParams.hash, queryParams.page).then((data) => {
-      this.handleDataFetched(data, queryParams);
-    }, (e) => {
-      // Error in request
-      console.log(e);
-    });
+    this.props.updateData(queryParams.ts, queryParams.hash, queryParams.page).then(
+      data => {
+        this.handleDataFetched(data, queryParams);
+      },
+      e => {
+        // Error in request
+        console.log(e);
+      }
+    );
   }
 
   render() {
@@ -166,17 +176,49 @@ class Transactions extends React.Component {
         return (
           <nav aria-label="Tx pagination" className="d-flex justify-content-center">
             <ul className="pagination">
-              <li ref="txPrevious" className={(!this.state.hasBefore || this.state.transactions.length === 0) ? "page-item mr-3 disabled" : "page-item mr-3"}>
-                <Link className="page-link" to={this.pagination.setURLParameters({ts: this.state.firstTimestamp, hash: this.state.firstHash, page: 'previous'})}>Previous</Link>
+              <li
+                ref="txPrevious"
+                className={
+                  !this.state.hasBefore || this.state.transactions.length === 0
+                    ? 'page-item me-3 disabled'
+                    : 'page-item me-3'
+                }
+              >
+                <Link
+                  className="page-link"
+                  to={this.pagination.setURLParameters({
+                    ts: this.state.firstTimestamp,
+                    hash: this.state.firstHash,
+                    page: 'previous',
+                  })}
+                >
+                  Previous
+                </Link>
               </li>
-              <li ref="txNext" className={(!this.state.hasAfter || this.state.transactions.length === 0) ? "page-item disabled" : "page-item"}>
-                <Link className="page-link" to={this.pagination.setURLParameters({ts: this.state.lastTimestamp, hash: this.state.lastHash, page: 'next'})}>Next</Link>
+              <li
+                ref="txNext"
+                className={
+                  !this.state.hasAfter || this.state.transactions.length === 0
+                    ? 'page-item disabled'
+                    : 'page-item'
+                }
+              >
+                <Link
+                  className="page-link"
+                  to={this.pagination.setURLParameters({
+                    ts: this.state.lastTimestamp,
+                    hash: this.state.lastHash,
+                    page: 'next',
+                  })}
+                >
+                  Next
+                </Link>
               </li>
             </ul>
           </nav>
         );
       }
-    }
+    };
 
     const loadTable = () => {
       return (
@@ -186,29 +228,33 @@ class Transactions extends React.Component {
               <tr>
                 <th className="d-none d-lg-table-cell">Hash</th>
                 <th className="d-none d-lg-table-cell">Timestamp</th>
-                <th className="d-table-cell d-lg-none" colSpan="2">Hash<br/>Timestamp</th>
+                <th className="d-table-cell d-lg-none" colSpan="2">
+                  Hash
+                  <br />
+                  Timestamp
+                </th>
               </tr>
             </thead>
-            <tbody>
-              {loadTableBody()}
-            </tbody>
+            <tbody>{loadTableBody()}</tbody>
           </table>
         </div>
       );
-    }
+    };
 
     const loadTableBody = () => {
       return this.state.transactions.map((tx, idx) => {
-        return (
-          <TxRow key={tx.tx_id} tx={tx} />
-        );
+        return <TxRow key={tx.tx_id} tx={tx} />;
       });
-    }
+    };
 
     return (
       <div className="w-100">
         {this.props.title}
-        {!this.state.loaded ? <ReactLoading type='spin' color={colors.purpleHathor} delay={500} /> : loadTable()}
+        {!this.state.loaded ? (
+          <ReactLoading type="spin" color={colors.purpleHathor} delay={500} />
+        ) : (
+          loadTable()
+        )}
         {loadPagination()}
       </div>
     );

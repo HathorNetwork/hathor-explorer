@@ -17,12 +17,11 @@ import hathorLib from '@hathor/wallet-lib';
  * Create an axios instance to be used when sending requests
  *
  * @param {callback} resolve Callback to be stored and used in case of a retry after a fail
- * @param {number} timeout Timeout in milliseconds for the request
  */
-const createRequestInstance = (resolve, timeout) => {
+const createRequestInstance = resolve => {
   // Will override lib axios instance increasing the default request timeout
   const instance = hathorLib.axios.defaultCreateRequestInstance(resolve, 30000);
   return instance;
-}
+};
 
 export default createRequestInstance;

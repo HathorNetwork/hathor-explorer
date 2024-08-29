@@ -5,20 +5,26 @@ on:
     branches: [master]
     tags: ['v*']
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   dependencies:
     runs-on: ubuntu-latest
     steps:
-      # https://github.com/actions/checkout/releases/tag/v3.5.3
-      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
-      - name: Set up Node.js 18.x
-        # https://github.com/actions/setup-node/releases/tag/v3.7.0
-        uses: actions/setup-node@e33196f7422957bea03ed53f6fbb155025ffc7b8
+      # https://github.com/actions/checkout/releases/tag/v4.1.7
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Set up Node.js 20.x
+        # https://github.com/actions/setup-node/releases/tag/v4.0.3
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
         with:
-          node-version: 18.x
+          node-version: 20.x
+
       - name: Cache node modules
-        # https://github.com/actions/cache/releases/tag/v3.3.1
-        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        # https://github.com/actions/cache/releases/tag/v4.0.2
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
         env:
           cache-name: cache-node-modules
         with:
@@ -29,24 +35,62 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
+
       - name: Install Dependencies
         run: |
           npm install
           tar -cvf node_modules.tar ./node_modules
+
       - name: Upload node modules
-        uses: actions/upload-artifact@v2
+        # https://github.com/actions/upload-artifact/releases/tag/v4.3.4
+        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b
         with:
           name: node_modules
           path: node_modules.tar
           if-no-files-found: error
           retention-days: 1
+
   deploy-testnet-explorer:
     if: github.ref == 'refs/heads/master'
     needs: dependencies
     runs-on: ubuntu-latest
     steps:
-      # https://github.com/actions/checkout/releases/tag/v3.5.3
-      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+      # https://github.com/actions/checkout/releases/tag/v4.1.7
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      - name: Configure AWS Credentials
+        # https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.0.2
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::769498303037:role/ExplorerGitHubActionsRoleTestnet
+      - name: Download node modules
+        # https://github.com/actions/download-artifact/releases/tag/v4.1.8
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        with:
+          name: node_modules
+
+      - name: Build
+        run: |
+          tar -xf node_modules.tar
+          make build site=testnet
+
+      - name: Deploy Testnet Explorer
+        run: |
+          make deploy site=testnet
+
+  deploy-nano-testnet-explorer:
+    if: github.ref == 'refs/heads/master'
+    needs: dependencies
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/actions/checkout/releases/tag/v4.1.7
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      - name: Configure AWS Credentials
+        # https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.0.2
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          aws-region: eu-central-1
+          role-to-assume: arn:aws:iam::471112952246:role/ExplorerGitHubActionsRole
       - name: Download node modules
         # https://github.com/actions/download-artifact/releases/tag/v3.0.2
         uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
@@ -55,36 +99,85 @@ jobs:
       - name: Build
         run: |
           tar -xf node_modules.tar
-          make testnet_build
-      - name: Deploy Testnet Explorer
+          make build site=nano-testnet
+      - name: Deploy Nano Testnet Explorer
         run: |
-          make testnet_deploy
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: 'us-east-1'
-          CLOUDFRONT_ID: E2TGO5SVP34CC3
+          make deploy site=nano-testnet
+
+  deploy-ekvilibro-testnet-explorer:
+    if: github.ref == 'refs/heads/master'
+    needs: dependencies
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/actions/checkout/releases/tag/v4.1.7
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      - name: Configure AWS Credentials
+        # https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.0.2
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          aws-region: eu-central-1
+          role-to-assume: arn:aws:iam::730335348496:role/ExplorerGitHubActionsRoleEkvilibroTestnet
+      - name: Download node modules
+        # https://github.com/actions/download-artifact/releases/tag/v3.0.2
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
+        with:
+          name: node_modules
+      - name: Build
+        run: |
+          tar -xf node_modules.tar
+          make build site=ekvilibro-testnet
+      - name: Deploy Ekvilibro Testnet Explorer
+        run: |
+          make deploy site=ekvilibro-testnet
+  deploy-ekvilibro-mainnet-explorer:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: dependencies
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/actions/checkout/releases/tag/v4.1.7
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      - name: Configure AWS Credentials
+        # https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.0.2
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          aws-region: eu-central-1
+          role-to-assume: arn:aws:iam::730335348496:role/ExplorerGitHubActionsRoleEkvilibroMainnet
+      - name: Download node modules
+        # https://github.com/actions/download-artifact/releases/tag/v3.0.2
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
+        with:
+          name: node_modules
+      - name: Build
+        run: |
+          tar -xf node_modules.tar
+          make build site=ekvilibro-mainnet
+      - name: Deploy Ekvilibro Mainnet Explorer
+        run: |
+          make deploy site=ekvilibro-mainnet
   deploy-mainnet-explorer:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: dependencies
     runs-on: ubuntu-latest
     steps:
-      # https://github.com/actions/checkout/releases/tag/v3.5.3
-      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+      # https://github.com/actions/checkout/releases/tag/v4.1.7
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      - name: Configure AWS Credentials
+        # https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.0.2
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::769498303037:role/ExplorerGitHubActionsRoleMainnet
       - name: Download node modules
-        # https://github.com/actions/download-artifact/releases/tag/v3.0.2
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
+        # https://github.com/actions/download-artifact/releases/tag/v4.1.8
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
         with:
           name: node_modules
+
       - name: Build
         run: |
           tar -xf node_modules.tar
-          make mainnet_build
+          make build site=mainnet
+
       - name: Deploy Mainnet Explorer
         run: |
-          make mainnet_deploy
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: 'us-east-1'
-          CLOUDFRONT_ID: ETOC9JKCK86OG
+          make deploy site=mainnet

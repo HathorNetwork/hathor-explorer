@@ -7,22 +7,25 @@
 
 import React from 'react';
 import dateFormatter from '../../utils/date';
-import { withRouter } from "react-router-dom";
+import { withRouter } from 'react-router-dom';
 import hathorLib from '@hathor/wallet-lib';
 
-
 class TxRow extends React.Component {
-
-  handleClickTr = (hash) => {
+  handleClickTr = hash => {
     this.props.history.push(`/transaction/${hash}`);
-  }
+  };
 
   render() {
     return (
-      <tr onClick={(e) => this.handleClickTr(this.props.tx.tx_id)}>
-        <td className="d-none d-lg-table-cell pr-3">{this.props.tx.tx_id}</td>
-        <td className="d-none d-lg-table-cell pr-3">{dateFormatter.parseTimestamp(this.props.tx.timestamp)}</td>
-        <td className="d-lg-none d-table-cell pr-3" colSpan="2">{hathorLib.helpersUtils.getShortHash(this.props.tx.tx_id)} {dateFormatter.parseTimestamp(this.props.tx.timestamp)}</td>
+      <tr onClick={e => this.handleClickTr(this.props.tx.tx_id)}>
+        <td className="d-none d-lg-table-cell pe-3">{this.props.tx.tx_id}</td>
+        <td className="d-none d-lg-table-cell pe-3">
+          {dateFormatter.parseTimestamp(this.props.tx.timestamp)}
+        </td>
+        <td className="d-lg-none d-table-cell pe-3" colSpan="2">
+          {hathorLib.helpersUtils.getShortHash(this.props.tx.tx_id)}{' '}
+          {dateFormatter.parseTimestamp(this.props.tx.timestamp)}
+        </td>
       </tr>
     );
   }

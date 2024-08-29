@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { createStore } from "redux";
-import rootReducer from "../reducers/index";
+import { createStore } from 'redux';
+import rootReducer from '../reducers/index';
 
 const store = createStore(rootReducer);
 

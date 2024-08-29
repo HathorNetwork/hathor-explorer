@@ -19,12 +19,11 @@ import helpers from '../utils/helpers';
 import metadataApi from '../api/metadataApi';
 import addressApiLegacy from '../api/addressApiLegacy';
 
-
 class AddressDetailLegacy extends React.Component {
   pagination = new PaginationURL({
-    'hash': {required: false},
-    'page': {required: false},
-    'token': {required: true}
+    hash: { required: false },
+    page: { required: false },
+    token: { required: true },
   });
 
   addressSummaryRef = React.createRef();
@@ -60,7 +59,7 @@ class AddressDetailLegacy extends React.Component {
     warningRefreshPage: false,
     selectedTokenMetadata: null,
     metadataLoaded: false,
-  }
+  };
 
   componentDidMount() {
     // Expects address on URL
@@ -111,14 +110,14 @@ class AddressDetailLegacy extends React.Component {
    *
    * @param {Object} wsData Data from websocket
    */
-  handleWebsocket = (wsData) => {
+  handleWebsocket = wsData => {
     if (wsData.type === 'network:new_tx_accepted') {
       if (this.shouldUpdate(wsData, false) && !this.state.warningRefreshPage) {
         // If the search address is in one of the inputs or outputs
         this.setState({ warningRefreshPage: true });
       }
     }
-  }
+  };
 
   /**
    * Update the list with a new tx arrived in a ws message
@@ -127,7 +126,7 @@ class AddressDetailLegacy extends React.Component {
    *
    * @param {Object} tx Data of a newly arrived tx
    */
-  updateListWs = (tx) => {
+  updateListWs = tx => {
     // We only add new tx/blocks if it's the first page
     if (!this.state.hasBefore) {
       if (this.shouldUpdate(tx, true)) {
@@ -141,7 +140,7 @@ class AddressDetailLegacy extends React.Component {
         this.setState({ transactions, hasAfter, numberOfTransactions: newNumberOfTransactions });
       }
     }
-  }
+  };
 
   /**
    * Check if address is valid and then update the state and get data from full node
@@ -149,7 +148,7 @@ class AddressDetailLegacy extends React.Component {
    *
    * @param {Object} address New searched address to update state
    */
-  updateAddress = (address) => {
+  updateAddress = address => {
     this.setState({ queryParams: this.pagination.obtainQueryParams() }, () => {
       const network = hathorLib.config.getNetwork();
       const addressObj = new hathorLib.Address(address, { network });
@@ -173,23 +172,24 @@ class AddressDetailLegacy extends React.Component {
         this.setState({ errorMessage: 'Invalid address.' });
       }
     });
-  }
+  };
 
   /**
    * Update transactions data state after requesting data from the server
    *
    * @param {Object} queryParams URL parameters
    */
-  getHistoryData = (queryParams) => {
-    addressApiLegacy.search(this.state.address, TX_COUNT, queryParams.hash, queryParams.page, queryParams.token).then((response) => {
-      if (response.success) {
-        this.handleFetchedData(response, queryParams);
-      }
-      // fetch metadata for selected token
-      this.getSelectedTokenMetadata(queryParams.token);
-    });
-  }
-
+  getHistoryData = queryParams => {
+    addressApiLegacy
+      .search(this.state.address, TX_COUNT, queryParams.hash, queryParams.page, queryParams.token)
+      .then(response => {
+        if (response.success) {
+          this.handleFetchedData(response, queryParams);
+        }
+        // fetch metadata for selected token
+        this.getSelectedTokenMetadata(queryParams.token);
+      });
+  };
 
   /**
    * Update component state when new list data arrives
@@ -227,20 +227,20 @@ class AddressDetailLegacy extends React.Component {
       queryParams,
       numberOfTransactions: data.total,
     });
-  }
+  };
 
   /**
    * Request data from server and update state balance
    */
   getSummaryData = () => {
-    addressApiLegacy.getBalance(this.state.address).then((response) => {
+    addressApiLegacy.getBalance(this.state.address).then(response => {
       if (response.success) {
         let selectedToken = '';
         if (this.state.selectedToken && this.state.selectedToken in response.tokens_data) {
           // If user had selected a token already, should continue the same
           selectedToken = this.state.selectedToken;
         } else {
-          const hathorUID = hathorLib.constants.NATIVE_TOKEN_UID
+          const hathorUID = hathorLib.constants.NATIVE_TOKEN_UID;
           if (hathorUID in response.tokens_data) {
             // If HTR is in the token list of this address, it's the default selection
             selectedToken = hathorUID;
@@ -273,38 +273,38 @@ class AddressDetailLegacy extends React.Component {
         });
       }
     });
-  }
+  };
 
-  getSelectedTokenMetadata = (selectedToken) => {
-    metadataApi.getDagMetadata(selectedToken).then((data) => {
+  getSelectedTokenMetadata = selectedToken => {
+    metadataApi.getDagMetadata(selectedToken).then(data => {
       if (data) {
         this.setState({ selectedTokenMetadata: data });
       }
       this.setState({ metadataLoaded: true });
     });
-  }
+  };
 
   /**
    * Callback to be executed when user changes token on select input
    *
    * @param {String} Value of the selected item
    */
-  onTokenSelectChanged = (value) => {
+  onTokenSelectChanged = value => {
     this.setState({ selectedToken: value, metadataLoaded: false, selectedTokenMetadata: null });
     this.updateTokenURL(value);
-  }
+  };
 
   /**
    * Update URL with new selected token and trigger didUpdate
    *
    * @param {String} New token selected
    */
-  updateTokenURL = (token) => {
+  updateTokenURL = token => {
     const queryParams = this.pagination.obtainQueryParams();
     queryParams.token = token;
     const newURL = this.pagination.setURLParameters(queryParams);
     this.props.history.push(newURL);
-  }
+  };
 
   /**
    * Check if the searched address is on the inputs or outputs of the new tx
@@ -329,54 +329,56 @@ class AddressDetailLegacy extends React.Component {
     }
 
     return false;
-  }
+  };
 
   /**
    * Redirects to transaction detail screen after clicking on a table row
    *
    * @param {String} hash Hash of tx clicked
    */
-  onRowClicked = (hash) => {
+  onRowClicked = hash => {
     this.props.history.push(`/transaction/${hash}`);
-  }
+  };
 
   /**
    * Refresh web page
    *
    * @param {Event} e Click event
    */
-  refreshPage = (e) => {
+  refreshPage = e => {
     e.preventDefault();
     window.location.reload();
-  }
+  };
 
   render() {
     const renderWarningAlert = () => {
       if (this.state.warningRefreshPage) {
         return (
           <div className="alert alert-warning refresh-alert" role="alert">
-            There is a new transaction for this address. Please <a href="true" onClick={this.refreshPage}>refresh</a> the page to see the newest data.
+            There is a new transaction for this address. Please{' '}
+            <a href="true" onClick={this.refreshPage}>
+              refresh
+            </a>{' '}
+            the page to see the newest data.
           </div>
         );
       }
 
       return null;
-    }
+    };
 
     const isNFT = () => {
       return this.state.selectedTokenMetadata && this.state.selectedTokenMetadata.nft;
-    }
+    };
 
     const renderData = () => {
       if (this.state.errorMessage) {
-        return (
-          <p className="text-danger mt-3">{this.state.errorMessage}</p>
-        );
+        return <p className="text-danger mt-3">{this.state.errorMessage}</p>;
       } else if (this.state.address === null) {
         return null;
       } else {
         if (this.state.loadingSummary || this.state.loadingHistory) {
-          return <ReactLoading type='spin' color={colors.purpleHathor} delay={500} />
+          return <ReactLoading type="spin" color={colors.purpleHathor} delay={500} />;
         } else {
           return (
             <div>
@@ -405,13 +407,9 @@ class AddressDetailLegacy extends React.Component {
           );
         }
       }
-    }
+    };
 
-    return (
-      <div className="content-wrapper">
-        {renderData()}
-      </div>
-    );
+    return <div className="content-wrapper">{renderData()}</div>;
   }
 }
 

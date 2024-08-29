@@ -12,23 +12,19 @@ import ErrorMessageWithIcon from './error/ErrorMessageWithIcon';
 
 class SortableTable extends React.Component {
   renderTableBody() {
-    return (
-      <td></td>
-    );
+    return <td></td>;
   }
 
   renderTableHead() {
-    return (
-      <tr></tr>
-    );
+    return <tr></tr>;
   }
 
   renderTable(content) {
     return (
       <table className="table table-striped" id="tx-table">
-        { content }
+        {content}
       </table>
-    )
+    );
   }
 
   getArrow(field) {
@@ -43,31 +39,22 @@ class SortableTable extends React.Component {
 
   loadTable() {
     if (this.props.loading) {
-      return (
-        <Loading />
-      );
+      return <Loading />;
     }
-    
+
     if (this.props.data.length === 0) {
-      return (
-        <ErrorMessageWithIcon message="No matches for your query." />
-      );
-    } else {
-      return (
-        <div className="table-responsive col-12 mt-2">
+      return <ErrorMessageWithIcon message="No matches for your query." />;
+    }
+    return (
+      <div className="table-responsive col-12 mt-2">
         {this.renderTable(
           <>
-            <thead>
-              {this.renderTableHead()}
-            </thead>
-            <tbody>
-              {this.renderTableBody()}
-            </tbody>
+            <thead>{this.renderTableHead()}</thead>
+            <tbody>{this.renderTableBody()}</tbody>
           </>
         )}
-        </div>
-      );
-    }
+      </div>
+    );
   }
 
   loadPagination() {
@@ -77,18 +64,41 @@ class SortableTable extends React.Component {
 
     return (
       <div className="d-flex col-sm-12">
-        <nav aria-label="Paginated table" className="d-flex offset-sm-4 col-sm-4 justify-content-center">
+        <nav
+          aria-label="Paginated table"
+          className="d-flex offset-sm-4 col-sm-4 justify-content-center"
+        >
           <ul className="pagination">
-            <li ref="pagePrevious" className={(!this.props.hasBefore || this.props.calculatingPage) ? "page-item mr-3 disabled" : "page-item mr-3"}>
-              <button onClick={(e) => this.props.onPreviousPageClicked(e)} className="page-link">Previous</button>
+            <li
+              ref="pagePrevious"
+              className={
+                !this.props.hasBefore || this.props.calculatingPage
+                  ? 'page-item me-3 disabled'
+                  : 'page-item me-3'
+              }
+            >
+              <button onClick={e => this.props.onPreviousPageClicked(e)} className="page-link">
+                Previous
+              </button>
             </li>
-            <li ref="pageNext" className={(!this.props.hasAfter || this.props.calculatingPage) ? "page-item disabled" : "page-item"}>
-              <button onClick={(e) => this.props.onNextPageClicked(e)} className="page-link">Next</button>
+            <li
+              ref="pageNext"
+              className={
+                !this.props.hasAfter || this.props.calculatingPage
+                  ? 'page-item disabled'
+                  : 'page-item'
+              }
+            >
+              <button onClick={e => this.props.onNextPageClicked(e)} className="page-link">
+                Next
+              </button>
             </li>
           </ul>
         </nav>
         <div className="d-flex col-sm-4 page-loader">
-          {this.props.calculatingPage ? <Loading width={35} height={35} useLoadingWrapper={false} showSlowLoadMessage={false} /> : null}
+          {this.props.calculatingPage ? (
+            <Loading width={35} height={35} useLoadingWrapper={false} showSlowLoadMessage={false} />
+          ) : null}
         </div>
       </div>
     );

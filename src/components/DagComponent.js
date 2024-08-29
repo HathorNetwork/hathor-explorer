@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { select, event } from 'd3-selection';
+import { select } from 'd3-selection';
 import { zoom, zoomIdentity } from 'd3-zoom';
 
 // TODO
@@ -17,19 +17,18 @@ import { zoom, zoomIdentity } from 'd3-zoom';
 // When we have a better control of timestamp in the graph we should change
 // the throttle background to cover a timestamp region and not a tx/block
 
-
 class DagComponent extends React.Component {
   constructor(props) {
     super(props);
 
     // Tx circle radius and color
     this.txRadius = 8;
-    this.txColor = "steelblue";
+    this.txColor = 'steelblue';
 
     // Block rectangle width, height and color
     this.blockWidth = 20;
     this.blockHeight = 10;
-    this.blockColor = "darkgoldenrod";
+    this.blockColor = 'darkgoldenrod';
 
     // X distance between txs and blocks
     this.txMargin = 40;
@@ -62,7 +61,7 @@ class DagComponent extends React.Component {
     this.lastZoomScale = 1;
 
     // Throttle background
-    this.throttleBackground = {'size': 2*this.txRadius + this.txMargin, 'color': '#eee'};
+    this.throttleBackground = { size: 2 * this.txRadius + this.txMargin, color: '#eee' };
 
     this.newTxs = this.newTxs.bind(this);
     this.newBlocks = this.newBlocks.bind(this);
@@ -78,16 +77,15 @@ class DagComponent extends React.Component {
   }
 
   componentDidMount() {
-    this.tooltip = select(".tooltip")
-      .style("opacity", 0);
+    this.tooltip = select('.tooltip').style('opacity', 0);
 
     this.drawGraph();
   }
 
   getTxY() {
     // We show same timestamp tx in a vertical axis alternating top and bottom from the block line
-    let signal = this.currentTimestampIndex % 2 === 0 ? -1 : 1;
-    let multiplier = Math.floor(this.currentTimestampIndex / 2) + 1;
+    const signal = this.currentTimestampIndex % 2 === 0 ? -1 : 1;
+    const multiplier = Math.floor(this.currentTimestampIndex / 2) + 1;
     return this.height / 2 + signal * multiplier * this.txMargin;
   }
 
@@ -103,37 +101,37 @@ class DagComponent extends React.Component {
     if (isBlock) {
       // Calculate new x value to add this block
       x = this.startBlockX + this.indexBlock * this.txMargin;
-      let graphData = {
-        "id": data.tx_id,
-        "isBlock": true,
-        "x": x,
-        "y": this.blockY,
-        "links": [],
-        "timestamp": data.timestamp
+      const graphData = {
+        id: data.tx_id,
+        isBlock: true,
+        x,
+        y: this.blockY,
+        links: [],
+        timestamp: data.timestamp,
       };
       this.graph[data.tx_id] = graphData;
-      let newLinks = [];
-      for (let parent of parents) {
+      const newLinks = [];
+      for (const parent of parents) {
         // Validate if parent is in the data, otherwise no need to add a link
-        if (this.graph.hasOwnProperty(parent)) {
+        if (this.graph[parent]) {
           // Creating link for each parent
-          let linkData = {
-            "source": {
-              "id": data.tx_id,
-              "x": x + this.blockWidth / 2,
-              "y": this.blockY + this.blockHeight / 2
+          const linkData = {
+            source: {
+              id: data.tx_id,
+              x: x + this.blockWidth / 2,
+              y: this.blockY + this.blockHeight / 2,
             },
-            "target": {
-              "id": parent,
-              "x": this.graph[parent].x + (this.graph[parent].isBlock ? this.blockWidth / 2 : 0),
-              "y": this.graph[parent].y + (this.graph[parent].isBlock ? this.blockHeight / 2 : 0)
-            }
+            target: {
+              id: parent,
+              x: this.graph[parent].x + (this.graph[parent].isBlock ? this.blockWidth / 2 : 0),
+              y: this.graph[parent].y + (this.graph[parent].isBlock ? this.blockHeight / 2 : 0),
+            },
           };
           this.links.push(linkData);
           newLinks.push(linkData);
-          this.graph[parent]["links"].push(data.tx_id);
-          this.graph[data.tx_id]["links"].push(parent);
-        } 
+          this.graph[parent].links.push(data.tx_id);
+          this.graph[data.tx_id].links.push(parent);
+        }
       }
       // Add new links to graph
       this.newLinks(newLinks);
@@ -151,35 +149,35 @@ class DagComponent extends React.Component {
       }
       // Calculate new x value to add this tx
       x = this.startTxX + this.indexTx * this.txMargin;
-      let graphData = {
-        "id": data.tx_id,
-        "isBlock": false,
-        "x": x,
-        "y": this.getTxY(),
-        "links": [],
-        "timestamp": data.timestamp
+      const graphData = {
+        id: data.tx_id,
+        isBlock: false,
+        x,
+        y: this.getTxY(),
+        links: [],
+        timestamp: data.timestamp,
       };
       this.graph[data.tx_id] = graphData;
-      let newLinks = [];
-      for (let parent of parents) {
+      const newLinks = [];
+      for (const parent of parents) {
         // Validate if parent is in the data, otherwise no need to add a link
-        if (this.graph.hasOwnProperty(parent)) {
+        if (this.graph[parent]) {
           // Creating link for each parent
-          let linkData = {
-            "source": {
-              "id": data.tx_id,
-              "x": x,
-              "y": this.getTxY()
+          const linkData = {
+            source: {
+              id: data.tx_id,
+              x,
+              y: this.getTxY(),
             },
-            "target": {
-              "id": parent,
-              "x": this.graph[parent].x,
-              "y": this.graph[parent].y
-            }
+            target: {
+              id: parent,
+              x: this.graph[parent].x,
+              y: this.graph[parent].y,
+            },
           };
           this.links.push(linkData);
-          this.graph[parent]["links"].push(data.tx_id);
-          this.graph[data.tx_id]["links"].push(parent);
+          this.graph[parent].links.push(data.tx_id);
+          this.graph[data.tx_id].links.push(parent);
           newLinks.push(linkData);
         }
       }
@@ -204,13 +202,18 @@ class DagComponent extends React.Component {
   translateGraph(x) {
     // Translate the graph to show the last added element
     // Get diff from last x to the one that is being added
-    let diff = x - ((this.width - this.txMargin) / this.lastZoomScale - this.lastZoomX);
+    const diff = x - ((this.width - this.txMargin) / this.lastZoomScale - this.lastZoomX);
     if (diff > 0) {
       // If diff > 0, means that it's not appearing, so we translate the graph
       this.gDraw
-      .transition()
-      .duration(300)
-      .call( this.zoomCall.transform, zoomIdentity.scale(this.lastZoomScale).translate(this.lastZoomX - diff, this.lastZoomY / this.lastZoomScale) );
+        .transition()
+        .duration(300)
+        .call(
+          this.zoomCall.transform,
+          zoomIdentity
+            .scale(this.lastZoomScale)
+            .translate(this.lastZoomX - diff, this.lastZoomY / this.lastZoomScale)
+        );
       // Save new X zoom
       this.lastZoomX -= diff;
     }
@@ -221,106 +224,125 @@ class DagComponent extends React.Component {
     this.gLinks
       .selectAll()
       .data(links)
-      .enter().append("g")
-      .attr("class", "link")
-      .append("line")
-      .attr("x1", function(d) { return d.source.x; })
-      .attr("y1", function(d) { return d.source.y; })
-      .attr("x2", function(d) { return d.target.x; })
-      .attr("y2", function(d) { return d.target.y; });
+      .enter()
+      .append('g')
+      .attr('class', 'link')
+      .append('line')
+      .attr('x1', d => d.source.x)
+      .attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x)
+      .attr('y2', d => d.target.y);
 
     this.link = this.gLinks.selectAll('line');
   }
 
   newTxs(txs) {
     // Add new txs to the svg
-    
+
     // Add g auxiliar element
-    var tx = this.gTxs
+    const tx = this.gTxs
       .selectAll()
       .data(txs)
       .enter()
-      .filter(function(d){ return !d.isBlock; })
-      .append("g")
-      .attr("class", "tx")
+      .filter(d => !d.isBlock)
+      .append('g')
+      .attr('class', 'tx');
 
     // Add circle with tx data
-    tx.append("circle")
-      .attr("r", this.txRadius)
-      .attr("fill", this.txColor)
-      .attr("cx", (d) => { return d.x})
-      .attr("cy", (d) => { return d.y})
+    tx.append('circle')
+      .attr('r', this.txRadius)
+      .attr('fill', this.txColor)
+      .attr('cx', d => {
+        return d.x;
+      })
+      .attr('cy', d => {
+        return d.y;
+      });
 
     // Mouseover event to show/move/remove tooltip
-    tx.on('mouseover.tooltip', (d) => {
+    tx.on('mouseover.tooltip', d => {
       this.createTooltip(d);
     })
-    .on('mouseover.fade', this.fade(0.1))
-    .on("mouseout.tooltip", () => {
-      this.removeTooltip();
-    })
-    .on('mouseout.fade', this.fade(1))
-    .on("mousemove", () => {
-      this.moveTooltip();
-    })
+      .on('mouseover.fade', this.fade(0.1))
+      .on('mouseout.tooltip', e => {
+        this.removeTooltip(e);
+      })
+      .on('mouseout.fade', this.fade(1))
+      .on('mousemove', e => {
+        this.moveTooltip(e);
+      });
 
     // Add text to show tx info
-    tx
-    .append("text")
-    .append("tspan")
-    .attr("class", "tx-text")
-    .attr("text-anchor", "middle")
-    .attr("alignment-baseline", "central")
-    .attr("x", (d) => { return d.x})
-    .attr("y", (d) => { return d.y})
-    .text(function(d) { return d.id.substring(0,4); });
+    tx.append('text')
+      .append('tspan')
+      .attr('class', 'tx-text')
+      .attr('text-anchor', 'middle')
+      .attr('alignment-baseline', 'central')
+      .attr('x', d => {
+        return d.x;
+      })
+      .attr('y', d => {
+        return d.y;
+      })
+      .text(d => d.id.substring(0, 4));
 
     this.tx = this.gTxs.selectAll('circle');
   }
 
   newBlocks(blocks) {
     // Add new blocks to the svg
-    
+
     // Create g auxiliar element
-    var block = this.gBlocks
+    const block = this.gBlocks
       .selectAll()
       .data(blocks)
       .enter()
-      .filter(function(d){ return d.isBlock; })
-      .append("g")
-      .attr("class", "block")
+      .filter(d => d.isBlock)
+      .append('g')
+      .attr('class', 'block');
 
     // Add tooltip events
-    block.on('mouseover.tooltip', (d) => {
-      this.createTooltip(d);
-    })
-    .on('mouseover.fade', this.fade(0.1))
-    .on("mouseout.tooltip", () => {
-      this.removeTooltip();
-    })
-    .on('mouseout.fade', this.fade(1))
-    .on("mousemove", () => {
-      this.moveTooltip();
-    })
-      
+    block
+      .on('mouseover.tooltip', d => {
+        this.createTooltip(d);
+      })
+      .on('mouseover.fade', this.fade(0.1))
+      .on('mouseout.tooltip', e => {
+        this.removeTooltip(e);
+      })
+      .on('mouseout.fade', this.fade(1))
+      .on('mousemove', e => {
+        this.moveTooltip(e);
+      });
+
     // Add rectangle with block data
-    block.append("rect")
-      .attr("fill", this.blockColor)
-      .attr("width", this.blockWidth)
-      .attr("height", this.blockHeight)
-      .attr("x", (d) => {return d.x})
-      .attr("y", (d) => {return d.y})
+    block
+      .append('rect')
+      .attr('fill', this.blockColor)
+      .attr('width', this.blockWidth)
+      .attr('height', this.blockHeight)
+      .attr('x', d => {
+        return d.x;
+      })
+      .attr('y', d => {
+        return d.y;
+      });
 
     // Add text to show block info
-    block.filter(function(d){return d.isBlock; })
-    .append("text")
-    .append("tspan")
-    .attr("class", "block-text")
-    .attr("text-anchor", "middle")
-    .attr("alignment-baseline", "central")
-    .attr("x", (d) => { return d.x + this.blockWidth / 2})
-    .attr("y", (d) => { return d.y + this.blockHeight / 2})
-    .text(function(d) { return d.id.substring(0,4); });
+    block
+      .filter(d => d.isBlock)
+      .append('text')
+      .append('tspan')
+      .attr('class', 'block-text')
+      .attr('text-anchor', 'middle')
+      .attr('alignment-baseline', 'central')
+      .attr('x', d => {
+        return d.x + this.blockWidth / 2;
+      })
+      .attr('y', d => {
+        return d.y + this.blockHeight / 2;
+      })
+      .text(d => d.id.substring(0, 4));
 
     this.block = this.gBlocks.selectAll('rect');
   }
@@ -329,14 +351,19 @@ class DagComponent extends React.Component {
     this.gThrottleBg
       .selectAll()
       .data(data)
-      .enter().append("g")
-      .attr("class", "throttle-bg") 
-      .append("rect")
-      .attr("fill", this.throttleBackground.color)
-      .attr("width", this.throttleBackground.size)
-      .attr("height", this.throttleBackground.size)
-      .attr("x", (d) => {return d.x - this.throttleBackground.size / 2})
-      .attr("y", (d) => {return d.y - this.throttleBackground.size / 2})
+      .enter()
+      .append('g')
+      .attr('class', 'throttle-bg')
+      .append('rect')
+      .attr('fill', this.throttleBackground.color)
+      .attr('width', this.throttleBackground.size)
+      .attr('height', this.throttleBackground.size)
+      .attr('x', d => {
+        return d.x - this.throttleBackground.size / 2;
+      })
+      .attr('y', d => {
+        return d.y - this.throttleBackground.size / 2;
+      });
   }
 
   drawGraph() {
@@ -348,10 +375,10 @@ class DagComponent extends React.Component {
       .attr('width', this.width)
       .attr('height', this.height);
 
-    this.gMain = this.svg.append('g')
-      .classed('g-main', true);
+    this.gMain = this.svg.append('g').classed('g-main', true);
 
-    this.gMain.append('rect')
+    this.gMain
+      .append('rect')
       .attr('width', this.width)
       .attr('height', this.height)
       .style('fill', 'white');
@@ -364,21 +391,20 @@ class DagComponent extends React.Component {
     this.gBlocks = this.gDraw.append('g');
 
     // Adding zoom handler
-    this.zoomCall = zoom()
-      .on('zoom', this.zoomed)
+    this.zoomCall = zoom().on('zoom', this.zoomed);
 
     this.gMain.call(this.zoomCall);
 
     // Handle initial data translating in the end to last X
     let maxX = 0;
 
-    for(let tx of this.props.txs) {
-      let newX = this.newData(tx, false, true);
+    for (const tx of this.props.txs) {
+      const newX = this.newData(tx, false, true);
       maxX = Math.max(maxX, newX);
     }
 
-    for(let block of this.props.blocks) {
-      let newX = this.newData(block, true, true);
+    for (const block of this.props.blocks) {
+      const newX = this.newData(block, true, true);
       maxX = Math.max(maxX, newX);
     }
 
@@ -387,37 +413,43 @@ class DagComponent extends React.Component {
 
   fade(opacity) {
     // On mouseover in an element we fade the ones that are not connected
-    return d => {
+    return mouseEvent => {
+      /** Data from the tx being hovered */
+      const d = mouseEvent.currentTarget.__data__;
       if (this.tx) {
-        this.tx.style('stroke-opacity', function (o) {
-          const thisOpacity = (d.links.indexOf(o.id) > -1 || d.id === o.id) ? 1 : opacity;
+        this.tx.style('stroke-opacity', function changeStrokeOpacity(o) {
+          const thisOpacity = d.links.indexOf(o.id) > -1 || d.id === o.id ? 1 : opacity;
           this.setAttribute('fill-opacity', thisOpacity);
           return thisOpacity;
         });
       }
 
       if (this.block) {
-        this.block.style('stroke-opacity', function (o) {
-          const thisOpacity = (d.links.indexOf(o.id) > -1 || d.id === o.id) ? 1 : opacity;
+        this.block.style('stroke-opacity', function changeStrokeOpacity(o) {
+          const thisOpacity = d.links.indexOf(o.id) > -1 || d.id === o.id ? 1 : opacity;
           this.setAttribute('fill-opacity', thisOpacity);
           return thisOpacity;
         });
       }
 
       if (this.link) {
-        let linkOpacity = opacity === 1 ? 1 : 0;
-        this.link.style('stroke-opacity', o => {return ((o.source.id === d.id) || (o.target.id === d.id) ? 1 : linkOpacity)});
+        const linkOpacity = opacity === 1 ? 1 : 0;
+        this.link.style('stroke-opacity', o => {
+          return o.source.id === d.id || o.target.id === d.id ? 1 : linkOpacity;
+        });
       }
     };
   }
 
-  zoomed() {
+  zoomed(event) {
     // TODO
     // I am blocking zoom in right now because I was having a bug to auto translate when zoomed in
     if (event.transform.k > 1) {
+      /* eslint-disable no-param-reassign */
       event.transform.x = this.lastZoomX;
       event.transform.y = this.lastZoomY;
       event.transform.k = this.lastZoomScale;
+      /* eslint-enable no-param-reassign */
       return;
     }
     this.gDraw.attr('transform', event.transform);
@@ -429,27 +461,32 @@ class DagComponent extends React.Component {
     this.gMain.node().__zoom = event.transform;
   }
 
-  createTooltip(data) {
+  createTooltip(mouseEvent) {
+    /** Data from the tx being hovered */
+    const data = mouseEvent.currentTarget.__data__;
+
     // Create tooltip on mouse over in a block or tx to show their info
-    this.tooltip.transition()
+    this.tooltip
+      .transition()
       .duration(300)
-      .style("opacity", 1);
-    this.tooltip.html("<strong>Hash:</strong>" + data.id + "<br/><strong>Timestamp: </strong>" + data.timestamp)
-      .style("left", (event.pageX) + "px")
-      .style("top", (event.pageY + 10) + "px");
+      .style('opacity', 1);
+    this.tooltip
+      .html(`<strong>Hash:</strong>${data.id}<br/><strong>Timestamp: </strong>${data.timestamp}`)
+      .style('left', `${mouseEvent.pageX}px`)
+      .style('top', `${mouseEvent.pageY + 10}px`);
   }
 
   removeTooltip() {
     // Remove tooltip when mouse out in a block or tx
-    this.tooltip.transition()
+    this.tooltip
+      .transition()
       .duration(100)
-      .style("opacity", 0);
+      .style('opacity', 0);
   }
 
-  moveTooltip() {
+  moveTooltip(event) {
     // Move tooltip when mouse move in a block or tx
-    this.tooltip.style("left", (event.pageX) + "px")
-      .style("top", (event.pageY + 10) + "px");
+    this.tooltip.style('left', `${event.pageX}px`).style('top', `${event.pageY + 10}px`);
   }
 
   render() {
