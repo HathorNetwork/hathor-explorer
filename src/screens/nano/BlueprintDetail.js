@@ -164,7 +164,7 @@ function BlueprintDetail(props) {
         {renderBlueprintMethods('public_methods', 'Public Methods')}
         {renderBlueprintMethods('private_methods', 'Private Methods')}
         <div className="d-flex flex-row align-items-center mb-4 mt-4">
-          <h4 className="mb-0 mr-3">Source Code</h4>
+          <h4 className="mb-0 me-3">Source Code</h4>
           <a href="true" onClick={e => onToggleShowCode(e)}>
             {showCode ? 'Hide' : 'Show'}
           </a>
