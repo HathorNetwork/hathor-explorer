@@ -167,3 +167,12 @@ Some useful links and strings to use on the QAs:
 1. The "Historical Data" should be loaded in its own time, with a "Loading" component indicating its progress
 1. After the "Historical Data" section is loaded, there should be displayed the block and the timestamp when it was last updated.
 1. Click on the period input and select different timeframes. The graphs should be updated.
+
+### 15. Nano Contracts (run this section only if nano contracts is available)
+1. Open the transaction detail screen of a nano contract transaction.
+1. See if it correctly loads the nano contract ID, the address used to sign, the method, arguments, and list of actions.
+1. Click on the nano contract ID link to go to the nano contract detail screen.
+1. See if correctly load the Nano Contract ID, Blueprint ID, the state of the contract, the balance of tokens, and history.
+1. Click on a tx in the history and validate it goes to the transaction detail screen.
+1. Go back and click on the blueprint link.
+1. See if it correctly loads the blueprint attributes, method, and source code.
