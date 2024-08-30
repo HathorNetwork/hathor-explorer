@@ -9,14 +9,12 @@ import requestExplorerServiceV1 from './axiosInstance';
 
 const versionApi = {
   getVersion() {
-    return requestExplorerServiceV1.get(`node_api/version`).then(
-      res => {
-        return res.data;
-      },
-      res => {
-        throw new Error(res.data.message);
-      }
-    );
+    return requestExplorerServiceV1
+      .get(`node_api/version`)
+      .then(res => res.data)
+      .catch(err => {
+        throw new Error(err?.data?.message || err?.message || `Unknown error on get node version`);
+      });
   },
 };
 

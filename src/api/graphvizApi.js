@@ -16,7 +16,9 @@ const graphvizApi = {
         return res.data;
       },
       res => {
-        throw new Error(res.data.message);
+        throw new Error(
+          res?.data?.message || res?.message || 'Unknown error at get node neighbors'
+        );
       }
     );
   },
