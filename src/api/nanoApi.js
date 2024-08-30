@@ -22,9 +22,7 @@ const nanoApi = {
     const data = { id, fields, balances, calls };
     return requestExplorerServiceV1
       .get(`node_api/nc_state`, { params: data })
-      .then(res => {
-        return res.data;
-      })
+      .then(res => res.data)
       .catch(err => {
         throw new Error(
           err?.data?.message || err?.message || `Unknown error on get nc state for ${id}`
