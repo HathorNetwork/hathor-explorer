@@ -91,14 +91,9 @@ const txApi = {
    */
   getConfirmationData(id) {
     const data = { id };
-    return requestExplorerServiceV1.get(`node_api/transaction_acc_weight`, { params: data }).then(
-      res => {
-        return res.data;
-      },
-      res => {
-        return Promise.reject(res);
-      }
-    );
+    return requestExplorerServiceV1
+      .get(`node_api/transaction_acc_weight`, { params: data })
+      .then(res => res.data);
   },
 };
 

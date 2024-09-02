@@ -17,8 +17,8 @@ const metadataApi = {
         }
         return undefined;
       })
-      .catch(_error => {
-        // something wrong with request
+      .catch(error => {
+        console.error(`Error fetching dag metadata for ${id}`, error);
       });
   },
 };
