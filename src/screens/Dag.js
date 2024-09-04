@@ -5,17 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import txApi from '../api/txApi';
 import DagComponent from '../components/DagComponent';
 import WebSocketHandler from '../WebSocketHandler';
+
+// The pure functions below have no interaction with the screen component and are used only for
+// calculations.
 
 /*
  * Gets the maximum timestamp from the blocks and transactions.
  * This function assumes the arrays are ordered
  */
-export const getMax = (blocks, txs) => {
-  let max = 0;
+function getMax(blocks, txs) {
+  let max;
   if (blocks.length > 0 && txs.length > 0) {
     max = Math.max(blocks[blocks.length - 1].timestamp, txs[txs.length - 1].timestamp);
   } else if (blocks.length > 0) {
@@ -25,211 +28,269 @@ export const getMax = (blocks, txs) => {
   }
 
   return max;
-};
+}
 
-class Dag extends React.Component {
-  constructor(props) {
-    super(props);
+/*
+ * Assumes array is ordered. Return new array whose timestamp
+ * is greater or equal the given timestamp.
+ */
+function filterTxArray(timestamp, txArray) {
+  let i;
+  for (i = 0; i < txArray.length; i++) {
+    if (txArray[i].timestamp >= timestamp) {
+      break;
+    }
+  }
+  return txArray.slice(i);
+}
 
-    this.state = {
-      blocks: null, // array of blocks to show on the graph
-      txs: null, // array of txs to show on graph
-      isPaused: false, // whether we should update the graph on realtime
-      inputTimeframe: 60, // the time window to display
-      throttled: false, // if tx/block messages are being throttled because it reached the flow limit
+/*
+ * Remove elements from arrays that do not fall inside the
+ * time window we'll display.
+ */
+function filterArrays(blocks, txs, timeframe) {
+  const max = getMax(blocks, txs);
+  const min = max - timeframe;
+  const newBlocks = filterTxArray(min, blocks);
+  const newTxs = filterTxArray(min, txs);
+  return [newBlocks, newTxs];
+}
+
+function Dag() {
+  const [blocks, setBlocks] = useState(null); // array of blocks to show on the graph
+  const [txs, setTxs] = useState(null); // array of txs to show on graph
+  const [isPaused, setIsPaused] = useState(false); // whether we should update the graph on realtime
+  const [inputTimeframe, setInputTimeframe] = useState(60); // the time window to display
+  const [throttled, setThrottled] = useState(false); // if tx/block messages are being throttled because it reached the flow limit
+  const [newWsData, setNewWsData] = useState(null); // Helper for handling new Websocket data
+  const [consolidation, setConsolidation] = useState({
+    hasNewData: false,
+    type: 'none',
+    txs: [],
+    blocks: [],
+  }); // Helper for consolidating txs and blocks for the component
+
+  const dagElement = useRef(); // Holds the Dag drawing component
+
+  // List of blocks received while visualization is paused
+  const pausedBlocks = useRef([]);
+  // List of txs received while visualization is paused
+  const pausedTxs = useRef([]);
+  // Indicates how many seconds to display on the graphic. Updated only on reset
+  const timeframe = useRef(inputTimeframe);
+
+  // Initializing the WebSocket listener
+  useEffect(() => {
+    WebSocketHandler.on('network', handleWebsocket);
+
+    return () => {
+      WebSocketHandler.removeListener('network', handleWebsocket);
     };
 
-    // blocks received while visualization is paused
-    this.pausedBlocks = [];
-    // txs received while visualization is paused
-    this.pausedTxs = [];
-    // indicates how many seconds to display on the graphic
-    this.timeframe = this.state.inputTimeframe;
-  }
+    // Named handler function, to help with listener removal later
+    function handleWebsocket(wsData) {
+      // Reject all types of events that are not the new transactions
+      if (wsData.type !== 'network:new_tx_accepted') {
+        return;
+      }
+      setNewWsData(wsData);
+    }
+  }, []);
 
-  /*
-   * Remove elements from arrays that do not fall inside the
-   * time window we'll display.
-   */
-  filterArrays = (blocks, txs) => {
-    const max = getMax(blocks, txs);
-    const min = max - this.timeframe;
-    const newBlocks = this.filterTxArray(min, blocks);
-    const newTxs = this.filterTxArray(min, txs);
-    return [newBlocks, newTxs];
-  };
+  // Helper to consolidate both Transactions and Blocks on the drawing component
+  useEffect(() => {
+    // Only run this effect when there is new data to process
+    if (!consolidation.hasNewData) {
+      return;
+    }
 
-  /*
-   * Assumes array is ordered. Return new array whose timestamp
-   * is greater or equal the given timestamp.
-   */
-  filterTxArray = (timestamp, txArray) => {
-    let i;
-    for (i = 0; i < txArray.length; i++) {
-      if (txArray[i].timestamp >= timestamp) {
+    // Blocks and txs may be empty at this time
+    let tmpBlocks = blocks ? [...blocks] : [];
+    let tmpTxs = txs ? [...txs] : [];
+
+    switch (consolidation.type) {
+      case 'full':
+        // The first load, when blocks and txs are still null.
+        // This requires no component update: all data is being informed for the first time
+        tmpBlocks = consolidation.blocks;
+        tmpTxs = consolidation.txs;
         break;
-      }
+      case 'update':
+        // Every update after the component is already drawn needs to be informed to the component
+        // directly, besides the state update
+        for (const block of consolidation.blocks) {
+          tmpBlocks.push(block);
+          updateComponentWithNewData(block, true);
+        }
+        for (const tx of consolidation.txs) {
+          tmpTxs.push(tx);
+          updateComponentWithNewData(tx, false);
+        }
+        break;
+      default:
+        throw new Error('No consolidation type defined');
     }
-    return txArray.slice(i);
-  };
 
-  componentDidMount() {
-    this.requestData();
-  }
+    // Sorting and slicing with the appropriate timeframe
+    const [filteredBlocks, filteredTxs] = filterArrays(tmpBlocks, tmpTxs, timeframe.current);
+    setBlocks(filteredBlocks);
+    setTxs(filteredTxs);
+    setConsolidation({ hasNewData: false });
 
-  componentWillUnmount() {
-    WebSocketHandler.removeListener('network', this.handleWebsocket);
-  }
-
-  requestData = () => {
-    const blockNum = 5 * (1 + Math.round(this.timeframe / 60));
-    txApi.getTransactions('block', blockNum).then(
-      data => {
-        const _blocks = data.transactions;
-        _blocks.sort((a, b) => {
-          return a.timestamp - b.timestamp;
-        });
-        if (this.state.txs) {
-          const [blocks, txs] = this.filterArrays(_blocks, this.state.txs);
-          this.setState({ blocks, txs });
-          WebSocketHandler.on('network', this.handleWebsocket);
-        } else {
-          this.setState({ blocks: _blocks });
-        }
-      },
-      e => {
-        // Error in request
-        console.log(e);
-        this.setState({ blocks: [] });
+    // Function that updates the component, if possible
+    function updateComponentWithNewData(txData, isBlock) {
+      if (!dagElement.current?.newData) {
+        return; // Component is not yet ready for interaction
       }
-    );
+      dagElement.current.newData(txData, isBlock, true);
+    }
+  }, [consolidation, blocks, txs]);
 
-    const txNum = 60 * (1 + Math.round(this.timeframe / 60));
-    txApi.getTransactions('tx', txNum).then(
-      data => {
-        const _txs = data.transactions;
-        _txs.sort((a, b) => {
-          return a.timestamp - b.timestamp;
-        });
-        if (this.state.blocks) {
-          const [blocks, txs] = this.filterArrays(this.state.blocks, _txs);
-          this.setState({ blocks, txs });
-          WebSocketHandler.on('network', this.handleWebsocket);
-        } else {
-          this.setState({ txs: _txs });
-        }
-      },
-      e => {
-        // Error in request
-        console.log(e);
-        this.setState({ txs: [] });
-      }
-    );
-  };
+  // Handling transactions received through the websocket
+  useEffect(() => {
+    // Disconsider empty updates: they happen after a successful update below
+    if (!newWsData) {
+      return;
+    }
 
-  handleWebsocket = wsData => {
-    if (wsData.type === 'network:new_tx_accepted') {
-      if (this.state.isPaused) {
-        if (wsData.is_block) {
-          this.pausedBlocks.push(wsData);
-        } else {
-          this.pausedTxs.push(wsData);
-        }
+    // Cleaning up so that new txs that arrive while this one is being processed are not duplicated
+    const wsData = newWsData;
+    setNewWsData(null);
+
+    setThrottled(wsData.throttled);
+    if (isPaused) {
+      // Transactions received while paused will not be sent to the drawing component immediately
+      if (wsData.is_block) {
+        pausedBlocks.current.push(wsData);
       } else {
-        let blocks = this.state.blocks;
-        let txs = this.state.txs;
-        if (wsData.is_block) {
-          blocks = [...this.state.blocks, wsData];
-        } else {
-          txs = [...this.state.txs, wsData];
-        }
-        this.dag.newData(wsData, wsData.is_block, false);
-        const [newBlocks, newTxs] = this.filterArrays(blocks, txs);
-        this.setState({
-          blocks: newBlocks,
-          txs: newTxs,
-        });
+        pausedTxs.current.push(wsData);
       }
-
-      this.setState({ throttled: wsData.throttled });
+      return;
     }
-  };
 
-  handlePause = e => {
-    if (this.state.isPaused) {
-      for (let tx of this.pausedTxs) {
-        this.dag.newData(tx, false, false);
-      }
-      for (let block of this.pausedBlocks) {
-        this.dag.newData(block, true, false);
-      }
-      this.setState({ isPaused: false });
-      this.pausedBlocks = [];
-      this.pausedTxs = [];
+    if (wsData.is_block) {
+      setConsolidation({
+        hasNewData: true,
+        type: 'update',
+        blocks: [newWsData],
+        txs: [],
+      });
     } else {
-      this.setState({ isPaused: true });
+      setConsolidation({
+        hasNewData: true,
+        type: 'update',
+        blocks: [],
+        txs: [wsData],
+      });
     }
-  };
+  }, [newWsData, isPaused]);
 
-  handleReset = e => {
-    this.timeframe = this.state.inputTimeframe;
-    this.setState({
-      blocks: null,
-      txs: null,
-      isPaused: false,
+  // Function that fetches the full information for transactions and blocks
+  const requestData = useCallback(async () => {
+    const blockNum = 5 * (1 + Math.round(timeframe.current / 60));
+    let fetchedBlocks = [];
+    try {
+      const { transactions: apiBlocks } = await txApi.getTransactions('block', blockNum);
+      apiBlocks.sort((a, b) => a.timestamp - b.timestamp);
+      fetchedBlocks = apiBlocks;
+    } catch (e) {
+      console.error('Error on fetching blocks', e);
+    }
+
+    const txNum = 60 * (1 + Math.round(timeframe.current / 60));
+    let fetchedTxs = [];
+    try {
+      console.log(`Getting txs`);
+      const { transactions: apiTxs } = await txApi.getTransactions('tx', txNum);
+      apiTxs.sort((a, b) => a.timestamp - b.timestamp);
+      fetchedTxs = apiTxs;
+    } catch (e) {
+      console.log('Error on fetching txs', e);
+    }
+    setConsolidation({
+      hasNewData: true,
+      type: 'full',
+      blocks: fetchedBlocks,
+      txs: fetchedTxs,
     });
-    WebSocketHandler.removeListener('network', this.handleWebsocket);
-    this.requestData();
+  }, []);
+
+  // Initializing the screen with transaction data
+  useEffect(() => {
+    // Request the data and only start the websocket after
+    requestData().catch(e => console.error('Error while requesting data on screen start', e));
+  }, [requestData]);
+
+  // Handles the Pause button click, sending stored transactions to be drawn, if there are any
+  const handlePause = _event => {
+    if (!isPaused) {
+      setIsPaused(true);
+      return;
+    }
+
+    // Updating the screen with the elements that arrived while paused
+    setConsolidation({
+      hasNewData: true,
+      type: 'update',
+      blocks: [...pausedBlocks.current],
+      txs: [...pausedTxs.current],
+    });
+    setIsPaused(false);
+    pausedBlocks.current = [];
+    pausedTxs.current = [];
   };
 
-  handleTimeframeChange = e => {
-    const value = e.target.value;
+  // Handles the reset button click and loads all transaction information from scratch
+  const handleReset = _event => {
+    timeframe.current = inputTimeframe;
+    setBlocks(null);
+    setTxs(null);
+    setIsPaused(false);
+    requestData().catch(e => console.error('Error while requesting data on a reset', e));
+  };
+
+  // Attempts to parse the inputted value to the application state
+  const handleTimeframeChange = e => {
+    const { value } = e.target;
     if (value) {
-      this.setState({ inputTimeframe: parseInt(value, 10) });
+      setInputTimeframe(parseInt(value, 10));
     } else {
-      this.setState({ inputTimeframe: '' });
+      setInputTimeframe('');
     }
   };
 
-  render() {
-    return (
-      <div className="d-flex align-items-start flex-column content-wrapper dag-visualizer">
-        <button className="btn btn-secondary me-5" onClick={this.handlePause}>
-          {this.state.isPaused ? 'Play' : 'Pause'}
+  return (
+    <div className="d-flex align-items-start flex-column content-wrapper dag-visualizer">
+      <button className="btn btn-secondary me-5" onClick={handlePause}>
+        {isPaused ? 'Play' : 'Pause'}
+      </button>
+      <div className="d-flex align-items-center mt-3">
+        <label htmlFor="timeframe" className="me-3">
+          Timeframe (in seconds):
+        </label>
+        <input
+          type="number"
+          id="timeframe"
+          name="timeframe"
+          min="0"
+          value={inputTimeframe}
+          onChange={handleTimeframeChange}
+        />
+        <button className="btn btn-secondary ms-3" onClick={handleReset}>
+          Reset
         </button>
-        <div className="d-flex align-items-center mt-3">
-          <label htmlFor="timeframe" className="me-3">
-            Timeframe (in seconds):
-          </label>
-          <input
-            type="number"
-            id="timeframe"
-            name="timeframe"
-            min="0"
-            value={this.state.inputTimeframe}
-            onChange={this.handleTimeframeChange}
-          />
-          <button className="btn btn-secondary ms-3" onClick={this.handleReset}>
-            Reset
-          </button>
-        </div>
-        {this.state.throttled && (
-          <div className="mt-3 text-warning">
-            The graph is not 100% correct because it has reached the flow limit, so we are showing
-            only a limited amount of transactions and blocks
-          </div>
-        )}
-        {this.state.blocks && this.state.txs && (
-          <DagComponent
-            ref={node => (this.dag = node)}
-            blocks={this.state.blocks}
-            txs={this.state.txs}
-            timeframe={this.timeframe}
-          />
-        )}
       </div>
-    );
-  }
+      {throttled && (
+        <div className="mt-3 text-warning">
+          The graph is not 100% correct because it has reached the flow limit, so we are showing
+          only a limited amount of transactions and blocks
+        </div>
+      )}
+      {blocks && txs && (
+        <DagComponent ref={dagElement} blocks={blocks} txs={txs} timeframe={timeframe} />
+      )}
+    </div>
+  );
 }
 
 export default Dag;
