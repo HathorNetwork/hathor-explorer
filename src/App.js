@@ -7,7 +7,7 @@
 
 import React, { useCallback, useEffect } from 'react';
 
-import { Switch, BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { axios as hathorLibAxios, config as hathorLibConfig } from '@hathor/wallet-lib';
 import { useTheme, useNewUiEnabled, useNewUiLoad } from './hooks';
@@ -106,12 +106,12 @@ function Root() {
   if (isVersionAllowed === undefined) {
     // Waiting for version
     return (
-      <Router>
+      <BrowserRouter>
         <>
           <Navigation />
           {apiLoadError ? <ErrorMessage /> : <Loading />}
         </>
-      </Router>
+      </BrowserRouter>
     );
   }
 
@@ -125,61 +125,61 @@ function Root() {
 
   return (
     <>
-      <Router>
-        <Switch>
-          <Route exact path="/transaction/:id">
+      <BrowserRouter>
+        <Routes>
+          <Route path="/transaction/:id">
             <NavigationRoute internalScreen={TransactionDetail} />
           </Route>
-          <Route exact path="/push-tx">
+          <Route path="/push-tx">
             <NavigationRoute internalScreen={PushTx} />
           </Route>
-          <Route exact path="/decode-tx">
+          <Route path="/decode-tx">
             <NavigationRoute internalScreen={DecodeTx} />
           </Route>
-          <Route exact path="/transactions">
+          <Route path="/transactions">
             <NavigationRoute internalScreen={TransactionList} />
           </Route>
-          <Route exact path="/tokens">
+          <Route path="/tokens">
             <NavigationRoute internalScreen={TokenList} />
           </Route>
-          <Route exact path="/token_balances">
+          <Route path="/token_balances">
             <NavigationRoute internalScreen={TokenBalancesList} />
           </Route>
-          <Route exact path="/token_balances">
+          <Route path="/token_balances">
             <NavigationRoute internalScreen={TokenBalancesList} />
           </Route>
-          <Route exact path="/blocks">
+          <Route path="/blocks">
             <NavigationRoute internalScreen={BlockList} />
           </Route>
-          <Route exact path="/dag" component={Dag}>
+          <Route path="/dag" component={Dag}>
             <NavigationRoute internalScreen={Dag} />
           </Route>
-          <Route exact path="/features">
+          <Route path="/features">
             <NavigationRoute internalScreen={FeatureList} />
           </Route>
-          <Route exact path="/network/:peerId?">
+          <Route path="/network/:peerId?">
             <NavigationRoute internalScreen={PeerAdmin} />
           </Route>
-          <Route exact path="/statistics">
+          <Route path="/statistics">
             <NavigationRoute internalScreen={Dashboard} />
           </Route>
-          <Route exact path="/token_detail/:tokenUID">
+          <Route path="/token_detail/:tokenUID">
             <NavigationRoute internalScreen={TokenDetail} />
           </Route>
-          <Route exact path="/address/:address">
+          <Route path="/address/:address">
             <NavigationRoute internalScreen={AddressDetail} />
           </Route>
-          <Route exact path="/nano_contract/detail/:nc_id" component={NanoContractDetail}>
+          <Route path="/nano_contract/detail/:nc_id" component={NanoContractDetail}>
             <NavigationRoute internalScreen={NanoContractDetail} />
           </Route>
-          <Route exact path="/blueprint/detail/:blueprint_id">
+          <Route path="/blueprint/detail/:blueprint_id">
             <NavigationRoute internalScreen={BlueprintDetail} />
           </Route>
-          <Route exact path="">
+          <Route path="">
             <NavigationRoute internalScreen={DashboardTx} />
           </Route>
-        </Switch>
-      </Router>
+        </Routes>
+      </BrowserRouter>
       <GDPRConsent />
     </>
   );
