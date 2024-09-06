@@ -6,41 +6,35 @@
  */
 
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { numberUtils } from '@hathor/wallet-lib';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 
-const mapStateToProps = state => ({
-  decimalPlaces: state.serverInfo.decimal_places,
-});
+function TokenBalanceRow({ tokenId, address, total, unlocked, locked }) {
+  const history = useHistory();
 
-class TokenBalanceRow extends React.Component {
+  const { decimalPlaces } = useSelector(state => ({
+    decimalPlaces: state.serverInfo.decimal_places,
+  }));
+
   /**
    * Redirects to token detail screen after clicking on a table row
    *
    * @param {String} uid UID of token clicked
    */
-  onRowClicked = () => {
-    this.props.history.push(`/address/${this.props.address}?token=${this.props.tokenId}`);
+  const onRowClicked = () => {
+    history.push(`/address/${address}?token=${tokenId}`);
   };
 
-  render() {
-    return (
-      <tr onClick={e => this.onRowClicked(this.props.address)}>
-        <td className="d-lg-table-cell pe-3">{this.props.address}</td>
-        <td className="d-lg-table-cell pe-3">
-          {numberUtils.prettyValue(this.props.total, this.props.decimalPlaces)}
-        </td>
-        <td className="d-lg-table-cell pe-3">
-          {numberUtils.prettyValue(this.props.unlocked, this.props.decimalPlaces)}
-        </td>
-        <td className="d-lg-table-cell pe-3">
-          {numberUtils.prettyValue(this.props.locked, this.props.decimalPlaces)}
-        </td>
-      </tr>
-    );
-  }
+  return (
+    <tr onClick={_e => onRowClicked(address)}>
+      <td className="d-lg-table-cell pe-3">{address}</td>
+      <td className="d-lg-table-cell pe-3">{numberUtils.prettyValue(total, decimalPlaces)}</td>
+      <td className="d-lg-table-cell pe-3">{numberUtils.prettyValue(unlocked, decimalPlaces)}</td>
+      <td className="d-lg-table-cell pe-3">{numberUtils.prettyValue(locked, decimalPlaces)}</td>
+    </tr>
+  );
 }
 
 /**
@@ -58,4 +52,4 @@ TokenBalanceRow.propTypes = {
   tokenId: PropTypes.string.isRequired,
 };
 
-export default connect(mapStateToProps)(withRouter(TokenBalanceRow));
+export default TokenBalanceRow;
