@@ -53,10 +53,8 @@ const NavigationRoute = ({ internalScreen: InternalScreen }) => (
 
 function Root() {
   const dispatch = useDispatch();
-  const { isVersionAllowed, apiLoadError } = useSelector(state => ({
-    isVersionAllowed: state.isVersionAllowed,
-    apiLoadError: state.apiLoadError,
-  }));
+  const isVersionAllowed = useSelector(state => state.isVersionAllowed);
+  const apiLoadError = useSelector(state => state.apiLoadError);
 
   const handleWebsocket = useCallback(
     wsData => {

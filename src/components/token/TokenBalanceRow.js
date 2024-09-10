@@ -14,9 +14,7 @@ import { useSelector } from 'react-redux';
 function TokenBalanceRow({ tokenId, address, total, unlocked, locked }) {
   const history = useHistory();
 
-  const { decimalPlaces } = useSelector(state => ({
-    decimalPlaces: state.serverInfo.decimal_places,
-  }));
+  const decimalPlaces = useSelector(state => state.serverInfo.decimal_places);
 
   /**
    * Redirects to token detail screen after clicking on a table row
