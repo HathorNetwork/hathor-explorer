@@ -8,14 +8,12 @@
 import React from 'react';
 import Network from '../components/Network';
 
-class PeerAdmin extends React.Component {
-  render() {
-    return (
-      <div className="content-wrapper">
-        <Network {...this.props} />
-      </div>
-    );
-  }
+function PeerAdmin(props) {
+  return (
+    <div className="content-wrapper">
+      <Network {...props} />
+    </div>
+  );
 }
 
 export default PeerAdmin;
