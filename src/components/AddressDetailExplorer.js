@@ -210,22 +210,19 @@ function AddressDetailExplorer() {
    * Will discard any errors and always set the metadataLoaded to true, even without any data.
    * @type {(function(*): Promise<void>)|*}
    */
-  const getSelectedTokenMetadata = useCallback(
-    async tokenToFetch => {
-      if (tokenToFetch === hathorLib.constants.NATIVE_TOKEN_UID) {
-        console.warn(`getSelectedTokenMetadata setting metadata loaded`);
-        setMetadataLoaded(true);
-        return;
-      }
-
-      const dagData = await metadataApi.getDagMetadata(tokenToFetch);
-      if (dagData) {
-        setSelectedTokenMetadata(dagData);
-      }
+  const getSelectedTokenMetadata = useCallback(async tokenToFetch => {
+    if (tokenToFetch === hathorLib.constants.NATIVE_TOKEN_UID) {
+      console.warn(`getSelectedTokenMetadata setting metadata loaded`);
       setMetadataLoaded(true);
-    },
-    [metadataLoaded]
-  );
+      return;
+    }
+
+    const dagData = await metadataApi.getDagMetadata(tokenToFetch);
+    if (dagData) {
+      setSelectedTokenMetadata(dagData);
+    }
+    setMetadataLoaded(true);
+  }, []);
 
   const reloadTokenSummaryAndHistory = useCallback(
     async (addressToReload, tokenToReload) => {
