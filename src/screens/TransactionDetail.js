@@ -62,10 +62,10 @@ function TransactionDetail() {
       setConfirmationData(confirmationDataResponse);
     }
 
-    // Get transaction metadata from explorer service, overwriting the one already obtained
+    // Get transaction metadata from explorer service, adding to the transaction properties
     const metadataResponse = await metadataApi.getDagMetadata(id);
     if (metadataResponse) {
-      setMeta(metadataResponse);
+      setTransaction({ ...txData.tx, meta: metadataResponse });
     }
   }, []);
 
