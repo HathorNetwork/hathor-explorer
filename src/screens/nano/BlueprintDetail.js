@@ -8,6 +8,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import hljs from 'highlight.js/lib/core';
 import python from 'highlight.js/lib/languages/python';
+import { useParams } from 'react-router-dom';
 import Loading from '../../components/Loading';
 import nanoApi from '../../api/nanoApi';
 
@@ -18,8 +19,8 @@ hljs.registerLanguage('python', python);
  *
  * @memberof Screens
  */
-function BlueprintDetail(props) {
-  const blueprintId = props.match.params.blueprint_id;
+function BlueprintDetail() {
+  const { blueprint_id: blueprintId } = useParams();
 
   // blueprintInformation {Object | null} Blueprint information
   const [blueprintInformation, setBlueprintInformation] = useState(null);

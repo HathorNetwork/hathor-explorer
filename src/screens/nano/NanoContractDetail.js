@@ -7,7 +7,7 @@
 
 import React, { useEffect, useState } from 'react';
 import hathorLib from '@hathor/wallet-lib';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import NanoContractHistory from '../../components/nano/NanoContractHistory';
 import Loading from '../../components/Loading';
@@ -19,8 +19,8 @@ import txApi from '../../api/txApi';
  *
  * @memberof Screens
  */
-function NanoContractDetail(props) {
-  const ncId = props.match.params.nc_id;
+function NanoContractDetail() {
+  const { nc_id: ncId } = useParams();
 
   // ncState {Object | null} Nano contract state
   const [ncState, setNcState] = useState(null);
