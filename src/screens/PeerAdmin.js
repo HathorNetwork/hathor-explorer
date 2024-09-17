@@ -6,16 +6,18 @@
  */
 
 import React from 'react';
+import { useHistory, useParams } from 'react-router-dom';
 import Network from '../components/Network';
 
-class PeerAdmin extends React.Component {
-  render() {
-    return (
-      <div className="content-wrapper">
-        <Network {...this.props} />
-      </div>
-    );
-  }
+function PeerAdmin() {
+  const history = useHistory();
+  const params = useParams();
+
+  return (
+    <div className="content-wrapper">
+      <Network history={history} match={params} />
+    </div>
+  );
 }
 
 export default PeerAdmin;

@@ -6,7 +6,7 @@
  */
 
 import React, { useRef } from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useHistory } from 'react-router-dom';
 import hathorLib from '@hathor/wallet-lib';
 import { useFlag } from '@unleash/proxy-client-react';
 import logo from '../assets/images/hathor-white-logo.png';
@@ -18,7 +18,8 @@ import {
   UNLEASH_TOKEN_BALANCES_FEATURE_FLAG,
 } from '../constants';
 
-function Navigation({ history }) {
+function Navigation() {
+  const history = useHistory();
   const alertErrorRef = useRef(null);
   const txSearchRef = useRef(null);
   const isTokensBaseEnabled = useFlag(`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`);

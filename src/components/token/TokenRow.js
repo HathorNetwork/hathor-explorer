@@ -6,36 +6,33 @@
  */
 
 import React from 'react';
-import { withRouter } from 'react-router-dom';
 import hathorLib from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
+import { useHistory } from 'react-router-dom';
 import dateFormatter from '../../utils/date';
 
-class TokenRow extends React.Component {
+function TokenRow({ token }) {
+  const history = useHistory();
   /**
    * Redirects to token detail screen after clicking on a table row
    *
    * @param {String} uid UID of token clicked
    */
-  onRowClicked = uid => {
-    this.props.history.push(`/token_detail/${uid}`);
+  const onRowClicked = uid => {
+    history.push(`/token_detail/${uid}`);
   };
 
-  render() {
-    return (
-      <tr onClick={e => this.onRowClicked(this.props.token.uid)}>
-        <td className="d-lg-table-cell pe-3">
-          {hathorLib.helpersUtils.getShortHash(this.props.token.uid)}
-        </td>
-        <td className="d-lg-table-cell pe-3">{this.props.token.name}</td>
-        <td className="d-lg-table-cell pe-3">{this.props.token.symbol}</td>
-        <td className="d-lg-table-cell pe-3">{this.props.token.nft ? 'NFT' : 'Custom Token'}</td>
-        <td className="d-lg-table-cell pe-3">
-          {dateFormatter.parseTimestamp(this.props.token.transaction_timestamp)}
-        </td>
-      </tr>
-    );
-  }
+  return (
+    <tr onClick={_e => onRowClicked(token.uid)}>
+      <td className="d-lg-table-cell pe-3">{hathorLib.helpersUtils.getShortHash(token.uid)}</td>
+      <td className="d-lg-table-cell pe-3">{token.name}</td>
+      <td className="d-lg-table-cell pe-3">{token.symbol}</td>
+      <td className="d-lg-table-cell pe-3">{token.nft ? 'NFT' : 'Custom Token'}</td>
+      <td className="d-lg-table-cell pe-3">
+        {dateFormatter.parseTimestamp(token.transaction_timestamp)}
+      </td>
+    </tr>
+  );
 }
 
 /**
@@ -55,4 +52,4 @@ TokenRow.propTypes = {
   }),
 };
 
-export default withRouter(TokenRow);
+export default TokenRow;

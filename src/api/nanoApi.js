@@ -20,14 +20,14 @@ const nanoApi = {
    */
   getState(id, fields, balances, calls) {
     const data = { id, fields, balances, calls };
-    return requestExplorerServiceV1.get(`node_api/nc_state`, { params: data }).then(
-      res => {
-        return res.data;
-      },
-      res => {
-        throw new Error(res.data.message);
-      }
-    );
+    return requestExplorerServiceV1
+      .get(`node_api/nc_state`, { params: data })
+      .then(res => res.data)
+      .catch(err => {
+        throw new Error(
+          err?.data?.message || err?.message || `Unknown error on get nc state for ${id}`
+        );
+      });
   },
 
   /**
@@ -51,14 +51,12 @@ const nanoApi = {
     if (before) {
       data.before = before;
     }
-    return requestExplorerServiceV1.get(`node_api/nc_history`, { params: data }).then(
-      res => {
-        return res.data;
-      },
-      res => {
-        throw new Error(res.data.message);
-      }
-    );
+    return requestExplorerServiceV1
+      .get(`node_api/nc_history`, { params: data })
+      .then(res => res.data)
+      .catch(err => {
+        throw new Error(err?.data?.message || err?.message || `Unknown error on get nc history`);
+      });
   },
 
   /**
@@ -70,14 +68,16 @@ const nanoApi = {
    */
   getBlueprintInformation(blueprintId) {
     const data = { blueprint_id: blueprintId };
-    return requestExplorerServiceV1.get(`node_api/nc_blueprint_information`, { params: data }).then(
-      res => {
-        return res.data;
-      },
-      res => {
-        throw new Error(res.data.message);
-      }
-    );
+    return requestExplorerServiceV1
+      .get(`node_api/nc_blueprint_information`, { params: data })
+      .then(res => res.data)
+      .catch(err => {
+        throw new Error(
+          err?.data?.message ||
+            err?.message ||
+            `Unknown error on get blueprint data for ${blueprintId}`
+        );
+      });
   },
 
   /**
@@ -89,14 +89,16 @@ const nanoApi = {
    */
   getBlueprintSourceCode(blueprintId) {
     const data = { blueprint_id: blueprintId };
-    return requestExplorerServiceV1.get(`node_api/nc_blueprint_source_code`, { params: data }).then(
-      res => {
-        return res.data;
-      },
-      res => {
-        throw new Error(res.data.message);
-      }
-    );
+    return requestExplorerServiceV1
+      .get(`node_api/nc_blueprint_source_code`, { params: data })
+      .then(res => res.data)
+      .catch(err => {
+        throw new Error(
+          err?.data?.message ||
+            err?.message ||
+            `Unknown error on get blueprint source code for ${blueprintId}`
+        );
+      });
   },
 };
 
