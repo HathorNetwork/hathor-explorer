@@ -26,7 +26,7 @@ function TokenBalanceRow({ tokenId, address, total, unlocked, locked }) {
   };
 
   return (
-    <tr onClick={_e => onRowClicked(address)}>
+    <tr onClick={onRowClicked}>
       <td className="d-lg-table-cell pe-3">{address}</td>
       <td className="d-lg-table-cell pe-3">{numberUtils.prettyValue(total, decimalPlaces)}</td>
       <td className="d-lg-table-cell pe-3">{numberUtils.prettyValue(unlocked, decimalPlaces)}</td>
