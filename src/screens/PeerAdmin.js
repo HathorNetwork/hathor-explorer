@@ -6,12 +6,16 @@
  */
 
 import React from 'react';
+import { useHistory, useParams } from 'react-router-dom';
 import Network from '../components/Network';
 
-function PeerAdmin(props) {
+function PeerAdmin() {
+  const history = useHistory();
+  const params = useParams();
+
   return (
     <div className="content-wrapper">
-      <Network {...props} />
+      <Network history={history} match={params} />
     </div>
   );
 }
