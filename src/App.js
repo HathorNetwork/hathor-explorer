@@ -127,57 +127,51 @@ function Root() {
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/transaction/:id">
-            <NavigationRoute internalScreen={TransactionDetail} />
-          </Route>
-          <Route path="/push-tx">
-            <NavigationRoute internalScreen={PushTx} />
-          </Route>
-          <Route path="/decode-tx">
-            <NavigationRoute internalScreen={DecodeTx} />
-          </Route>
-          <Route path="/transactions">
-            <NavigationRoute internalScreen={TransactionList} />
-          </Route>
-          <Route path="/tokens">
-            <NavigationRoute internalScreen={TokenList} />
-          </Route>
-          <Route path="/token_balances">
-            <NavigationRoute internalScreen={TokenBalancesList} />
-          </Route>
-          <Route path="/token_balances">
-            <NavigationRoute internalScreen={TokenBalancesList} />
-          </Route>
-          <Route path="/blocks">
-            <NavigationRoute internalScreen={BlockList} />
-          </Route>
-          <Route path="/dag" component={Dag}>
-            <NavigationRoute internalScreen={Dag} />
-          </Route>
-          <Route path="/features">
-            <NavigationRoute internalScreen={FeatureList} />
-          </Route>
-          <Route path="/network/:peerId?">
-            <NavigationRoute internalScreen={PeerAdmin} />
-          </Route>
-          <Route path="/statistics">
-            <NavigationRoute internalScreen={Dashboard} />
-          </Route>
-          <Route path="/token_detail/:tokenUID">
-            <NavigationRoute internalScreen={TokenDetail} />
-          </Route>
-          <Route path="/address/:address">
-            <NavigationRoute internalScreen={AddressDetail} />
-          </Route>
-          <Route path="/nano_contract/detail/:nc_id" component={NanoContractDetail}>
-            <NavigationRoute internalScreen={NanoContractDetail} />
-          </Route>
-          <Route path="/blueprint/detail/:blueprint_id">
-            <NavigationRoute internalScreen={BlueprintDetail} />
-          </Route>
-          <Route path="">
-            <NavigationRoute internalScreen={DashboardTx} />
-          </Route>
+          <Route
+            path="/transaction/:id"
+            element={<NavigationRoute internalScreen={TransactionDetail} />}
+          />
+          <Route path="/push-tx" element={<NavigationRoute internalScreen={PushTx} />} />
+          <Route path="/decode-tx" element={<NavigationRoute internalScreen={DecodeTx} />} />
+          <Route
+            path="/transactions"
+            element={<NavigationRoute internalScreen={TransactionList} />}
+          />
+          <Route path="/tokens" element={<NavigationRoute internalScreen={TokenList} />} />
+          <Route
+            path="/token_balances"
+            element={<NavigationRoute internalScreen={TokenBalancesList} />}
+          />
+          <Route
+            path="/token_balances"
+            element={<NavigationRoute internalScreen={TokenBalancesList} />}
+          />
+          <Route path="/blocks" element={<NavigationRoute internalScreen={BlockList} />} />
+          <Route path="/dag" component={Dag} element={<NavigationRoute internalScreen={Dag} />} />
+          <Route path="/features" element={<NavigationRoute internalScreen={FeatureList} />} />
+          <Route
+            path="/network/:peerId?"
+            element={<NavigationRoute internalScreen={PeerAdmin} />}
+          />
+          <Route path="/statistics" element={<NavigationRoute internalScreen={Dashboard} />} />
+          <Route
+            path="/token_detail/:tokenUID"
+            element={<NavigationRoute internalScreen={TokenDetail} />}
+          />
+          <Route
+            path="/address/:address"
+            element={<NavigationRoute internalScreen={AddressDetail} />}
+          />
+          <Route
+            path="/nano_contract/detail/:nc_id"
+            component={NanoContractDetail}
+            element={<NavigationRoute internalScreen={NanoContractDetail} />}
+          />
+          <Route
+            path="/blueprint/detail/:blueprint_id"
+            element={<NavigationRoute internalScreen={BlueprintDetail} />}
+          />
+          <Route path="" element={<NavigationRoute internalScreen={DashboardTx} />} />
         </Routes>
       </BrowserRouter>
       <GDPRConsent />
