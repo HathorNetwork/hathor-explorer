@@ -28,7 +28,7 @@ case $site in
     REACT_APP_NETWORK=testnet
     ;;
   nano-testnet)
-    FULLNODE_HOST=node1.nano-testnet.hathor.network
+    FULLNODE_HOST=hathorplay.nano-testnet.hathor.network
     REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
     REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
     REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.nano-testnet.hathor.network/
