@@ -53,7 +53,7 @@ class Network extends React.Component {
 
   loadPeers() {
     const {
-      match: { params },
+      match: params,
     } = this.props;
 
     networkApi
