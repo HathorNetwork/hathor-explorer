@@ -36,7 +36,7 @@ function Transactions({ shouldUpdateList, updateData, title }) {
   // We can't use a simple variable here because it triggers a re-render everytime.
   // useMemo was discussed but the idea is not to have a cache, it's more like
   // a state without setter.
-  const [pagination,] = useState(
+  const [pagination] = useState(
     () =>
       new PaginationURL({
         ts: { required: false },
