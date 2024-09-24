@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import ReactLoading from 'react-loading';
 import { Link, useLocation } from 'react-router-dom';
 import { reverse } from 'lodash';
@@ -33,9 +33,10 @@ import PaginationURL from '../../utils/pagination';
  *   page = "next"
  */
 function Transactions({ shouldUpdateList, updateData, title }) {
-  // We must use memo here because we were creating a new pagination
-  // object in every new render, so the useEffect was being called forever
-  const pagination = useMemo(
+  // We can't use a simple variable here because it triggers a re-render everytime.
+  // useMemo was discussed but the idea is not to have a cache, it's more like
+  // a state without setter.
+  const [pagination,] = useState(
     () =>
       new PaginationURL({
         ts: { required: false },
