@@ -8,13 +8,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ReactLoading from 'react-loading';
 import { Link, useLocation } from 'react-router-dom';
+import { reverse } from 'lodash';
 import { TX_COUNT } from '../../constants';
 import TxRow from './TxRow';
 import helpers from '../../utils/helpers';
 import WebSocketHandler from '../../WebSocketHandler';
 import colors from '../../index.scss';
 import PaginationURL from '../../utils/pagination';
-import { reverse } from 'lodash';
 
 /**
  * Displays transactions history in a table with pagination buttons. As the user navigates through the history,
@@ -215,50 +215,43 @@ function Transactions({ shouldUpdateList, updateData, title }) {
   const loadPagination = () => {
     if (transactions.length === 0) {
       return null;
-    } else {
-      return (
-        <nav aria-label="Tx pagination" className="d-flex justify-content-center">
-          <ul className="pagination">
-            <li
-              className={
-                !hasBefore || transactions.length === 0
-                  ? 'page-item me-3 disabled'
-                  : 'page-item me-3'
-              }
-            >
-              <Link
-                className="page-link"
-                to={pagination.setURLParameters({
-                  ts: firstTimestamp,
-                  hash: firstHash,
-                  page: 'previous',
-                })}
-              >
-                Previous
-              </Link>
-            </li>
-            <li
-              className={
-                !hasAfter || transactions.length === 0
-                  ? 'page-item disabled'
-                  : 'page-item'
-              }
-            >
-              <Link
-                className="page-link"
-                to={pagination.setURLParameters({
-                  ts: lastTimestamp,
-                  hash: lastHash,
-                  page: 'next',
-                })}
-              >
-                Next
-              </Link>
-            </li>
-          </ul>
-        </nav>
-      );
     }
+    return (
+      <nav aria-label="Tx pagination" className="d-flex justify-content-center">
+        <ul className="pagination">
+          <li
+            className={
+              !hasBefore || transactions.length === 0 ? 'page-item me-3 disabled' : 'page-item me-3'
+            }
+          >
+            <Link
+              className="page-link"
+              to={pagination.setURLParameters({
+                ts: firstTimestamp,
+                hash: firstHash,
+                page: 'previous',
+              })}
+            >
+              Previous
+            </Link>
+          </li>
+          <li
+            className={!hasAfter || transactions.length === 0 ? 'page-item disabled' : 'page-item'}
+          >
+            <Link
+              className="page-link"
+              to={pagination.setURLParameters({
+                ts: lastTimestamp,
+                hash: lastHash,
+                page: 'next',
+              })}
+            >
+              Next
+            </Link>
+          </li>
+        </ul>
+      </nav>
+    );
   };
 
   const loadTable = () => {
@@ -283,7 +276,7 @@ function Transactions({ shouldUpdateList, updateData, title }) {
   };
 
   const loadTableBody = () => {
-    return transactions.map((tx, idx) => {
+    return transactions.map(tx => {
       return <TxRow key={tx.tx_id} tx={tx} />;
     });
   };
@@ -291,11 +284,7 @@ function Transactions({ shouldUpdateList, updateData, title }) {
   return (
     <div className="w-100">
       {title}
-      {!loaded ? (
-        <ReactLoading type="spin" color={colors.purpleHathor} delay={500} />
-      ) : (
-        loadTable()
-      )}
+      {!loaded ? <ReactLoading type="spin" color={colors.purpleHathor} delay={500} /> : loadTable()}
       {loadPagination()}
     </div>
   );

@@ -52,9 +52,7 @@ class Network extends React.Component {
   }
 
   loadPeers() {
-    const {
-      match: params,
-    } = this.props;
+    const { match: params } = this.props;
 
     networkApi
       .getPeerList()
