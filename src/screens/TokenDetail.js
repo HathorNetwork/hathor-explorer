@@ -79,11 +79,9 @@ function TokenDetail() {
     }
     setToken(oldToken => {
       return {
-        token: {
-          ...oldToken,
-          uid: id,
-          meta: data,
-        },
+        ...oldToken,
+        uid: id,
+        meta: data,
       };
     });
   };
