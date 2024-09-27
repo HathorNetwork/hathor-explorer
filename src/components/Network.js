@@ -52,9 +52,7 @@ class Network extends React.Component {
   }
 
   loadPeers() {
-    const {
-      match: { params },
-    } = this.props;
+    const { match: params } = this.props;
 
     networkApi
       .getPeerList()
@@ -329,7 +327,7 @@ class Network extends React.Component {
               Select a peer to check its network status.
             </span>
           </button>
-          <button className="btn btn-hathor ms-auto" onClick={this.loadData}>
+          <button className="btn btn-hathor ms-auto" onClick={() => this.loadData()}>
             Reload data
           </button>
         </div>
