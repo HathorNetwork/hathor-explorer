@@ -45,14 +45,15 @@ function DecodeTx() {
   const buttonClicked = async () => {
     try {
       const data = await txApi.decodeTx(dataToDecode);
-      setSuccess(data.success);
       if (!data.success) {
         setTransaction(null);
         setConfirmationData(null);
         setMeta(null);
         setSpentOutputs(null);
+        setSuccess(false);
         return;
       }
+      setSuccess(true);
       setTransaction(data.tx);
       setMeta(data.meta);
       setSpentOutputs(data.spent_outputs);
