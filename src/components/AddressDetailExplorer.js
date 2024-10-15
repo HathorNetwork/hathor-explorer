@@ -21,6 +21,34 @@ import addressApi from '../api/addressApi';
 import txApi from '../api/txApi';
 import ErrorMessageWithIcon from './error/ErrorMessageWithIcon';
 
+/**
+ * Check if the searched address is on the inputs or outputs of the new tx
+ *
+ * @param {Object} tx Transaction data received in the websocket
+ * @param {boolean} checkToken If should also check if token is the same, or just address
+ * @param {string} queryToken Token of the current query
+ * @param {string} updateAddress Address of the current query
+ *
+ * Note: In its current implementation, if "checkToken" is false, the return will always be false.
+ *
+ * @return {boolean} True if should update the list, false otherwise
+ */
+function shouldUpdate(tx, checkToken, queryToken, updateAddress) {
+  const arr = [...tx.outputs, ...tx.inputs];
+
+  for (const element of arr) {
+    if (element.decoded.address === updateAddress) {
+      // Address is the same
+      if ((checkToken && element.token === queryToken) || !checkToken) {
+        // Need to check token and token is the same, or no need to check token
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 function AddressDetailExplorer() {
   const pagination = useRef(
     new PaginationURL({
@@ -91,34 +119,10 @@ function AddressDetailExplorer() {
         return;
       }
 
-      if (shouldUpdate(wsData, false)) {
+      const { token: queryToken } = pagination.current.obtainQueryParams();
+      if (shouldUpdate(wsData, false, queryToken, address)) {
         // If the search address is in one of the inputs or outputs
         setWarningRefreshPage(true);
-      }
-
-      /**
-       * Check if the searched address is on the inputs or outputs of the new tx
-       *
-       * @param {Object} tx Transaction data received in the websocket
-       * @param {boolean} checkToken If should also check if token is the same, or just address
-       *
-       * @return {boolean} True if should update the list, false otherwise
-       */
-      function shouldUpdate(tx, checkToken) {
-        const arr = [...tx.outputs, ...tx.inputs];
-        const { token: queryToken } = pagination.current.obtainQueryParams();
-
-        for (const element of arr) {
-          if (element.decoded.address === address) {
-            // Address is the same
-            if ((checkToken && element.token === queryToken) || !checkToken) {
-              // Need to check token and token is the same, or no need to check token
-              return true;
-            }
-          }
-        }
-
-        return false;
       }
     },
     [address]
