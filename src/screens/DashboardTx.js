@@ -5,12 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
-import TxRow from '../components/tx/TxRow';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+
 import WebSocketHandler from '../WebSocketHandler';
 import { DASHBOARD_BLOCKS_COUNT, DASHBOARD_TX_COUNT } from '../constants';
 import txApi from '../api/txApi';
 import helpers from '../utils/helpers';
+import TxRow from '../components/tx/TxRow';
+import { useIsMobile, useNewUiEnabled } from '../hooks';
 
 /**
  * Dashboard screen that show some blocks and some transactions
@@ -22,6 +24,7 @@ function DashboardTx() {
   const [transactions, setTransactions] = useState([]);
   // blocks {Array} Array of blocks to show in the dashboard
   const [blocks, setBlocks] = useState([]);
+  const newUiEnabled = useNewUiEnabled();
 
   /**
    * Handles a websocket message and checks if it should update the list.
@@ -72,6 +75,12 @@ function DashboardTx() {
     };
   }, [handleWebsocket]);
 
+  const [tableVisible, setTableVisible] = useState('transactions');
+
+  const transactionButtonRef = useRef(null);
+
+  const isMobile = useIsMobile();
+
   const renderTableBody = () => {
     return (
       <tbody>
@@ -99,26 +108,110 @@ function DashboardTx() {
     return elements.map(tx => <TxRow key={tx.tx_id} tx={tx} />);
   };
 
-  return (
-    <div className="content-wrapper">
-      <div className="table-responsive">
-        <table className="table" id="tx-table">
-          <thead>
-            <tr>
-              <th className="d-none d-lg-table-cell">Hash</th>
-              <th className="d-none d-lg-table-cell">Timestamp</th>
-              <th className="d-table-cell d-lg-none" colSpan="2">
-                Hash
-                <br />
-                Timestamp
-              </th>
-            </tr>
-          </thead>
-          {renderTableBody()}
-        </table>
+  const renderUi = () => {
+    return (
+      <div className="content-wrapper">
+        <div className="table-responsive">
+          <table className="table" id="tx-table">
+            <thead>
+              <tr>
+                <th className="d-none d-lg-table-cell">Hash</th>
+                <th className="d-none d-lg-table-cell">Timestamp</th>
+                <th className="d-table-cell d-lg-none" colSpan="2">
+                  Hash
+                  <br />
+                  Timestamp
+                </th>
+              </tr>
+            </thead>
+            {renderTableBody()}
+          </table>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
+
+  const renderNewTables = (content, text, path) => {
+    return (
+      <div style={{ textAlign: 'center' }}>
+        <div>
+          <table className="table-stylezed">
+            <thead>
+              <tr>
+                <th>HASH</th>
+                <th>TIMESTAMP</th>
+              </tr>
+            </thead>
+            <tbody>{renderRows(content)}</tbody>
+          </table>
+        </div>
+        <button
+          onClick={() => {
+            window.location.href = `${path}`;
+          }}
+          className="table-home-button"
+        >
+          {text}
+        </button>
+      </div>
+    );
+  };
+
+  const renderNewUi = () => {
+    return (
+      <div className="section-tables-stylezed">
+        <br />
+        <div className="container-title-page">
+          <p className="title-page">Live Data</p>
+          <div className="buttons-mobile-container">
+            <button
+              ref={transactionButtonRef}
+              className={`button-home-tables ${tableVisible === 'transactions' ? 'active' : ''}`}
+              onClick={() => setTableVisible('transactions')}
+            >
+              <span>Transaction</span>
+            </button>
+            <button
+              className={`button-home-tables ${tableVisible === 'blocks' ? 'active' : ''}`}
+              onClick={() => setTableVisible('blocks')}
+            >
+              <span>Blocks</span>
+            </button>
+          </div>
+        </div>
+        <div className="tables-container">
+          {isMobile ? (
+            <>
+              {tableVisible === 'transactions' && (
+                <div className="table-container">
+                  {renderNewTables(transactions, 'See all transactions', '/transactions/')}
+                </div>
+              )}
+              {tableVisible === 'blocks' && (
+                <div className="table-container">
+                  {renderNewTables(blocks, 'See all blocks', '/blocks/')}
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <div className="table-container">
+                <p>Latest Transactions</p>
+                {renderNewTables(transactions, 'See all transactions', '/transactions/')}
+              </div>
+              <div className="table-container">
+                <p>Latest Blocks</p>
+
+                {renderNewTables(blocks, 'See all blocks', '/blocks/')}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  return newUiEnabled ? renderNewUi() : renderUi();
 }
 
 export default DashboardTx;

@@ -21,10 +21,11 @@ case $site in
     ;;
   testnet-local)
     FULLNODE_HOST=node.explorer.testnet.hathor.network
-    REACT_APP_BASE_URL=http://$FULLNODE_HOST/v1a/
-    REACT_APP_WS_URL=ws://$FULLNODE_HOST/v1a/ws/
-    REACT_APP_EXPLORER_SERVICE_BASE_URL=http://localhost:3001/dev/
+    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
+    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
+    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://e732bbkkd3.execute-api.eu-central-1.amazonaws.com/dev/
     REACT_APP_TIMESERIES_DASHBOARD_ID=35379840-e8c5-11ec-a7f2-0fee9be0d8ee
+    S3_BUCKET=hathor-testnet-golf-public-explorer
     REACT_APP_NETWORK=testnet
     ;;
   nano-testnet)
