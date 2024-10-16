@@ -199,12 +199,14 @@ function AddressDetailExplorer() {
       }
 
       Promise.all(txPromises).then(txResults => {
-        const newCache = { ...txCache };
-        for (const txData of txResults) {
-          const tx = { ...txData.tx, meta: txData.meta };
-          newCache[tx.hash] = tx;
-        }
-        setTxCache(newCache);
+        setTxCache(oldCache => {
+          const newCache = { ...oldCache };
+          for (const txData of txResults) {
+            const tx = { ...txData.tx, meta: txData.meta };
+            newCache[tx.hash] = tx;
+          }
+          return newCache;
+        });
       });
       setLoadingHistory(false);
 
