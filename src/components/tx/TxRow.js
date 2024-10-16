@@ -22,7 +22,10 @@ const TxRow = ({ tx }) => {
 
   const parseTimestamp = timestamp => {
     const date = new Date(timestamp * 1000);
-    return new Intl.DateTimeFormat('pt-BR', {
+
+    const userLocale = navigator.language || navigator.userLanguage || 'en-US';
+
+    return new Intl.DateTimeFormat(userLocale, {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
