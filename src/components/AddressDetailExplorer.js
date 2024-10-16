@@ -37,10 +37,14 @@ function shouldUpdate(tx, checkToken, queryToken, updateAddress) {
   const arr = [...tx.outputs, ...tx.inputs];
 
   for (const element of arr) {
-    if (element.decoded.address === updateAddress) {
-      // Address is the same
-      if ((checkToken && element.token === queryToken) || !checkToken) {
-        // Need to check token and token is the same, or no need to check token
+    if (element?.decoded?.address === updateAddress) {
+      // Address is the same, and this is enough to require update
+      if (!checkToken) {
+        return true;
+      }
+
+      // Need to check token and token is the same
+      if (element.token === queryToken) {
         return true;
       }
     }
