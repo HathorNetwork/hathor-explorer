@@ -93,17 +93,21 @@ function Navigation() {
                 />
               </Link>
             </div>
-            <button
-              className="navbar-toggler"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#navbarSupportedContent"
-              aria-controls="navbarSupportedContent"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
-            >
-              <span>EXPLORER</span>
-            </button>
+            {!showSearchInput ? (
+              <button
+                className="navbar-toggler {}"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+              >
+                <span>EXPLORER</span>
+              </button>
+            ) : (
+              ''
+            )}
           </div>
           <button className="hide-mainnet-mobile">
             <GlobeMainnet

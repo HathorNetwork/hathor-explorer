@@ -297,7 +297,6 @@ nav {
 }
 
 .container-title-page {
-  margin-bottom: 60px;
   display: flex;
   flex-flow: column;
 }
@@ -411,6 +410,36 @@ nav {
 
   .aside-version {
     font-family: 'Roboto Mono';
+  }
+}
+
+.spinner {
+  margin: 0 auto;
+  height: 100%;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(farthest-side, #4a3c8c 94%, #0000) top/9px 9px no-repeat,
+    conic-gradient(#0000 30%, #4a3c8c);
+  -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 9px), #000 0);
+  animation: spinner-c7wet2 1s infinite linear;
+  position: relative;
+  z-index: 2;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #6a46d86d;
+    z-index: 1;
+  }
+
+  @keyframes spinner-c7wet2 {
+    100% {
+      transform: rotate(1turn);
+    }
   }
 }
 
@@ -545,6 +574,10 @@ nav {
         width: 80%;
         padding: 5px;
       }
+    }
+
+    .newLogo-explorer-container {
+      margin-right: 25px;
     }
   }
 }
