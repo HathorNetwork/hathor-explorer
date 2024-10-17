@@ -7,7 +7,7 @@
 
 import { constants } from '@hathor/wallet-lib';
 import { cloneDeep } from 'lodash';
-import initializeTheme from '../utils/initializeTheme';
+import themeUtils from '../utils/theme';
 
 /**
  * Dashboard data from websocket updates
@@ -63,7 +63,7 @@ const initialState = {
     decimal_places: constants.DECIMAL_PLACES,
   },
   apiLoadError: false,
-  theme: initializeTheme(),
+  theme: themeUtils.initializeTheme(),
 };
 
 const rootReducer = (state = initialState, action) => {

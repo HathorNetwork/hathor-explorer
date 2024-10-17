@@ -6,7 +6,7 @@
  */
 
 import store from '../store/index';
-import applyTheme from '../utils/applyTheme';
+import themeUtils from '../utils/theme';
 
 export const dashboardUpdate = data => ({ type: 'dashboard_update', payload: data });
 
@@ -23,7 +23,7 @@ export const toggleTheme = () => {
   const state = store.getState();
   const currentTheme = state.theme === 'light' ? 'dark' : 'light';
 
-  applyTheme(currentTheme);
+  themeUtils.applyTheme(currentTheme);
 
   return { type: 'toggle_theme', payload: currentTheme };
 };
