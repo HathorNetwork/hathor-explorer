@@ -71,6 +71,7 @@ case $site in
     FULLNODE_HOST=node.explorer.hathor.network
     REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
     REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
+    REACT_APP_GTM_ID=GTM-MJVX6BG
     REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.mainnet.hathor.network/
     REACT_APP_TIMESERIES_DASHBOARD_ID=674ebc10-e8c4-11ec-a7f2-0fee9be0d8ee
     REACT_APP_NETWORK=mainnet
