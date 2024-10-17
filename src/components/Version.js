@@ -8,11 +8,12 @@
 import React from 'react';
 import { VERSION } from '../constants';
 
-function Version() {
+function Version({ explorer }) {
   return (
     <div className="d-flex flex-column version-wrapper align-items-center">
-      <span>Version</span>
-      <span>{VERSION}</span>
+      <span>
+        {explorer ? 'Explorer ' : ''} Version {VERSION}
+      </span>
     </div>
   );
 }

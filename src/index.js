@@ -22,6 +22,7 @@ import { UNLEASH_CONFIG } from './constants';
 
 const container = document.getElementById('root');
 const root = createRoot(container);
+
 root.render(
   <FlagProvider config={UNLEASH_CONFIG}>
     <Provider store={store}>

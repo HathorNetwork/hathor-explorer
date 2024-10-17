@@ -37,7 +37,7 @@
     "viz.js": "2.1.2"
   },
   "scripts": {
-    "build-css": "sass src:src",
+    "build-css": "sass src/index.scss:src/index.css && sass src/newUi.scss:src/newUi.css",
     "watch-css": "npm run build-css && sass --watch src:src",
     "start-js": "react-scripts --openssl-legacy-provider start",
     "start": "npm-run-all -p watch-css start-js",
