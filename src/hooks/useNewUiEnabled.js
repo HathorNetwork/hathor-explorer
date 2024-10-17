@@ -9,7 +9,7 @@ import { useFlag } from '@unleash/proxy-client-react';
 import { UNLEASH_NEW_UI_FEATURE_FLAG } from '../constants';
 
 export const useNewUiEnabled = () => {
-  const newUiEnabled = useFlag(UNLEASH_NEW_UI_FEATURE_FLAG);
+  const newUiEnabled = useFlag(UNLEASH_NEW_UI_FEATURE_FLAG) || true;
 
   return newUiEnabled;
 };

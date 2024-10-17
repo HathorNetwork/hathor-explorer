@@ -6,6 +6,7 @@
  */
 
 import store from '../store/index';
+import applyTheme from '../utils/applyTheme';
 
 export const dashboardUpdate = data => ({ type: 'dashboard_update', payload: data });
 
@@ -20,10 +21,9 @@ export const updateServerInfo = data => ({ type: 'update_server_info', payload: 
 
 export const toggleTheme = () => {
   const state = store.getState();
-  const html = document.querySelector('html');
-  const themeNow = state.theme === 'light' ? 'dark' : 'light';
-  html.dataset.theme = `theme-${themeNow}`;
-  localStorage.setItem('theme', `${themeNow}`);
+  const currentTheme = state.theme === 'light' ? 'dark' : 'light';
 
-  return { type: 'toggle_theme', payload: themeNow };
+  applyTheme(currentTheme);
+
+  return { type: 'toggle_theme', payload: currentTheme };
 };

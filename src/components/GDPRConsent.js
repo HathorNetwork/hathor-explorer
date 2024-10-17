@@ -15,7 +15,7 @@ import { useNewUiEnabled } from '../hooks';
 const GDPRConsent = () => {
   const newUiEnabled = useNewUiEnabled();
 
-  const style = {
+  const newUiStyle = {
     maxWidth: '718px',
     width: '95%',
     borderRadius: '8px',
@@ -42,7 +42,7 @@ const GDPRConsent = () => {
   const renderNewUi = () => {
     return (
       <CookieConsent
-        style={style}
+        style={newUiStyle}
         disableButtonStyles={true}
         buttonText="Got it!"
         buttonWrapperClasses="mx-auto"

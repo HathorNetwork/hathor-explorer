@@ -135,7 +135,7 @@ function DashboardTx() {
     return (
       <div style={{ textAlign: 'center' }}>
         <div>
-          <table className="table-stylezed">
+          <table className="table-stylized">
             <thead>
               <tr>
                 <th>HASH</th>
@@ -159,7 +159,7 @@ function DashboardTx() {
 
   const renderNewUi = () => {
     return (
-      <div className="section-tables-stylezed">
+      <div className="section-tables-stylized">
         <br />
         <div className="container-title-page">
           <p className="title-page">Live Data</p>

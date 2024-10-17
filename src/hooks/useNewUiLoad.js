@@ -15,16 +15,17 @@ export const useNewUiLoad = () => {
   useEffect(() => {
     if (!newUiEnabled) {
       setLoading(false);
-    } else {
-      import('../newUi.css')
-        .then(() => {
-          setLoading(false);
-        })
-        .catch(error => {
-          console.error('Failed to load newUi.css:', error);
-          setLoading(false);
-        });
+      return;
     }
+
+    import('../newUi.css')
+      .then(() => {
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Failed to load newUi.css:', error);
+        setLoading(false);
+      });
   }, [newUiEnabled]);
 
   return loading;
