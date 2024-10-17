@@ -7,12 +7,14 @@
 
 import { useState, useEffect } from 'react';
 
+const MOBILE_BREAKPOINT = 850;
+
 export const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < MOBILE_BREAKPOINT);
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 850);
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     };
 
     window.addEventListener('resize', handleResize);
