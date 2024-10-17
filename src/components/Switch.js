@@ -5,29 +5,28 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useMount } from '../hooks/useMount';
 import { toggleTheme } from '../actions';
 
 export const SwitchButton = () => {
-  const [value, setvalue] = useState(false);
+  const [value, setValue] = useState(false);
   const theme = useSelector(state => state.theme);
   const dispatch = useDispatch();
 
-  useMount(() => {
+  useEffect(() => {
     if (theme === 'dark') {
-      setvalue(true);
+      setValue(true);
     }
-  });
+  }, []);
 
   const changeValue = () => {
-    setvalue(!value);
+    setValue(!value);
     dispatch(toggleTheme());
   };
 
   return (
-    <div className={`switch ${value ? 'active' : ''}`} onClick={() => changeValue(!value)}>
+    <div className={`switch ${value ? 'active' : ''}`} onClick={() => changeValue()}>
       <div className="switch-circle"></div>
     </div>
   );

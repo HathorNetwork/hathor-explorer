@@ -588,14 +588,14 @@ nav {
   line-height: 24px;
 }
 
-.section-tables-stylezed {
+.section-tables-stylized {
   margin: 60px 0;
   color: var(--normal-text-color);
   font-family: 'Mona Sans ', sans-serif;
   padding: 0px 64px;
 }
 
-.section-tables-stylezed .title-page {
+.section-tables-stylized .title-page {
   color: var(--bold-text-color);
   font-family: 'Mona Sans Bold', sans-serif;
 }
@@ -620,11 +620,11 @@ nav {
   color: var(--bold-text-color);
 }
 
-.table-stylezed {
+.table-stylized {
   width: 100%;
 }
 
-.table-stylezed thead {
+.table-stylized thead {
   color: var(--purple-text);
   font-size: 12px;
   font-weight: 700;
@@ -651,20 +651,20 @@ nav {
   background-color: $purpleHathorButtonHover;
 }
 
-.table-stylezed tr {
+.table-stylized tr {
   border-bottom: 1px solid var(--border-color);
 }
 
-.table-stylezed td,
-.table-stylezed th {
+.table-stylized td,
+.table-stylized th {
   padding: 20px;
 }
 
-.table-stylezed td {
+.table-stylized td {
   color: var(--normal-text-color);
 }
 
-.table-stylezed tbody tr td {
+.table-stylized tbody tr td {
   text-align: left;
 }
 
@@ -693,7 +693,7 @@ nav {
   text-align: left;
 }
 
-.table-stylezed tbody tr:hover td {
+.table-stylized tbody tr:hover td {
   color: var(--text-focus);
   cursor: pointer;
   background-color: var(--background-focus);
@@ -1607,7 +1607,7 @@ th.sortable {
     gap: 4px;
   }
 
-  .table-stylezed tbody tr td {
+  .table-stylized tbody tr td {
     width: 50%;
   }
 
@@ -1619,7 +1619,7 @@ th.sortable {
     padding: 0 22px;
   }
 
-  .section-tables-stylezed {
+  .section-tables-stylized {
     padding: 0 16px;
   }
 
