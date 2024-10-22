@@ -20,7 +20,7 @@ import { ReactComponent as SidebarLogo } from '../assets/images/logo-sidebar.svg
 import { ReactComponent as SunIconLight } from '../assets/images/sun-light.svg';
 import { ReactComponent as SunIconDark } from '../assets/images/sun-dark.svg';
 import { ReactComponent as MoonIcon } from '../assets/images/moon.svg';
-import { ReactComponent as GlobeMainnet } from '../assets/images/global.svg';
+import { ReactComponent as GlobeNetwork } from '../assets/images/global.svg';
 
 function Sidebar({ close, open }) {
   const history = useHistory();
@@ -174,7 +174,7 @@ function Sidebar({ close, open }) {
             </div>
           </div>
           <div className="aside-mainnet">
-            <GlobeMainnet
+            <GlobeNetwork
               width={11}
               height={11}
               className={`${

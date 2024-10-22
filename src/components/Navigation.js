@@ -15,7 +15,7 @@ import logo from '../assets/images/hathor-white-logo.png';
 import moon from '../assets/images/moon.svg';
 import sun from '../assets/images/sun-dark.svg';
 import { ReactComponent as NewLogo } from '../assets/images/new-logo.svg';
-import { ReactComponent as GlobeMainnet } from '../assets/images/global.svg';
+import { ReactComponent as GlobeNetwork } from '../assets/images/global.svg';
 import { ReactComponent as SearchIcon } from '../assets/images/search-icon.svg';
 import { ReactComponent as MenuIcon } from '../assets/images/sidebar-menu.svg';
 import { ReactComponent as ArrorDownNavItem } from '../assets/images/arrow-down-nav-dropdown.svg';
@@ -41,6 +41,7 @@ function Navigation() {
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const showTokensTab = isTokensBalanceEnabled || isTokensBaseEnabled;
+  const network = hathorLib.config.getNetwork();
 
   const showSidebarHandler = () => {
     setShowSidebar(!showSidebar);
@@ -65,7 +66,6 @@ function Navigation() {
         // It's a valid hash
         history.push(`/transaction/${text}`);
       } else {
-        const network = hathorLib.config.getNetwork();
         const addressObj = new hathorLib.Address(text, { network });
         if (addressObj.isValid()) {
           // It's a valid address
@@ -82,6 +82,8 @@ function Navigation() {
   };
 
   const renderNewUi = () => {
+    const hathorNetwork = network.getNetwork().name;
+
     return (
       <nav>
         <div className="hide-logo-container-mobile">
@@ -109,13 +111,13 @@ function Navigation() {
               ''
             )}
           </div>
-          <button className="hide-mainnet-mobile">
-            <GlobeMainnet
+          <button className="hide-network-mobile">
+            <GlobeNetwork
               className={`${
                 theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'
               } theme-mainnet-btn`}
             />
-            <span className="nav-title">Hathor Mainnet</span>
+            <span className="nav-title">{hathorNetwork}</span>
           </button>
         </div>
         <div className="nav-tabs-container hide-tabs">
@@ -231,12 +233,12 @@ function Navigation() {
             onClick={() => dispatch(toggleTheme())}
           />
           <button className="mainnet-btn">
-            <GlobeMainnet
+            <GlobeNetwork
               className={`${
                 theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'
               } theme-mainnet-btn`}
             />
-            <span className="nav-title">Hathor Mainnet</span>
+            <span className="nav-title">{hathorNetwork}</span>
           </button>
         </div>
         <div className="mobile-tabs">
