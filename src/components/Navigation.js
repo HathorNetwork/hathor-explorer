@@ -111,14 +111,14 @@ function Navigation() {
               ''
             )}
           </div>
-          <button className="hide-network-mobile">
+          <div className="hide-network-mobile">
             <GlobeNetwork
               className={`${
                 theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'
-              } theme-mainnet-btn`}
+              } theme-network-logo`}
             />
             <span className="nav-title">{hathorNetwork}</span>
-          </button>
+          </div>
         </div>
         <div className="nav-tabs-container hide-tabs">
           <ul className="navbar-nav me-auto">
@@ -225,21 +225,20 @@ function Navigation() {
             </div>
           </div>
         </div>
-        <div className="mainnet-container hide-tabs">
+        <div className="network-container hide-tabs">
           <img
             src={theme === 'dark' ? sun : moon}
             alt="themeColorButton"
             className="theme-color-btn"
             onClick={() => dispatch(toggleTheme())}
+            role="button"
           />
-          <button className="mainnet-btn">
+          <div className="network-icon-container">
             <GlobeNetwork
-              className={`${
-                theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'
-              } theme-mainnet-btn`}
+              className={`${theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'}`}
             />
             <span className="nav-title">{hathorNetwork}</span>
-          </button>
+          </div>
         </div>
         <div className="mobile-tabs">
           {showSearchInput ? (

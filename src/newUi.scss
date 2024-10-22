@@ -197,7 +197,7 @@ nav {
   }
 
   //nav-mainnnet
-  .mainnet-container {
+  .network-container {
     display: flex;
     gap: 32px;
     margin-left: 32px;
@@ -208,15 +208,8 @@ nav {
     display: none;
   }
 
-  .theme-mainnet-btn {
-    cursor: pointer;
+  .theme-network-logo {
     height: auto;
-  }
-
-  .hide-mainnet-desktop {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 32px;
   }
 
   .dark-theme-logo {
@@ -314,7 +307,7 @@ nav {
   background-color: rgba(0, 0, 0, 0.5);
 }
 
-.mainnet-btn {
+.network-icon-container {
   display: flex;
   gap: 10px;
   justify-content: space-between;
@@ -373,7 +366,7 @@ nav {
     }
   }
 
-  .aside-mainnet .nav-title {
+  .aside-network .nav-title {
     font-size: 10px;
     font-weight: 500;
     line-height: 20px;
@@ -404,7 +397,7 @@ nav {
     align-items: center;
   }
 
-  .aside-mainnet {
+  .aside-network {
     display: flex;
     gap: 8.5px;
   }

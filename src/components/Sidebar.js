@@ -173,13 +173,13 @@ function Sidebar({ close, open }) {
               <MoonIcon fill={theme === 'dark' ? 'white' : 'black'} />
             </div>
           </div>
-          <div className="aside-mainnet">
+          <div className="aside-network">
             <GlobeNetwork
               width={11}
               height={11}
               className={`${
                 theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'
-              } theme-mainnet-btn`}
+              } theme-network-logo`}
             />
             <span className="nav-title">Hathor Mainnet</span>
           </div>
