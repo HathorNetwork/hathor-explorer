@@ -6,13 +6,16 @@
  */
 
 import React from 'react';
+import { useNewUiEnabled } from '../../hooks';
 
 function ErrorMessage() {
+  const newUiEnabled = useNewUiEnabled();
+
   const refreshPage = () => {
     window.location.reload();
   };
 
-  return (
+  return newUiEnabled ? (
     <div className="error-message-container">
       <span role="img" aria-label="sad face">
         😞
@@ -31,6 +34,12 @@ function ErrorMessage() {
       >
         <span className="footer-title">Refresh page</span>
       </button>
+    </div>
+  ) : (
+    <div className="content-wrapper">
+      <h3 className="text-danger">
+        Error loading the explorer. Please reload the page to try again.
+      </h3>
     </div>
   );
 }

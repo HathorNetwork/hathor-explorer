@@ -65,7 +65,6 @@ function Root() {
   const isVersionAllowed = useSelector(state => state.isVersionAllowed);
   const apiLoadError = useSelector(state => state.apiLoadError);
   const newUiLoading = useNewUiLoad();
-  const newUiEnabled = useNewUiEnabled();
 
   const handleWebsocket = useCallback(
     wsData => {
@@ -75,18 +74,6 @@ function Root() {
     },
     [dispatch]
   );
-
-  const renderError = () => {
-    return newUiEnabled ? (
-      <ErrorMessage />
-    ) : (
-      <div className="content-wrapper">
-        <h3 className="text-danger">
-          Error loading the explorer. Please reload the page to try again.
-        </h3>
-      </div>
-    );
-  };
 
   // Screen initialization
   useEffect(() => {
@@ -120,7 +107,7 @@ function Root() {
       <Router>
         <>
           <Navigation />
-          {apiLoadError ? renderError() : <Loading />}
+          {apiLoadError ? <ErrorMessage /> : <Loading />}
         </>
       </Router>
     );
