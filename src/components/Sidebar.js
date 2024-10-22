@@ -15,7 +15,7 @@ import {
 } from '../constants';
 import ConditionalNavigation from './ConditionalNavigation';
 import Version from './Version';
-import { SwitchButton } from './Switch';
+import { ThemeSwitch } from './ThemeSwitch';
 import { ReactComponent as SidebarLogo } from '../assets/images/logo-sidebar.svg';
 import { ReactComponent as SunIconLight } from '../assets/images/sun-light.svg';
 import { ReactComponent as SunIconDark } from '../assets/images/sun-dark.svg';
@@ -169,7 +169,7 @@ function Sidebar({ close, open }) {
           <div className="aside-theme-color-container">
             <div className="aside-theme-color-switch">
               {theme === 'dark' ? <SunIconDark /> : <SunIconLight />}
-              <SwitchButton />
+              <ThemeSwitch />
               <MoonIcon fill={theme === 'dark' ? 'white' : 'black'} />
             </div>
           </div>
