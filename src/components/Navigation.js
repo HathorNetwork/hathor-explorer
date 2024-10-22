@@ -26,6 +26,7 @@ import Sidebar from './Sidebar';
 import {
   UNLEASH_TOKENS_BASE_FEATURE_FLAG,
   UNLEASH_TOKEN_BALANCES_FEATURE_FLAG,
+  REACT_APP_NETWORK,
 } from '../constants';
 import { toggleTheme } from '../actions';
 
@@ -41,7 +42,6 @@ function Navigation() {
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const showTokensTab = isTokensBalanceEnabled || isTokensBaseEnabled;
-  const network = hathorLib.config.getNetwork();
 
   const showSidebarHandler = () => {
     setShowSidebar(!showSidebar);
@@ -66,6 +66,7 @@ function Navigation() {
         // It's a valid hash
         history.push(`/transaction/${text}`);
       } else {
+        const network = hathorLib.config.getNetwork();
         const addressObj = new hathorLib.Address(text, { network });
         if (addressObj.isValid()) {
           // It's a valid address
@@ -82,7 +83,7 @@ function Navigation() {
   };
 
   const renderNewUi = () => {
-    const hathorNetwork = network.getNetwork().name;
+    const hathorNetwork = `Hathor ${REACT_APP_NETWORK}`;
 
     return (
       <nav>
