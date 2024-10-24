@@ -11,31 +11,13 @@ import hathorLib from '@hathor/wallet-lib';
 import dateFormatter from '../../utils/date';
 import { useIsMobile, useNewUiEnabled } from '../../hooks';
 
-const TxRow = ({ tx }) => {
+const TxRow = ({ tx, ellipsis }) => {
   const newUiEnabled = useNewUiEnabled();
   const isMobile = useIsMobile();
   const history = useHistory();
 
   const handleClickTr = hash => {
     history.push(`/transaction/${hash}`);
-  };
-
-  const parseTimestamp = timestamp => {
-    const date = new Date(timestamp * 1000);
-
-    const userLocale = navigator.language || navigator.userLanguage || 'en-US';
-
-    return new Intl.DateTimeFormat(userLocale, {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    })
-      .format(date)
-      .replace(',', '');
   };
 
   const renderIdCell = id => {
@@ -57,8 +39,10 @@ const TxRow = ({ tx }) => {
 
   const renderNewUi = () => (
     <tr onClick={_e => handleClickTr(tx.tx_id)}>
-      <td className=" d-lg-table-cell pe-3">{renderIdCell(tx.tx_id)}</td>
-      <td className=" d-lg-table-cell pe-3">{parseTimestamp(tx.timestamp)}</td>
+      <td className=" d-lg-table-cell pe-3">{ellipsis ? renderIdCell(tx.tx_id) : tx.tx_id}</td>
+      <td className=" d-lg-table-cell pe-3 date-cell">
+        {dateFormatter.parseTimestampNewUi(tx.timestamp)}
+      </td>
     </tr>
   );
 

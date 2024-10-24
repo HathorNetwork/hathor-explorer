@@ -13,12 +13,15 @@ import AddressDetailExplorer from '../components/AddressDetailExplorer';
 import AddressDetailLegacy from '../components/AddressDetailLegacy';
 import { UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG } from '../constants';
 import ErrorMessageWithIcon from '../components/error/ErrorMessageWithIcon';
+import { useNewUiEnabled } from '../hooks';
+import NewUiAddressDetailExplorer from '../components/NewUiAddressDetailExplorer';
 
 const AddressDetail = () => {
   const maintenanceMode = useFlag(`${UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG}.maintenance`);
   const latestMode = useFlag(`${UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG}.latest`);
   const history = useHistory();
   const params = useParams();
+  const newUiEnabled = useNewUiEnabled();
 
   if (maintenanceMode) {
     return (
@@ -27,7 +30,11 @@ const AddressDetail = () => {
   }
 
   if (latestMode) {
-    return <AddressDetailExplorer history={history} match={{ params }} />;
+    return newUiEnabled ? (
+      <NewUiAddressDetailExplorer history={history} match={{ params }} />
+    ) : (
+      <AddressDetailExplorer history={history} match={{ params }} />
+    );
   }
 
   return <AddressDetailLegacy history={history} match={{ params }} />;

@@ -10,6 +10,7 @@ import { useFlag } from '@unleash/proxy-client-react';
 import { useSelector } from 'react-redux';
 import { NavLink, Link, useHistory } from 'react-router-dom';
 import {
+  REACT_APP_NETWORK,
   UNLEASH_TOKENS_BASE_FEATURE_FLAG,
   UNLEASH_TOKEN_BALANCES_FEATURE_FLAG,
 } from '../constants';
@@ -29,6 +30,7 @@ function Sidebar({ close, open }) {
   const showTokensTab = isTokensBalanceEnabled || isTokensBaseEnabled;
   const theme = useSelector(state => state.theme);
   const sidebarRef = useRef(null);
+  const hathorNetwork = `Hathor ${REACT_APP_NETWORK}`;
 
   useEffect(() => {
     const handleClickOutside = event => {
@@ -181,7 +183,7 @@ function Sidebar({ close, open }) {
                 theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'
               } theme-network-logo`}
             />
-            <span className="nav-title">Hathor Mainnet</span>
+            <span className="nav-title">{hathorNetwork}</span>
           </div>
           <div className="aside-version">
             <Version explorer />

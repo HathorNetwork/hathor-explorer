@@ -7,10 +7,10 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import Loading from './Loading';
+import Spinner from './Spinner';
 import ErrorMessageWithIcon from './error/ErrorMessageWithIcon';
 
-class SortableTable extends React.Component {
+class NewUiSortableTable extends React.Component {
   renderTableBody() {
     return <td></td>;
   }
@@ -21,7 +21,7 @@ class SortableTable extends React.Component {
 
   renderTable(content) {
     return (
-      <table className="table table-striped table-home" id="tx-table">
+      <table className="table-stylized table-tokens" id="">
         {content}
       </table>
     );
@@ -39,7 +39,7 @@ class SortableTable extends React.Component {
 
   loadTable() {
     if (this.props.loading) {
-      return <Loading />;
+      return <Spinner />;
     }
 
     if (this.props.data.length === 0) {
@@ -68,37 +68,52 @@ class SortableTable extends React.Component {
           aria-label="Paginated table"
           className="d-flex offset-sm-4 col-sm-4 justify-content-center"
         >
-          <ul className="pagination">
-            <li
-              ref="pagePrevious"
-              className={
-                !this.props.hasBefore || this.props.calculatingPage
-                  ? 'page-item me-3 disabled'
-                  : 'page-item me-3'
-              }
-            >
-              <button onClick={e => this.props.onPreviousPageClicked(e)} className="page-link">
-                Previous
-              </button>
-            </li>
-            <li
-              ref="pageNext"
-              className={
-                !this.props.hasAfter || this.props.calculatingPage
-                  ? 'page-item disabled'
-                  : 'page-item'
-              }
-            >
-              <button onClick={e => this.props.onNextPageClicked(e)} className="page-link">
-                Next
-              </button>
-            </li>
-          </ul>
+          {!this.props.hasBefore && !this.props.hasAfter ? (
+            <ul className="pagination">
+              <li ref="pagePrevious" className="page-item  disable-button">
+                <button className="disable-button page-link">Previous</button>
+              </li>
+              <li ref="pageNext" className="page-item  disable-button">
+                <button className=" disable-button page-link" style={{ color: 'red' }}>
+                  Next
+                </button>
+              </li>
+            </ul>
+          ) : (
+            <ul className="pagination">
+              <li
+                ref="pagePrevious"
+                className={
+                  !this.props.hasBefore
+                    ? 'page-item  disabled disable-button'
+                    : this.props.calculatingPage
+                    ? 'page-item disable-button'
+                    : 'page-item '
+                }
+              >
+                <button onClick={e => this.props.onPreviousPageClicked(e)} className="page-link">
+                  Previous
+                </button>
+              </li>
+              <li
+                ref="pageNext"
+                className={
+                  !this.props.hasAfter
+                    ? 'page-item disabled disable-button'
+                    : this.props.calculatingPage
+                    ? 'page-item disable-button'
+                    : 'page-item active'
+                }
+              >
+                <button onClick={e => this.props.onNextPageClicked(e)} className="page-link">
+                  Next
+                </button>
+              </li>
+            </ul>
+          )}
         </nav>
         <div className="d-flex col-sm-4 page-loader">
-          {this.props.calculatingPage ? (
-            <Loading width={35} height={35} useLoadingWrapper={false} showSlowLoadMessage={false} />
-          ) : null}
+          {this.props.calculatingPage ? <></> : null}
         </div>
       </div>
     );
@@ -127,7 +142,7 @@ class SortableTable extends React.Component {
  * calculatingPage: Indicates if next page is being retrieved from explorer-service
  * tableClasses: Extra classes to add to the table element
  */
-SortableTable.propTypes = {
+NewUiSortableTable.propTypes = {
   data: PropTypes.array.isRequired,
   hasBefore: PropTypes.bool.isRequired,
   hasAfter: PropTypes.bool.isRequired,
@@ -140,4 +155,4 @@ SortableTable.propTypes = {
   order: PropTypes.string,
 };
 
-export default SortableTable;
+export default NewUiSortableTable;
