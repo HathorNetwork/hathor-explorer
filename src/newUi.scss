@@ -808,7 +808,8 @@ nav {
     padding: 6px;
     border: 1px solid var(--border-color);
     text-align: center;
-    min-width: 60vw !important;
+    white-space: nowrap;
+    width: fit-content !important;
     background-color: var(--secondary-color);
     z-index: 1000;
   }
