@@ -42,6 +42,20 @@ const dateFormatter = {
   dateToTimestamp(date) {
     return Math.floor(date.getTime() / 1000);
   },
+
+  parseTimestampNewUi(timestamp) {
+    const date = new Date(timestamp * 1000);
+    const userLocale = navigator.language || navigator.userLanguage || 'en-US';
+    return new Intl.DateTimeFormat(userLocale, {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    }).format(date);
+  },
 };
 
 export default dateFormatter;

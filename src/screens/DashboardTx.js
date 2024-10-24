@@ -105,7 +105,7 @@ function DashboardTx() {
   };
 
   const renderRows = elements => {
-    return elements.map(tx => <TxRow key={tx.tx_id} tx={tx} />);
+    return elements.map(tx => <TxRow key={tx.tx_id} tx={tx} ellipsis />);
   };
 
   const renderUi = () => {
@@ -162,7 +162,7 @@ function DashboardTx() {
       <div className="section-tables-stylized">
         <br />
         <div className="container-title-page">
-          <p className="title-page">Live Data</p>
+          <p className="title-page data-title">Live Data</p>
           <div className="buttons-mobile-container">
             <button
               ref={transactionButtonRef}

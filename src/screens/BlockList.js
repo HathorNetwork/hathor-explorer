@@ -9,8 +9,10 @@ import React from 'react';
 import Transactions from '../components/tx/Transactions';
 import txApi from '../api/txApi';
 import { TX_COUNT } from '../constants';
+import { useNewUiEnabled } from '../hooks';
 
 function BlockList() {
+  const newUiEnabled = useNewUiEnabled();
   /**
    * Checks if the recently arrived transaction should trigger an update on the list
    * It returns true if it's a block
@@ -37,15 +39,31 @@ function BlockList() {
     return txApi.getTransactions('block', TX_COUNT, timestamp, hash, page);
   };
 
-  return (
-    <div className="content-wrapper">
-      <Transactions
-        title={<h1>Blocks</h1>}
-        shouldUpdateList={shouldUpdateList}
-        updateData={updateData}
-      />
-    </div>
-  );
+  const renderNewUi = () => {
+    return (
+      <div className="tx-container">
+        <Transactions
+          title={<h1 className="title-tx-page">Blocks</h1>}
+          shouldUpdateList={shouldUpdateList}
+          updateData={updateData}
+        />
+      </div>
+    );
+  };
+
+  const renderUi = () => {
+    return (
+      <div className="content-wrapper">
+        <Transactions
+          title={<h1>Blocks</h1>}
+          shouldUpdateList={shouldUpdateList}
+          updateData={updateData}
+        />
+      </div>
+    );
+  };
+
+  return newUiEnabled ? renderNewUi() : renderUi();
 }
 
 export default BlockList;

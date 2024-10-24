@@ -49,7 +49,7 @@ function Footer() {
             aria-label="Toggle navigation"
             onClick={() => window.open('https://github.com/hathornetwork')}
           >
-            <span className="footer-title">Git Hub</span>
+            <span className="footer-title">GitHub</span>
           </button>
           <button
             className="footer-button"

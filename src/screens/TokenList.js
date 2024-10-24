@@ -9,15 +9,34 @@ import React from 'react';
 import { useFlag } from '@unleash/proxy-client-react';
 import Tokens from '../components/token/Tokens';
 import { UNLEASH_TOKENS_BASE_FEATURE_FLAG } from '../constants';
+import { useNewUiEnabled } from '../hooks';
+import NewUiTokens from '../components/token/NewUiTokens';
 
 const TokenList = () => {
   const maintenanceMode = useFlag(`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.maintenance`);
+  const newUiEnabled = useNewUiEnabled();
 
-  return (
-    <div className="content-wrapper">
-      <Tokens title={'Tokens'} maintenanceMode={maintenanceMode} />
-    </div>
-  );
+  const renderNewUi = () => {
+    return (
+      <div className="section-tables-stylized">
+        <br />
+        <div className="container-title-page">
+          <p className="title-page">Tokens</p>
+          <NewUiTokens maintenanceMode={maintenanceMode} />
+        </div>
+      </div>
+    );
+  };
+
+  const renderUi = () => {
+    return (
+      <div className="content-wrapper">
+        <Tokens title={'Tokens'} maintenanceMode={maintenanceMode} />
+      </div>
+    );
+  };
+
+  return newUiEnabled ? renderNewUi() : renderUi();
 };
 
 export default TokenList;

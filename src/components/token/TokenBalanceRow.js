@@ -10,10 +10,13 @@ import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { numberUtils } from '@hathor/wallet-lib';
 import { useSelector } from 'react-redux';
+import { useIsMobile, useNewUiEnabled } from '../../hooks';
+import EllipsiCell from '../EllipsiCell';
 
 function TokenBalanceRow({ tokenId, address, total, unlocked, locked }) {
   const history = useHistory();
-
+  const newUiEnabled = useNewUiEnabled();
+  const isMobile = useIsMobile();
   const decimalPlaces = useSelector(state => state.serverInfo.decimal_places);
 
   /**
@@ -25,7 +28,7 @@ function TokenBalanceRow({ tokenId, address, total, unlocked, locked }) {
     history.push(`/address/${address}?token=${tokenId}`);
   };
 
-  return (
+  const renderUi = () => (
     <tr onClick={onRowClicked}>
       <td className="d-lg-table-cell pe-3">{address}</td>
       <td className="d-lg-table-cell pe-3">{numberUtils.prettyValue(total, decimalPlaces)}</td>
@@ -33,6 +36,21 @@ function TokenBalanceRow({ tokenId, address, total, unlocked, locked }) {
       <td className="d-lg-table-cell pe-3">{numberUtils.prettyValue(locked, decimalPlaces)}</td>
     </tr>
   );
+
+  const renderNewUi = () => (
+    <tr onClick={onRowClicked}>
+      <td className="d-lg-table-cell pe-3">{isMobile ? <EllipsiCell id={address} /> : address}</td>
+      <td className="d-lg-table-cell pe-3">{numberUtils.prettyValue(total, decimalPlaces)}</td>
+      <td className="d-lg-table-cell pe-3 td-mobile">
+        {numberUtils.prettyValue(unlocked, decimalPlaces)}
+      </td>
+      <td className="d-lg-table-cell pe-3 td-mobile">
+        {numberUtils.prettyValue(locked, decimalPlaces)}
+      </td>
+    </tr>
+  );
+
+  return newUiEnabled ? renderNewUi() : renderUi();
 }
 
 /**

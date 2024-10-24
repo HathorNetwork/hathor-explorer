@@ -3,8 +3,13 @@ import hathorLib from '@hathor/wallet-lib';
 import QRCode from 'qrcode.react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import HathorAlert from '../HathorAlert';
+import NewHathorAlert from '../NewHathorAlert';
+import { useNewUiEnabled } from '../../hooks';
+import { ReactComponent as CopyIcon } from '../../assets/images/copy-icon.svg';
+import { ReactComponent as DownloadIcon } from '../../assets/images/download-icon.svg';
 
 const TokenConfig = props => {
+  const newUiEnabled = useNewUiEnabled();
   const [token, setToken] = useState(props.token);
   const [successMessage, setSuccessMessage] = useState('');
   const configurationString = hathorLib.tokensUtils.getConfigurationString(
@@ -57,41 +62,77 @@ const TokenConfig = props => {
     }
   };
 
-  return (
-    <>
-      <div className="d-flex flex-column config-string-wrapper">
-        <p>
-          <strong>Configuration String</strong>
-        </p>
-        <p className="text-center py-4 flex-fill d-flex align-items-center justify-content-center">
-          <QRCode size={200} value={configurationString} />
-        </p>
-        <p>
-          <span className="mb-4 text-left">
-            {getShortConfigurationString()}
-            <CopyToClipboard text={configurationString} onCopy={copied}>
-              <i
-                className="fa fa-lg fa-clone pointer ms-1 float-right"
-                title="Copy to clipboard"
-              ></i>
-            </CopyToClipboard>
+  const renderUi = () => {
+    return (
+      <>
+        <div className="d-flex flex-column config-string-wrapper">
+          <p>
+            <strong>Configuration String</strong>
+          </p>
+          <p className="text-center py-4 flex-fill d-flex align-items-center justify-content-center">
+            <QRCode size={200} value={configurationString} />
+          </p>
+          <p>
+            <span className="mb-4 text-left">
+              {getShortConfigurationString()}
+              <CopyToClipboard text={configurationString} onCopy={copied}>
+                <i
+                  className="fa fa-lg fa-clone pointer ms-1 float-right"
+                  title="Copy to clipboard"
+                ></i>
+              </CopyToClipboard>
+            </span>
+          </p>
+          <p>
+            <a
+              className="mt-2"
+              onClick={e => downloadQrCode(e)}
+              download={`${token.name} (${token.symbol}) - ${configurationString}`}
+              href="true"
+            >
+              Download
+              <i className="fa fa-download ms-1 float-right" title="Download QRCode"></i>
+            </a>
+          </p>
+        </div>
+        <HathorAlert ref={alertSuccess} text={successMessage} type="success" />
+      </>
+    );
+  };
+
+  const renderNewUi = () => {
+    return (
+      <>
+        <div className="token-new-config">
+          <strong>CONFIGURATION STRING</strong>
+          <span className="qr-code">
+            <QRCode size={200} value={configurationString} />
           </span>
-        </p>
-        <p>
-          <a
-            className="mt-2"
-            onClick={e => downloadQrCode(e)}
-            download={`${token.name} (${token.symbol}) - ${configurationString}`}
-            href="true"
-          >
-            Download
-            <i className="fa fa-download ms-1 float-right" title="Download QRCode"></i>
-          </a>
-        </p>
-      </div>
-      <HathorAlert ref={alertSuccess} text={successMessage} type="success" />
-    </>
-  );
+          <span className="token-code">{getShortConfigurationString()}</span>
+          <span className="actions-token-code">
+            <button className="actions-token-code-btn">
+              <CopyToClipboard text={configurationString} onCopy={copied}>
+                <CopyIcon />
+              </CopyToClipboard>
+            </button>
+            <button className="actions-token-code-btn">
+              <a
+                className="mt-2"
+                onClick={e => downloadQrCode(e)}
+                download={`${token.name} (${token.symbol}) - ${configurationString}`}
+                href="true"
+              >
+                <DownloadIcon />
+              </a>
+            </button>
+          </span>
+          <NewHathorAlert ref={alertSuccess} text={successMessage} type="success" />
+        </div>
+      </>
+    );
+  };
+
+  return newUiEnabled ? renderNewUi() : renderUi();
 };
 
 export default TokenConfig;

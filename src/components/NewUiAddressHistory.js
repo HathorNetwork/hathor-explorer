@@ -6,18 +6,22 @@
  */
 
 import React from 'react';
-import dateFormatter from '../utils/date';
 import hathorLib from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
 import PaginationURL from '../utils/pagination';
 import SortableTable from './SortableTable';
 import { connect } from 'react-redux';
+import dateFormatter from '../utils/date';
+import EllipsiCell from './EllipsiCell';
+import { ReactComponent as RowBottomIcon } from '../assets/images/leading-icon.svg';
+import { ReactComponent as RowTopIcon } from '../assets/images/leading-top-icon.svg';
+import NewUiSortableTable from './NewUiSortableTable';
 
 const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
 });
 
-class AddressHistory extends SortableTable {
+class NewUiAddressHistory extends NewUiSortableTable {
   /**
    * Check if the tx has only inputs and outputs that are authorities in the search address
    *
@@ -48,28 +52,17 @@ class AddressHistory extends SortableTable {
   };
 
   renderTable(content) {
-    return (
-      <table className="table table-striped address-history" id="tx-table">
-        {content}
-      </table>
-    );
+    return <table className=" table-stylized table-address">{content}</table>;
   }
 
   renderTableHead() {
     return (
       <tr>
-        <th className="d-none d-lg-table-cell">Type</th>
-        <th className="d-none d-lg-table-cell">Hash</th>
-        <th className="d-none d-lg-table-cell">Timestamp</th>
-        <th className="d-none d-lg-table-cell"></th>
-        <th className="d-none d-lg-table-cell">Value</th>
-        <th className="d-table-cell d-lg-none" colSpan="3">
-          Type
-          <br />
-          Hash
-          <br />
-          Timestamp
-        </th>
+        <th>Type</th>
+        <th>Hash</th>
+        <th className="th-table-token-mobile">Timestamp</th>
+        <th className="th-table-token-mobile"></th>
+        <th className="th-table-token-mobile">Value</th>
       </tr>
     );
   }
@@ -94,14 +87,14 @@ class AddressHistory extends SortableTable {
       if (tx.balance > 0) {
         if (tx.version === hathorLib.constants.CREATE_TOKEN_TX_VERSION) {
           statusElement = (
-            <span>
-              Token creation <i className={`fa ms-3 fa-long-arrow-down`}></i>
+            <span className="type-span span-green-tag">
+              <RowBottomIcon /> Token creation
             </span>
           );
         } else {
           statusElement = (
-            <span>
-              Received <i className={`fa ms-3 fa-long-arrow-down`}></i>
+            <span className="type-span span-green-tag">
+              <RowBottomIcon /> Received
             </span>
           );
         }
@@ -109,14 +102,14 @@ class AddressHistory extends SortableTable {
       } else if (tx.balance < 0) {
         if (tx.version === hathorLib.constants.CREATE_TOKEN_TX_VERSION) {
           statusElement = (
-            <span>
-              Token deposit <i className={`fa ms-3 fa-long-arrow-up`}></i>
+            <span className="type-span span-red-tag">
+              <RowTopIcon /> Token deposit
             </span>
           );
         } else {
           statusElement = (
-            <span>
-              Sent <i className={`fa ms-3 fa-long-arrow-up`}></i>
+            <span className="type-span span-red-tag">
+              <RowTopIcon /> Sent
             </span>
           );
         }
@@ -136,25 +129,16 @@ class AddressHistory extends SortableTable {
       }
       return (
         <tr key={tx.tx_id} className={trClass} onClick={e => this.props.onRowClicked(tx.tx_id)}>
-          <td className="d-none d-lg-table-cell pe-3">
-            {hathorLib.transactionUtils.getTxType(tx)}
+          <td className="pe-3">{hathorLib.transactionUtils.getTxType(tx)}</td>
+          <td className="pe-3">
+            <EllipsiCell id={tx.tx_id} />
           </td>
-          <td className="d-none d-lg-table-cell pe-3">
-            {hathorLib.helpersUtils.getShortHash(tx.tx_id)}
+          <td className="pe-3 td-mobile date-cell">
+            {dateFormatter.parseTimestampNewUi(tx.timestamp)}
           </td>
-          <td className="d-none d-lg-table-cell pe-3">
-            {dateFormatter.parseTimestamp(tx.timestamp)}
-          </td>
-          <td className="state">{statusElement}</td>
-          <td className="value">
-            <span>{prettyValue}</span>
-          </td>
-          <td className="d-lg-none d-table-cell pe-3" colSpan="3">
-            {hathorLib.transactionUtils.getTxType(tx)}
-            <br />
-            {hathorLib.helpersUtils.getShortHash(tx.tx_id)}
-            <br />
-            {dateFormatter.parseTimestamp(tx.timestamp)}
+          <td className="state td-mobile">{statusElement}</td>
+          <td className="value td-mobile">
+            <span style={{ color: tx.balance < 0 ? '#991300' : '#44A32E' }}>{prettyValue}</span>
           </td>
         </tr>
       );
@@ -171,7 +155,7 @@ class AddressHistory extends SortableTable {
  * numTransactions: total number of transactions
  * txCache: An object with the original txs in the transactions array
  */
-AddressHistory.propTypes = {
+NewUiAddressHistory.propTypes = {
   ...SortableTable.propTypes,
   address: PropTypes.string.isRequired,
   onRowClicked: PropTypes.func.isRequired,
@@ -181,4 +165,4 @@ AddressHistory.propTypes = {
   txCache: PropTypes.object.isRequired,
 };
 
-export default connect(mapStateToProps)(AddressHistory);
+export default connect(mapStateToProps)(NewUiAddressHistory);
