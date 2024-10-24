@@ -22,6 +22,7 @@ import { ReactComponent as SunIconLight } from '../assets/images/sun-light.svg';
 import { ReactComponent as SunIconDark } from '../assets/images/sun-dark.svg';
 import { ReactComponent as MoonIcon } from '../assets/images/moon.svg';
 import { ReactComponent as GlobeNetwork } from '../assets/images/global.svg';
+import { ReactComponent as ArrorDownNavItem } from '../assets/images/arrow-down-nav-dropdown.svg';
 
 function Sidebar({ close, open }) {
   const history = useHistory();
@@ -99,6 +100,7 @@ function Sidebar({ close, open }) {
                     aria-expanded="false"
                   >
                     Tokens
+                    <ArrorDownNavItem style={{ marginLeft: '5px' }} className="dropdown-icon" />
                   </span>
                   <div className="dropdown-menu" aria-labelledby="navbarDropdown">
                     <li>
@@ -147,7 +149,7 @@ function Sidebar({ close, open }) {
                   aria-haspopup="true"
                   aria-expanded="false"
                 >
-                  Tools
+                  Tools <ArrorDownNavItem style={{ marginLeft: '5px' }} className="dropdown-icon" />
                 </span>
                 <div className="dropdown-menu" aria-labelledby="navbarDropdown">
                   <NavLink to="/decode-tx/" exact className="nav-link">
