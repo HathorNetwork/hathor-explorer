@@ -305,11 +305,11 @@ function Transactions({ shouldUpdateList, updateData, title, noPagination }) {
   };
 
   const loadNewPagination = () => {
-    if (transactions.length === 0) {
-      return null;
-    }
+    if (transactions.length === 0) return null;
 
-    return !noPagination ? (
+    if (noPagination) return '';
+
+    return (
       <div className="tx-pagination-btn">
         <Link
           className={
@@ -358,8 +358,6 @@ function Transactions({ shouldUpdateList, updateData, title, noPagination }) {
           </button>
         </Link>
       </div>
-    ) : (
-      ''
     );
   };
 
