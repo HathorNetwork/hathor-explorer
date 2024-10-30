@@ -122,7 +122,7 @@ class NewUiAddressSummary extends React.Component {
 
       if (uid) {
         const token = this.props.tokens[uid];
-        console.log('achei', token.name);
+
         return {
           key: uid,
           name: `${token.name} (${token.symbol})`,

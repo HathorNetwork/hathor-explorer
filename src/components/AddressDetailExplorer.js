@@ -10,8 +10,13 @@ import hathorLib from '@hathor/wallet-lib';
 import ReactLoading from 'react-loading';
 import { find } from 'lodash';
 import { useHistory, useParams } from 'react-router-dom';
+import { useNewUiEnabled } from '../hooks';
 import AddressSummary from './AddressSummary';
 import AddressHistory from './AddressHistory';
+import NewUiAddressSummary from './NewUiAddressSummary';
+import NewUiAddressHistory from './NewUiAddressHistory';
+import Loading from './Loading';
+import ErrorMessageWithIcon from './error/ErrorMessageWithIcon';
 import PaginationURL from '../utils/pagination';
 import colors from '../index.scss';
 import WebSocketHandler from '../WebSocketHandler';
@@ -19,7 +24,6 @@ import { TOKEN_COUNT, TX_COUNT } from '../constants';
 import metadataApi from '../api/metadataApi';
 import addressApi from '../api/addressApi';
 import txApi from '../api/txApi';
-import ErrorMessageWithIcon from './error/ErrorMessageWithIcon';
 
 /**
  * Check if the searched address is on the inputs or outputs of the new tx
@@ -62,6 +66,7 @@ function AddressDetailExplorer() {
 
   const { address } = useParams();
   const history = useHistory();
+  const newUiEnabled = useNewUiEnabled();
 
   /*
    * selectedToken {String} UID of the selected token when address has many
@@ -555,12 +560,15 @@ function AddressDetailExplorer() {
       );
     }
     if (loadingSummary || loadingHistory || loadingTokens) {
-      return <ReactLoading type="spin" color={colors.purpleHathor} delay={500} />;
+      return newUiEnabled ? (
+        <Loading />
+      ) : (
+        <ReactLoading type="spin" color={colors.purpleHathor} delay={500} />
+      );
     }
-    return (
-      <div>
-        {renderWarningAlert()}
-        {renderMissingTokensAlert()}
+
+    const renderUi = () => (
+      <>
         <AddressSummary
           address={address}
           tokens={addressTokens}
@@ -587,11 +595,54 @@ function AddressDetailExplorer() {
           calculatingPage={loadingPagination}
           loading={loadingHistory}
         />
+      </>
+    );
+
+    const renderNewUi = () => (
+      <>
+        <h1 className="title-page">Address</h1>
+        <NewUiAddressSummary
+          address={address}
+          tokens={addressTokens}
+          balance={balance}
+          selectedToken={selectedToken}
+          tokenSelectChanged={onTokenSelectChanged}
+          isNFT={isNFT()}
+          metadataLoaded={metadataLoaded}
+        />
+        <NewUiAddressHistory
+          address={address}
+          onRowClicked={onRowClicked}
+          pagination={pagination}
+          selectedToken={selectedToken}
+          onNextPageClicked={onNextPageClicked}
+          onPreviousPageClicked={onPreviousPageClicked}
+          hasAfter={hasAfter}
+          hasBefore={hasBefore}
+          data={transactions}
+          numTransactions={balance.transactions}
+          txCache={txCache}
+          isNFT={isNFT()}
+          metadataLoaded={metadataLoaded}
+          calculatingPage={loadingPagination}
+        />
+      </>
+    );
+
+    return (
+      <div>
+        {renderWarningAlert()}
+        {renderMissingTokensAlert()}
+        {newUiEnabled ? renderNewUi() : renderUi()}
       </div>
     );
   };
 
-  return <div className="content-wrapper">{renderData()}</div>;
+  return (
+    <div className={newUiEnabled ? 'section-tables-stylized' : 'content-wrapper'}>
+      {renderData()}
+    </div>
+  );
 }
 
 export default AddressDetailExplorer;

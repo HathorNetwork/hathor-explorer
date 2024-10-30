@@ -8,7 +8,7 @@
 import React, { useEffect, useState } from 'react';
 
 import ReactLoading from 'react-loading';
-import Spinner from '../components/Spinner';
+import Spinner from './Spinner';
 import colors from '../index.scss';
 import { useNewUiEnabled } from '../hooks';
 
