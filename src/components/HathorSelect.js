@@ -8,16 +8,46 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ReactComponent as RowDown } from '../assets/images/arrow-down-nav-dropdown.svg';
 
-const CustomSelect = ({ options, onSelect, value }) => {
+/**
+ * HathorSelect component renders a dropdown menu for selecting an option.
+ *
+ * @param {Array} options - List of options to display in the dropdown.
+ * Each option should be an object with the following structure:
+ * {
+ *   key: <string | number>, // Unique identifier for each option.
+ *   name: <string>          // Display name for the option.
+ * }
+ *
+ * @param {Function} onSelect - Callback function triggered when an option is selected.
+ * Receives the key of the selected option as an argument.
+ *
+ * @param {Object} value - The current selected option, with the same structure as an option:
+ * {
+ *   key: <string | number>, // Unique identifier for the current selected option.
+ *   name: <string>          // Display name for the current selected option.
+ * }
+ */
+const HathorSelect = ({ options, onSelect, value }) => {
   const [open, setOpen] = useState(false);
 
   const selectRef = useRef(null);
 
+  /**
+   * Handles option selection by calling the onSelect function with the selected key,
+   * and closes the dropdown menu.
+   *
+   * @param {string | number} key - The unique identifier of the selected option.
+   */
   const handleOption = key => {
     onSelect(key);
     setOpen(false);
   };
 
+  /**
+   * Closes the dropdown menu if a click occurs outside of the component.
+   *
+   * @param {MouseEvent} event - The mouse event triggered on document click.
+   */
   const handleClickOutside = event => {
     if (selectRef.current && !selectRef.current.contains(event.target)) {
       setOpen(false);
@@ -50,4 +80,4 @@ const CustomSelect = ({ options, onSelect, value }) => {
   );
 };
 
-export default CustomSelect;
+export default HathorSelect;

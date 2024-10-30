@@ -9,7 +9,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { numberUtils } from '@hathor/wallet-lib';
 import { connect } from 'react-redux';
-import CustomSelect from './CustomSelect';
+import HathorSelect from './HathorSelect';
 
 const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
@@ -152,7 +152,7 @@ class NewUiAddressSummary extends React.Component {
         );
       } else {
         return (
-          <CustomSelect
+          <HathorSelect
             value={SelectToken()}
             options={renderTokenOptionsNew()}
             onSelect={e => this.props.tokenSelectChanged(e)}
