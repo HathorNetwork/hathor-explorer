@@ -13,8 +13,6 @@ import { useHistory, useParams } from 'react-router-dom';
 import { useNewUiEnabled } from '../hooks';
 import AddressSummary from './AddressSummary';
 import AddressHistory from './AddressHistory';
-import NewUiAddressSummary from './NewUiAddressSummary';
-import NewUiAddressHistory from './NewUiAddressHistory';
 import Loading from './Loading';
 import ErrorMessageWithIcon from './error/ErrorMessageWithIcon';
 import PaginationURL from '../utils/pagination';
@@ -567,73 +565,40 @@ function AddressDetailExplorer() {
       );
     }
 
-    const renderUi = () => (
-      <>
-        <AddressSummary
-          address={address}
-          tokens={addressTokens}
-          balance={balance}
-          selectedToken={selectedToken}
-          tokenSelectChanged={onTokenSelectChanged}
-          isNFT={isNFT()}
-          metadataLoaded={metadataLoaded}
-        />
-        <AddressHistory
-          address={address}
-          onRowClicked={onRowClicked}
-          pagination={pagination.current}
-          selectedToken={selectedToken}
-          onNextPageClicked={onNextPageClicked}
-          onPreviousPageClicked={onPreviousPageClicked}
-          hasAfter={hasAfter}
-          hasBefore={hasBefore}
-          data={transactions}
-          numTransactions={balance.transactions}
-          txCache={txCache}
-          isNFT={isNFT()}
-          metadataLoaded={metadataLoaded}
-          calculatingPage={loadingPagination}
-          loading={loadingHistory}
-        />
-      </>
-    );
-
-    const renderNewUi = () => (
-      <>
-        <h1 className="title-page">Address</h1>
-        <NewUiAddressSummary
-          address={address}
-          tokens={addressTokens}
-          balance={balance}
-          selectedToken={selectedToken}
-          tokenSelectChanged={onTokenSelectChanged}
-          isNFT={isNFT()}
-          metadataLoaded={metadataLoaded}
-        />
-        <NewUiAddressHistory
-          address={address}
-          onRowClicked={onRowClicked}
-          pagination={pagination}
-          selectedToken={selectedToken}
-          onNextPageClicked={onNextPageClicked}
-          onPreviousPageClicked={onPreviousPageClicked}
-          hasAfter={hasAfter}
-          hasBefore={hasBefore}
-          data={transactions}
-          numTransactions={balance.transactions}
-          txCache={txCache}
-          isNFT={isNFT()}
-          metadataLoaded={metadataLoaded}
-          calculatingPage={loadingPagination}
-        />
-      </>
-    );
-
     return (
       <div>
         {renderWarningAlert()}
         {renderMissingTokensAlert()}
-        {newUiEnabled ? renderNewUi() : renderUi()}
+        <>
+          <AddressSummary
+            address={address}
+            tokens={addressTokens}
+            balance={balance}
+            selectedToken={selectedToken}
+            tokenSelectChanged={onTokenSelectChanged}
+            isNFT={isNFT()}
+            metadataLoaded={metadataLoaded}
+            newUiEnabled={newUiEnabled}
+          />
+          <AddressHistory
+            address={address}
+            onRowClicked={onRowClicked}
+            pagination={pagination.current}
+            selectedToken={selectedToken}
+            onNextPageClicked={onNextPageClicked}
+            onPreviousPageClicked={onPreviousPageClicked}
+            hasAfter={hasAfter}
+            hasBefore={hasBefore}
+            data={transactions}
+            numTransactions={balance.transactions}
+            txCache={txCache}
+            isNFT={isNFT()}
+            metadataLoaded={metadataLoaded}
+            calculatingPage={loadingPagination}
+            loading={loadingHistory}
+            newUiEnabled={newUiEnabled}
+          />
+        </>
       </div>
     );
   };

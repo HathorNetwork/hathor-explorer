@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 import { get, last, find, isEmpty } from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { numberUtils, constants as hathorLibConstants } from '@hathor/wallet-lib';
+import { useNewUiEnabled } from '../../hooks';
 import TokenBalancesTable from './TokenBalancesTable';
 import tokensApi from '../../api/tokensApi';
 import PaginationURL from '../../utils/pagination';
@@ -21,6 +22,7 @@ import TokenAutoCompleteField from './TokenAutoCompleteField';
  */
 function TokenBalances({ maintenanceMode }) {
   const history = useHistory();
+  const newUiEnabled = useNewUiEnabled();
 
   /**
    * tokenBalances: List of token balances currently being rendered.
@@ -309,6 +311,7 @@ function TokenBalances({ maintenanceMode }) {
         onTokenSelected={onTokenSelected}
         tokenId={tokenId}
         loadingFinished={loadingFinished}
+        newUiEnabled={newUiEnabled}
       />
     );
   };
@@ -331,11 +334,12 @@ function TokenBalances({ maintenanceMode }) {
         order={order}
         tableHeaderClicked={tableHeaderClicked}
         calculatingPage={calculatingPage}
+        newUiEnabled={newUiEnabled}
       />
     );
   };
 
-  return (
+  const renderUi = () => (
     <div className="w-100">
       {renderSearchField()}
 
@@ -366,6 +370,51 @@ function TokenBalances({ maintenanceMode }) {
       {tokenId && renderTokensTable()}
     </div>
   );
+
+  const renderNewUi = () => (
+    <div className="container-title-page">
+      <p className="title-page">Token Balance</p>
+      {renderSearchField()}
+
+      <div className="token-balances-information-wrapper">
+        <h1>
+          {this.state.name === undefined
+            ? 'Hathor - HTR'
+            : `${this.state.name} (${this.state.symbol})`}
+        </h1>
+
+        {!this.state.tokenBalanceInformationError && (
+          <p className="container-total-balances">
+            <b className="total-b-balances">total addresses</b>
+            {numberUtils.prettyValue(this.state.addressesCount, 0)}
+          </p>
+        )}
+
+        {!this.state.tokensApiError && (
+          <p className="container-total-balances">
+            <b className="total-b-balances">total transactions</b>
+            {numberUtils.prettyValue(this.state.transactionsCount, 0)}
+          </p>
+        )}
+
+        {this.state.tokenId !== hathorLibConstants.NATIVE_TOKEN_UID && (
+          <p>
+            <a className="link-more-details" href={`/token_detail/${this.state.tokenId}`}>
+              See token details
+            </a>
+          </p>
+        )}
+
+        {(this.state.tokensApiError || this.state.tokenBalanceInformationError) && (
+          <ErrorMessageWithIcon message="Error loading the complete token balance information. Please try again." />
+        )}
+      </div>
+
+      {renderTokensTable()}
+    </div>
+  );
+
+  return newUiEnabled ? renderNewUi() : renderUi();
 }
 
 /**
