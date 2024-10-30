@@ -569,36 +569,34 @@ function AddressDetailExplorer() {
       <div>
         {renderWarningAlert()}
         {renderMissingTokensAlert()}
-        <>
-          <AddressSummary
-            address={address}
-            tokens={addressTokens}
-            balance={balance}
-            selectedToken={selectedToken}
-            tokenSelectChanged={onTokenSelectChanged}
-            isNFT={isNFT()}
-            metadataLoaded={metadataLoaded}
-            newUiEnabled={newUiEnabled}
-          />
-          <AddressHistory
-            address={address}
-            onRowClicked={onRowClicked}
-            pagination={pagination.current}
-            selectedToken={selectedToken}
-            onNextPageClicked={onNextPageClicked}
-            onPreviousPageClicked={onPreviousPageClicked}
-            hasAfter={hasAfter}
-            hasBefore={hasBefore}
-            data={transactions}
-            numTransactions={balance.transactions}
-            txCache={txCache}
-            isNFT={isNFT()}
-            metadataLoaded={metadataLoaded}
-            calculatingPage={loadingPagination}
-            loading={loadingHistory}
-            newUiEnabled={newUiEnabled}
-          />
-        </>
+        <AddressSummary
+          address={address}
+          tokens={addressTokens}
+          balance={balance}
+          selectedToken={selectedToken}
+          tokenSelectChanged={onTokenSelectChanged}
+          isNFT={isNFT()}
+          metadataLoaded={metadataLoaded}
+          newUiEnabled={newUiEnabled}
+        />
+        <AddressHistory
+          address={address}
+          onRowClicked={onRowClicked}
+          pagination={pagination.current}
+          selectedToken={selectedToken}
+          onNextPageClicked={onNextPageClicked}
+          onPreviousPageClicked={onPreviousPageClicked}
+          hasAfter={hasAfter}
+          hasBefore={hasBefore}
+          data={transactions}
+          numTransactions={balance.transactions}
+          txCache={txCache}
+          isNFT={isNFT()}
+          metadataLoaded={metadataLoaded}
+          calculatingPage={loadingPagination}
+          loading={loadingHistory}
+          newUiEnabled={newUiEnabled}
+        />
       </div>
     );
   };
