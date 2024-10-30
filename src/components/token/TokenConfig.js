@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import hathorLib from '@hathor/wallet-lib';
 import QRCode from 'qrcode.react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import HathorAlert from '../HathorAlert';
 import NewHathorAlert from '../NewHathorAlert';
 import { useNewUiEnabled } from '../../hooks';
 import { ReactComponent as CopyIcon } from '../../assets/images/copy-icon.svg';
@@ -35,7 +34,7 @@ const TokenConfig = props => {
    */
   const showSuccess = message => {
     setSuccessMessage(message);
-    alertSuccess.current.show(3000);
+    alertSuccess.current.show(3000); // Call show method on NewHathorAlert with duration
   };
 
   /**
@@ -95,7 +94,7 @@ const TokenConfig = props => {
             </a>
           </p>
         </div>
-        <HathorAlert ref={alertSuccess} text={successMessage} type="success" />
+        <NewHathorAlert ref={alertSuccess} text={successMessage} type="success" />
       </>
     );
   };

@@ -5,33 +5,60 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { useRef, forwardRef, useImperativeHandle } from 'react';
 import { ReactComponent as SuccessIcon } from '../assets/images/success-icon.svg';
 
-class NewHathorAlert extends React.Component {
-  show(duration) {
-    const el = this.refs.alertDiv;
-    el.classList.add('show');
-    setTimeout(() => {
-      el.classList.remove('show');
-    }, duration);
-  }
+/**
+ * NewHathorAlert - A functional alert component with an icon and customizable display duration.
+ * This component can be shown for a specified duration by calling the `show` method from its parent component.
+ *
+ * @param {Object} props - Component properties.
+ * @param {string} props.type - Defines the alert type for styling (e.g., "success", "error").
+ * @param {string} props.text - The message text displayed in the alert.
+ * @param {React.Ref} ref - A reference to call the `show` method from parent components.
+ *
+ * Usage:
+ * ```javascript
+ * const alertRef = useRef(null);
+ * alertRef.current.show(2000); // Show the alert for 2 seconds
+ * ```
+ */
+const NewHathorAlert = forwardRef(({ type, text }, ref) => {
+  const alertDiv = useRef(null);
 
-  render() {
-    return (
-      <div
-        ref="alertDiv"
-        className={`new-hathor-alert alert alert-${this.props.type} alert-dismissible fade`}
-        role="alert"
-        style={{ display: 'flex', flexDirection: 'row' }}
-      >
-        <div className="success-icon">
-          <SuccessIcon />
-        </div>
-        <p className="success-txt">{this.props.text}</p>
+  /**
+   * Displays the alert by adding the `show` class, then hides it after a specified duration.
+   *
+   * @param {number} duration - The display duration for the alert in milliseconds.
+   */
+  const show = duration => {
+    if (alertDiv.current) {
+      alertDiv.current.classList.add('show');
+      setTimeout(() => {
+        alertDiv.current.classList.remove('show');
+      }, duration);
+    }
+  };
+
+  useImperativeHandle(ref, () => ({
+    show,
+  }));
+
+  return (
+    <div
+      ref={alertDiv}
+      className={`new-hathor-alert alert alert-${type} alert-dismissible fade`}
+      role="alert"
+      style={{ display: 'flex', flexDirection: 'row' }}
+    >
+      <div className="success-icon">
+        <SuccessIcon />
       </div>
-    );
-  }
-}
+      <p className="success-txt">{text}</p>
+    </div>
+  );
+});
+
+NewHathorAlert.displayName = 'NewHathorAlert';
 
 export default NewHathorAlert;
