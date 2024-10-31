@@ -49,6 +49,8 @@ function TokenBalances({ maintenanceMode }) {
    * tokensApiError: Flag indicating if the request to the token api failed, to decide wether to display or not the total number of transactions
    */
   const [tokenId, setTokenId] = useState(hathorLibConstants.NATIVE_TOKEN_UID);
+  const [tokenName, setTokenName] = useState(undefined);
+  const [tokenSymbol, setTokenSymbol] = useState('');
   const [tokenBalances, setTokenBalances] = useState([]);
   const [hasAfter, setHasAfter] = useState(false);
   const [hasBefore, setHasBefore] = useState(false);
@@ -257,7 +259,12 @@ function TokenBalances({ maintenanceMode }) {
 
   const onTokenSelected = async newToken => {
     const newTokenId = newToken?.id || hathorLibConstants.NATIVE_TOKEN_UID;
+    const newTokenName = newToken?.name;
+    const newTokenSymbol = newToken?.symbol;
+
     setTokenId(newTokenId);
+    setTokenName(newTokenName);
+    setTokenSymbol(newTokenSymbol);
 
     if (!newToken) {
       // HTR token is the default, so the search API is not called, we must forcefully call it
@@ -378,34 +385,34 @@ function TokenBalances({ maintenanceMode }) {
 
       <div className="token-balances-information-wrapper">
         <h1>
-          {this.state.name === undefined
+          {tokenName === undefined
             ? 'Hathor - HTR'
-            : `${this.state.name} (${this.state.symbol})`}
+            : `${tokenName} (${tokenSymbol})`}
         </h1>
 
-        {!this.state.tokenBalanceInformationError && (
+        {!tokenBalanceInformationError && (
           <p className="container-total-balances">
             <b className="total-b-balances">total addresses</b>
-            {numberUtils.prettyValue(this.state.addressesCount, 0)}
+            {numberUtils.prettyValue(addressesCount, 0)}
           </p>
         )}
 
-        {!this.state.tokensApiError && (
+        {!tokensApiError && (
           <p className="container-total-balances">
             <b className="total-b-balances">total transactions</b>
-            {numberUtils.prettyValue(this.state.transactionsCount, 0)}
+            {numberUtils.prettyValue(transactionsCount, 0)}
           </p>
         )}
 
-        {this.state.tokenId !== hathorLibConstants.NATIVE_TOKEN_UID && (
+        {tokenId !== hathorLibConstants.NATIVE_TOKEN_UID && (
           <p>
-            <a className="link-more-details" href={`/token_detail/${this.state.tokenId}`}>
+            <a className="link-more-details" href={`/token_detail/${tokenId}`}>
               See token details
             </a>
           </p>
         )}
 
-        {(this.state.tokensApiError || this.state.tokenBalanceInformationError) && (
+        {(tokensApiError || tokenBalanceInformationError) && (
           <ErrorMessageWithIcon message="Error loading the complete token balance information. Please try again." />
         )}
       </div>
