@@ -16,6 +16,7 @@ import tokensApi from '../../api/tokensApi';
 import PaginationURL from '../../utils/pagination';
 import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon';
 import TokenAutoCompleteField from './TokenAutoCompleteField';
+import { useSelector } from 'react-redux';
 
 /**
  * Displays custom tokens in a table with pagination buttons and a search bar.
@@ -23,6 +24,7 @@ import TokenAutoCompleteField from './TokenAutoCompleteField';
 function TokenBalances({ maintenanceMode }) {
   const history = useHistory();
   const newUiEnabled = useNewUiEnabled();
+  const serverInfo = useSelector('serverInfo');
 
   /**
    * tokenBalances: List of token balances currently being rendered.
@@ -386,7 +388,7 @@ function TokenBalances({ maintenanceMode }) {
       <div className="token-balances-information-wrapper">
         <h1>
           {tokenName === undefined
-            ? 'Hathor - HTR'
+            ? `${serverInfo.native_token.name} (${serverInfo.native_token.symbol})`
             : `${tokenName} (${tokenSymbol})`}
         </h1>
 
