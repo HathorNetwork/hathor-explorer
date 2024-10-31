@@ -24,7 +24,7 @@ import { useSelector } from 'react-redux';
 function TokenBalances({ maintenanceMode }) {
   const history = useHistory();
   const newUiEnabled = useNewUiEnabled();
-  const serverInfo = useSelector('serverInfo');
+  const serverInfo = useSelector(state => state.serverInfo);
 
   /**
    * tokenBalances: List of token balances currently being rendered.
