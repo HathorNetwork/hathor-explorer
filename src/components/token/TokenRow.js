@@ -34,13 +34,13 @@ function TokenRow({ token }) {
   const renderNewUi = () =>
     isMobile ? (
       <tr onClick={_e => onRowClicked(token.uid)}>
-        <td className="d-lg-table-cell pe-3">{renderIdCell(token.uid)}</td>
+        <td className="d-lg-table-cell pe-3"><EllipsiCell id={token.uid} /></td>
         <td className="d-lg-table-cell pe-3">{token.name}</td>
       </tr>
     ) : (
       <tr onClick={_e => onRowClicked(token.uid)}>
         <td className="d-lg-table-cell pe-3">
-          <EllipsiCell>{token.uid}</EllipsiCell>
+          <EllipsiCell id={token.uid} />
         </td>
         <td className="d-lg-table-cell pe-3">{token.name}</td>
         <td className="d-lg-table-cell pe-3">
