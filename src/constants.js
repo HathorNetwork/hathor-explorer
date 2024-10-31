@@ -114,5 +114,5 @@ export const NANO_CONTRACT_TX_HISTORY_COUNT = 5;
 
 export const COLORS = {
   danger: '#991300',
-  success: '#44A32E'
-}
+  success: '#44A32E',
+};

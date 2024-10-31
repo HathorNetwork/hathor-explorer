@@ -235,7 +235,9 @@ class AddressHistory extends SortableTable {
           </td>
           <td className="state td-mobile">{statusElement}</td>
           <td className="value td-mobile">
-            <span style={{ color: tx.balance < 0 ? COLORS.danger : COLORS.success }}>{prettyValue}</span>
+            <span style={{ color: tx.balance < 0 ? COLORS.danger : COLORS.success }}>
+              {prettyValue}
+            </span>
           </td>
         </tr>
       );
