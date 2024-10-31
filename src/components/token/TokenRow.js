@@ -11,6 +11,7 @@ import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import dateFormatter from '../../utils/date';
 import { useIsMobile, useNewUiEnabled } from '../../hooks';
+import EllipsiCell from '../EllipsiCell';
 
 function TokenRow({ token }) {
   const history = useHistory();
@@ -30,23 +31,6 @@ function TokenRow({ token }) {
     return <div className="table-tokens-symbol">{children}</div>;
   };
 
-  const renderIdCell = id => {
-    const idStart = id.substring(0, isMobile ? 4 : 12);
-    const idEnd = id.substring(id.length - (isMobile ? 4 : 12), id.length);
-
-    return (
-      <div className="id-cell">
-        {idStart}
-        <div className="ellipsis">
-          <div className="ellipsi"></div>
-          <div className="ellipsi"></div>
-          <div className="ellipsi"></div>
-        </div>
-        {idEnd}
-      </div>
-    );
-  };
-
   const renderNewUi = () =>
     isMobile ? (
       <tr onClick={_e => onRowClicked(token.uid)}>
@@ -55,7 +39,9 @@ function TokenRow({ token }) {
       </tr>
     ) : (
       <tr onClick={_e => onRowClicked(token.uid)}>
-        <td className="d-lg-table-cell pe-3">{renderIdCell(token.uid)}</td>
+        <td className="d-lg-table-cell pe-3">
+          <EllipsiCell>{token.uid}</EllipsiCell>
+        </td>
         <td className="d-lg-table-cell pe-3">{token.name}</td>
         <td className="d-lg-table-cell pe-3">
           <Symbol>{token.symbol}</Symbol>
