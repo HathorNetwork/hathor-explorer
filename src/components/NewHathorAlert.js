@@ -17,9 +17,10 @@ import { ReactComponent as SuccessIcon } from '../assets/images/success-icon.svg
  * @param {string} props.text - The message text displayed in the alert.
  * @param {React.Ref} ref - A reference to call the `show` method from parent components.
  *
- * Usage:
+ * @example:
  * ```javascript
  * const alertRef = useRef(null);
+ * // Somewhere in the render we would have <NewHathorAlert ... ref={alertRef} />
  * alertRef.current.show(2000); // Show the alert for 2 seconds
  * ```
  */
