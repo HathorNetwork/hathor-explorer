@@ -15,6 +15,7 @@ import SortableTable from './SortableTable';
 import EllipsiCell from './EllipsiCell';
 import { ReactComponent as RowBottomIcon } from '../assets/images/leading-icon.svg';
 import { ReactComponent as RowTopIcon } from '../assets/images/leading-top-icon.svg';
+import { COLORS } from '../constants';
 
 const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
@@ -234,7 +235,7 @@ class AddressHistory extends SortableTable {
           </td>
           <td className="state td-mobile">{statusElement}</td>
           <td className="value td-mobile">
-            <span style={{ color: tx.balance < 0 ? '#991300' : '#44A32E' }}>{prettyValue}</span>
+            <span style={{ color: tx.balance < 0 ? COLORS.danger : COLORS.success }}>{prettyValue}</span>
           </td>
         </tr>
       );
