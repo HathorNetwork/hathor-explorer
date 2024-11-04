@@ -10,13 +10,13 @@ import PropTypes from 'prop-types';
 import { get, last, find, isEmpty } from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { numberUtils, constants as hathorLibConstants } from '@hathor/wallet-lib';
+import { useSelector } from 'react-redux';
 import { useNewUiEnabled } from '../../hooks';
 import TokenBalancesTable from './TokenBalancesTable';
 import tokensApi from '../../api/tokensApi';
 import PaginationURL from '../../utils/pagination';
 import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon';
 import TokenAutoCompleteField from './TokenAutoCompleteField';
-import { useSelector } from 'react-redux';
 
 /**
  * Displays custom tokens in a table with pagination buttons and a search bar.
