@@ -262,7 +262,11 @@ class TokenAutoCompleteField extends React.Component {
 
   _renderAutocompleteResults() {
     return this.state.searchResults.map(result => (
-      <li onClick={() => this.onItemSelected(result)} className="autocomplete-result-item">
+      <li
+        key={result.id}
+        onClick={() => this.onItemSelected(result)}
+        className="autocomplete-result-item"
+      >
         {result.name} ({result.symbol}) - {result.id}
       </li>
     ));

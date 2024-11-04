@@ -184,7 +184,7 @@ class Features extends React.Component {
     const loadColumnDescriptions = () => {
       return this.getColumnDescriptions().map(({ name, description }) => {
         return (
-          <div>
+          <div key={name}>
             <label>{name}</label>
             <p>{description}</p>
           </div>
