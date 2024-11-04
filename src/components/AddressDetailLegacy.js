@@ -252,7 +252,7 @@ class AddressDetailLegacy extends React.Component {
               this.setState({ loadingSummary: false });
               return;
             }
-            selectedToken = keys[0];
+            [selectedToken] = keys;
           }
         }
 

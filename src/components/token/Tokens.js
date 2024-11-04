@@ -184,7 +184,7 @@ class Tokens extends React.Component {
    *
    * @param {*} event
    */
-  nextPageClicked = async event => {
+  nextPageClicked = async _event => {
     this.setState({ calculatingPage: true });
 
     const nextPage = this.state.page + 1;
@@ -222,7 +222,7 @@ class Tokens extends React.Component {
    *
    * @param {*} event
    */
-  previousPageClicked = async event => {
+  previousPageClicked = async _event => {
     this.setState({ calculatingPage: true });
 
     const previousPage = this.state.page - 1;

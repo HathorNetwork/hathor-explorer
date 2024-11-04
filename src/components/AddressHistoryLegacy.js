@@ -160,7 +160,7 @@ class AddressHistory extends React.Component {
     };
 
     const loadTableBody = () => {
-      return this.props.transactions.map((tx, idx) => {
+      return this.props.transactions.map((tx, _idx) => {
         const value = this.calculateAddressBalance(tx);
         let statusElement = '';
         let trClass = '';
@@ -206,7 +206,7 @@ class AddressHistory extends React.Component {
         }
 
         return (
-          <tr key={tx.tx_id} className={trClass} onClick={e => this.props.onRowClicked(tx.tx_id)}>
+          <tr key={tx.tx_id} className={trClass} onClick={_e => this.props.onRowClicked(tx.tx_id)}>
             <td className="d-none d-lg-table-cell pe-3">
               {hathorLib.transactionUtils.getTxType(tx)}
             </td>

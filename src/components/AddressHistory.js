@@ -147,7 +147,7 @@ class AddressHistory extends SortableTable {
         trClass = '';
       }
       return (
-        <tr key={tx.tx_id} className={trClass} onClick={e => this.props.onRowClicked(tx.tx_id)}>
+        <tr key={tx.tx_id} className={trClass} onClick={_e => this.props.onRowClicked(tx.tx_id)}>
           <td className="d-none d-lg-table-cell pe-3">
             {hathorLib.transactionUtils.getTxType(tx)}
           </td>

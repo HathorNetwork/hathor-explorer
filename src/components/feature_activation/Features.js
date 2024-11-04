@@ -39,9 +39,9 @@ class Features extends React.Component {
     featureApi.getFeatures().then(this.handleFeatures, e => console.error(e));
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(_prevProps, _prevState) {
     const { page = 1 } = this.pagination.obtainQueryParams();
-    const newPage = parseInt(page);
+    const newPage = parseInt(page, 10);
 
     if (this.state.page === newPage) {
       return;

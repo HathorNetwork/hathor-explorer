@@ -11,7 +11,7 @@ import Viz from 'viz.js';
 import hathorLib from '@hathor/wallet-lib';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Link } from 'react-router-dom';
-import { Module, render } from 'viz.js/full.render.js';
+import { Module, render } from 'viz.js/full.render';
 import { connect } from 'react-redux';
 import { get, upperFirst } from 'lodash';
 import HathorAlert from '../HathorAlert';
@@ -147,7 +147,7 @@ class TxData extends React.Component {
         ...token,
         meta: data,
       }))
-      .catch(err => token);
+      .catch(_err => token);
   };
 
   /**
@@ -304,7 +304,7 @@ class TxData extends React.Component {
     };
 
     const renderInputs = inputs => {
-      return inputs.map((input, idx) => {
+      return inputs.map((input, _idx) => {
         return (
           <div key={`${input.tx_id}${input.index}`}>
             <Link to={`/transaction/${input.tx_id}`}>{helpers.getShortHash(input.tx_id)}</Link> (
@@ -381,12 +381,13 @@ class TxData extends React.Component {
     };
 
     const renderDecodedScript = output => {
+      let script;
       switch (output.decoded.type) {
         case 'P2PKH':
         case 'MultiSig':
           return renderP2PKHorMultiSig(output.decoded);
         default:
-          let { script } = output;
+          script = output.script;
           // Try to parse as script data
           try {
             // The output script is decoded to base64 in the full node
@@ -395,6 +396,7 @@ class TxData extends React.Component {
             // In the future we must receive from the full node
             // the decoded.type as script data but this still needs
             // some refactor there that won't happen soon
+            // eslint-disable-next-line new-cap
             const buff = new Buffer.from(script, 'base64');
             const parsedData = hathorLib.scriptsUtils.parseScriptData(buff);
             return renderDataScript(parsedData.data);
@@ -408,7 +410,9 @@ class TxData extends React.Component {
 
           try {
             script = atob(output.script);
-          } catch {}
+          } catch (e) {
+            console.error(e);
+          }
 
           return `Unable to decode script: ${script.trim()}`;
       }
@@ -429,7 +433,7 @@ class TxData extends React.Component {
 
     const renderListWithLinks = (hashes, textDark) => {
       if (hashes.length === 0) {
-        return;
+        return undefined;
       }
       if (hashes.length === 1) {
         const h = hashes[0];
@@ -459,8 +463,7 @@ class TxData extends React.Component {
     };
 
     const renderTwins = () => {
-      if (!this.props.meta.twins.length) {
-      } else {
+      if (this.props.meta.twins.length) {
         return (
           <div>
             This transaction has twin{' '}
@@ -469,6 +472,8 @@ class TxData extends React.Component {
           </div>
         );
       }
+
+      return undefined;
     };
 
     const renderConflicts = () => {
@@ -506,7 +511,7 @@ class TxData extends React.Component {
             </div>
           );
         }
-        return;
+        return undefined;
       }
 
       if (!this.props.meta.conflict_with.length) {
