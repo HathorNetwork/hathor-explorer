@@ -60,11 +60,17 @@ class ScreenStatusMessage extends React.Component {
 
   render() {
     const height = numberUtils.prettyValue(this.state.height, 0);
+    if (this.state.error) {
+      return (
+        <div>
+          <ErrorMessageWithIcon message="Could not load the last block updated" />
+        </div>
+      );
+    }
+
     return (
       <div>
-        {this.state.error ? (
-          <ErrorMessageWithIcon message="Could not load the last block updated" />
-        ) : this.state.loading ? (
+        {this.state.loading ? (
           <Loading />
         ) : (
           <p className="screen-status">
