@@ -6,15 +6,15 @@
  */
 
 import React from 'react';
+import hathorLib from '@hathor/wallet-lib';
+import ReactLoading from 'react-loading';
+import { isEqual } from 'lodash';
 import AddressSummaryLegacy from './AddressSummaryLegacy';
 import AddressHistoryLegacy from './AddressHistoryLegacy';
 import PaginationURL from '../utils/pagination';
-import hathorLib from '@hathor/wallet-lib';
-import ReactLoading from 'react-loading';
 import colors from '../index.scss';
 import WebSocketHandler from '../WebSocketHandler';
 import { TX_COUNT } from '../constants';
-import { isEqual } from 'lodash';
 import helpers from '../utils/helpers';
 import metadataApi from '../api/metadataApi';
 import addressApiLegacy from '../api/addressApiLegacy';
@@ -130,8 +130,8 @@ class AddressDetailLegacy extends React.Component {
     // We only add new tx/blocks if it's the first page
     if (!this.state.hasBefore) {
       if (this.shouldUpdate(tx, true)) {
-        let transactions = this.state.transactions;
-        let hasAfter = this.state.hasAfter || transactions.length === TX_COUNT;
+        let { transactions } = this.state;
+        const hasAfter = this.state.hasAfter || transactions.length === TX_COUNT;
         transactions = helpers.updateListWs(transactions, tx, TX_COUNT);
 
         const newNumberOfTransactions = this.state.numberOfTransactions + 1;
@@ -252,7 +252,7 @@ class AddressDetailLegacy extends React.Component {
               this.setState({ loadingSummary: false });
               return;
             }
-            selectedToken = keys[0];
+            [selectedToken] = keys;
           }
         }
 
@@ -316,7 +316,7 @@ class AddressDetailLegacy extends React.Component {
    */
   shouldUpdate = (tx, checkToken) => {
     const arr = [...tx.outputs, ...tx.inputs];
-    const token = this.pagination.obtainQueryParams().token;
+    const { token } = this.pagination.obtainQueryParams();
 
     for (const element of arr) {
       if (element.decoded.address === this.state.address) {
@@ -374,39 +374,38 @@ class AddressDetailLegacy extends React.Component {
     const renderData = () => {
       if (this.state.errorMessage) {
         return <p className="text-danger mt-3">{this.state.errorMessage}</p>;
-      } else if (this.state.address === null) {
-        return null;
-      } else {
-        if (this.state.loadingSummary || this.state.loadingHistory) {
-          return <ReactLoading type="spin" color={colors.purpleHathor} delay={500} />;
-        } else {
-          return (
-            <div>
-              {renderWarningAlert()}
-              <AddressSummaryLegacy
-                address={this.state.address}
-                balance={this.state.balance}
-                selectedToken={this.state.selectedToken}
-                numberOfTransactions={this.state.numberOfTransactions}
-                tokenSelectChanged={this.onTokenSelectChanged}
-                isNFT={isNFT()}
-                metadataLoaded={this.state.metadataLoaded}
-              />
-              <AddressHistoryLegacy
-                address={this.state.address}
-                onRowClicked={this.onRowClicked}
-                pagination={this.pagination}
-                selectedToken={this.state.selectedToken}
-                transactions={this.state.transactions}
-                hasAfter={this.state.hasAfter}
-                hasBefore={this.state.hasBefore}
-                isNFT={isNFT()}
-                metadataLoaded={this.state.metadataLoaded}
-              />
-            </div>
-          );
-        }
       }
+      if (this.state.address === null) {
+        return null;
+      }
+      if (this.state.loadingSummary || this.state.loadingHistory) {
+        return <ReactLoading type="spin" color={colors.purpleHathor} delay={500} />;
+      }
+      return (
+        <div>
+          {renderWarningAlert()}
+          <AddressSummaryLegacy
+            address={this.state.address}
+            balance={this.state.balance}
+            selectedToken={this.state.selectedToken}
+            numberOfTransactions={this.state.numberOfTransactions}
+            tokenSelectChanged={this.onTokenSelectChanged}
+            isNFT={isNFT()}
+            metadataLoaded={this.state.metadataLoaded}
+          />
+          <AddressHistoryLegacy
+            address={this.state.address}
+            onRowClicked={this.onRowClicked}
+            pagination={this.pagination}
+            selectedToken={this.state.selectedToken}
+            transactions={this.state.transactions}
+            hasAfter={this.state.hasAfter}
+            hasBefore={this.state.hasBefore}
+            isNFT={isNFT()}
+            metadataLoaded={this.state.metadataLoaded}
+          />
+        </div>
+      );
     };
 
     return <div className="content-wrapper">{renderData()}</div>;

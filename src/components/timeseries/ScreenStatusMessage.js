@@ -1,10 +1,10 @@
 import React from 'react';
 import { get } from 'lodash';
 
+import { numberUtils } from '@hathor/wallet-lib';
 import blockApi from '../../api/blockApi';
 import { SCREEN_STATUS_LOOP_INTERVAL_IN_SECONDS } from '../../constants';
 import dateFormatter from '../../utils/date';
-import { numberUtils } from '@hathor/wallet-lib';
 
 import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon';
 import Loading from '../Loading';
@@ -60,11 +60,17 @@ class ScreenStatusMessage extends React.Component {
 
   render() {
     const height = numberUtils.prettyValue(this.state.height, 0);
+    if (this.state.error) {
+      return (
+        <div>
+          <ErrorMessageWithIcon message="Could not load the last block updated" />
+        </div>
+      );
+    }
+
     return (
       <div>
-        {this.state.error ? (
-          <ErrorMessageWithIcon message="Could not load the last block updated" />
-        ) : this.state.loading ? (
+        {this.state.loading ? (
           <Loading />
         ) : (
           <p className="screen-status">

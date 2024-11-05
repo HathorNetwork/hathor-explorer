@@ -7,9 +7,9 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
-import dateFormatter from '../utils/date';
 import hathorLib from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
+import dateFormatter from '../utils/date';
 import PaginationURL from '../utils/pagination';
 import SortableTable from './SortableTable';
 import EllipsiCell from './EllipsiCell';
@@ -30,7 +30,7 @@ class AddressHistory extends SortableTable {
    * @return {boolean} If the tx has only authority in the search address
    */
   isAllAuthority = tx => {
-    for (let txin of tx.inputs) {
+    for (const txin of tx.inputs) {
       if (
         !hathorLib.transactionUtils.isAuthorityOutput(txin) &&
         txin.decoded.address === this.props.address
@@ -39,7 +39,7 @@ class AddressHistory extends SortableTable {
       }
     }
 
-    for (let txout of tx.outputs) {
+    for (const txout of tx.outputs) {
       if (
         !hathorLib.transactionUtils.isAuthorityOutput(txout) &&
         txout.decoded.address === this.props.address
@@ -135,12 +135,10 @@ class AddressHistory extends SortableTable {
           );
         }
         trClass = 'input-tr';
-      } else {
-        if (this.props.txCache[tx.tx_id]) {
-          if (this.isAllAuthority(this.props.txCache[tx.tx_id])) {
-            statusElement = <span>Authority</span>;
-            prettyValue = '--';
-          }
+      } else if (this.props.txCache[tx.tx_id]) {
+        if (this.isAllAuthority(this.props.txCache[tx.tx_id])) {
+          statusElement = <span>Authority</span>;
+          prettyValue = '--';
         }
       }
 
@@ -149,7 +147,7 @@ class AddressHistory extends SortableTable {
         trClass = '';
       }
       return (
-        <tr key={tx.tx_id} className={trClass} onClick={e => this.props.onRowClicked(tx.tx_id)}>
+        <tr key={tx.tx_id} className={trClass} onClick={_e => this.props.onRowClicked(tx.tx_id)}>
           <td className="d-none d-lg-table-cell pe-3">
             {hathorLib.transactionUtils.getTxType(tx)}
           </td>
@@ -211,12 +209,10 @@ class AddressHistory extends SortableTable {
           );
         }
         trClass = 'input-tr';
-      } else {
-        if (this.props.txCache[tx.tx_id]) {
-          if (this.isAllAuthority(this.props.txCache[tx.tx_id])) {
-            statusElement = <span>Authority</span>;
-            prettyValue = '--';
-          }
+      } else if (this.props.txCache[tx.tx_id]) {
+        if (this.isAllAuthority(this.props.txCache[tx.tx_id])) {
+          statusElement = <span>Authority</span>;
+          prettyValue = '--';
         }
       }
 
@@ -225,7 +221,7 @@ class AddressHistory extends SortableTable {
         trClass = '';
       }
       return (
-        <tr key={tx.tx_id} className={trClass} onClick={e => this.props.onRowClicked(tx.tx_id)}>
+        <tr key={tx.tx_id} className={trClass} onClick={_e => this.props.onRowClicked(tx.tx_id)}>
           <td className="pe-3">{hathorLib.transactionUtils.getTxType(tx)}</td>
           <td className="pe-3">
             <EllipsiCell id={tx.tx_id} />

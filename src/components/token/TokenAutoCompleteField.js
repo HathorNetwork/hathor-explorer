@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Loading from '../Loading';
-import tokensApi from '../../api/tokensApi';
 import { debounce, get } from 'lodash';
 import { constants as hathorLibConstants } from '@hathor/wallet-lib';
 import { connect } from 'react-redux';
+import tokensApi from '../../api/tokensApi';
+import Loading from '../Loading';
 
 const DEBOUNCE_SEARCH_TIME = 200; // ms
 
@@ -45,7 +45,7 @@ class TokenAutoCompleteField extends React.Component {
    * @param {*} event
    */
   _handleClick(e) {
-    const target = e.target;
+    const { target } = e;
     if (!target) {
       return;
     }
@@ -262,7 +262,11 @@ class TokenAutoCompleteField extends React.Component {
 
   _renderAutocompleteResults() {
     return this.state.searchResults.map(result => (
-      <li onClick={() => this.onItemSelected(result)} className="autocomplete-result-item">
+      <li
+        key={result.id}
+        onClick={() => this.onItemSelected(result)}
+        className="autocomplete-result-item"
+      >
         {result.name} ({result.symbol}) - {result.id}
       </li>
     ));
