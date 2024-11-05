@@ -221,7 +221,7 @@ class AddressHistory extends SortableTable {
         trClass = '';
       }
       return (
-        <tr key={tx.tx_id} className={trClass} onClick={e => this.props.onRowClicked(tx.tx_id)}>
+        <tr key={tx.tx_id} className={trClass} onClick={_e => this.props.onRowClicked(tx.tx_id)}>
           <td className="pe-3">{hathorLib.transactionUtils.getTxType(tx)}</td>
           <td className="pe-3">
             <EllipsiCell id={tx.tx_id} />
