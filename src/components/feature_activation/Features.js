@@ -9,12 +9,12 @@ import React from 'react';
 import ReactLoading from 'react-loading';
 import { Link } from 'react-router-dom';
 import { chunk, orderBy } from 'lodash';
+import { numberUtils } from '@hathor/wallet-lib';
 import { FEATURE_COUNT } from '../../constants';
 import FeatureRow from './FeatureRow';
 import colors from '../../index.scss';
 import PaginationURL from '../../utils/pagination';
 import featureApi from '../../api/featureApi';
-import { numberUtils } from '@hathor/wallet-lib';
 
 class Features extends React.Component {
   constructor(props) {
@@ -68,6 +68,7 @@ class Features extends React.Component {
   };
 
   hasBefore = () => this.state.page > 1;
+
   hasAfter = () => this.state.page < this.state.pages.length;
 
   getPageFeatures = () => {

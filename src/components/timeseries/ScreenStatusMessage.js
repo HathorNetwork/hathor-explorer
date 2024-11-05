@@ -1,10 +1,10 @@
 import React from 'react';
 import { get } from 'lodash';
 
+import { numberUtils } from '@hathor/wallet-lib';
 import blockApi from '../../api/blockApi';
 import { SCREEN_STATUS_LOOP_INTERVAL_IN_SECONDS } from '../../constants';
 import dateFormatter from '../../utils/date';
-import { numberUtils } from '@hathor/wallet-lib';
 
 import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon';
 import Loading from '../Loading';

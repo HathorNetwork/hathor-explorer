@@ -6,25 +6,25 @@
  */
 
 import $ from 'jquery';
-import HathorAlert from '../HathorAlert';
 import React from 'react';
-import TokenMarkers from '../token/TokenMarkers';
-import TxAlerts from './TxAlerts';
-import TxMarkers from './TxMarkers';
 import Viz from 'viz.js';
-import dateFormatter from '../../utils/date';
 import hathorLib from '@hathor/wallet-lib';
-import helpers from '../../utils/helpers';
-import metadataApi from '../../api/metadataApi';
-import graphvizApi from '../../api/graphvizApi';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Link } from 'react-router-dom';
 import { Module, render } from 'viz.js/full.render.js';
+import { connect } from 'react-redux';
+import { get, upperFirst } from 'lodash';
+import HathorAlert from '../HathorAlert';
+import TokenMarkers from '../token/TokenMarkers';
+import TxAlerts from './TxAlerts';
+import TxMarkers from './TxMarkers';
+import dateFormatter from '../../utils/date';
+import helpers from '../../utils/helpers';
+import metadataApi from '../../api/metadataApi';
+import graphvizApi from '../../api/graphvizApi';
 import Loading from '../Loading';
 import FeatureDataRow from '../feature_activation/FeatureDataRow';
 import featureApi from '../../api/featureApi';
-import { connect } from 'react-redux';
-import { get, upperFirst } from 'lodash';
 
 const mapStateToProps = state => ({
   nativeToken: state.serverInfo.native_token,
@@ -121,7 +121,7 @@ class TxData extends React.Component {
    * Add all tokens of this transaction (inputs and outputs) to the state
    */
   calculateTokens = () => {
-    let tokens = this.props.transaction.tokens;
+    const { tokens } = this.props.transaction;
 
     const metaRequests = tokens.map(token => this.getTokenMetadata(token));
 
@@ -131,7 +131,7 @@ class TxData extends React.Component {
   };
 
   getNativeToken = () => {
-    const nativeToken = this.props.nativeToken;
+    const { nativeToken } = this.props;
     return { ...nativeToken, uid: hathorLib.constants.NATIVE_TOKEN_UID };
   };
 
@@ -215,7 +215,7 @@ class TxData extends React.Component {
   toggleGraph = async (e, index) => {
     e.preventDefault();
 
-    let graphs = [...this.state.graphs];
+    const graphs = [...this.state.graphs];
     graphs[index].showNeighbors = !graphs[index].showNeighbors;
 
     this.setState({ graphs });
@@ -299,9 +299,8 @@ class TxData extends React.Component {
     const renderBlockOrTransaction = () => {
       if (hathorLib.transactionUtils.isBlock(this.props.transaction)) {
         return 'block';
-      } else {
-        return 'transaction';
       }
+      return 'transaction';
     };
 
     const renderInputs = inputs => {
@@ -327,30 +326,26 @@ class TxData extends React.Component {
       if (hathorLib.transactionUtils.isAuthorityOutput(output)) {
         if (hathorLib.transactionUtils.isMint(output)) {
           return 'Mint authority';
-        } else if (hathorLib.transactionUtils.isMelt(output)) {
+        }
+        if (hathorLib.transactionUtils.isMelt(output)) {
           return 'Melt authority';
-        } else {
-          // Should never come here
-          return 'Unknown authority';
         }
-      } else {
-        if (!this.state.metadataLoaded) {
-          // We show 'Loading' until all metadatas are loaded
-          // to prevent switching from decimal to integer if one of the tokens is an NFT
-          return 'Loading...';
-        }
-
-        // if it's an NFT token we should show integer value
-        const uid = this.getUIDFromTokenData(
-          hathorLib.tokensUtils.getTokenIndexFromData(output.token_data)
-        );
-        const tokenData = this.state.tokens.find(token => token.uid === uid);
-        const isNFT = tokenData && tokenData.meta && tokenData.meta.nft;
-        return hathorLib.numberUtils.prettyValue(
-          output.value,
-          isNFT ? 0 : this.props.decimalPlaces
-        );
+        // Should never come here
+        return 'Unknown authority';
       }
+      if (!this.state.metadataLoaded) {
+        // We show 'Loading' until all metadatas are loaded
+        // to prevent switching from decimal to integer if one of the tokens is an NFT
+        return 'Loading...';
+      }
+
+      // if it's an NFT token we should show integer value
+      const uid = this.getUIDFromTokenData(
+        hathorLib.tokensUtils.getTokenIndexFromData(output.token_data)
+      );
+      const tokenData = this.state.tokens.find(token => token.uid === uid);
+      const isNFT = tokenData && tokenData.meta && tokenData.meta.nft;
+      return hathorLib.numberUtils.prettyValue(output.value, isNFT ? 0 : this.props.decimalPlaces);
     };
 
     const renderOutputLink = idx => {
@@ -361,9 +356,8 @@ class TxData extends React.Component {
             (<Link to={`/transaction/${this.props.spentOutputs[idx]}`}>Spent</Link>)
           </span>
         );
-      } else {
-        return null;
       }
+      return null;
     };
 
     const renderInputOrOutput = (output, idx, isOutput) => {
@@ -392,7 +386,7 @@ class TxData extends React.Component {
         case 'MultiSig':
           return renderP2PKHorMultiSig(output.decoded);
         default:
-          let script = output.script;
+          let { script } = output;
           // Try to parse as script data
           try {
             // The output script is decoded to base64 in the full node
@@ -425,7 +419,7 @@ class TxData extends React.Component {
     };
 
     const renderP2PKHorMultiSig = decoded => {
-      var ret = decoded.address;
+      let ret = decoded.address;
       if (decoded.timelock) {
         ret = `${ret} | Locked until ${dateFormatter.parseTimestamp(decoded.timelock)}`;
       }
@@ -466,7 +460,6 @@ class TxData extends React.Component {
 
     const renderTwins = () => {
       if (!this.props.meta.twins.length) {
-        return;
       } else {
         return (
           <div>
@@ -479,8 +472,8 @@ class TxData extends React.Component {
     };
 
     const renderConflicts = () => {
-      let twins = this.props.meta.twins;
-      let conflictNotTwin = this.props.meta.conflict_with.length
+      const { twins } = this.props.meta;
+      const conflictNotTwin = this.props.meta.conflict_with.length
         ? this.props.meta.conflict_with.filter(hash => twins.indexOf(hash) < 0)
         : [];
       if (!this.props.meta.voided_by.length) {
@@ -590,15 +583,13 @@ class TxData extends React.Component {
         if (!this.props.confirmationData.success) {
           return 'Not available';
         }
-        let acc = helpers.roundFloat(this.props.confirmationData.accumulated_weight);
+        const acc = helpers.roundFloat(this.props.confirmationData.accumulated_weight);
         if (this.props.confirmationData.accumulated_bigger) {
           return `Over ${acc}`;
-        } else {
-          return acc;
         }
-      } else {
-        return 'Retrieving accumulated weight data...';
+        return acc;
       }
+      return 'Retrieving accumulated weight data...';
     };
 
     const renderHeight = () => {
@@ -621,9 +612,8 @@ class TxData extends React.Component {
       const renderTokenUID = token => {
         if (token.uid === hathorLib.constants.NATIVE_TOKEN_UID) {
           return token.uid;
-        } else {
-          return <Link to={`/token_detail/${token.uid}`}>{token.uid}</Link>;
         }
+        return <Link to={`/token_detail/${token.uid}`}>{token.uid}</Link>;
       };
       const tokens = this.state.tokens.map(token => {
         return (
