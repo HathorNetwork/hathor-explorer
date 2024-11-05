@@ -10,8 +10,11 @@ import hathorLib from '@hathor/wallet-lib';
 import ReactLoading from 'react-loading';
 import { find } from 'lodash';
 import { useHistory, useParams } from 'react-router-dom';
+import { useNewUiEnabled } from '../hooks';
 import AddressSummary from './AddressSummary';
 import AddressHistory from './AddressHistory';
+import Loading from './Loading';
+import ErrorMessageWithIcon from './error/ErrorMessageWithIcon';
 import PaginationURL from '../utils/pagination';
 import colors from '../index.scss';
 import WebSocketHandler from '../WebSocketHandler';
@@ -19,7 +22,6 @@ import { TOKEN_COUNT, TX_COUNT } from '../constants';
 import metadataApi from '../api/metadataApi';
 import addressApi from '../api/addressApi';
 import txApi from '../api/txApi';
-import ErrorMessageWithIcon from './error/ErrorMessageWithIcon';
 
 /**
  * Check if the searched address is on the inputs or outputs of the new tx
@@ -62,6 +64,7 @@ function AddressDetailExplorer() {
 
   const { address } = useParams();
   const history = useHistory();
+  const newUiEnabled = useNewUiEnabled();
 
   /*
    * selectedToken {String} UID of the selected token when address has many
@@ -555,8 +558,13 @@ function AddressDetailExplorer() {
       );
     }
     if (loadingSummary || loadingHistory || loadingTokens) {
-      return <ReactLoading type="spin" color={colors.purpleHathor} delay={500} />;
+      return newUiEnabled ? (
+        <Loading />
+      ) : (
+        <ReactLoading type="spin" color={colors.purpleHathor} delay={500} />
+      );
     }
+
     return (
       <div>
         {renderWarningAlert()}
@@ -569,6 +577,7 @@ function AddressDetailExplorer() {
           tokenSelectChanged={onTokenSelectChanged}
           isNFT={isNFT()}
           metadataLoaded={metadataLoaded}
+          newUiEnabled={newUiEnabled}
         />
         <AddressHistory
           address={address}
@@ -586,12 +595,17 @@ function AddressDetailExplorer() {
           metadataLoaded={metadataLoaded}
           calculatingPage={loadingPagination}
           loading={loadingHistory}
+          newUiEnabled={newUiEnabled}
         />
       </div>
     );
   };
 
-  return <div className="content-wrapper">{renderData()}</div>;
+  return (
+    <div className={newUiEnabled ? 'section-tables-stylized' : 'content-wrapper'}>
+      {renderData()}
+    </div>
+  );
 }
 
 export default AddressDetailExplorer;

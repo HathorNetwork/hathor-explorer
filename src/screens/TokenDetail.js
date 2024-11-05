@@ -12,6 +12,7 @@ import metadataApi from '../api/metadataApi';
 import tokenApi from '../api/tokenApi';
 import TokenDetailsTop from '../components/token/TokenDetailsTop';
 import TokenAlerts from '../components/token/TokenAlerts';
+import { useNewUiEnabled } from '../hooks';
 
 /**
  * Screen to manage a token. See total amount, if can mint/melt and the history of transaction
@@ -38,6 +39,7 @@ function TokenDetail() {
    * transactions {Array} Array of transactions for the token
    * metadataLoaded {boolean} If token metadata was loaded
    */
+  const newUiEnabled = useNewUiEnabled();
   const [token, setToken] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [metadataLoaded, setMetadataLoaded] = useState(false);
@@ -134,7 +136,7 @@ function TokenDetail() {
 
   if (!token) return null;
 
-  return (
+  const renderUi = () => (
     <div className="content-wrapper flex align-items-center">
       <TokenAlerts token={token} />
       <TokenDetailsTop token={token} metadataLoaded={metadataLoaded} />
@@ -147,6 +149,22 @@ function TokenDetail() {
       </div>
     </div>
   );
+
+  const renderNewUi = () => (
+    <div className="flex align-items-center token-details-container">
+      <TokenDetailsTop token={token} metadataLoaded={metadataLoaded} />
+      <div className="tx-container">
+        <Transactions
+          title={<h1 className="title-tx-page">Transactions</h1>}
+          shouldUpdateList={shouldUpdateList}
+          updateData={updateListData}
+          noPagination
+        />
+      </div>
+    </div>
+  );
+
+  return newUiEnabled ? renderNewUi() : renderUi();
 }
 
 export default TokenDetail;

@@ -10,6 +10,7 @@ import { useFlag } from '@unleash/proxy-client-react';
 import { useSelector } from 'react-redux';
 import { NavLink, Link, useHistory } from 'react-router-dom';
 import {
+  REACT_APP_NETWORK,
   UNLEASH_TOKENS_BASE_FEATURE_FLAG,
   UNLEASH_TOKEN_BALANCES_FEATURE_FLAG,
 } from '../constants';
@@ -21,6 +22,7 @@ import { ReactComponent as SunIconLight } from '../assets/images/sun-light.svg';
 import { ReactComponent as SunIconDark } from '../assets/images/sun-dark.svg';
 import { ReactComponent as MoonIcon } from '../assets/images/moon.svg';
 import { ReactComponent as GlobeNetwork } from '../assets/images/global.svg';
+import { ReactComponent as ArrorDownNavItem } from '../assets/images/arrow-down-nav-dropdown.svg';
 
 function Sidebar({ close, open }) {
   const history = useHistory();
@@ -29,6 +31,7 @@ function Sidebar({ close, open }) {
   const showTokensTab = isTokensBalanceEnabled || isTokensBaseEnabled;
   const theme = useSelector(state => state.theme);
   const sidebarRef = useRef(null);
+  const hathorNetwork = `Hathor ${REACT_APP_NETWORK}`;
 
   useEffect(() => {
     const handleClickOutside = event => {
@@ -97,6 +100,7 @@ function Sidebar({ close, open }) {
                     aria-expanded="false"
                   >
                     Tokens
+                    <ArrorDownNavItem style={{ marginLeft: '5px' }} className="dropdown-icon" />
                   </span>
                   <div className="dropdown-menu" aria-labelledby="navbarDropdown">
                     <li>
@@ -145,7 +149,7 @@ function Sidebar({ close, open }) {
                   aria-haspopup="true"
                   aria-expanded="false"
                 >
-                  Tools
+                  Tools <ArrorDownNavItem style={{ marginLeft: '5px' }} className="dropdown-icon" />
                 </span>
                 <div className="dropdown-menu" aria-labelledby="navbarDropdown">
                   <NavLink to="/decode-tx/" exact className="nav-link">
@@ -181,7 +185,7 @@ function Sidebar({ close, open }) {
                 theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'
               } theme-network-logo`}
             />
-            <span className="nav-title">Hathor Mainnet</span>
+            <span className="nav-title">{hathorNetwork}</span>
           </div>
           <div className="aside-version">
             <Version explorer />

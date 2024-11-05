@@ -15,6 +15,8 @@ import helpers from '../../utils/helpers';
 import WebSocketHandler from '../../WebSocketHandler';
 import colors from '../../index.scss';
 import PaginationURL from '../../utils/pagination';
+import { useNewUiEnabled, useIsMobile } from '../../hooks';
+import Spinner from '../Spinner';
 
 /**
  * Displays transactions history in a table with pagination buttons. As the user navigates through the history,
@@ -32,7 +34,10 @@ import PaginationURL from '../../utils/pagination';
  *   ts = "1579637190"
  *   page = "next"
  */
-function Transactions({ shouldUpdateList, updateData, title }) {
+function Transactions({ shouldUpdateList, updateData, title, noPagination }) {
+  const newUiEnabled = useNewUiEnabled();
+  const isMobile = useIsMobile();
+
   // We can't use a simple variable here because it triggers a re-render everytime.
   // useMemo was discussed but the idea is not to have a cache, it's more like
   // a state without setter.
@@ -217,6 +222,7 @@ function Transactions({ shouldUpdateList, updateData, title }) {
     if (transactions.length === 0) {
       return null;
     }
+
     return (
       <nav aria-label="Tx pagination" className="d-flex justify-content-center">
         <ul className="pagination">
@@ -259,7 +265,7 @@ function Transactions({ shouldUpdateList, updateData, title }) {
     return (
       <div className="table-responsive mt-5">
         <table className="table table-striped" id="tx-table">
-          <thead>
+          <thead className="new-thead">
             <tr>
               <th className="d-none d-lg-table-cell">Hash</th>
               <th className="d-none d-lg-table-cell">Timestamp</th>
@@ -278,17 +284,108 @@ function Transactions({ shouldUpdateList, updateData, title }) {
 
   const loadTableBody = () => {
     return transactions.map(tx => {
-      return <TxRow key={tx.tx_id} tx={tx} />;
+      return <TxRow key={tx.tx_id} tx={tx} ellipsis={!!isMobile} />;
     });
   };
 
-  return (
-    <div className="w-100">
-      {title}
-      {!loaded ? <ReactLoading type="spin" color={colors.purpleHathor} delay={500} /> : loadTable()}
-      {loadPagination()}
-    </div>
-  );
+  const loadNewTable = () => {
+    return (
+      <div className="table-responsive mt-5">
+        <table className="new-table table-striped">
+          <thead>
+            <tr>
+              <th>HASH</th>
+              <th>TIMESTAMP</th>
+            </tr>
+          </thead>
+          <tbody>{loadTableBody()}</tbody>
+        </table>
+      </div>
+    );
+  };
+
+  const loadNewPagination = () => {
+    if (transactions.length === 0) return null;
+
+    if (noPagination) return '';
+
+    return (
+      <div className="tx-pagination-btn">
+        <Link
+          className={
+            !hasBefore || transactions.length === 0
+              ? 'page-link-btn-disable'
+              : 'page-link-btn-enable'
+          }
+          to={pagination.setURLParameters({
+            ts: firstTimestamp,
+            hash: firstHash,
+            page: 'previous',
+          })}
+        >
+          <button
+            className={
+              !hasBefore || transactions.length === 0
+                ? 'tx-previous-btn disable-button'
+                : 'tx-next-btn tx-disabled'
+            }
+            disabled={!hasBefore || transactions.length === 0}
+          >
+            Previous
+          </button>
+        </Link>
+        <Link
+          className={
+            !hasAfter || transactions.length === 0
+              ? 'page-link-btn-disable'
+              : 'page-link-btn-enable'
+          }
+          to={pagination.setURLParameters({
+            ts: lastTimestamp,
+            hash: lastHash,
+            page: 'next',
+          })}
+        >
+          <button
+            className={
+              !hasAfter || transactions.length === 0
+                ? 'tx-previous-btn disable-button'
+                : 'tx-next-btn tx-enable'
+            }
+            disabled={!hasAfter || transactions.length === 0}
+          >
+            Next
+          </button>
+        </Link>
+      </div>
+    );
+  };
+
+  const renderUi = () => {
+    return (
+      <div className="w-100">
+        {title}
+        {!loaded ? (
+          <ReactLoading type="spin" color={colors.purpleHathor} delay={500} />
+        ) : (
+          loadTable()
+        )}
+        {loadPagination()}
+      </div>
+    );
+  };
+
+  const renderNewUi = () => {
+    return (
+      <div className="w-100">
+        {title}
+        {!loaded ? <Spinner /> : loadNewTable()}
+        {loadNewPagination()}
+      </div>
+    );
+  };
+
+  return newUiEnabled ? renderNewUi() : renderUi();
 }
 
 export default Transactions;

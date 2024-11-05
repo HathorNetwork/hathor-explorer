@@ -20,8 +20,12 @@ class SortableTable extends React.Component {
   }
 
   renderTable(content) {
-    return (
-      <table className="table table-striped" id="tx-table">
+    return this.props.newUiEnabled ? (
+      <table className="table-stylized table-tokens" id="">
+        {content}
+      </table>
+    ) : (
+      <table className="table table-striped table-home" id="tx-table">
         {content}
       </table>
     );
@@ -45,6 +49,7 @@ class SortableTable extends React.Component {
     if (this.props.data.length === 0) {
       return <ErrorMessageWithIcon message="No matches for your query." />;
     }
+
     return (
       <div className="table-responsive col-12 mt-2">
         {this.renderTable(
@@ -57,11 +62,7 @@ class SortableTable extends React.Component {
     );
   }
 
-  loadPagination() {
-    if (this.props.data.length === 0) {
-      return null;
-    }
-
+  renderPagination() {
     return (
       <div className="d-flex col-sm-12">
         <nav
@@ -102,6 +103,76 @@ class SortableTable extends React.Component {
         </div>
       </div>
     );
+  }
+
+  newRenderPagination() {
+    return (
+      <div className="d-flex col-sm-12">
+        <nav
+          aria-label="Paginated table"
+          className="d-flex offset-sm-4 col-sm-4 justify-content-center"
+        >
+          {!this.props.hasBefore && !this.props.hasAfter ? (
+            <ul className="pagination">
+              <li ref="pagePrevious" className="page-item  disable-button">
+                <button className="disable-button page-link">Previous</button>
+              </li>
+              <li ref="pageNext" className="page-item  disable-button">
+                <button className=" disable-button page-link" style={{ color: 'red' }}>
+                  Next
+                </button>
+              </li>
+            </ul>
+          ) : (
+            <ul className="pagination">
+              <li
+                ref="pagePrevious"
+                className={(() => {
+                  if (!this.props.hasBefore) {
+                    return 'page-item disabled disable-button';
+                  }
+                  if (this.props.calculatingPage) {
+                    return 'page-item disable-button';
+                  }
+                  return 'page-item';
+                })()}
+              >
+                <button onClick={e => this.props.onPreviousPageClicked(e)} className="page-link">
+                  Previous
+                </button>
+              </li>
+              <li
+                ref="pageNext"
+                className={(() => {
+                  if (!this.props.hasAfter) {
+                    return 'page-item disabled disable-button';
+                  }
+                  if (this.props.calculatingPage) {
+                    return 'page-item disable-button';
+                  }
+                  return 'page-item active';
+                })()}
+              >
+                <button onClick={e => this.props.onNextPageClicked(e)} className="page-link">
+                  Next
+                </button>
+              </li>
+            </ul>
+          )}
+        </nav>
+        <div className="d-flex col-sm-4 page-loader">
+          {this.props.calculatingPage ? <></> : null}
+        </div>
+      </div>
+    );
+  }
+
+  loadPagination() {
+    if (this.props.data.length === 0) {
+      return null;
+    }
+
+    return this.props.newUiEnabled ? this.newRenderPagination() : this.renderPagination();
   }
 
   render() {

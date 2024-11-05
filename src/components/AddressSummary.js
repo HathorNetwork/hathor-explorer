@@ -9,6 +9,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { numberUtils } from '@hathor/wallet-lib';
 import { connect } from 'react-redux';
+import HathorSelect from './HathorSelect';
 
 const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
@@ -36,6 +37,29 @@ class AddressSummary extends React.Component {
             Address: {this.props.address}
             <br />
             Number of tokens: {Object.keys(this.props.tokens).length}
+          </div>
+        </div>
+      );
+    };
+
+    const newLoadMainInfo = () => {
+      return (
+        <div className="summary-main-info alter-background">
+          <div className="summary-main-info-container ">
+            <div className="address-container-title summary-container-title-purple">Address</div>
+            <div className="address-div">
+              <p>{this.props.address}</p>
+            </div>
+          </div>
+          <div className="summary-main-info-container">
+            <div className="address-container-title summary-container-title-purple">
+              Number of tokens
+            </div>
+            <div>{Object.keys(this.props.tokens).length}</div>
+          </div>
+          <div className="summary-main-info-container">
+            <div className="address-container-title  summary-container-title-purple">Token</div>
+            {newRenderTokenData()}
           </div>
         </div>
       );
@@ -92,6 +116,63 @@ class AddressSummary extends React.Component {
       );
     };
 
+    const newLoadBalanceInfo = () => {
+      const token = this.props.tokens[this.props.selectedToken];
+      return (
+        <div className="summary-balance-info">
+          <div className="summary-balance-info-container">
+            <div className="address-container-title">Token</div>
+            <div>{`${token.name} (${token.symbol})`}</div>
+          </div>
+          <div className="summary-balance-info-container">
+            <div className="address-container-title">Type</div>
+            <div>{renderType()}</div>
+          </div>
+          <div className="summary-balance-info-container">
+            <div className="address-container-title">Number of transactions</div>
+            <div>{this.props.balance.transactions}</div>
+          </div>
+          <div className="summary-balance-info-container">
+            <div className="address-container-title">Total received</div>
+            <div>{renderValue(this.props.balance.total_received)}</div>
+          </div>
+          <div className="summary-balance-info-container">
+            <div className="address-container-title">Total spent</div>
+            <div>
+              {renderValue(
+                this.props.balance.total_received -
+                  this.props.balance.unlocked_balance -
+                  this.props.balance.locked_balance
+              )}
+            </div>
+          </div>
+          <div className="summary-balance-info-container">
+            <div className="address-container-title">Unlocked balance</div>
+            <div>{renderValue(this.props.balance.unlocked_balance)}</div>
+          </div>
+          <div className="summary-balance-info-container">
+            <div className="address-container-title">Locked balance</div>
+            <div>{renderValue(this.props.balance.locked_balance)}</div>
+          </div>
+        </div>
+      );
+    };
+
+    const SelectToken = () => {
+      const uid = Object.keys(this.props.tokens).find(key => key === this.props.selectedToken);
+
+      if (uid) {
+        const token = this.props.tokens[uid];
+
+        return {
+          key: uid,
+          name: `${token.name} (${token.symbol})`,
+        };
+      }
+
+      return null;
+    };
+
     const renderTokenData = () => {
       if (Object.keys(this.props.tokens).length === 1) {
         const token = this.props.tokens[this.props.selectedToken];
@@ -109,6 +190,25 @@ class AddressSummary extends React.Component {
       }
     };
 
+    const newRenderTokenData = () => {
+      if (Object.keys(this.props.tokens).length === 1) {
+        const token = this.props.tokens[this.props.selectedToken];
+        return (
+          <span>
+            {token.name} ({token.symbol})
+          </span>
+        );
+      } else {
+        return (
+          <HathorSelect
+            value={SelectToken()}
+            options={newRenderTokenOptions()}
+            onSelect={e => this.props.tokenSelectChanged(e)}
+          />
+        );
+      }
+    };
+
     const renderTokenOptions = () => {
       return Object.keys(this.props.tokens).map(uid => {
         const token = this.props.tokens[uid];
@@ -117,6 +217,16 @@ class AddressSummary extends React.Component {
             {token.name} ({token.symbol})
           </option>
         );
+      });
+    };
+
+    const newRenderTokenOptions = () => {
+      return Object.keys(this.props.tokens).map(uid => {
+        const token = this.props.tokens[uid];
+        return {
+          key: uid,
+          name: `${token.name} (${token.symbol})`,
+        };
       });
     };
 
@@ -129,7 +239,18 @@ class AddressSummary extends React.Component {
       );
     };
 
-    return <div className="w-100">{loadSummary()}</div>;
+    const newLoadSummary = () => {
+      return (
+        <div>
+          {newLoadMainInfo()}
+          {newLoadBalanceInfo()}
+        </div>
+      );
+    };
+
+    return (
+      <div className="w-100">{this.props.newUiEnabled ? newLoadSummary() : loadSummary()}</div>
+    );
   }
 }
 

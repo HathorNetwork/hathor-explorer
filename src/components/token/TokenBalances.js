@@ -10,6 +10,8 @@ import PropTypes from 'prop-types';
 import { get, last, find, isEmpty } from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { numberUtils, constants as hathorLibConstants } from '@hathor/wallet-lib';
+import { useSelector } from 'react-redux';
+import { useNewUiEnabled } from '../../hooks';
 import TokenBalancesTable from './TokenBalancesTable';
 import tokensApi from '../../api/tokensApi';
 import PaginationURL from '../../utils/pagination';
@@ -21,6 +23,8 @@ import TokenAutoCompleteField from './TokenAutoCompleteField';
  */
 function TokenBalances({ maintenanceMode }) {
   const history = useHistory();
+  const newUiEnabled = useNewUiEnabled();
+  const serverInfo = useSelector(state => state.serverInfo);
 
   /**
    * tokenBalances: List of token balances currently being rendered.
@@ -47,6 +51,8 @@ function TokenBalances({ maintenanceMode }) {
    * tokensApiError: Flag indicating if the request to the token api failed, to decide wether to display or not the total number of transactions
    */
   const [tokenId, setTokenId] = useState(hathorLibConstants.NATIVE_TOKEN_UID);
+  const [tokenName, setTokenName] = useState(undefined);
+  const [tokenSymbol, setTokenSymbol] = useState('');
   const [tokenBalances, setTokenBalances] = useState([]);
   const [hasAfter, setHasAfter] = useState(false);
   const [hasBefore, setHasBefore] = useState(false);
@@ -255,7 +261,12 @@ function TokenBalances({ maintenanceMode }) {
 
   const onTokenSelected = async newToken => {
     const newTokenId = newToken?.id || hathorLibConstants.NATIVE_TOKEN_UID;
+    const newTokenName = newToken?.name;
+    const newTokenSymbol = newToken?.symbol;
+
     setTokenId(newTokenId);
+    setTokenName(newTokenName);
+    setTokenSymbol(newTokenSymbol);
 
     if (!newToken) {
       // HTR token is the default, so the search API is not called, we must forcefully call it
@@ -309,6 +320,7 @@ function TokenBalances({ maintenanceMode }) {
         onTokenSelected={onTokenSelected}
         tokenId={tokenId}
         loadingFinished={loadingFinished}
+        newUiEnabled={newUiEnabled}
       />
     );
   };
@@ -331,11 +343,12 @@ function TokenBalances({ maintenanceMode }) {
         order={order}
         tableHeaderClicked={tableHeaderClicked}
         calculatingPage={calculatingPage}
+        newUiEnabled={newUiEnabled}
       />
     );
   };
 
-  return (
+  const renderUi = () => (
     <div className="w-100">
       {renderSearchField()}
 
@@ -366,6 +379,51 @@ function TokenBalances({ maintenanceMode }) {
       {tokenId && renderTokensTable()}
     </div>
   );
+
+  const renderNewUi = () => (
+    <div className="container-title-page">
+      <p className="title-page">Token Balance</p>
+      {renderSearchField()}
+
+      <div className="token-balances-information-wrapper">
+        <h1>
+          {tokenName === undefined
+            ? `${serverInfo.native_token.name} (${serverInfo.native_token.symbol})`
+            : `${tokenName} (${tokenSymbol})`}
+        </h1>
+
+        {!tokenBalanceInformationError && (
+          <p className="container-total-balances">
+            <b className="total-b-balances">total addresses</b>
+            {numberUtils.prettyValue(addressesCount, 0)}
+          </p>
+        )}
+
+        {!tokensApiError && (
+          <p className="container-total-balances">
+            <b className="total-b-balances">total transactions</b>
+            {numberUtils.prettyValue(transactionsCount, 0)}
+          </p>
+        )}
+
+        {tokenId !== hathorLibConstants.NATIVE_TOKEN_UID && (
+          <p>
+            <a className="link-more-details" href={`/token_detail/${tokenId}`}>
+              See token details
+            </a>
+          </p>
+        )}
+
+        {(tokensApiError || tokenBalanceInformationError) && (
+          <ErrorMessageWithIcon message="Error loading the complete token balance information. Please try again." />
+        )}
+      </div>
+
+      {renderTokensTable()}
+    </div>
+  );
+
+  return newUiEnabled ? renderNewUi() : renderUi();
 }
 
 /**

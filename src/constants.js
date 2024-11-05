@@ -111,3 +111,8 @@ export const SCREEN_STATUS_LOOP_INTERVAL_IN_SECONDS = 60; // This is the interva
 
 // Number of elements in the nano contract transaction history table
 export const NANO_CONTRACT_TX_HISTORY_COUNT = 5;
+
+export const COLORS = {
+  danger: '#991300',
+  success: '#44A32E',
+};
