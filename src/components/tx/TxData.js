@@ -6,25 +6,30 @@
  */
 
 import $ from 'jquery';
-import React from 'react';
-import Viz from 'viz.js';
-import hathorLib from '@hathor/wallet-lib';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { Link } from 'react-router-dom';
-import { Module, render } from 'viz.js/full.render';
-import { connect } from 'react-redux';
-import { get, upperFirst } from 'lodash';
 import HathorAlert from '../HathorAlert';
+import React from 'react';
 import TokenMarkers from '../token/TokenMarkers';
 import TxAlerts from './TxAlerts';
 import TxMarkers from './TxMarkers';
+import Viz from 'viz.js';
 import dateFormatter from '../../utils/date';
+import hathorLib from '@hathor/wallet-lib';
 import helpers from '../../utils/helpers';
 import metadataApi from '../../api/metadataApi';
 import graphvizApi from '../../api/graphvizApi';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { Link } from 'react-router-dom';
+import { Module, render } from 'viz.js/full.render.js';
 import Loading from '../Loading';
 import FeatureDataRow from '../feature_activation/FeatureDataRow';
 import featureApi from '../../api/featureApi';
+import { connect } from 'react-redux';
+import { get, upperFirst } from 'lodash';
+import HathorSnackbar from '../HathorSnackbar';
+import { DropDetails } from '../DropDetails';
+import { ReactComponent as Copy } from '../../assets/images/copy-icon.svg';
+import { ReactComponent as ValidIcon } from '../../assets/images/success-icon.svg';
+import { ReactComponent as RowDown } from '../../assets/images/chevron-down.svg';
 
 const mapStateToProps = state => ({
   nativeToken: state.serverInfo.native_token,
@@ -80,6 +85,8 @@ class TxData extends React.Component {
   // Array of token uid that was already found to show the symbol
   tokensFound = [];
 
+  snackbarRef = React.createRef();
+
   componentDidMount = async () => {
     await this.handleDataFetch();
   };
@@ -121,7 +128,7 @@ class TxData extends React.Component {
    * Add all tokens of this transaction (inputs and outputs) to the state
    */
   calculateTokens = () => {
-    const { tokens } = this.props.transaction;
+    let tokens = this.props.transaction.tokens;
 
     const metaRequests = tokens.map(token => this.getTokenMetadata(token));
 
@@ -131,7 +138,7 @@ class TxData extends React.Component {
   };
 
   getNativeToken = () => {
-    const { nativeToken } = this.props;
+    const nativeToken = this.props.nativeToken;
     return { ...nativeToken, uid: hathorLib.constants.NATIVE_TOKEN_UID };
   };
 
@@ -147,7 +154,7 @@ class TxData extends React.Component {
         ...token,
         meta: data,
       }))
-      .catch(_err => token);
+      .catch(err => token);
   };
 
   /**
@@ -156,7 +163,7 @@ class TxData extends React.Component {
    * @param {Object} e Event emitted when clicking link
    */
   toggleRaw = e => {
-    e.preventDefault();
+    this.props.newUiEnabled === false && e.preventDefault();
     this.setState({ raw: !this.state.raw }, () => {
       if (this.state.raw) {
         $(this.refs.rawTx).show(300);
@@ -215,7 +222,7 @@ class TxData extends React.Component {
   toggleGraph = async (e, index) => {
     e.preventDefault();
 
-    const graphs = [...this.state.graphs];
+    let graphs = [...this.state.graphs];
     graphs[index].showNeighbors = !graphs[index].showNeighbors;
 
     this.setState({ graphs });
@@ -245,7 +252,9 @@ class TxData extends React.Component {
   copied = (text, result) => {
     if (result) {
       // If copied with success
-      this.refs.alertCopied.show(1000);
+      this.props.newUiEnabled
+        ? this.snackbarRef.current.show(1000)
+        : this.refs.alertCopied.show(1000);
     }
   };
 
@@ -299,12 +308,13 @@ class TxData extends React.Component {
     const renderBlockOrTransaction = () => {
       if (hathorLib.transactionUtils.isBlock(this.props.transaction)) {
         return 'block';
+      } else {
+        return 'transaction';
       }
-      return 'transaction';
     };
 
     const renderInputs = inputs => {
-      return inputs.map((input, _idx) => {
+      return inputs.map((input, idx) => {
         return (
           <div key={`${input.tx_id}${input.index}`}>
             <Link to={`/transaction/${input.tx_id}`}>{helpers.getShortHash(input.tx_id)}</Link> (
@@ -326,26 +336,30 @@ class TxData extends React.Component {
       if (hathorLib.transactionUtils.isAuthorityOutput(output)) {
         if (hathorLib.transactionUtils.isMint(output)) {
           return 'Mint authority';
-        }
-        if (hathorLib.transactionUtils.isMelt(output)) {
+        } else if (hathorLib.transactionUtils.isMelt(output)) {
           return 'Melt authority';
+        } else {
+          // Should never come here
+          return 'Unknown authority';
         }
-        // Should never come here
-        return 'Unknown authority';
-      }
-      if (!this.state.metadataLoaded) {
-        // We show 'Loading' until all metadatas are loaded
-        // to prevent switching from decimal to integer if one of the tokens is an NFT
-        return 'Loading...';
-      }
+      } else {
+        if (!this.state.metadataLoaded) {
+          // We show 'Loading' until all metadatas are loaded
+          // to prevent switching from decimal to integer if one of the tokens is an NFT
+          return 'Loading...';
+        }
 
-      // if it's an NFT token we should show integer value
-      const uid = this.getUIDFromTokenData(
-        hathorLib.tokensUtils.getTokenIndexFromData(output.token_data)
-      );
-      const tokenData = this.state.tokens.find(token => token.uid === uid);
-      const isNFT = tokenData && tokenData.meta && tokenData.meta.nft;
-      return hathorLib.numberUtils.prettyValue(output.value, isNFT ? 0 : this.props.decimalPlaces);
+        // if it's an NFT token we should show integer value
+        const uid = this.getUIDFromTokenData(
+          hathorLib.tokensUtils.getTokenIndexFromData(output.token_data)
+        );
+        const tokenData = this.state.tokens.find(token => token.uid === uid);
+        const isNFT = tokenData && tokenData.meta && tokenData.meta.nft;
+        return hathorLib.numberUtils.prettyValue(
+          output.value,
+          isNFT ? 0 : this.props.decimalPlaces
+        );
+      }
     };
 
     const renderOutputLink = idx => {
@@ -356,8 +370,9 @@ class TxData extends React.Component {
             (<Link to={`/transaction/${this.props.spentOutputs[idx]}`}>Spent</Link>)
           </span>
         );
+      } else {
+        return null;
       }
-      return null;
     };
 
     const renderInputOrOutput = (output, idx, isOutput) => {
@@ -381,13 +396,12 @@ class TxData extends React.Component {
     };
 
     const renderDecodedScript = output => {
-      let script;
       switch (output.decoded.type) {
         case 'P2PKH':
         case 'MultiSig':
           return renderP2PKHorMultiSig(output.decoded);
         default:
-          script = output.script;
+          let script = output.script;
           // Try to parse as script data
           try {
             // The output script is decoded to base64 in the full node
@@ -396,7 +410,6 @@ class TxData extends React.Component {
             // In the future we must receive from the full node
             // the decoded.type as script data but this still needs
             // some refactor there that won't happen soon
-            // eslint-disable-next-line new-cap
             const buff = new Buffer.from(script, 'base64');
             const parsedData = hathorLib.scriptsUtils.parseScriptData(buff);
             return renderDataScript(parsedData.data);
@@ -410,9 +423,7 @@ class TxData extends React.Component {
 
           try {
             script = atob(output.script);
-          } catch (e) {
-            console.error(e);
-          }
+          } catch {}
 
           return `Unable to decode script: ${script.trim()}`;
       }
@@ -423,7 +434,7 @@ class TxData extends React.Component {
     };
 
     const renderP2PKHorMultiSig = decoded => {
-      let ret = decoded.address;
+      var ret = decoded.address;
       if (decoded.timelock) {
         ret = `${ret} | Locked until ${dateFormatter.parseTimestamp(decoded.timelock)}`;
       }
@@ -433,7 +444,7 @@ class TxData extends React.Component {
 
     const renderListWithLinks = (hashes, textDark) => {
       if (hashes.length === 0) {
-        return undefined;
+        return;
       }
       if (hashes.length === 1) {
         const h = hashes[0];
@@ -462,8 +473,24 @@ class TxData extends React.Component {
       ));
     };
 
+    const renderNewUiDivList = hashes => {
+      return (
+        <table className="table-details">
+          {hashes.map(h => (
+            <tr className="tr-details" key={h}>
+              <td>
+                <Link to={`/transaction/${h}`}>{h}</Link>
+              </td>
+            </tr>
+          ))}
+        </table>
+      );
+    };
+
     const renderTwins = () => {
-      if (this.props.meta.twins.length) {
+      if (!this.props.meta.twins.length) {
+        return;
+      } else {
         return (
           <div>
             This transaction has twin{' '}
@@ -472,13 +499,11 @@ class TxData extends React.Component {
           </div>
         );
       }
-
-      return undefined;
     };
 
     const renderConflicts = () => {
-      const { twins } = this.props.meta;
-      const conflictNotTwin = this.props.meta.conflict_with.length
+      let twins = this.props.meta.twins;
+      let conflictNotTwin = this.props.meta.conflict_with.length
         ? this.props.meta.conflict_with.filter(hash => twins.indexOf(hash) < 0)
         : [];
       if (!this.props.meta.voided_by.length) {
@@ -511,7 +536,91 @@ class TxData extends React.Component {
             </div>
           );
         }
-        return undefined;
+        return;
+      }
+
+      if (!this.props.meta.conflict_with.length) {
+        // it is voided, but there is no conflict
+        return (
+          <div className="alert alert-danger">
+            <h4 className="alert-heading">
+              This {renderBlockOrTransaction()} is voided and <strong>NOT</strong> valid.
+            </h4>
+            <p>
+              This {renderBlockOrTransaction()} is verifying (directly or indirectly) a voided
+              double-spending transaction, hence it is voided as well.
+            </p>
+            <div className="mb-0">
+              <span>
+                This {renderBlockOrTransaction()} is voided because of these transactions:{' '}
+              </span>
+              {renderListWithLinks(this.props.meta.voided_by, true)}
+            </div>
+          </div>
+        );
+      }
+
+      // it is voided, and there is a conflict
+      return (
+        <div className="alert alert-danger">
+          <h4 className="alert-heading">
+            This {renderBlockOrTransaction()} is <strong>NOT</strong> valid.
+          </h4>
+          <div>
+            <span>It is voided by: </span>
+            {renderListWithLinks(this.props.meta.voided_by, true)}
+          </div>
+          <hr />
+          {conflictNotTwin.length > 0 && (
+            <div className="mb-0">
+              <span>Conflicts with: </span>
+              {renderListWithLinks(conflictNotTwin, true)}
+            </div>
+          )}
+          {renderTwins()}
+        </div>
+      );
+    };
+
+    const renderNewUiConflicts = () => {
+      let twins = this.props.meta.twins;
+      let conflictNotTwin = this.props.meta.conflict_with.length
+        ? this.props.meta.conflict_with.filter(hash => twins.indexOf(hash) < 0)
+        : [];
+      if (!this.props.meta.voided_by.length) {
+        if (!this.props.meta.conflict_with.length) {
+          // there are conflicts, but it is not voided
+          return (
+            <div className=" alert-success-container">
+              <ValidIcon width="14px" />
+              <span className="alert-success-text">
+                This {renderBlockOrTransaction()} is valid.
+              </span>
+            </div>
+          );
+        }
+
+        if (this.props.meta.conflict_with.length) {
+          // there are conflicts, but it is not voided
+          return (
+            <div className="alert alert-success-container">
+              <h4 className="alert-heading">This {renderBlockOrTransaction()} is valid.</h4>
+              <p>
+                Although there is a double-spending transaction, this transaction has the highest
+                accumulated weight and is valid.
+              </p>
+              <hr />
+              {conflictNotTwin.length > 0 && (
+                <div className="mb-0">
+                  <span>Transactions double spending the same outputs as this transaction: </span>
+                  {renderListWithLinks(conflictNotTwin, true)}
+                </div>
+              )}
+              {renderTwins()}
+            </div>
+          );
+        }
+        return;
       }
 
       if (!this.props.meta.conflict_with.length) {
@@ -583,32 +692,68 @@ class TxData extends React.Component {
       );
     };
 
+    const renderNewUiGraph = graphIndex => {
+      return (
+        <div key={graphIndex} className="container-drop-div">
+          <div key={`graph-${this.state.graphs[graphIndex].name}-${this.props.transaction.hash}`}>
+            <div className="container-drop-header" onClick={e => this.toggleGraph(e, graphIndex)}>
+              <label className="container-drop-header-title">
+                {this.state.graphs[graphIndex].label}:
+              </label>
+              {this.props.transaction.parents && this.props.transaction.parents.length ? (
+                <a className="arrow-graph" href="true">
+                  <RowDown
+                    className="drop-arrow-color"
+                    width="24px"
+                    height="24px"
+                    style={{
+                      transform: `${
+                        this.state.graphs[graphIndex].showNeighbors ? 'rotate(180deg)' : ''
+                      }`,
+                    }}
+                  />
+                </a>
+              ) : null}
+            </div>
+            <div
+              className={this.state.graphs[graphIndex].showNeighbors ? '' : 'd-none'}
+              id={`graph-${this.state.graphs[graphIndex].name}`}
+            ></div>
+            {this.state.graphs[graphIndex].graphLoading ? <Loading /> : null}
+          </div>
+        </div>
+      );
+    };
+
     const renderAccumulatedWeight = () => {
       if (this.props.confirmationData) {
         if (!this.props.confirmationData.success) {
           return 'Not available';
         }
-        const acc = helpers.roundFloat(this.props.confirmationData.accumulated_weight);
+        let acc = helpers.roundFloat(this.props.confirmationData.accumulated_weight);
         if (this.props.confirmationData.accumulated_bigger) {
           return `Over ${acc}`;
+        } else {
+          return acc;
         }
-        return acc;
+      } else {
+        return 'Retrieving accumulated weight data...';
       }
-      return 'Retrieving accumulated weight data...';
     };
 
     const renderHeight = () => {
       return (
-        <div>
-          <label>Height:</label> {this.props.transaction.height}
+        <div className="summary-balance-info-container">
+          <label className="address-container-title">Height:</label> {this.props.transaction.height}
         </div>
       );
     };
 
     const renderScore = () => {
       return (
-        <div>
-          <label>Score:</label> {helpers.roundFloat(this.props.meta.score)}
+        <div className="summary-balance-info-container">
+          <label className="address-container-title">Score:</label>{' '}
+          {helpers.roundFloat(this.props.meta.score)}
         </div>
       );
     };
@@ -617,8 +762,9 @@ class TxData extends React.Component {
       const renderTokenUID = token => {
         if (token.uid === hathorLib.constants.NATIVE_TOKEN_UID) {
           return token.uid;
+        } else {
+          return <Link to={`/token_detail/${token.uid}`}>{token.uid}</Link>;
         }
-        return <Link to={`/token_detail/${token.uid}`}>{token.uid}</Link>;
       };
       const tokens = this.state.tokens.map(token => {
         return (
@@ -651,8 +797,8 @@ class TxData extends React.Component {
 
     const renderFirstBlockDiv = () => {
       return (
-        <div>
-          <label>First block:</label>
+        <div className="summary-balance-info-container">
+          <label className="address-container-title">First block:</label>
           {this.props.meta.first_block && renderFirstBlock()}
         </div>
       );
@@ -660,8 +806,8 @@ class TxData extends React.Component {
 
     const renderAccWeightDiv = () => {
       return (
-        <div>
-          <label>Accumulated weight:</label>
+        <div className="summary-balance-info-container">
+          <label className="address-container-title">Accumulated weight:</label>
           {renderAccumulatedWeight()}
         </div>
       );
@@ -679,8 +825,8 @@ class TxData extends React.Component {
         return `${helpers.roundFloat(data.confirmation_level * 100)}%`;
       }
       return (
-        <div>
-          <label>Confirmation level:</label>
+        <div className="summary-balance-info-container">
+          <label className="address-container-title">Confirmation level:</label>
           {getConfirmationMessage(this.props.confirmationData)}
         </div>
       );
@@ -933,6 +1079,129 @@ class TxData extends React.Component {
       );
     };
 
+    const loadNewUiTxData = () => {
+      return (
+        <div className="tx-data-wrapper">
+          <TxAlerts tokens={this.state.tokens} />
+          <h2 className="title-page">
+            {hathorLib.transactionUtils.isBlock(this.props.transaction) ? 'Block' : 'Transaction'}{' '}
+            Details
+          </h2>
+
+          <div className="tx-id-container">
+            <label className="tx-title-purple">
+              {hathorLib.transactionUtils.isBlock(this.props.transaction) ? 'Block' : 'TX'} ID:
+            </label>{' '}
+            <label className="tx-id-top">{this.props.transaction.hash}</label>
+            <div className="copy-icon-div">
+              <CopyToClipboard text={this.props.transaction.hash} onCopy={this.copied}>
+                <Copy width="24" height="24" />
+              </CopyToClipboard>
+            </div>
+          </div>
+          {this.props.showConflicts ? renderNewUiConflicts() : ''}
+
+          <div className="summary-balance-info">
+            <h2 className="details-title">Overview</h2>
+            <div className="summary-balance-info-container">
+              <div className="address-container-title">Type:</div>{' '}
+              {hathorLib.transactionUtils.getTxType(this.props.transaction)}{' '}
+              {isNFTCreation() && '(NFT)'} <TxMarkers tx={this.props.transaction} />
+            </div>
+            <div className="summary-balance-info-container">
+              <div className="address-container-title">Time:</div>{' '}
+              {dateFormatter.parseTimestamp(this.props.transaction.timestamp)}
+            </div>
+            <div className="summary-balance-info-container">
+              <div className="address-container-title">Nonce:</div>{' '}
+              <span>{this.props.transaction.nonce}</span>
+            </div>
+
+            {!hathorLib.transactionUtils.isBlock(this.props.transaction) && renderFirstBlockDiv()}
+            <div className="summary-balance-info-container">
+              <div className="address-container-title">Weight:</div>{' '}
+              {helpers.roundFloat(this.props.transaction.weight)}
+            </div>
+            {this.props.transaction.signer_id && (
+              <div className="summary-balance-info-container">
+                <div className="address-container-title">Signer ID:</div>{' '}
+                {this.props.transaction.signer_id.toLowerCase()}
+              </div>
+            )}
+            {this.props.transaction.signer && (
+              <div className="summary-balance-info-container">
+                <div className="address-container-title">Signer:</div>{' '}
+                {helpers.getShortHash(this.props.transaction.signer.toLowerCase())}
+              </div>
+            )}
+
+            {hathorLib.transactionUtils.isBlock(this.props.transaction) && renderHeight()}
+            {hathorLib.transactionUtils.isBlock(this.props.transaction) && renderScore()}
+            {!hathorLib.transactionUtils.isBlock(this.props.transaction) && renderAccWeightDiv()}
+            {!hathorLib.transactionUtils.isBlock(this.props.transaction) &&
+              renderConfirmationLevel()}
+          </div>
+          <div className="details-container-gap">
+            {this.props.transaction.version === hathorLib.constants.NANO_CONTRACTS_VERSION && (
+              <div className="d-flex flex-row align-items-start mb-3">{renderNCData()}</div>
+            )}
+
+            {this.props.transaction.version === hathorLib.constants.NANO_CONTRACTS_VERSION && (
+              <div className="d-flex flex-row align-items-start mb-3"> {renderNCActions()}</div>
+            )}
+
+            <div className="tx-drop-container-div">
+              <DropDetails startOpen title={`Inputs (${this.props.transaction.inputs.length})`}>
+                {renderInputs(this.props.transaction.inputs)}
+              </DropDetails>
+              <DropDetails startOpen title={`Outputs (${this.props.transaction.outputs.length})`}>
+                {renderOutputs(this.props.transaction.outputs)}
+              </DropDetails>
+            </div>
+            {/* {this.state.tokens.length > 0 && renderTokenList()} */}
+            <div className="tx-drop-container-div">
+              <DropDetails title="Parents:">
+                {renderNewUiDivList(this.props.transaction.parents)}
+              </DropDetails>
+              <DropDetails title="Children:">
+                {renderNewUiDivList(this.props.meta.children)}
+              </DropDetails>
+            </div>
+            {this.state.graphs.map((graph, index) => renderNewUiGraph(index))}
+
+            {hathorLib.transactionUtils.isBlock(this.props.transaction) && (
+              <DropDetails title="Feature Activation:" onT={e => this.toggleFeatureActivation(e)}>
+                {this.state.showFeatureActivation &&
+                  this.state.loadedSignalBits &&
+                  renderBitSignalTable()}
+                {this.state.showFeatureActivation && !this.state.loadedSignalBits && <Loading />}
+              </DropDetails>
+            )}
+
+            <DropDetails
+              title={
+                <>
+                  <span>Raw Transaction</span>
+                  <CopyToClipboard
+                    className="copy-icon-div"
+                    text={this.props.transaction.raw}
+                    onCopy={this.copied}
+                  >
+                    <Copy width="24" height="24" />
+                  </CopyToClipboard>
+                </>
+              }
+              onT={e => this.toggleRaw(e)}
+            >
+              <p className="mt-3" ref="rawTx" style={{ display: 'none' }}>
+                {this.props.transaction.raw}
+              </p>
+            </DropDetails>
+          </div>
+        </div>
+      );
+    };
+
     const showRawWrapper = () => {
       return (
         <div className="mt-3 mb-3">
@@ -951,11 +1220,16 @@ class TxData extends React.Component {
       );
     };
 
-    return (
-      <div>
-        {loadTxData()}
+    return this.props.newUiEnabled ? (
+      <>
+        <div>{loadNewUiTxData()}</div>
+        <HathorSnackbar ref={this.snackbarRef} text="Copied to clipboard!" type="success" />
+      </>
+    ) : (
+      <>
+        <div>{loadTxData()}</div>
         <HathorAlert ref="alertCopied" text="Copied to clipboard!" type="success" />
-      </div>
+      </>
     );
   }
 }

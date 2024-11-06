@@ -118,7 +118,7 @@ const TokenConfig = props => {
           <span className="actions-token-code">
             <button className="actions-token-code-btn">
               <CopyToClipboard text={configurationString} onCopy={copied}>
-                <CopyIcon />
+                <CopyIcon style={{ color: 'white' }} />
               </CopyToClipboard>
             </button>
             <button className="actions-token-code-btn">

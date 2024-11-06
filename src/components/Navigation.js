@@ -135,7 +135,7 @@ function Navigation() {
               </NavLink>
             </li>
             {showTokensTab && (
-              <li className="nav-item dropdown">
+              <ul className="nav-item dropdown">
                 <span
                   className="nav-link dropdown-toggle custom-dropdown-toggle"
                   id="navbarDropdown"
@@ -161,7 +161,7 @@ function Navigation() {
                     />
                   </li>
                 </div>
-              </li>
+              </ul>
             )}
             <li className="nav-item">
               <NavLink

@@ -6,13 +6,13 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import ReactLoading from 'react-loading';
 import hathorLib from '@hathor/wallet-lib';
 import { useParams } from 'react-router-dom';
 import TxData from '../components/tx/TxData';
 import txApi from '../api/txApi';
 import metadataApi from '../api/metadataApi';
-import colors from '../index.scss';
+import Spinner from '../components/Spinner';
+import { useNewUiEnabled } from '../hooks';
 
 /**
  * Shows the detail of a transaction or block
@@ -21,6 +21,7 @@ import colors from '../index.scss';
  */
 function TransactionDetail() {
   const { id: txUid } = useParams();
+  const newUiEnabled = useNewUiEnabled();
 
   /**
    * transaction {Object} Loaded transaction
@@ -75,7 +76,7 @@ function TransactionDetail() {
 
   const renderTx = () => {
     return (
-      <div>
+      <div className="content-wrapper">
         {transaction ? (
           <TxData
             transaction={transaction}
@@ -92,9 +93,29 @@ function TransactionDetail() {
     );
   };
 
+  const renderNewUiTx = () => {
+    return (
+      <>
+        {transaction ? (
+          <TxData
+            transaction={transaction}
+            confirmationData={confirmationData}
+            spentOutputs={spentOutputs}
+            meta={meta}
+            showRaw={true}
+            showConflicts={true}
+            newUiEnabled={newUiEnabled}
+          />
+        ) : (
+          <p className="text-danger">Transaction with hash {txUid} not found</p>
+        )}
+      </>
+    );
+  };
+
   return (
-    <div className="flex align-items-center content-wrapper">
-      {!loaded ? <ReactLoading type="spin" color={colors.purpleHathor} delay={500} /> : renderTx()}
+    <div className="flex align-items-center section-tables-stylized">
+      {!loaded ? <Spinner /> : newUiEnabled ? renderNewUiTx() : renderTx()}
     </div>
   );
 }
