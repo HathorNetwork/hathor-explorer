@@ -115,7 +115,15 @@ function TransactionDetail() {
 
   return (
     <div className="flex align-items-center section-tables-stylized">
-      {!loaded ? <Spinner /> : newUiEnabled ? renderNewUiTx() : renderTx()}
+      {(() => {
+        if (!loaded) {
+          return <Spinner />;
+        }
+        if (newUiEnabled) {
+          return renderNewUiTx();
+        }
+        return renderTx();
+      })()}
     </div>
   );
 }
