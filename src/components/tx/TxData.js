@@ -399,9 +399,9 @@ class TxData extends React.Component {
 
       switch (output.decoded.type) {
         case 'P2PKH':
-        case 'MultiSig': {
+        case 'MultiSig':
           return renderP2PKHorMultiSig(output.decoded);
-        }
+
         default:
           try {
             // The output script is decoded to base64 in the full node
