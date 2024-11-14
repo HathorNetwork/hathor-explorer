@@ -480,13 +480,15 @@ class TxData extends React.Component {
     const renderNewUiDivList = hashes => {
       return (
         <table className="table-details">
-          {hashes.map(h => (
-            <tr className="tr-details" key={h}>
-              <td>
-                <Link to={`/transaction/${h}`}>{h}</Link>
-              </td>
-            </tr>
-          ))}
+          <tbody>
+            {hashes.map(h => (
+              <tr className="tr-details" key={h}>
+                <td>
+                  <Link to={`/transaction/${h}`}>{h}</Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       );
     };
