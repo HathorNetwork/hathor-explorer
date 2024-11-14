@@ -163,9 +163,10 @@ class TxData extends React.Component {
    * @param {Object} e Event emitted when clicking link
    */
   toggleRaw = e => {
-    if (this.props.newUiEnabled === false) {
+    if (e) {
       e.preventDefault();
     }
+
     this.setState({ raw: !this.state.raw }, () => {
       if (this.state.raw) {
         $(this.refs.rawTx).show(300);
