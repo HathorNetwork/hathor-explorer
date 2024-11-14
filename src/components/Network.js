@@ -371,6 +371,7 @@ class Network extends React.Component {
               options={renderPeerOptions()}
               onSelect={e => this.onPeerChange(e)}
               style={{ width: '500px' }}
+              background="var(--background-network-select)"
             />
             <button className="network-reload-btn" onClick={() => this.loadData()}>
               Reload Data

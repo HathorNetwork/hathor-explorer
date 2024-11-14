@@ -55,6 +55,7 @@ $secondary-color-dark: #191c21;
   --network-data-connected: #9be78a;
   --network-data-connected-border: #44a32e;
   --tools-input-background: #f2f6fa;
+  --background-network-select: #f2f6fa;
 }
 
 :root[data-theme='theme-dark'] {
@@ -89,6 +90,7 @@ $secondary-color-dark: #191c21;
   --network-data-connected: #def7d8;
   --network-data-connected-border: #44a32e;
   --tools-input-background: #0d1117;
+  --background-network-select: #0d1117;
 }
 
 @font-face {
@@ -1230,7 +1232,7 @@ nav {
       font-weight: 700;
       font-family: 'Mona Sans';
       width: 200px;
-      color: var(--network-data-top-text);
+      color: var(--purple-text);
     }
 
     & span:nth-child(2) {
@@ -1250,8 +1252,8 @@ nav {
   width: 100%;
   padding: 24px;
   border-radius: 5px;
-  border: 1px solid var(--border-color);
-  background-color: var(--background-focus);
+  border: 1px solid var(--alter-border-color);
+  background-color: var(--alter-background-color);
 
   & hr {
     border: 1px solid var(--network-data-connected);
