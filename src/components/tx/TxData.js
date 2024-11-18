@@ -192,7 +192,7 @@ class TxData extends React.Component {
    * @param {Object} e Event emitted when clicking link
    */
   toggleFeatureActivation = async e => {
-    if (this.props.newUiEnabled === false) {
+    if (e) {
       e.preventDefault();
     }
     this.setState({ showFeatureActivation: !this.state.showFeatureActivation });
