@@ -427,7 +427,7 @@ class TxData extends React.Component {
           try {
             script = atob(output.script);
           } catch (e) {
-            console.log(e);
+            console.error(e);
           }
 
           return `Unable to decode script: ${script.trim()}`;
