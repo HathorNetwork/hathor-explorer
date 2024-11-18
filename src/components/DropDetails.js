@@ -8,21 +8,21 @@ import { ReactComponent as RowDown } from '../assets/images/chevron-up.svg';
  *
  * @param {string} title - The title displayed in the header of the dropdown section.
  * @param {boolean} startOpen - Determines if the dropdown is open by default when the component is first rendered.
- * @param {Function} onT - Optional callback function triggered when the dropdown is toggled.
+ * @param {Function} onToggle - Optional callback function triggered when the dropdown is toggled.
  *                          This function is called every time the user clicks to open or close the dropdown.
  * @param {ReactNode} children - The content displayed inside the dropdown body when it's open.
  *
  * @returns {JSX.Element} The DropDetails component, which includes a title and a collapsible body.
  */
-export const DropDetails = ({ title, startOpen, onT, children }) => {
+export const DropDetails = ({ title, startOpen, onToggle, children }) => {
   const [open, setOpen] = useState(startOpen);
 
   /**
    * Toggles the open/close state of the dropdown and calls the optional onT callback.
    */
   const click = () => {
-    if (onT) {
-      onT(); // Trigger the onT callback if provided
+    if (onToggle) {
+      onToggle(); // Trigger the onT callback if provided
     }
     setOpen(!open); // Toggle the open/close state of the dropdown
   };

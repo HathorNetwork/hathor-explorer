@@ -1173,7 +1173,10 @@ class TxData extends React.Component {
             {this.state.graphs.map((graph, index) => renderNewUiGraph(index))}
 
             {hathorLib.transactionUtils.isBlock(this.props.transaction) && (
-              <DropDetails title="Feature Activation:" onT={() => this.toggleFeatureActivation()}>
+              <DropDetails
+                title="Feature Activation:"
+                onToggle={() => this.toggleFeatureActivation()}
+              >
                 {this.state.showFeatureActivation &&
                   this.state.loadedSignalBits &&
                   renderBitSignalTable()}
@@ -1194,7 +1197,7 @@ class TxData extends React.Component {
                   </CopyToClipboard>
                 </>
               }
-              onT={() => this.toggleRaw()}
+              onToggle={() => this.toggleRaw()}
             >
               <p className="mt-3" ref="rawTx" style={{ display: 'none' }}>
                 {this.props.transaction.raw}
