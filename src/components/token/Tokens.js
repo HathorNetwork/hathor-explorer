@@ -7,12 +7,12 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { get, last, find, isEmpty } from 'lodash';
+import { withRouter } from 'react-router-dom';
 import TokensTable from './TokensTable';
 import TokenSearchField from './TokenSearchField';
 import tokensApi from '../../api/tokensApi';
-import { get, last, find, isEmpty } from 'lodash';
 import PaginationURL from '../../utils/pagination';
-import { withRouter } from 'react-router-dom';
 import ErrorMessageWithIcon from '../error/ErrorMessageWithIcon';
 import helpers from '../../utils/helpers';
 
@@ -127,7 +127,7 @@ class Tokens extends React.Component {
     this.setState({ isSearchLoading: true });
     const tokens = await this.getTokens([]);
 
-    //When search button is clicked, results return to the first page
+    // When search button is clicked, results return to the first page
     this.setState({
       isSearchLoading: false,
       page: 1,
@@ -184,7 +184,7 @@ class Tokens extends React.Component {
    *
    * @param {*} event
    */
-  nextPageClicked = async event => {
+  nextPageClicked = async _event => {
     this.setState({ calculatingPage: true });
 
     const nextPage = this.state.page + 1;
@@ -222,7 +222,7 @@ class Tokens extends React.Component {
    *
    * @param {*} event
    */
-  previousPageClicked = async event => {
+  previousPageClicked = async _event => {
     this.setState({ calculatingPage: true });
 
     const previousPage = this.state.page - 1;
@@ -236,7 +236,7 @@ class Tokens extends React.Component {
     this.setState({
       tokens: tokens.hits,
       hasAfter: true,
-      hasBefore: previousPage === 1 ? false : true,
+      hasBefore: previousPage !== 1,
       page: previousPage,
       calculatingPage: false,
     });
@@ -299,6 +299,7 @@ class Tokens extends React.Component {
           order={this.state.order}
           tableHeaderClicked={this.tableHeaderClicked}
           calculatingPage={this.state.calculatingPage}
+          newUiEnabled={this.props.newUiEnabled}
         />
       );
     };

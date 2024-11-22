@@ -37,7 +37,7 @@
     "viz.js": "2.1.2"
   },
   "scripts": {
-    "build-css": "sass src:src",
+    "build-css": "sass src/index.scss:src/index.css && sass src/newUi.scss:src/newUi.css",
     "watch-css": "npm run build-css && sass --watch src:src",
     "start-js": "react-scripts --openssl-legacy-provider start",
     "start": "npm-run-all -p watch-css start-js",
@@ -45,7 +45,7 @@
     "build": "npm-run-all build-css build-js",
     "test": "react-scripts test --env=jsdom",
     "lint": "eslint 'src/**/*.js'",
-    "lint:fix": "eslint 'src/**/*.js' --fix",
+    "lint:fix": "eslint src/**/*.js --fix",
     "format": "prettier --write 'src/**/*.js'",
     "format:check": "prettier --check 'src/**/*.js'",
     "eject": "react-scripts eject"

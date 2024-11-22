@@ -10,9 +10,14 @@ import hathorLib from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import dateFormatter from '../../utils/date';
+import { useIsMobile, useNewUiEnabled } from '../../hooks';
+import EllipsiCell from '../EllipsiCell';
 
 function TokenRow({ token }) {
   const history = useHistory();
+  const newUiEnabled = useNewUiEnabled();
+  const isMobile = useIsMobile();
+
   /**
    * Redirects to token detail screen after clicking on a table row
    *
@@ -22,7 +27,35 @@ function TokenRow({ token }) {
     history.push(`/token_detail/${uid}`);
   };
 
-  return (
+  const Symbol = ({ children }) => {
+    return <div className="table-tokens-symbol">{children}</div>;
+  };
+
+  const renderNewUi = () =>
+    isMobile ? (
+      <tr onClick={_e => onRowClicked(token.uid)}>
+        <td className="d-lg-table-cell pe-3">
+          <EllipsiCell id={token.uid} />
+        </td>
+        <td className="d-lg-table-cell pe-3">{token.name}</td>
+      </tr>
+    ) : (
+      <tr onClick={_e => onRowClicked(token.uid)}>
+        <td className="d-lg-table-cell pe-3">
+          <EllipsiCell id={token.uid} />
+        </td>
+        <td className="d-lg-table-cell pe-3">{token.name}</td>
+        <td className="d-lg-table-cell pe-3">
+          <Symbol>{token.symbol}</Symbol>
+        </td>
+        <td className="d-lg-table-cell pe-3">{token.nft ? 'NFT' : 'Custom Token'}</td>
+        <td className="d-lg-table-cell pe-3 date-cell">
+          {dateFormatter.parseTimestampNewUi(token.transaction_timestamp)}
+        </td>
+      </tr>
+    );
+
+  const renderUi = () => (
     <tr onClick={_e => onRowClicked(token.uid)}>
       <td className="d-lg-table-cell pe-3">{hathorLib.helpersUtils.getShortHash(token.uid)}</td>
       <td className="d-lg-table-cell pe-3">{token.name}</td>
@@ -33,6 +66,8 @@ function TokenRow({ token }) {
       </td>
     </tr>
   );
+
+  return newUiEnabled ? renderNewUi() : renderUi();
 }
 
 /**

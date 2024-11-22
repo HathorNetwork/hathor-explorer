@@ -2,7 +2,7 @@ name: deploy
 
 on:
   push:
-    branches: [master]
+    branches: [release]
     tags: ['v*']
 
 permissions:
@@ -51,7 +51,7 @@ jobs:
           retention-days: 1
 
   deploy-testnet-explorer:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/release'
     needs: dependencies
     runs-on: ubuntu-latest
     steps:
@@ -79,7 +79,7 @@ jobs:
           make deploy site=testnet
 
   deploy-nano-testnet-explorer:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/release'
     needs: dependencies
     runs-on: ubuntu-latest
     steps:
@@ -105,7 +105,7 @@ jobs:
           make deploy site=nano-testnet
 
   deploy-ekvilibro-testnet-explorer:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/release'
     needs: dependencies
     runs-on: ubuntu-latest
     steps:

@@ -9,12 +9,12 @@ import React from 'react';
 import ReactLoading from 'react-loading';
 import { Link } from 'react-router-dom';
 import { chunk, orderBy } from 'lodash';
+import { numberUtils } from '@hathor/wallet-lib';
 import { FEATURE_COUNT } from '../../constants';
 import FeatureRow from './FeatureRow';
 import colors from '../../index.scss';
 import PaginationURL from '../../utils/pagination';
 import featureApi from '../../api/featureApi';
-import { numberUtils } from '@hathor/wallet-lib';
 
 class Features extends React.Component {
   constructor(props) {
@@ -39,9 +39,9 @@ class Features extends React.Component {
     featureApi.getFeatures().then(this.handleFeatures, e => console.error(e));
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(_prevProps, _prevState) {
     const { page = 1 } = this.pagination.obtainQueryParams();
-    const newPage = parseInt(page);
+    const newPage = parseInt(page, 10);
 
     if (this.state.page === newPage) {
       return;
@@ -68,6 +68,7 @@ class Features extends React.Component {
   };
 
   hasBefore = () => this.state.page > 1;
+
   hasAfter = () => this.state.page < this.state.pages.length;
 
   getPageFeatures = () => {
@@ -183,7 +184,7 @@ class Features extends React.Component {
     const loadColumnDescriptions = () => {
       return this.getColumnDescriptions().map(({ name, description }) => {
         return (
-          <div>
+          <div key={name}>
             <label>{name}</label>
             <p>{description}</p>
           </div>

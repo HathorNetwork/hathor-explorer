@@ -10,9 +10,11 @@ import React, { useCallback, useEffect } from 'react';
 import { Switch, BrowserRouter as Router, Route } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { axios as hathorLibAxios, config as hathorLibConfig } from '@hathor/wallet-lib';
+import { useTheme, useNewUiEnabled, useNewUiLoad } from './hooks';
 import GDPRConsent from './components/GDPRConsent';
 import Loading from './components/Loading';
 import Navigation from './components/Navigation';
+import Footer from './components/Footer';
 import PeerAdmin from './screens/PeerAdmin';
 import DashboardTx from './screens/DashboardTx';
 import TransactionDetail from './screens/TransactionDetail';
@@ -28,6 +30,7 @@ import TokenDetail from './screens/TokenDetail';
 import Dag from './screens/Dag';
 import Dashboard from './screens/Dashboard';
 import VersionError from './screens/VersionError';
+import ErrorMessage from './components/error/ErrorMessage';
 import WebSocketHandler from './WebSocketHandler';
 import NanoContractDetail from './screens/nano/NanoContractDetail';
 import BlueprintDetail from './screens/nano/BlueprintDetail';
@@ -44,17 +47,24 @@ import createRequestInstance from './api/customAxiosInstance';
 
 hathorLibConfig.setServerUrl(BASE_URL);
 
-const NavigationRoute = ({ internalScreen: InternalScreen }) => (
-  <div>
-    <Navigation />
-    <InternalScreen />
-  </div>
-);
+const NavigationRoute = ({ internalScreen: InternalScreen }) => {
+  const newUiEnabled = useNewUiEnabled();
+
+  return (
+    <div>
+      <Navigation />
+      <InternalScreen />
+      {newUiEnabled ? <Footer /> : ''}
+    </div>
+  );
+};
 
 function Root() {
+  useTheme();
   const dispatch = useDispatch();
   const isVersionAllowed = useSelector(state => state.isVersionAllowed);
   const apiLoadError = useSelector(state => state.apiLoadError);
+  const newUiLoading = useNewUiLoad();
 
   const handleWebsocket = useCallback(
     wsData => {
@@ -97,15 +107,7 @@ function Root() {
       <Router>
         <>
           <Navigation />
-          {apiLoadError ? (
-            <div className="content-wrapper">
-              <h3 className="text-danger">
-                Error loading the explorer. Please reload the page to try again.
-              </h3>
-            </div>
-          ) : (
-            <Loading />
-          )}
+          {apiLoadError ? <ErrorMessage /> : <Loading />}
         </>
       </Router>
     );
@@ -113,6 +115,10 @@ function Root() {
 
   if (!isVersionAllowed) {
     return <VersionError />;
+  }
+
+  if (newUiLoading) {
+    return <Loading />;
   }
 
   return (

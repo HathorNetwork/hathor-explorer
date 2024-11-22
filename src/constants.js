@@ -103,6 +103,7 @@ export const UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG = `explorer-address-detail
 export const UNLEASH_TOKENS_BASE_FEATURE_FLAG = `explorer-tokens-${REACT_APP_NETWORK}`;
 export const UNLEASH_TOKEN_BALANCES_FEATURE_FLAG = `explorer-address-list-${REACT_APP_NETWORK}`;
 export const UNLEASH_TIME_SERIES_FEATURE_FLAG = `explorer-timeseries-${REACT_APP_NETWORK}`;
+export const UNLEASH_NEW_UI_FEATURE_FLAG = `explorer-new-ui-enabled-${REACT_APP_NETWORK}`;
 
 export const { REACT_APP_TIMESERIES_DASHBOARD_ID } = process.env;
 export const TIMESERIES_DASHBOARD_URL = `https://hathor-explorer-75a9f9.kb.eu-central-1.aws.cloud.es.io:9243/s/anonymous-user/app/dashboards?auth_provider_hint=anonymous1#/view/${REACT_APP_TIMESERIES_DASHBOARD_ID}?embed=true&_g=(filters%3A!()%2CrefreshInterval%3A(pause%3A!t%2Cvalue%3A0)%2Ctime%3A(from%3Anow-1w%2Cto%3Anow))&show-time-filter=true&hide-filter-bar=true`;
@@ -110,3 +111,8 @@ export const SCREEN_STATUS_LOOP_INTERVAL_IN_SECONDS = 60; // This is the interva
 
 // Number of elements in the nano contract transaction history table
 export const NANO_CONTRACT_TX_HISTORY_COUNT = 5;
+
+export const COLORS = {
+  danger: '#991300',
+  success: '#44A32E',
+};
