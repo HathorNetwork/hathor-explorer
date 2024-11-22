@@ -69,7 +69,7 @@ const HathorSelect = ({ options, onSelect, value, background }) => {
       <div
         className="custom-select"
         onClick={() => setOpen(!open)}
-        style={{ backgroundColor: `${background ? background : ''}` }}
+        style={{ backgroundColor: background || '' }}
       >
         {value.name}
         <RowDown width="10px" height="10px" />
