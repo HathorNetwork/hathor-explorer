@@ -13,6 +13,6 @@ Create a git tag and a new release on GitHub.
 ## Deploying
 Deploys are automated using Github Actions.
 
-To deploy to the `testnet` website, simply commit to the `master` branch.
+The `testnet` website will be deployed on commits to the `release` branch.
 
-To deploy to the `mainnet` website, create a release in Github using a tag in the format `v0.0.0`. You should use the same version that you updated in the files in the previous section.
+To deploy to the `mainnet` website, create a release in Github using a tag in the format `v0.0.0` and pointing to the `release` branch. You should use the same version that you updated in the files in the previous section.

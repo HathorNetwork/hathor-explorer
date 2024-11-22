@@ -2,10 +2,10 @@ name: PR validation
 
 on:
   push:
-    branches: [master, dev]
+    branches: [master, release]
   pull_request:
     branches:
-    - dev
+    - release
     - master
 
 jobs:
