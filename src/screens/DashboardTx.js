@@ -135,7 +135,7 @@ function DashboardTx() {
     return (
       <div style={{ textAlign: 'center' }}>
         <div>
-          <table className="table-stylized">
+          <table className="table-stylized" style={{ tableLayout: 'inherit' }}>
             <thead>
               <tr>
                 <th>HASH</th>

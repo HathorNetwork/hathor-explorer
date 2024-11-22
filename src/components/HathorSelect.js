@@ -26,8 +26,11 @@ import { ReactComponent as RowDown } from '../assets/images/arrow-down-nav-dropd
  *   key: <string | number>, // Unique identifier for the current selected option.
  *   name: <string>          // Display name for the current selected option.
  * }
+ *
+ * @param {string} [background] - Optional background color for the select box. Defaults to a light grey if not provided.
+ *
  */
-const HathorSelect = ({ options, onSelect, value }) => {
+const HathorSelect = ({ options, onSelect, value, background }) => {
   const [open, setOpen] = useState(false);
 
   const selectRef = useRef(null);
@@ -63,7 +66,11 @@ const HathorSelect = ({ options, onSelect, value }) => {
 
   return (
     <div className="custom-select-container" ref={selectRef}>
-      <div className="custom-select" onClick={() => setOpen(!open)}>
+      <div
+        className="custom-select"
+        onClick={() => setOpen(!open)}
+        style={{ backgroundColor: background || '' }}
+      >
         {value.name}
         <RowDown width="10px" height="10px" />
       </div>

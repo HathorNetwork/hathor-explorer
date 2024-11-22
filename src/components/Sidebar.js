@@ -90,7 +90,7 @@ function Sidebar({ close, open }) {
                 </NavLink>
               </li>
               {showTokensTab && (
-                <li className="nav-item dropdown">
+                <span className="nav-item dropdown">
                   <span
                     className="nav-link dropdown-toggle"
                     id="navbarDropdown"
@@ -116,7 +116,7 @@ function Sidebar({ close, open }) {
                       />
                     </li>
                   </div>
-                </li>
+                </span>
               )}
               <li className="nav-item">
                 <NavLink
