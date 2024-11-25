@@ -79,7 +79,11 @@ class DagComponent extends React.Component {
   componentDidMount() {
     this.tooltip = select('.tooltip').style('opacity', 0);
 
-    this.props.newUiEnabled ? this.newDrawGraph() : this.drawGraph();
+    if (this.props.newUiEnabled) {
+      this.newDrawGraph();
+    } else {
+      this.drawGraph();
+    }
   }
 
   getTxY() {

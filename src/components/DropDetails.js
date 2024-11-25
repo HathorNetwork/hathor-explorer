@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ReactComponent as RowDown } from '../assets/images/chevron-up.svg';
 
 /**
@@ -16,6 +16,12 @@ import { ReactComponent as RowDown } from '../assets/images/chevron-up.svg';
  */
 export const DropDetails = ({ title, startOpen, onToggle, children }) => {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (startOpen) {
+      setOpen(true);
+    }
+  }, []);
 
   /**
    * Toggles the open/close state of the dropdown and calls the optional onT callback.
