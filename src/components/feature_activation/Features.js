@@ -9,12 +9,13 @@ import React from 'react';
 import ReactLoading from 'react-loading';
 import { Link } from 'react-router-dom';
 import { chunk, orderBy } from 'lodash';
-import { numberUtils } from '@hathor/wallet-lib';
 import { FEATURE_COUNT } from '../../constants';
 import FeatureRow from './FeatureRow';
 import colors from '../../index.scss';
 import PaginationURL from '../../utils/pagination';
 import featureApi from '../../api/featureApi';
+import { numberUtils } from '@hathor/wallet-lib';
+import { DropDetails } from '../DropDetails';
 
 class Features extends React.Component {
   constructor(props) {
@@ -39,9 +40,9 @@ class Features extends React.Component {
     featureApi.getFeatures().then(this.handleFeatures, e => console.error(e));
   }
 
-  componentDidUpdate(_prevProps, _prevState) {
+  componentDidUpdate(prevProps, prevState) {
     const { page = 1 } = this.pagination.obtainQueryParams();
-    const newPage = parseInt(page, 10);
+    const newPage = parseInt(page);
 
     if (this.state.page === newPage) {
       return;
@@ -68,7 +69,6 @@ class Features extends React.Component {
   };
 
   hasBefore = () => this.state.page > 1;
-
   hasAfter = () => this.state.page < this.state.pages.length;
 
   getPageFeatures = () => {
@@ -116,11 +116,13 @@ class Features extends React.Component {
   ];
 
   toggleColumnDescriptions = e => {
-    e.preventDefault();
+    if (this.props.newUiEnabled === false) {
+      e.preventDefault();
+    }
     this.setState({ showColumnDescriptions: !this.state.showColumnDescriptions });
   };
 
-  render() {
+  renderUi() {
     const loadPagination = () => {
       if (this.state.pages.length === 0) {
         return null;
@@ -184,7 +186,7 @@ class Features extends React.Component {
     const loadColumnDescriptions = () => {
       return this.getColumnDescriptions().map(({ name, description }) => {
         return (
-          <div key={name}>
+          <div>
             <label>{name}</label>
             <p>{description}</p>
           </div>
@@ -230,6 +232,130 @@ class Features extends React.Component {
         )}
       </div>
     );
+  }
+
+  hasBefore = () => this.state.page > 1;
+  hasAfter = () => this.state.page < this.state.pages.length;
+
+  renderNewUi() {
+    const loadPagination = () => {
+      if (this.state.pages.length === 0) {
+        return null;
+      }
+      return (
+        <div className="tx-pagination-btn no-padding">
+          <Link
+            className={!this.hasBefore() ? 'page-link-btn-disable' : 'page-link-btn-enable'}
+            to={this.pagination.setURLParameters({ page: this.state.page - 1 })}
+          >
+            <button
+              className={
+                !this.hasBefore() ? 'tx-previous-btn disable-button' : 'tx-next-btn tx-disabled'
+              }
+              disabled={!this.hasBefore()}
+            >
+              Previous
+            </button>
+          </Link>
+          <Link
+            className={!this.hasAfter() ? 'page-link-btn-disable' : 'page-link-btn-enable'}
+            to={this.pagination.setURLParameters({ page: this.state.page + 1 })}
+          >
+            <button
+              className={
+                !this.hasAfter() ? 'tx-previous-btn disable-button' : 'tx-next-btn tx-enable'
+              }
+              disabled={!this.hasAfter()}
+            >
+              Next
+            </button>
+          </Link>
+        </div>
+      );
+    };
+
+    const loadTable = () => {
+      return (
+        <div className="table-responsive mt-5">
+          <table className=" table-stylized table-features" id="features-table">
+            <thead>
+              <tr>
+                <th className="d-lg-table-cell">Name</th>
+                <th className="d-lg-table-cell">State</th>
+                <th className="d-lg-table-cell td-mobile">Acceptance</th>
+                <th className="d-lg-table-cell td-mobile">Threshold</th>
+                <th className="d-lg-table-cell td-mobile">Start Height</th>
+                <th className="d-lg-table-cell td-mobile">Minimum Activation Height</th>
+                <th className="d-lg-table-cell td-mobile">Timeout Height</th>
+                <th className="d-lg-table-cell td-mobile">Lock-in on Timeout</th>
+                <th className="d-lg-table-cell td-mobile">Since Version</th>
+                <th className="d-lg-table-cell arrow-td-mobile"></th>
+              </tr>
+            </thead>
+            <tbody>{loadTableBody()}</tbody>
+          </table>
+        </div>
+      );
+    };
+
+    const loadTableBody = () => {
+      return this.getPageFeatures().map(feature => {
+        return <FeatureRow key={feature.name} feature={feature} />;
+      });
+    };
+
+    const loadColumnDescriptions = () => {
+      return this.getColumnDescriptions().map(({ name, description }) => {
+        return (
+          <div key={name} className="summary-balance-info-container">
+            <div className="address-container-title">{name}:</div> <span>{description}</span>
+          </div>
+        );
+      });
+    };
+
+    const loadFeaturesPage = () => {
+      const height = numberUtils.prettyValue(this.state.block_height, 0);
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div>
+            Showing feature states for{' '}
+            <Link className="link-uppercase" to={`/transaction/${this.state.block_hash}`}>
+              current best block
+            </Link>{' '}
+            at height {height}.
+          </div>
+          {!this.state.loaded ? (
+            <ReactLoading type="spin" color={colors.purpleHathor} delay={500} />
+          ) : (
+            loadTable()
+          )}
+
+          <DropDetails title="Column descriptions:" onT={e => this.toggleColumnDescriptions(e)}>
+            <div className="features-page-container">
+              {this.state.showColumnDescriptions && loadColumnDescriptions()}
+            </div>
+          </DropDetails>
+
+          {loadPagination()}
+        </div>
+      );
+    };
+
+    return (
+      <div className="w-100">
+        <h1 className="title-page">{this.props.title}</h1>
+        {this.state.pages.length !== 0 ? (
+          loadFeaturesPage()
+        ) : (
+          <div>There are currently no features.</div>
+        )}
+      </div>
+    );
+  }
+
+  render() {
+    return this.props.newUiEnabled ? this.renderNewUi() : this.renderUi();
   }
 }
 

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { ReactComponent as SuccessIcon } from '../assets/images/success-icon.svg';
 
 /**
@@ -24,7 +24,7 @@ import { ReactComponent as SuccessIcon } from '../assets/images/success-icon.svg
  * alertRef.current.show(2000); // Show the alert for 2 seconds
  * ```
  */
-const NewHathorAlert = forwardRef(({ type, text }, ref) => {
+const NewHathorAlert = forwardRef(({ type, text, showAlert }, ref) => {
   const alertDiv = useRef(null);
 
   /**
@@ -41,6 +41,16 @@ const NewHathorAlert = forwardRef(({ type, text }, ref) => {
     }
   };
 
+  useEffect(() => {
+    if (showAlert !== undefined) {
+      if (showAlert) {
+        alertDiv.current.classList.add('show');
+      } else {
+        alertDiv.current.classList.remove('show');
+      }
+    }
+  }, [showAlert]);
+
   useImperativeHandle(ref, () => ({
     show,
   }));
@@ -52,9 +62,7 @@ const NewHathorAlert = forwardRef(({ type, text }, ref) => {
       role="alert"
       style={{ display: 'flex', flexDirection: 'row' }}
     >
-      <div className="success-icon">
-        <SuccessIcon />
-      </div>
+      <div className="success-icon">{type === 'success' ? <SuccessIcon /> : null}</div>
       <p className="success-txt">{text}</p>
     </div>
   );
