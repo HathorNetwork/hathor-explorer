@@ -7,19 +7,36 @@
 
 import React from 'react';
 import { useFlag } from '@unleash/proxy-client-react';
-
 import TimeSeries from '../components/timeseries/TimeSeries';
 import { UNLEASH_TIME_SERIES_FEATURE_FLAG } from '../constants';
+import { useNewUiEnabled } from '../hooks';
 
 const TimeSeriesDashboard = () => {
+  const newUiEnabled = useNewUiEnabled();
   const maintenanceMode = useFlag(`${UNLEASH_TIME_SERIES_FEATURE_FLAG}.maintenance`);
   const featureFlag = useFlag(`${UNLEASH_TIME_SERIES_FEATURE_FLAG}.rollout`);
 
-  return (
+  const renderUi = () => (
     <div>
-      <TimeSeries featureFlag={featureFlag} maintenanceMode={maintenanceMode} />
+      <TimeSeries
+        featureFlag={featureFlag}
+        maintenanceMode={maintenanceMode}
+        newUiEnabled={newUiEnabled}
+      />
     </div>
   );
+
+  const renderNewUi = () => (
+    <div>
+      <TimeSeries
+        featureFlag={featureFlag}
+        maintenanceMode={maintenanceMode}
+        newUiEnabled={newUiEnabled}
+      />
+    </div>
+  );
+
+  return newUiEnabled ? renderNewUi() : renderUi();
 };
 
 export default TimeSeriesDashboard;

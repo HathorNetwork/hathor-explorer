@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) Hathor Labs and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 import React from 'react';
 import { get } from 'lodash';
 
@@ -58,8 +65,9 @@ class ScreenStatusMessage extends React.Component {
     });
   };
 
-  render() {
+  renderUi() {
     const height = numberUtils.prettyValue(this.state.height, 0);
+
     if (this.state.error) {
       return (
         <div>
@@ -68,20 +76,60 @@ class ScreenStatusMessage extends React.Component {
       );
     }
 
+    if (this.state.loading) {
+      return (
+        <div>
+          <Loading />
+        </div>
+      );
+    }
+
     return (
       <div>
-        {this.state.loading ? (
-          <Loading />
-        ) : (
-          <p className="screen-status">
-            <strong>
-              This screen is updated until block at height {height} and the last update was on{' '}
-              {dateFormatter.parseTimestampFromSQLTimestamp(this.state.timestamp)}
-            </strong>
-          </p>
-        )}
+        <p className="screen-status">
+          <strong>
+            This screen is updated until block at height {height} and the last update was on{' '}
+            {dateFormatter.parseTimestampFromSQLTimestamp(this.state.timestamp)}
+          </strong>
+        </p>
       </div>
     );
+  }
+
+  renderNewUi() {
+    const height = numberUtils.prettyValue(this.state.height, 0);
+
+    if (this.state.error) {
+      return (
+        <div>
+          <ErrorMessageWithIcon message="Could not load the last block updated" />
+        </div>
+      );
+    }
+
+    if (this.state.loading) {
+      return (
+        <div>
+          <Loading />
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        <p className="screen-status-text-info">
+          <strong>
+            This screen is updated until block at height <span>{height}</span> and the last update
+            was on{' '}
+            <span>{dateFormatter.parseTimestampFromSQLTimestamp(this.state.timestamp)}.</span>
+          </strong>
+        </p>
+      </div>
+    );
+  }
+
+  render() {
+    return this.props.newUiEnabled ? this.renderNewUi() : this.renderUi();
   }
 }
 

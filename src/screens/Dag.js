@@ -8,6 +8,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import txApi from '../api/txApi';
 import DagComponent from '../components/DagComponent';
+import { useNewUiEnabled } from '../hooks';
 import WebSocketHandler from '../WebSocketHandler';
 
 // The pure functions below have no interaction with the screen component and are used only for
@@ -57,6 +58,7 @@ function filterArrays(blocks, txs, timeframe) {
 }
 
 function Dag() {
+  const newUiEnabled = useNewUiEnabled();
   const [blocks, setBlocks] = useState(null); // array of blocks to show on the graph
   const [txs, setTxs] = useState(null); // array of txs to show on graph
   const [isPaused, setIsPaused] = useState(false); // whether we should update the graph on realtime
@@ -259,7 +261,7 @@ function Dag() {
     }
   };
 
-  return (
+  const renderUi = () => (
     <div className="d-flex align-items-start flex-column content-wrapper dag-visualizer">
       <button className="btn btn-secondary me-5" onClick={handlePause}>
         {isPaused ? 'Play' : 'Pause'}
@@ -291,6 +293,53 @@ function Dag() {
       )}
     </div>
   );
+
+  const renderNewUi = () => (
+    <div className="dag-content-wrapper">
+      <div className="dag-content">
+        <div>
+          <h2 className="content-title">DAG</h2>
+          <label htmlFor="timeframe" className="timeframe-label">
+            Timeframe (in seconds):
+          </label>
+          <div>
+            <input
+              type="number"
+              id="timeframe"
+              name="timeframe"
+              min="0"
+              value={inputTimeframe}
+              onChange={handleTimeframeChange}
+              className="timeframe-input"
+            />
+          </div>
+          <div className="dag-container-btn">
+            <button onClick={handlePause}>{isPaused ? 'Play' : 'Pause'}</button>
+            <button onClick={handleReset}>Reset</button>
+          </div>
+        </div>
+        {throttled && (
+          <div className="mt-3 text-warning">
+            The graph is not 100% correct because it has reached the flow limit, so we are showing
+            only a limited amount of transactions and blocks
+          </div>
+        )}
+        {blocks && txs && (
+          <>
+            <DagComponent
+              ref={dagElement}
+              blocks={blocks}
+              txs={txs}
+              timeframe={timeframe}
+              newUiEnabled={newUiEnabled}
+            />
+          </>
+        )}
+      </div>
+    </div>
+  );
+
+  return newUiEnabled ? renderNewUi() : renderUi();
 }
 
 export default Dag;
