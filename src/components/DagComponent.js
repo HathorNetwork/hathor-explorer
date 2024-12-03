@@ -538,26 +538,13 @@ class DagComponent extends React.Component {
     this.tooltip.style('left', `${event.pageX}px`).style('top', `${event.pageY + 10}px`);
   }
 
-  renderUi() {
-    return (
-      <div ref="dagWrapper" className="dagWrapper">
-        <svg id="graph" />
-        <div className="tooltip"></div>
-      </div>
-    );
-  }
-
-  renderNewUi() {
-    return (
-      <div ref="dagWrapper" className="dagWrapper">
-        <svg id="graph" />
-        <div className="tooltip"></div>
-      </div>
-    );
-  }
-
   render() {
-    return this.props.newUiEnabled ? this.renderNewUi() : this.renderUi();
+    return (
+      <div ref="dagWrapper" className="dagWrapper">
+        <svg id="graph" />
+        <div className="tooltip"></div>
+      </div>
+    );
   }
 }
 
