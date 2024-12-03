@@ -9,7 +9,34 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 class TxTextInput extends React.Component {
-  render() {
+  renderNewUi() {
+    return (
+      <div className="d-flex flex-column tools-gap">
+        <span className="text-page">{this.props.helpText}</span>
+        <textarea
+          className="tools-input"
+          ref="txInput"
+          rows="5"
+          placeholder={this.props.placeholder}
+          onChange={this.props.onChange}
+        ></textarea>
+
+        <div className="tools-button-container">
+          <button className="btn btn-hathor tools-button" onClick={this.props.buttonClicked}>
+            {this.props.action}
+          </button>
+          <span>
+            <Link className="underline-link" to={this.props.link}>
+              Click here
+            </Link>{' '}
+            if you want to {this.props.otherAction} this transaction.
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  renderUi() {
     return (
       <div className="d-flex flex-column tx-input-wrapper">
         <span>{this.props.helpText}</span>
@@ -22,6 +49,10 @@ class TxTextInput extends React.Component {
         </button>
       </div>
     );
+  }
+
+  render() {
+    return this.props.newUiEnabled ? this.renderNewUi() : this.renderUi();
   }
 }
 

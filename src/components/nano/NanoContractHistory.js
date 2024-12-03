@@ -16,6 +16,7 @@ import helpers from '../../utils/helpers';
 import nanoApi from '../../api/nanoApi';
 import WebSocketHandler from '../../WebSocketHandler';
 import PaginationURL from '../../utils/pagination';
+import { useNewUiEnabled, useIsMobile } from '../../hooks';
 
 /**
  * Displays nano tx history in a table with pagination buttons. As the user navigates through the history,
@@ -44,6 +45,8 @@ function NanoContractHistory({ ncId }) {
   );
 
   const location = useLocation();
+  const newUiEnabled = useNewUiEnabled();
+  const isMobile = useIsMobile();
 
   // loading {boolean} Bool to show/hide loading element
   const [loading, setLoading] = useState(true);
@@ -215,12 +218,28 @@ function NanoContractHistory({ ncId }) {
     );
   };
 
+  const loadNewUiTable = () => {
+    return (
+      <div className="table-responsive mt-5">
+        <table className="new-table table-striped" id="tx-table">
+          <thead>
+            <tr>
+              <th>Hash</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody>{loadTableBody()}</tbody>
+        </table>
+      </div>
+    );
+  };
+
   const loadTableBody = () => {
     return history.map(tx => {
       // For some reason this API returns tx.hash instead of tx.tx_id like the others
       const rowTx = { ...tx };
       rowTx.tx_id = rowTx.hash;
-      return <TxRow key={rowTx.tx_id} tx={rowTx} />;
+      return <TxRow key={rowTx.tx_id} tx={rowTx} ellipsis={!!isMobile} />;
     });
   };
 
@@ -256,12 +275,66 @@ function NanoContractHistory({ ncId }) {
     );
   };
 
-  return (
+  const loadNewUiPagination = () => {
+    if (history.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="tx-pagination-btn">
+        <Link
+          className={
+            !hasBefore || history.length === 0 ? 'page-link-btn-disable' : 'page-link-btn-enable'
+          }
+          to={pagination.setURLParameters({ hash: history[0].hash, page: 'previous' })}
+        >
+          <button
+            className={
+              !hasBefore || history.length === 0
+                ? 'tx-previous-btn disable-button'
+                : 'tx-next-btn tx-disabled'
+            }
+            disabled={!hasBefore || history.length === 0}
+          >
+            Previous
+          </button>
+        </Link>
+        <Link
+          className={
+            !hasAfter || history.length === 0 ? 'page-link-btn-disable' : 'page-link-btn-enable'
+          }
+          to={pagination.setURLParameters({ hash: history.slice(-1).pop().hash, page: 'next' })}
+        >
+          <button
+            className={
+              !hasAfter || history.length === 0
+                ? 'tx-previous-btn disable-button'
+                : 'tx-next-btn tx-enable'
+            }
+            disabled={!hasAfter || history.length === 0}
+          >
+            Next
+          </button>
+        </Link>
+      </div>
+    );
+  };
+
+  const renderUi = () => (
     <div className="w-100">
       {loadTable()}
       {loadPagination()}
     </div>
   );
+
+  const renderNewUi = () => (
+    <div className="w-100">
+      {loadNewUiTable()}
+      {loadNewUiPagination()}
+    </div>
+  );
+
+  return newUiEnabled ? renderNewUi() : renderUi();
 }
 
 export default NanoContractHistory;

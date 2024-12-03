@@ -8,6 +8,9 @@
 import React, { useRef, useState } from 'react';
 import TxTextInput from '../components/tx/TxTextInput';
 import txApi from '../api/txApi';
+import { useNewUiEnabled } from '../hooks';
+import { ReactComponent as InfoIcon } from '../assets/images/icon-info.svg';
+import NewHathorAlert from '../components/NewHathorAlert';
 
 function PushTx() {
   const [success, setSuccess] = useState(false);
@@ -17,6 +20,14 @@ function PushTx() {
   const [dataToPush, setDataToPush] = useState('');
 
   const textRef = useRef();
+
+  const alertNotFound = useRef(null);
+
+  const newUiEnabled = useNewUiEnabled();
+
+  const showSuccess = () => {
+    alertNotFound.current.show(3000);
+  };
 
   async function buttonClicked() {
     setSuccess(false);
@@ -30,6 +41,7 @@ function PushTx() {
     } else {
       setErrorMessage(data.message);
       setCanForce(data.can_force);
+      showSuccess();
     }
   }
 
@@ -57,24 +69,89 @@ function PushTx() {
     );
   };
 
-  return (
-    <div className="content-wrapper">
-      <TxTextInput
-        ref={textRef}
-        buttonClicked={buttonClicked}
-        action="Push tx"
-        onChange={handleChangeData}
-        otherAction="decode"
-        link="/decode-tx/"
-        helpText="Write your transaction in hex value and click the button to send it to the network. (We do not push blocks to the network, only transactions)"
-      />
-      {canForce ? renderForceCheckbox() : null}
-      {success ? (
-        <span className="text-success">Transaction pushed to the network with success!</span>
-      ) : null}
-      {errorMessage ? <span className="text-danger">{errorMessage}</span> : null}
-    </div>
-  );
+  const renderUi = () => {
+    return (
+      <div className="content-wrapper">
+        <TxTextInput
+          ref={textRef}
+          buttonClicked={buttonClicked}
+          action="Push tx"
+          onChange={handleChangeData}
+          otherAction="decode"
+          link="/decode-tx/"
+          helpText="Write your transaction in hex value and click the button to send it to the network. (We do not push blocks to the network, only transactions)"
+        />
+        {canForce ? renderForceCheckbox() : null}
+        {success ? (
+          <span className="text-success">Transaction pushed to the network with success!</span>
+        ) : null}
+        {errorMessage ? <span className="text-danger">{errorMessage}</span> : null}
+      </div>
+    );
+  };
+
+  const renderNewUi = () => {
+    return (
+      <div className="section-tables-stylized">
+        <h2 className="title-page">
+          Push Transaction <InfoIcon style={{ marginLeft: '5px', width: '14px', height: '14px' }} />
+        </h2>
+        <TxTextInput
+          ref={textRef}
+          buttonClicked={buttonClicked}
+          action="Push Transaction"
+          onChange={handleChangeData}
+          otherAction="decode"
+          link="/decode-tx/"
+          newUiEnabled
+          placeholder="E.g.: XXXXXXXX"
+          helpText={
+            <div className="pushtx-helptext">
+              <span>
+                Write your transaction in hex value and click the button to send it to the network.
+              </span>
+              <div className="pushtx-note">
+                <div
+                  style={{
+                    width: '12px',
+                    height: '12px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <InfoIcon width={12} height={12} />
+                </div>
+
+                <span> We do not push blocks to the network, only transactions</span>
+              </div>
+            </div>
+          }
+        />
+        {canForce ? renderForceCheckbox() : null}
+        {success ? (
+          <span className="text-success">Transaction pushed to the network with success!</span>
+        ) : null}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: '100%',
+            marginTop: '20px',
+          }}
+        >
+          <NewHathorAlert
+            type="error"
+            text="Could not decode this data to a transaction"
+            ref={alertNotFound}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  return newUiEnabled ? renderNewUi() : renderUi();
 }
 
 export default PushTx;
