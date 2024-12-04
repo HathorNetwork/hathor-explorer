@@ -21,7 +21,7 @@ export const DropDetails = ({ title, startOpen, onToggle, children }) => {
     if (startOpen) {
       setOpen(true);
     }
-  }, []);
+  }, [startOpen]);
 
   /**
    * Toggles the open/close state of the dropdown and calls the optional onT callback.
