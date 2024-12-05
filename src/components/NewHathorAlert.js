@@ -51,7 +51,6 @@ const NewHathorAlert = forwardRef(({ type, text, showAlert }, ref) => {
       alertDiv.current.classList.remove('show');
     }
   }, [showAlert]);
-  
 
   useImperativeHandle(ref, () => ({
     show,
