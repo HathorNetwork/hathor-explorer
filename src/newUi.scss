@@ -1743,6 +1743,26 @@ nav {
   }
 }
 
+
+@media ((max-width: 1250px)) {
+  .features-table-container {
+    overflow-x: auto;
+
+    .table-responsive {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+    
+      .table-stylized {
+        min-width: 980px;
+        width: 100%;
+        border-collapse: collapse;
+      }
+    }
+  }
+}
+
 @media ((max-width: 1200px)) {
 }
 
@@ -3249,7 +3269,6 @@ th.sortable {
 
 .address-container-title {
   width: 100%;
-  max-width: 120px;
   margin-right: 16px;
   color: var(--bold-text-color);
   font-size: 'Mona Sans', sans-serif;
@@ -3431,6 +3450,19 @@ th.sortable {
 }
 
 @media screen and (max-width: 850px) {
+  .features-table-container {
+    overflow-x: hidden;
+    .table-responsive {
+      overflow-x: hidden;
+      overflow-y: hidden;
+    
+      .table-stylized {
+        min-width: 100%;
+        width: 100%;
+      }
+    }
+  }
+
   .tables-container {
     flex-flow: column nowrap;
   }

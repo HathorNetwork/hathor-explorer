@@ -141,11 +141,7 @@ function PushTx() {
             marginTop: '20px',
           }}
         >
-          <NewHathorAlert
-            type="error"
-            text="Could not decode this data to a transaction"
-            ref={alertNotFound}
-          />
+          <NewHathorAlert type="error" text={errorMessage} ref={alertNotFound} />
         </div>
       </div>
     );

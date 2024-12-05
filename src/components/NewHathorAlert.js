@@ -42,14 +42,16 @@ const NewHathorAlert = forwardRef(({ type, text, showAlert }, ref) => {
   };
 
   useEffect(() => {
-    if (showAlert !== undefined) {
-      if (showAlert) {
-        alertDiv.current.classList.add('show');
-      } else {
-        alertDiv.current.classList.remove('show');
-      }
+    if (showAlert === undefined) {
+      return;
+    }
+    if (showAlert) {
+      alertDiv.current.classList.add('show');
+    } else {
+      alertDiv.current.classList.remove('show');
     }
   }, [showAlert]);
+  
 
   useImperativeHandle(ref, () => ({
     show,

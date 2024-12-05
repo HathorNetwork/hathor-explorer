@@ -117,7 +117,7 @@ class Features extends React.Component {
   ];
 
   toggleColumnDescriptions = e => {
-    if (this.props.newUiEnabled === false) {
+    if (e) {
       e.preventDefault();
     }
     this.setState({ showColumnDescriptions: !this.state.showColumnDescriptions });
@@ -278,24 +278,26 @@ class Features extends React.Component {
 
     const loadTable = () => {
       return (
-        <div className="table-responsive mt-5">
-          <table className=" table-stylized table-features" id="features-table">
-            <thead>
-              <tr>
-                <th className="d-lg-table-cell">Name</th>
-                <th className="d-lg-table-cell">State</th>
-                <th className="d-lg-table-cell td-mobile">Acceptance</th>
-                <th className="d-lg-table-cell td-mobile">Threshold</th>
-                <th className="d-lg-table-cell td-mobile">Start Height</th>
-                <th className="d-lg-table-cell td-mobile">Minimum Activation Height</th>
-                <th className="d-lg-table-cell td-mobile">Timeout Height</th>
-                <th className="d-lg-table-cell td-mobile">Lock-in on Timeout</th>
-                <th className="d-lg-table-cell td-mobile">Since Version</th>
-                <th className="d-lg-table-cell arrow-td-mobile"></th>
-              </tr>
-            </thead>
-            <tbody> {loadTableBody()} </tbody>
-          </table>
+        <div className="features-table-container">
+          <div className="table-responsive">
+            <table className=" table-stylized table-features" id="features-table">
+              <thead>
+                <tr>
+                  <th className="d-lg-table-cell">Name</th>
+                  <th className="d-lg-table-cell">State</th>
+                  <th className="d-lg-table-cell td-mobile">Acceptance</th>
+                  <th className="d-lg-table-cell td-mobile">Threshold</th>
+                  <th className="d-lg-table-cell td-mobile">Start Height</th>
+                  <th className="d-lg-table-cell td-mobile">Minimum Activation Height</th>
+                  <th className="d-lg-table-cell td-mobile">Timeout Height</th>
+                  <th className="d-lg-table-cell td-mobile">Lock-in on Timeout</th>
+                  <th className="d-lg-table-cell td-mobile">Since Version</th>
+                  <th className="d-lg-table-cell arrow-td-mobile"></th>
+                </tr>
+              </thead>
+              <tbody>{loadTableBody()}</tbody>
+            </table>
+          </div>
         </div>
       );
     };
@@ -333,7 +335,10 @@ class Features extends React.Component {
             loadTable()
           )}
 
-          <DropDetails title="Column descriptions:" onT={e => this.toggleColumnDescriptions(e)}>
+          <DropDetails
+            title="Column descriptions:"
+            onToggle={e => this.toggleColumnDescriptions(e)}
+          >
             <div className="features-page-container">
               {this.state.showColumnDescriptions && loadColumnDescriptions()}
             </div>

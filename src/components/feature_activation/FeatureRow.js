@@ -5,14 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { numberUtils } from '@hathor/wallet-lib';
 import featureActivation from '../../utils/featureActivation';
 import { ReactComponent as RowDown } from '../../assets/images/chevron-up.svg';
 import { useNewUiEnabled } from '../../hooks/useNewUiEnabled';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 const FeatureRow = ({ feature }) => {
   const [open, setOpen] = useState(false);
+
+  const isMobile = useIsMobile();
+
+  useEffect(() => {
+    if (!isMobile) {
+      setOpen(false);
+    }
+  }, [isMobile]);
 
   const {
     acceptance,
@@ -77,7 +86,7 @@ const FeatureRow = ({ feature }) => {
             className="drop-arrow-color"
             width="24px"
             height="24px"
-            style={{ transform: open ? 'rotate(180deg)' : '' }}
+            style={{ transform: !open ? 'rotate(180deg)' : '' }}
           />
         </td>
       </tr>
@@ -92,7 +101,6 @@ const FeatureRow = ({ feature }) => {
             </td>
             <td></td>
           </tr>
-
           <tr className="tr-features-details">
             <td>
               <div className="address-container-title">threshold</div>{' '}
@@ -102,7 +110,6 @@ const FeatureRow = ({ feature }) => {
             </td>
             <td></td>
           </tr>
-
           <tr className="tr-features-details">
             <td>
               <div className="address-container-title">start height</div>{' '}
@@ -112,7 +119,6 @@ const FeatureRow = ({ feature }) => {
             </td>
             <td></td>
           </tr>
-
           <tr className="tr-features-details">
             <td>
               <div className="address-container-title">minimum activ.height</div>{' '}
@@ -122,7 +128,6 @@ const FeatureRow = ({ feature }) => {
             </td>
             <td></td>
           </tr>
-
           <tr className="tr-features-details">
             <td>
               <div className="address-container-title">lock-in on timeout</div>{' '}
@@ -132,7 +137,6 @@ const FeatureRow = ({ feature }) => {
             </td>
             <td></td>
           </tr>
-
           <tr className="tr-features-details">
             <td>
               <div className="address-container-title">since version</div>

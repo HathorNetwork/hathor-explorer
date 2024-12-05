@@ -15,13 +15,7 @@ import { ReactComponent as RowDown } from '../assets/images/chevron-up.svg';
  * @returns {JSX.Element} The DropDetails component, which includes a title and a collapsible body.
  */
 export const DropDetails = ({ title, startOpen, onToggle, children }) => {
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    if (startOpen) {
-      setOpen(true);
-    }
-  }, [startOpen]);
+  const [open, setOpen] = useState(startOpen ?? false);
 
   /**
    * Toggles the open/close state of the dropdown and calls the optional onT callback.

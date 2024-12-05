@@ -38,7 +38,7 @@ class DagComponent extends React.Component {
     this.startTxX = 2 * this.txMargin;
 
     // Svg height
-    this.height = this.props.newUiEnabled ? '100%' : 600;
+    this.height = this.props.newUiEnabled ? 200 : 600;
 
     // Y position of blocks
     this.blockY = this.height / 2;
