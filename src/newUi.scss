@@ -1743,21 +1743,44 @@ nav {
   }
 }
 
-
 @media ((max-width: 1250px)) {
   .features-table-container {
     overflow-x: auto;
+
+    // .address-container-title {
+    //   width: 100%;
+    //   max-width: 120px;
+    //   margin-right: 16px;
+    //   color: var(--bold-text-color);
+    //   font-size: 'Mona Sans', sans-serif;
+    //   text-transform: uppercase;
+    //   font-size: 12px;
+    //   font-weight: 700;
+    //   line-height: 16px;
+    //   letter-spacing: 0.03em;
+    //   text-align: left;
+    // }
 
     .table-responsive {
       display: block;
       width: 100%;
       overflow-x: auto;
       overflow-y: hidden;
-    
+
       .table-stylized {
         min-width: 980px;
         width: 100%;
         border-collapse: collapse;
+
+        tbody {
+          tr {
+            td {
+              div {
+                max-width: 100%;
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -3269,6 +3292,7 @@ th.sortable {
 
 .address-container-title {
   width: 100%;
+  max-width: 120px;
   margin-right: 16px;
   color: var(--bold-text-color);
   font-size: 'Mona Sans', sans-serif;
@@ -3455,7 +3479,7 @@ th.sortable {
     .table-responsive {
       overflow-x: hidden;
       overflow-y: hidden;
-    
+
       .table-stylized {
         min-width: 100%;
         width: 100%;
