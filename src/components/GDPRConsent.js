@@ -10,13 +10,15 @@ import React, { useEffect } from 'react';
 import CookieConsent from 'react-cookie-consent';
 import TagManager from 'react-gtm-module';
 import { GTM_ID } from '../constants';
-import { useNewUiEnabled } from '../hooks';
+import { useIsMobile, useNewUiEnabled } from '../hooks';
 
 const GDPRConsent = () => {
   const newUiEnabled = useNewUiEnabled();
+  const isMobile = useIsMobile();
 
   const newUiStyle = {
-    maxWidth: '718px',
+    display: isMobile ? 'grid' : 'flex',
+    maxWidth: '750px',
     width: '95%',
     borderRadius: '8px',
     backgroundColor: '#4E667499',
@@ -48,16 +50,21 @@ const GDPRConsent = () => {
         buttonWrapperClasses="mx-auto"
         buttonClasses="btn btn-hathor m-3"
       >
-        This website uses cookies to ensure you get the best experience on our website.
-        <a
-          style={{ fontWeight: 'bold', color: '#191C21', textDecoration: 'underline' }}
-          href="https://hathor.network/terms-and-conditions/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn more
-        </a>
-        .
+        <div className="cookie-info-container">
+          <p className="cookie-text">
+            This website uses cookies to ensure you get the best experience on our website.
+          </p>
+          <a
+            style={{ fontWeight: 'bold', color: '#191C21' }}
+            href="https://hathor.network/terms-and-conditions/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <p style={{ whiteSpace: 'nowrap' }} className="cookie-text">
+              Learn more
+            </p>
+          </a>
+        </div>
       </CookieConsent>
     );
   };
