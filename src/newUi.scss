@@ -942,6 +942,24 @@ nav {
   margin: 16px 0;
 }
 
+.alert-success-container-big {
+  background-color: var(--span-green-background);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--bold-text-color);
+  padding: 4px 12px;
+  gap: 4px;
+  border-radius: 10px;
+  border: 1px solid var(--span-green-border);
+  margin: 16px 0;
+}
+
+.alert-success-container-big p {
+  max-width: 300px;
+}
+
 .alert-success {
   background-color: var(--span-green-background);
 }
@@ -950,6 +968,10 @@ nav {
   background-color: var(--span-red-background);
   border: 1px solid var(--span-red-border);
   color: var(--bold-text-color);
+}
+
+.alert-double-spending {
+  padding: 20px;
 }
 
 .link-first-block {
@@ -995,6 +1017,9 @@ nav {
   text-align: left;
   white-space: wrap;
   word-break: break-word;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.03em;
 }
 
 .details-title {
@@ -1560,6 +1585,201 @@ nav {
   }
 }
 
+.blueprint-content-wrapper {
+  margin: 64px;
+
+  & h3 {
+    font-family: 'Mona Sans';
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 24px;
+    letter-spacing: 0.03em;
+    color: var(--bold-text-color);
+    margin-bottom: 26px;
+  }
+}
+
+.blueprint-id-name-info {
+  margin: 0;
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+
+  strong {
+    font-family: 'Mona Sans';
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 16px;
+    letter-spacing: 0.03em;
+    color: var(--purple-text);
+  }
+
+  span {
+    font-family: 'San Francisco Pro';
+    font-size: 14px;
+    font-weight: 200;
+    line-height: 20px;
+    letter-spacing: 0.03em;
+    color: var(--bold-text-color);
+    word-break: break-all;
+
+    :root[data-theme='theme-light'] & span {
+      font-weight: 900;
+    }
+
+    a {
+      color: #8c46ff;
+    }
+  }
+}
+
+.blueprint-attributes {
+  padding: 24px;
+  background-color: var(--background-focus);
+  gap: 24px;
+  border-radius: 8px;
+  margin-top: 32px;
+  border: 1px solid var(--border-color);
+
+  h4 {
+    font-family: 'Mona Sans';
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 24px;
+    text-align: left;
+    letter-spacing: 0.03em;
+    color: var(--bold-text-color);
+  }
+}
+
+.blueprint-attrubutes-table {
+  .table-stylized {
+    thead {
+      tr {
+        th:nth-child(1) {
+          width: 20%;
+        }
+
+        th:nth-child(2) {
+          width: 80%;
+        }
+      }
+    }
+
+    tbody {
+      tr {
+        td:nth-child(1) {
+          width: 20%;
+        }
+
+        td:nth-child(2) {
+          width: 80%;
+        }
+      }
+    }
+  }
+}
+
+.blueprint-methods-table {
+  .table-stylized {
+    thead {
+      .blueprint-table-methods-header {
+        font-size: 22px;
+      }
+
+      tr {
+        border-bottom: none;
+        th {
+          font-family: 'Mona Sans';
+          font-size: 20px;
+          font-weight: 700;
+          line-height: 24px;
+          letter-spacing: 0.03em;
+          color: var(--bold-text-color);
+          padding: 0px 0px 16px 0px;
+          text-transform: none;
+        }
+      }
+    }
+  }
+}
+
+.blueprint-methods-container {
+  display: flex;
+  gap: 16px;
+}
+
+.blueprint-methods {
+  padding: 24px;
+  background-color: var(--background-focus);
+  gap: 24px;
+  border-radius: 8px;
+  margin-top: 32px;
+  border: 1px solid var(--border-color);
+  height: fit-content;
+}
+
+.blueprint-source-code {
+  margin-top: 32px;
+  height: fit-content;
+
+  .language-python {
+    background-color: transparent;
+    color: var(--bold-text-color);
+    white-space: pre-wrap;
+  }
+}
+
+.nano-history {
+  margin-top: 32px;
+  color: var(--normal-text-color);
+  font-family: 'Mona Sans ', sans-serif;
+  background-color: var(--background-color);
+
+  .new-table,
+  #tx-table tbody tr td,
+  #tx-table thead th {
+    text-align: left;
+  }
+}
+
+@media ((max-width: 1250px)) {
+  .features-table-container {
+    overflow-x: auto;
+
+    .table-responsive {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+
+      .table-stylized {
+        min-width: 980px;
+        width: 100%;
+        border-collapse: collapse;
+
+        thead {
+          tr {
+            th {
+              width: 120px;
+            }
+          }
+        }
+
+        tbody {
+          tr {
+            td {
+              .address-container-title {
+                max-width: 100%;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 @media ((max-width: 1200px)) {
 }
 
@@ -1707,6 +1927,22 @@ nav {
     }
   }
 
+  .nano-history {
+    .new-table {
+      background-color: var(--background-color);
+      width: 100%;
+
+      & td {
+        padding: 20px 0px 20px 0px;
+        border-top: 1px solid var(--border-color);
+      }
+
+      & tbody td {
+        width: 60%;
+      }
+    }
+  }
+
   .network-wrapper {
     margin: 16px;
   }
@@ -1786,6 +2022,43 @@ nav {
     button {
       flex: 0;
     }
+  }
+
+  .blueprint-content-wrapper {
+    margin: 16px;
+  }
+
+  .blueprint-attrubutes-table {
+    .table-stylized {
+      thead {
+        tr {
+          th:nth-child(1) {
+            width: 40%;
+          }
+
+          th:nth-child(2) {
+            width: 60%;
+          }
+        }
+      }
+
+      tbody {
+        tr {
+          td:nth-child(1) {
+            width: 40%;
+          }
+
+          td:nth-child(2) {
+            width: 60%;
+          }
+        }
+      }
+    }
+  }
+
+  .blueprint-methods-container {
+    flex-direction: column;
+    gap: 0;
   }
 }
 
@@ -3019,7 +3292,10 @@ th.sortable {
   font-size: 'Mona Sans', sans-serif;
   text-transform: uppercase;
   font-size: 12px;
-  font-weight: bold;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0.03em;
+  text-align: left;
 }
 
 .tr-features-details {
@@ -3029,6 +3305,11 @@ th.sortable {
 
 .summary-balance-info-container {
   word-break: break-word;
+  font-family: 'San Francisco Pro', sans-serif;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.03em;
+  text-align: left;
 }
 
 .token-option {
@@ -3084,6 +3365,14 @@ th.sortable {
   display: flex;
   flex-direction: row;
   align-items: center;
+}
+
+.container-big-links {
+  word-break: break-all;
+
+  a {
+    color: #8c46ff;
+  }
 }
 
 @media ((max-width: 1100px)) {
@@ -3146,6 +3435,11 @@ th.sortable {
       }
     }
   }
+
+  .alert-success-container-big {
+    flex-direction: column;
+    text-align: center;
+  }
 }
 
 @media screen and (max-width: 900px) {
@@ -3174,6 +3468,19 @@ th.sortable {
 }
 
 @media screen and (max-width: 850px) {
+  .features-table-container {
+    overflow-x: hidden;
+    .table-responsive {
+      overflow-x: hidden;
+      overflow-y: hidden;
+
+      .table-stylized {
+        min-width: 100%;
+        width: 100%;
+      }
+    }
+  }
+
   .tables-container {
     flex-flow: column nowrap;
   }
@@ -3260,8 +3567,6 @@ th.sortable {
 
   .address-div > p {
     text-align: center;
-    margin: 0;
-    width: 70%;
   }
 
   .tx-drop-container-div {
@@ -3299,5 +3604,17 @@ th.sortable {
 
   .table-features td {
     word-break: break-all;
+  }
+
+  .alert-success-container-big {
+    gap: 20px;
+    justify-content: space-around;
+  }
+
+  .alert-success-container-big p {
+    max-width: 100%;
+  }
+
+  .container-big-links span {
   }
 }

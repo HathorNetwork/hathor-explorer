@@ -15,7 +15,7 @@ import { ReactComponent as RowDown } from '../assets/images/chevron-up.svg';
  * @returns {JSX.Element} The DropDetails component, which includes a title and a collapsible body.
  */
 export const DropDetails = ({ title, startOpen, onToggle, children }) => {
-  const [open, setOpen] = useState(startOpen);
+  const [open, setOpen] = useState(startOpen ?? false);
 
   /**
    * Toggles the open/close state of the dropdown and calls the optional onT callback.
@@ -36,7 +36,7 @@ export const DropDetails = ({ title, startOpen, onToggle, children }) => {
             className="drop-arrow-color"
             width="24px"
             height="24px"
-            style={{ transform: `${open ? 'rotate(180deg)' : ''}` }}
+            style={{ transform: `${!open ? 'rotate(180deg)' : ''}` }}
           />
         </div>
       </div>
