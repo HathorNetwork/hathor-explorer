@@ -235,10 +235,6 @@ class Features extends React.Component {
     );
   }
 
-  hasBefore = () => this.state.page > 1;
-
-  hasAfter = () => this.state.page < this.state.pages.length;
-
   renderNewUi() {
     const loadPagination = () => {
       if (this.state.pages.length === 0) {
