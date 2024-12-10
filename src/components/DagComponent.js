@@ -38,7 +38,7 @@ class DagComponent extends React.Component {
     this.startTxX = 2 * this.txMargin;
 
     // Svg height
-    this.height = this.props.newUiEnabled ? '100%' : 600;
+    this.height = this.props.newUiEnabled ? 200 : 600;
 
     // Y position of blocks
     this.blockY = this.height / 2;
@@ -78,12 +78,7 @@ class DagComponent extends React.Component {
 
   componentDidMount() {
     this.tooltip = select('.tooltip').style('opacity', 0);
-
-    if (this.props.newUiEnabled) {
-      this.newDrawGraph();
-    } else {
-      this.drawGraph();
-    }
+    this.drawGraph();
   }
 
   getTxY() {
@@ -417,10 +412,10 @@ class DagComponent extends React.Component {
 
   drawGraph() {
     // Setting svg width depending on the window size
-    this.width = Math.min(960, this.refs.dagWrapper.offsetWidth);
+    this.width = this.props.newUiEnabled ? '100%' : Math.min(960, this.refs.dagWrapper.offsetWidth);
 
     // Create svg and auxiliar g elements
-    this.svg = select('svg')
+    this.svg = select(this.props.newUiEnabled ? '#graph' : 'svg')
       .attr('width', this.width)
       .attr('height', this.height);
 

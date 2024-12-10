@@ -447,6 +447,30 @@ class TxData extends React.Component {
     };
 
     const renderListWithLinks = (hashes, textDark) => {
+      // newUi
+      if (this.props.newUiEnabled) {
+        if (hashes.length === 0) {
+          return null;
+        }
+        if (hashes.length === 1) {
+          const h = hashes[0];
+          return (
+            <Link to={`/transaction/${h}`}>
+              {' '}
+              {h} {h === this.props.transaction.hash && ' (Current transaction)'}
+            </Link>
+          );
+        }
+        const v = hashes.map(h => (
+          <li key={h}>
+            <Link to={`/transaction/${h}`}>
+              {h} {h === this.props.transaction.hash && ' (Current transaction)'}
+            </Link>
+          </li>
+        ));
+        return <ul>{v}</ul>;
+      }
+      // originalUi
       if (hashes.length === 0) {
         return null;
       }
