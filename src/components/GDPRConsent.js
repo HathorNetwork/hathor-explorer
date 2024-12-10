@@ -55,12 +55,20 @@ const GDPRConsent = () => {
             This website uses cookies to ensure you get the best experience on our website.
           </p>
           <a
-            style={{ fontWeight: 'bold', color: '#191C21' }}
+            style={{ color: '#191C21' }}
             href="https://hathor.network/terms-and-conditions/"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <p style={{ whiteSpace: 'nowrap' }} className="cookie-text">
+            <p
+              style={{
+                whiteSpace: 'nowrap',
+                textDecoration: 'underline',
+                textUnderlineOffset: '2px',
+                fontWeight: 'bold',
+              }}
+              className="cookie-text"
+            >
               Learn more
             </p>
           </a>
