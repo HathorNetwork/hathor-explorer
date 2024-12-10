@@ -528,9 +528,9 @@ class TxData extends React.Component {
       return (
         <table className="table-details">
           <tbody>
-            {hashes.map(h => (
+            {hashes.map((h, index) => (
               <tr className="tr-details" key={h}>
-                <td>
+                <td className={index === hashes.length - 1 ? 'tr-details-last-cell' : ''}>
                   <Link to={`/transaction/${h}`}>{h}</Link>
                 </td>
               </tr>
