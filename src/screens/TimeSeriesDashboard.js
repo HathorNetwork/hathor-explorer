@@ -26,17 +26,7 @@ const TimeSeriesDashboard = () => {
     </div>
   );
 
-  const renderNewUi = () => (
-    <div>
-      <TimeSeries
-        featureFlag={featureFlag}
-        maintenanceMode={maintenanceMode}
-        newUiEnabled={newUiEnabled}
-      />
-    </div>
-  );
-
-  return newUiEnabled ? renderNewUi() : renderUi();
+  return renderUi();
 };
 
 export default TimeSeriesDashboard;

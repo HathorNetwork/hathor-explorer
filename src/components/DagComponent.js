@@ -365,51 +365,6 @@ class DagComponent extends React.Component {
       });
   }
 
-  newDrawGraph() {
-    // Setting svg width depending on the window size
-    this.width = this.props.newUiEnabled ? '100%' : Math.min(960, this.refs.dagWrapper.offsetWidth);
-
-    // Create svg and auxiliar g elements
-    this.svg = select('#graph')
-      .attr('width', this.width)
-      .attr('height', this.height);
-
-    this.gMain = this.svg.append('g').classed('g-main', true);
-
-    this.gMain
-      .append('rect')
-      .attr('width', this.width)
-      .attr('height', this.height)
-      .style('fill', 'white');
-
-    this.gDraw = this.gMain.append('g');
-
-    this.gThrottleBg = this.gDraw.append('g');
-    this.gLinks = this.gDraw.append('g');
-    this.gTxs = this.gDraw.append('g');
-    this.gBlocks = this.gDraw.append('g');
-
-    // Adding zoom handler
-    this.zoomCall = zoom().on('zoom', this.zoomed);
-
-    this.gMain.call(this.zoomCall);
-
-    // Handle initial data translating in the end to last X
-    let maxX = 0;
-
-    for (const tx of this.props.txs) {
-      const newX = this.newData(tx, false, true);
-      maxX = Math.max(maxX, newX);
-    }
-
-    for (const block of this.props.blocks) {
-      const newX = this.newData(block, true, true);
-      maxX = Math.max(maxX, newX);
-    }
-
-    this.translateGraph(maxX);
-  }
-
   drawGraph() {
     // Setting svg width depending on the window size
     this.width = this.props.newUiEnabled ? '100%' : Math.min(960, this.refs.dagWrapper.offsetWidth);
