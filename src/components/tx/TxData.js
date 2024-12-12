@@ -689,7 +689,7 @@ class TxData extends React.Component {
               <span>
                 This {renderBlockOrTransaction()} is voided because of these transactions:{' '}
               </span>
-              {renderListWithLinks(conflictNotTwin, true)}
+              {renderListWithLinks(this.props.meta.voided_by, true)}
             </div>
           </div>
         );
