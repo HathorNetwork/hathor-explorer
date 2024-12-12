@@ -603,7 +603,7 @@ class TxData extends React.Component {
           </h4>
           <div>
             <span>It is voided by: </span>
-            {renderListWithLinks(conflictNotTwin, true)}
+            {renderListWithLinks(this.props.meta.voided_by, true)}
           </div>
           <hr />
           {conflictNotTwin.length > 0 && (
@@ -695,13 +695,13 @@ class TxData extends React.Component {
 
       // it is voided, and there is a conflict
       return (
-        <div className="alert alert-danger">
+        <div className="alert alert-danger alert-invalid">
           <h4 className="alert-heading">
             This {renderBlockOrTransaction()} is <strong>NOT</strong> valid.
           </h4>
           <div>
             <span>It is voided by: </span>
-            {renderListWithLinks(conflictNotTwin, true)}
+            {renderListWithLinks(this.props.meta.voided_by, true)}
           </div>
           <hr />
           {conflictNotTwin.length > 0 && (

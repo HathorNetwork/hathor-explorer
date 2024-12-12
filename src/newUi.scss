@@ -962,6 +962,13 @@ nav {
   margin: 16px 0;
 }
 
+.alert-invalid {
+  background-color: rgba(202, 43, 43, 0.484);
+  border: 1px solid var(--span-red-border);
+  color: var(--bold-text-color);
+  margin-top: 20px;
+}
+
 .alert-success-container-big p {
   max-width: 300px;
 }
