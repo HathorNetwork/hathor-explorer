@@ -39,7 +39,7 @@ $secondary-color-dark: #191c21;
   --border-color: #b7bfc7;
   --alter-border-color: #b7bfc7;
   --span-red-background: #fbebe9;
-  --span-green-background: #44a32e;
+  --span-green-background: #43a32e6f;
   --span-purple-background: rgba(232, 218, 255, 1);
   --span-green-border: #44a32e;
   --span-red-border: #ff7966;
@@ -952,7 +952,7 @@ nav {
   background-color: var(--span-green-background);
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex;
   justify-content: space-between;
   color: var(--bold-text-color);
   padding: 4px 12px;

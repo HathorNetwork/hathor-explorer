@@ -523,7 +523,6 @@ class TxData extends React.Component {
     };
 
     const renderTwins = () => {
-      const conflictNotTwin = this.props.meta.conflict_with.length;
       if (!this.props.meta.twins.length) {
         return null;
       }
@@ -531,7 +530,7 @@ class TxData extends React.Component {
         <div>
           This transaction has twin{' '}
           {helpers.plural(this.props.meta.twins.length, 'transaction', 'transactions')}:{' '}
-          {renderListWithLinks(conflictNotTwin, true)}
+          {renderListWithLinks(this.props.meta.twins, true)}
         </div>
       );
     };
@@ -589,7 +588,7 @@ class TxData extends React.Component {
               <span>
                 This {renderBlockOrTransaction()} is voided because of these transactions:{' '}
               </span>
-              {renderListWithLinks(conflictNotTwin, true)}
+              {renderListWithLinks(this.props.meta.voided_by, true)}
             </div>
           </div>
         );
@@ -675,10 +674,13 @@ class TxData extends React.Component {
       if (!this.props.meta.conflict_with.length) {
         // it is voided, but there is no conflict
         return (
-          <div className="alert alert-danger">
-            <h4 className="alert-heading">
-              This {renderBlockOrTransaction()} is voided and <strong>NOT</strong> valid.
-            </h4>
+          <div className="alert alert-double-spending alert-invalid">
+            <div>
+              <span>
+                This {renderBlockOrTransaction()} is voided and <strong>NOT</strong> valid.
+              </span>
+            </div>
+
             <p>
               This {renderBlockOrTransaction()} is verifying (directly or indirectly) a voided
               double-spending transaction, hence it is voided as well.
@@ -695,15 +697,18 @@ class TxData extends React.Component {
 
       // it is voided, and there is a conflict
       return (
-        <div className="alert alert-danger alert-invalid">
-          <h4 className="alert-heading">
-            This {renderBlockOrTransaction()} is <strong>NOT</strong> valid.
-          </h4>
+        <div className="alert alert-double-spending alert-invalid">
           <div>
+            <span>
+              This {renderBlockOrTransaction()} is <strong>NOT</strong> valid.
+            </span>
+          </div>
+
+          <div style={{ textAlign: 'left' }}>
             <span>It is voided by: </span>
             {renderListWithLinks(this.props.meta.voided_by, true)}
           </div>
-          <hr />
+
           {conflictNotTwin.length > 0 && (
             <div className="mb-0">
               <span>Conflicts with: </span>
