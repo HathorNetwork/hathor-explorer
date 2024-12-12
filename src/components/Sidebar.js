@@ -33,7 +33,7 @@ function Sidebar({ close, open }) {
   const sidebarRef = useRef(null);
   const hathorNetwork = `Hathor ${REACT_APP_NETWORK}`;
   const [tokensOpen, setTokensOpen] = useState(false);
-  const [tollsOpen, setTollsOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = event => {
@@ -80,7 +80,7 @@ function Sidebar({ close, open }) {
           </div>
           <div className="aside-tabs-container">
             <ul className="navbar-nav me-auto">
-              <li className="nav-item">
+              <li className="nav-item item-sidebar">
                 <NavLink
                   to="/"
                   exact
@@ -123,7 +123,7 @@ function Sidebar({ close, open }) {
                   )}
                 </span>
               )}
-              <li className="nav-item">
+              <li className="nav-item item-sidebar">
                 <NavLink
                   to="/network"
                   exact
@@ -134,7 +134,7 @@ function Sidebar({ close, open }) {
                   Network
                 </NavLink>
               </li>
-              <li className="nav-item">
+              <li className="nav-item item-sidebar">
                 <NavLink
                   to="/statistics"
                   exact
@@ -145,15 +145,15 @@ function Sidebar({ close, open }) {
                   Statistics
                 </NavLink>
               </li>
-              <li className="nav-item">
-                <span onClick={() => setTollsOpen(!tollsOpen)}>
+              <li className="nav-item item-sidebar">
+                <span onClick={() => setToolsOpen(!toolsOpen)}>
                   Tools{' '}
                   <ArrorDownNavItem
-                    style={{ marginLeft: '5px', rotate: tollsOpen ? '180deg' : '0deg' }}
+                    style={{ marginLeft: '5px', rotate: toolsOpen ? '180deg' : '0deg' }}
                     className="dropdown-icon"
                   />
                 </span>
-                {tollsOpen && (
+                {toolsOpen && (
                   <div>
                     <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
                       <li>

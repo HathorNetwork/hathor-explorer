@@ -448,11 +448,11 @@ class TxData extends React.Component {
 
     const renderListWithLinks = (hashes, textDark) => {
       if (this.props.newUiEnabled) {
-        // Se a nova interface estiver ativa, delega para renderNewUiListWithLinks
+        // If the new interface is active, delegate to renderNewUiListWithLinks
         return renderNewUiListWithLinks(hashes);
       }
 
-      // Caso contrário, aplica a lógica da interface antiga
+      // Otherwise, apply the old interface logic
       if (hashes.length === 0) {
         return null;
       }
@@ -523,6 +523,7 @@ class TxData extends React.Component {
     };
 
     const renderTwins = () => {
+      const conflictNotTwin = this.props.meta.conflict_with.length;
       if (!this.props.meta.twins.length) {
         return null;
       }
@@ -530,7 +531,7 @@ class TxData extends React.Component {
         <div>
           This transaction has twin{' '}
           {helpers.plural(this.props.meta.twins.length, 'transaction', 'transactions')}:{' '}
-          {renderListWithLinks(this.props.meta.twins, true)}
+          {renderListWithLinks(conflictNotTwin, true)}
         </div>
       );
     };
@@ -563,7 +564,7 @@ class TxData extends React.Component {
               {conflictNotTwin.length > 0 && (
                 <div className="mb-0">
                   <span>Transactions double spending the same outputs as this transaction: </span>
-                  {renderListWithLinks(this.props.meta.twins, true)}
+                  {renderListWithLinks(conflictNotTwin, true)}
                 </div>
               )}
               {renderTwins()}
@@ -588,7 +589,7 @@ class TxData extends React.Component {
               <span>
                 This {renderBlockOrTransaction()} is voided because of these transactions:{' '}
               </span>
-              {renderListWithLinks(this.props.meta.twins, true)}
+              {renderListWithLinks(conflictNotTwin, true)}
             </div>
           </div>
         );
@@ -602,13 +603,13 @@ class TxData extends React.Component {
           </h4>
           <div>
             <span>It is voided by: </span>
-            {renderListWithLinks(this.props.meta.twins, true)}
+            {renderListWithLinks(conflictNotTwin, true)}
           </div>
           <hr />
           {conflictNotTwin.length > 0 && (
             <div className="mb-0">
               <span>Conflicts with: </span>
-              {renderListWithLinks(this.props.meta.twins, true)}
+              {renderListWithLinks(conflictNotTwin, true)}
             </div>
           )}
           {renderTwins()}
@@ -661,7 +662,7 @@ class TxData extends React.Component {
               {conflictNotTwin.length > 0 && (
                 <div className="container-big-links">
                   <span>Transactions double spending the same outputs as this transaction: </span>
-                  {renderListWithLinks(this.props.meta.twins, true)}
+                  {renderListWithLinks(conflictNotTwin, true)}
                 </div>
               )}
               {renderTwins()}
@@ -686,7 +687,7 @@ class TxData extends React.Component {
               <span>
                 This {renderBlockOrTransaction()} is voided because of these transactions:{' '}
               </span>
-              {renderListWithLinks(this.props.meta.twins, true)}
+              {renderListWithLinks(conflictNotTwin, true)}
             </div>
           </div>
         );
@@ -700,13 +701,13 @@ class TxData extends React.Component {
           </h4>
           <div>
             <span>It is voided by: </span>
-            {renderListWithLinks(this.props.meta.twins, true)}
+            {renderListWithLinks(conflictNotTwin, true)}
           </div>
           <hr />
           {conflictNotTwin.length > 0 && (
             <div className="mb-0">
               <span>Conflicts with: </span>
-              {renderListWithLinks(this.props.meta.twins, true)}
+              {renderListWithLinks(conflictNotTwin, true)}
             </div>
           )}
           {renderTwins()}
