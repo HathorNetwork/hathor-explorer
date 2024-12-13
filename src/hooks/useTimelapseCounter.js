@@ -14,7 +14,7 @@ const useTimelapseCounter = initialTimestamp => {
     const interval = setInterval(() => {
       const secondsAgo = Math.floor((Date.now() - initialTimestamp) / 1000);
       setRenderCount(secondsAgo);
-    }, 1000);
+    }, 200);
 
     return () => clearInterval(interval);
   }, [initialTimestamp]);

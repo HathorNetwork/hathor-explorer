@@ -15,7 +15,7 @@ import { useNewUiEnabled } from '../hooks';
 import helpers from '../utils/helpers';
 import TimeSeriesDashboard from './TimeSeriesDashboard';
 import blockApi from '../api/blockApi';
-import useTimelapseCounter from '../utils/useTimelapseCounter';
+import useTimelapseCounter from '../hooks/useTimelapseCounter';
 
 function Dashboard() {
   const newUiEnabled = useNewUiEnabled();
