@@ -112,9 +112,12 @@ class TokenAutoCompleteField extends React.Component {
    * @param {object} item
    */
   onItemSelected = item => {
+    // If the token is the native token, we shold clear the selected item
+    const isNativeToken = item.id === hathorLibConstants.NATIVE_TOKEN_UID;
+
     this.setState({
       searchResults: [],
-      selectedItem: item,
+      selectedItem: isNativeToken ? null : item,
     });
 
     this.props.onTokenSelected(item);
