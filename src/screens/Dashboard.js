@@ -6,7 +6,6 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { get } from 'lodash';
 import { useSelector } from 'react-redux';
 import ReactLoading from 'react-loading';
 import { numberUtils } from '@hathor/wallet-lib';
@@ -14,31 +13,43 @@ import colors from '../index.scss';
 import { useNewUiEnabled } from '../hooks';
 import helpers from '../utils/helpers';
 import TimeSeriesDashboard from './TimeSeriesDashboard';
-import blockApi from '../api/blockApi';
 import useTimelapseCounter from '../hooks/useTimelapseCounter';
 
 function Dashboard() {
   const newUiEnabled = useNewUiEnabled();
   const [timestamp, setTimestamp] = useState(null);
-
-  useEffect(() => {
-    const fetchInitialTimestamp = async () => {
-      const blockApiResponse = await blockApi.getBestChainHeight();
-      const blockApiResponseData = get(blockApiResponse, 'data.hits[0]', {});
-      const apiTimestamp = blockApiResponseData.timestamp;
-
-      if (apiTimestamp) {
-        setTimestamp(new Date(apiTimestamp).getTime());
-      }
-    };
-
-    fetchInitialTimestamp();
-  }, []);
-
+  const heightData = useSelector(state => state.data);
+  const [summary, setSummary] = useState({
+    transactions: 0,
+    hashRate: 0.0,
+    bestBlockHeight: 0,
+  });
   const renderCount = useTimelapseCounter(timestamp);
 
-  const { data } = useSelector(state => ({ data: state.data }));
-  if (data === null) {
+  // Calculating the summary data
+  useEffect(() => {
+    // Skip this effect if there is no summary data
+    if (!heightData) {
+      return;
+    }
+
+    // Do not recalculate if the exhibited data has not changed
+    if (
+      heightData.best_block_height === summary.bestBlockHeight &&
+      heightData.transactions === summary.transactions
+    ) {
+      return;
+    }
+
+    setSummary({
+      bestBlockHeight: heightData.best_block_height,
+      transactions: heightData.transactions,
+      hashRate: heightData.hash_rate,
+    });
+    setTimestamp(new Date(heightData.time * 1000));
+  }, [heightData, summary.bestBlockHeight, summary.transactions]);
+
+  if (heightData === null) {
     return (
       <div className="content-wrapper">
         <ReactLoading type="spin" color={colors.purpleHathor} delay={500} />
@@ -46,17 +57,14 @@ function Dashboard() {
     );
   }
 
-  const { transactions } = data;
-  const height = data.best_block_height;
-
-  const hashRateValue = parseFloat(data.hash_rate.toFixed(2));
-  const prettyfied = helpers.divideValueIntoPrefix(hashRateValue);
-  const prettyValue = prettyfied.value;
-  const prefix = helpers.getUnitPrefix(prettyfied.divisions);
+  const hashRateValue = parseFloat(summary.hashRate.toFixed(2));
+  const prettified = helpers.divideValueIntoPrefix(hashRateValue);
+  const prettyValue = prettified.value;
+  const prefix = helpers.getUnitPrefix(prettified.divisions);
   const hashRate = `${prettyValue} ${prefix}h/s`;
 
-  const bestBlockHeight = numberUtils.prettyValue(height, 0);
-  const ptransactions = numberUtils.prettyValue(transactions, 0);
+  const bestBlockHeight = numberUtils.prettyValue(summary.bestBlockHeight, 0);
+  const transactions = numberUtils.prettyValue(summary.transactions, 0);
 
   const renderUi = () => (
     <div className="content-wrapper">
@@ -67,7 +75,7 @@ function Dashboard() {
       </p>
       <p>
         <strong>Transactions: </strong>
-        {ptransactions}
+        {transactions}
       </p>
       <p className="color-hathor">
         <strong>Hash rate: </strong>
@@ -91,7 +99,7 @@ function Dashboard() {
         </span>
         <span className="real-time-info">
           <strong>TRANSACTIONS</strong>
-          <span>{ptransactions}</span>
+          <span>{transactions}</span>
           <p>UPDATED {renderCount} SECONDS AGO</p>
         </span>
         <span className="real-time-info">
