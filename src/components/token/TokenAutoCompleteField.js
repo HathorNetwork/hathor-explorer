@@ -83,6 +83,14 @@ class TokenAutoCompleteField extends React.Component {
     document.removeEventListener('click', this.handleClick);
   }
 
+  // On component update, check if the tokenId has changed
+  // and if so, search for the new token
+  componentDidUpdate(prevProps) {
+    if (prevProps.tokenId !== this.props.tokenId) {
+      this.searchAndSelectToken();
+    }
+  }
+
   /**
    * The first component mount will need to find the token item in the elastic search
    * and then execute the data search, in case a token was already selected in the query
@@ -104,9 +112,12 @@ class TokenAutoCompleteField extends React.Component {
    * @param {object} item
    */
   onItemSelected = item => {
+    // If the token is the native token, we shold clear the selected item
+    const isNativeToken = item.id === hathorLibConstants.NATIVE_TOKEN_UID;
+
     this.setState({
       searchResults: [],
-      selectedItem: item,
+      selectedItem: isNativeToken ? null : item,
     });
 
     this.props.onTokenSelected(item);
