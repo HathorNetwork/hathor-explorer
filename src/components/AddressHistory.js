@@ -100,7 +100,7 @@ class AddressHistory extends SortableTable {
   }
 
   renderTableBodyUi() {
-    this.props.data.map(tx => {
+    return this.props.data.map(tx => {
       let statusElement = '';
       let trClass = '';
       let prettyValue = this.renderValue(tx.balance);
