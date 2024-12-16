@@ -13,6 +13,7 @@ import NewHathorAlert from '../NewHathorAlert';
 import { useNewUiEnabled } from '../../hooks';
 import { ReactComponent as CopyIcon } from '../../assets/images/copy-icon.svg';
 import { ReactComponent as DownloadIcon } from '../../assets/images/download-icon.svg';
+import HathorAlert from '../HathorAlert';
 
 const TokenConfig = props => {
   const newUiEnabled = useNewUiEnabled();
@@ -101,7 +102,7 @@ const TokenConfig = props => {
             </a>
           </p>
         </div>
-        <NewHathorAlert ref={alertSuccess} text={successMessage} type="success" />
+        <HathorAlert ref={alertSuccess} text={successMessage} type="success" />
       </>
     );
   };
