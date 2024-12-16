@@ -83,6 +83,14 @@ class TokenAutoCompleteField extends React.Component {
     document.removeEventListener('click', this.handleClick);
   }
 
+  // On component update, check if the tokenId has changed
+  // and if so, search for the new token
+  componentDidUpdate(prevProps) {
+    if (prevProps.tokenId !== this.props.tokenId) {
+      this.searchAndSelectToken();
+    }
+  }
+
   /**
    * The first component mount will need to find the token item in the elastic search
    * and then execute the data search, in case a token was already selected in the query
