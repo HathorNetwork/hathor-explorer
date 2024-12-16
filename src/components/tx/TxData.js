@@ -447,30 +447,12 @@ class TxData extends React.Component {
     };
 
     const renderListWithLinks = (hashes, textDark) => {
-      // newUi
       if (this.props.newUiEnabled) {
-        if (hashes.length === 0) {
-          return null;
-        }
-        if (hashes.length === 1) {
-          const h = hashes[0];
-          return (
-            <Link to={`/transaction/${h}`}>
-              {' '}
-              {h} {h === this.props.transaction.hash && ' (Current transaction)'}
-            </Link>
-          );
-        }
-        const v = hashes.map(h => (
-          <li key={h}>
-            <Link to={`/transaction/${h}`}>
-              {h} {h === this.props.transaction.hash && ' (Current transaction)'}
-            </Link>
-          </li>
-        ));
-        return <ul>{v}</ul>;
+        // If the new interface is active, delegate to renderNewUiListWithLinks
+        return renderNewUiListWithLinks(hashes);
       }
-      // originalUi
+
+      // Otherwise, apply the old interface logic
       if (hashes.length === 0) {
         return null;
       }
@@ -493,6 +475,29 @@ class TxData extends React.Component {
       return <ul>{v}</ul>;
     };
 
+    const renderNewUiListWithLinks = hashes => {
+      if (hashes.length === 0) {
+        return null;
+      }
+      if (hashes.length === 1) {
+        const h = hashes[0];
+        return (
+          <Link to={`/transaction/${h}`}>
+            {' '}
+            {h} {h === this.props.transaction.hash && ' (Current transaction)'}
+          </Link>
+        );
+      }
+      const v = hashes.map(h => (
+        <li key={h}>
+          <Link to={`/transaction/${h}`}>
+            {h} {h === this.props.transaction.hash && ' (Current transaction)'}
+          </Link>
+        </li>
+      ));
+      return <ul>{v}</ul>;
+    };
+
     const renderDivList = hashes => {
       return hashes.map(h => (
         <div key={h}>
@@ -505,9 +510,9 @@ class TxData extends React.Component {
       return (
         <table className="table-details">
           <tbody>
-            {hashes.map(h => (
+            {hashes.map((h, index) => (
               <tr className="tr-details" key={h}>
-                <td>
+                <td className={index === hashes.length - 1 ? 'tr-details-last-cell' : ''}>
                   <Link to={`/transaction/${h}`}>{h}</Link>
                 </td>
               </tr>
@@ -669,10 +674,13 @@ class TxData extends React.Component {
       if (!this.props.meta.conflict_with.length) {
         // it is voided, but there is no conflict
         return (
-          <div className="alert alert-danger">
-            <h4 className="alert-heading">
-              This {renderBlockOrTransaction()} is voided and <strong>NOT</strong> valid.
-            </h4>
+          <div className="alert alert-double-spending alert-invalid">
+            <div>
+              <span>
+                This {renderBlockOrTransaction()} is voided and <strong>NOT</strong> valid.
+              </span>
+            </div>
+
             <p>
               This {renderBlockOrTransaction()} is verifying (directly or indirectly) a voided
               double-spending transaction, hence it is voided as well.
@@ -689,15 +697,18 @@ class TxData extends React.Component {
 
       // it is voided, and there is a conflict
       return (
-        <div className="alert alert-danger">
-          <h4 className="alert-heading">
-            This {renderBlockOrTransaction()} is <strong>NOT</strong> valid.
-          </h4>
+        <div className="alert alert-double-spending alert-invalid">
           <div>
+            <span>
+              This {renderBlockOrTransaction()} is <strong>NOT</strong> valid.
+            </span>
+          </div>
+
+          <div style={{ textAlign: 'left' }}>
             <span>It is voided by: </span>
             {renderListWithLinks(this.props.meta.voided_by, true)}
           </div>
-          <hr />
+
           {conflictNotTwin.length > 0 && (
             <div className="mb-0">
               <span>Conflicts with: </span>

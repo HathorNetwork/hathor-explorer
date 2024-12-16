@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useFlag } from '@unleash/proxy-client-react';
 import { useSelector } from 'react-redux';
 import { NavLink, Link, useHistory } from 'react-router-dom';
@@ -32,6 +32,8 @@ function Sidebar({ close, open }) {
   const theme = useSelector(state => state.theme);
   const sidebarRef = useRef(null);
   const hathorNetwork = `Hathor ${REACT_APP_NETWORK}`;
+  const [tokensOpen, setTokensOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = event => {
@@ -78,7 +80,7 @@ function Sidebar({ close, open }) {
           </div>
           <div className="aside-tabs-container">
             <ul className="navbar-nav me-auto">
-              <li className="nav-item">
+              <li className="nav-item item-sidebar">
                 <NavLink
                   to="/"
                   exact
@@ -90,35 +92,38 @@ function Sidebar({ close, open }) {
                 </NavLink>
               </li>
               {showTokensTab && (
-                <span className="nav-item dropdown">
+                <span className="dropdown-sidebar">
                   <span
                     className="nav-link dropdown-toggle"
-                    id="navbarDropdown"
-                    role="button"
-                    data-bs-toggle="dropdown"
-                    aria-haspopup="true"
-                    aria-expanded="false"
+                    onClick={() => setTokensOpen(!tokensOpen)}
                   >
                     Tokens
-                    <ArrorDownNavItem style={{ marginLeft: '5px' }} className="dropdown-icon" />
+                    <ArrorDownNavItem
+                      style={{ marginLeft: '5px', rotate: tokensOpen ? '180deg' : '0deg' }}
+                      className="dropdown-icon"
+                    />
                   </span>
-                  <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <li>
-                      <ConditionalNavigation
-                        to="/tokens"
-                        label="Token list"
-                        featureToggle={`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`}
-                      />
-                      <ConditionalNavigation
-                        to="/token_balances"
-                        label="Token balances"
-                        featureToggle={`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.rollout`}
-                      />
-                    </li>
-                  </div>
+                  {tokensOpen && (
+                    <div>
+                      <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+                        <li>
+                          <ConditionalNavigation
+                            to="/tokens"
+                            label="Token list"
+                            featureToggle={`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`}
+                          />
+                          <ConditionalNavigation
+                            to="/token_balances"
+                            label="Token balances"
+                            featureToggle={`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.rollout`}
+                          />
+                        </li>
+                      </ul>
+                    </div>
+                  )}
                 </span>
               )}
-              <li className="nav-item">
+              <li className="nav-item item-sidebar">
                 <NavLink
                   to="/network"
                   exact
@@ -129,7 +134,7 @@ function Sidebar({ close, open }) {
                   Network
                 </NavLink>
               </li>
-              <li className="nav-item">
+              <li className="nav-item item-sidebar">
                 <NavLink
                   to="/statistics"
                   exact
@@ -140,31 +145,34 @@ function Sidebar({ close, open }) {
                   Statistics
                 </NavLink>
               </li>
-              <li className="nav-item dropdown">
-                <span
-                  className="nav-link dropdown-toggle"
-                  id="navbarDropdown"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-haspopup="true"
-                  aria-expanded="false"
-                >
-                  Tools <ArrorDownNavItem style={{ marginLeft: '5px' }} className="dropdown-icon" />
+              <li className="nav-item item-sidebar">
+                <span onClick={() => setToolsOpen(!toolsOpen)}>
+                  Tools{' '}
+                  <ArrorDownNavItem
+                    style={{ marginLeft: '5px', rotate: toolsOpen ? '180deg' : '0deg' }}
+                    className="dropdown-icon"
+                  />
                 </span>
-                <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <NavLink to="/decode-tx/" exact className="nav-link">
-                    Decode Tx
-                  </NavLink>
-                  <NavLink to="/push-tx/" exact className="nav-link">
-                    Push Tx
-                  </NavLink>
-                  <NavLink to="/dag/" exact className="nav-link">
-                    DAG
-                  </NavLink>
-                  <NavLink to="/features/" exact className="nav-link">
-                    Features
-                  </NavLink>
-                </div>
+                {toolsOpen && (
+                  <div>
+                    <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+                      <li>
+                        <NavLink to="/decode-tx/" exact className="nav-link">
+                          Decode Tx
+                        </NavLink>
+                        <NavLink to="/push-tx/" exact className="nav-link">
+                          Push Tx
+                        </NavLink>
+                        <NavLink to="/dag/" exact className="nav-link">
+                          DAG
+                        </NavLink>
+                        <NavLink to="/features/" exact className="nav-link">
+                          Features
+                        </NavLink>
+                      </li>
+                    </ul>
+                  </div>
+                )}
               </li>
             </ul>
           </div>

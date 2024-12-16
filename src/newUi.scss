@@ -39,7 +39,7 @@ $secondary-color-dark: #191c21;
   --border-color: #b7bfc7;
   --alter-border-color: #b7bfc7;
   --span-red-background: #fbebe9;
-  --span-green-background: #def7d8;
+  --span-green-background: #43a32e6f;
   --span-purple-background: rgba(232, 218, 255, 1);
   --span-green-border: #44a32e;
   --span-red-border: #ff7966;
@@ -376,11 +376,17 @@ nav {
     background-image: var(--search-icon);
     background-repeat: no-repeat;
     background-position: 10px center;
-    color: var(--secondary-color);
+    color: var(--normal-text-color) !important;
     background-color: var(--input-background) !important;
     padding-left: 35px;
     background-size: 16px;
     border: 1px solid var(--border-color) !important;
+  }
+
+  .navigation-search-input:focus {
+    outline: none;
+    box-shadow: none;
+    border-color: transparent;
   }
 
   .navigation-search-input::placeholder {
@@ -946,7 +952,7 @@ nav {
   background-color: var(--span-green-background);
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex;
   justify-content: space-between;
   color: var(--bold-text-color);
   padding: 4px 12px;
@@ -954,6 +960,13 @@ nav {
   border-radius: 10px;
   border: 1px solid var(--span-green-border);
   margin: 16px 0;
+}
+
+.alert-invalid {
+  background-color: rgba(202, 43, 43, 0.484);
+  border: 1px solid var(--span-red-border);
+  color: var(--bold-text-color);
+  margin-top: 20px;
 }
 
 .alert-success-container-big p {
@@ -1004,6 +1017,10 @@ nav {
 
 .table-details {
   width: 100%;
+}
+
+.tr-details-last-cell {
+  border-bottom: none !important;
 }
 
 .table-details td {
@@ -1096,7 +1113,7 @@ nav {
 .cookie-info-container {
   display: flex;
   flex-direction: row;
-  gap: 16px;
+  gap: 6px;
 }
 
 .cookie-text {
@@ -2396,6 +2413,7 @@ a:hover {
 .dropdown-menu a.nav-link {
   color: var(--bold-text-color) !important;
   text-align: left;
+  padding: 4px 16px !important;
 
   &:hover {
     background-color: var(--background-focus);
@@ -3049,6 +3067,10 @@ span {
   display: none;
 }
 
+.item-sidebar {
+  text-align: left !important;
+}
+
 .token-balances-information-wrapper {
   gap: 24px;
   background-color: var(--secondary-color);
@@ -3422,6 +3444,12 @@ th.sortable {
         background-color: var(--input-background) !important;
         padding-left: 35px;
         background-size: 16px;
+      }
+
+      .navigation-search-input:focus {
+        outline: none;
+        box-shadow: none;
+        border-color: transparent;
       }
 
       .mobile-search-input::placeholder {
