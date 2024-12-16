@@ -582,6 +582,37 @@ nav {
       height: 28px;
     }
   }
+
+  .token-nft-preview {
+    padding: 32px;
+    background-color: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    min-width: 100%;
+
+    p {
+      border: none;
+    }
+
+    strong {
+      color: $purpleHathorButton;
+      font-size: 16px;
+    }
+
+    figure p {
+        color: var(--bold-text-color);
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 20px;
+        letter-spacing: 0.03em;
+        text-align: center;
+    }
+  }
 }
 
 .container-title-page {
