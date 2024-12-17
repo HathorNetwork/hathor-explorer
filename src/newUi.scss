@@ -626,7 +626,6 @@ nav {
   gap: 4px;
   border-radius: 100px;
   border: 1px solid var(--span-purple-border);
-  opacity: 0px;
   background-color: var(--span-purple-background);
   display: flex;
   align-items: center;
@@ -2274,7 +2273,6 @@ nav {
   padding: 4px 12px 4px 12px;
   border-radius: 4px;
   border: none;
-  opacity: 0px;
   font-size: 12px;
   font-weight: 500;
   line-height: 20px;
@@ -2502,7 +2500,6 @@ a:hover {
   padding: 12px 20px 12px 20px;
   gap: 8px;
   border-radius: 4px;
-  opacity: 0px;
   background-color: transparent !important;
   color: var(--red) !important;
   border-color: var(--border-color) !important;
@@ -3166,7 +3163,6 @@ span {
   gap: 8px;
   border-radius: 4px;
   border: 1px solid var(--border-color);
-  opacity: 0px;
   font-size: 14px;
   line-height: 20px;
   letter-spacing: 0.03em;
@@ -3228,7 +3224,6 @@ th.sortable {
   align-items: center;
   width: fit-content;
   gap: 6px;
-  opacity: 0px;
   font-family: 'San Francisco Pro', sans-serif;
   font-size: 12px;
   line-height: 20px;
