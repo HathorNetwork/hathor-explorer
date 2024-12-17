@@ -13,6 +13,7 @@ import NanoContractHistory from '../../components/nano/NanoContractHistory';
 import Loading from '../../components/Loading';
 import nanoApi from '../../api/nanoApi';
 import txApi from '../../api/txApi';
+import { useNewUiEnabled } from '../../hooks';
 
 /**
  * Details of a Nano Contract
@@ -21,6 +22,7 @@ import txApi from '../../api/txApi';
  */
 function NanoContractDetail() {
   const { nc_id: ncId } = useParams();
+  const newUiEnabled = useNewUiEnabled();
 
   // ncState {Object | null} Nano contract state
   const [ncState, setNcState] = useState(null);
@@ -128,6 +130,20 @@ function NanoContractDetail() {
     );
   };
 
+  const renderNewUiNCBalances = () => (
+    <div className="table-responsive blueprint-attrubutes-table">
+      <table className="table-stylized" id="attributes-table">
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>{renderBalances()}</tbody>
+      </table>
+    </div>
+  );
+
   const renderNCAttributes = () => {
     return (
       <div className="table-responsive">
@@ -143,6 +159,20 @@ function NanoContractDetail() {
       </div>
     );
   };
+
+  const renderNewUiAttributes = () => (
+    <div className="table-responsive blueprint-attrubutes-table">
+      <table className="table-stylized" id="attributes-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Value (or Type)</th>
+          </tr>
+        </thead>
+        <tbody>{renderAttributes()}</tbody>
+      </table>
+    </div>
+  );
 
   const renderAttributeValue = (name, data) => {
     // If the attribute is a dict, it won't return the value of it
@@ -184,7 +214,8 @@ function NanoContractDetail() {
       );
     });
   };
-  return (
+
+  const renderUi = () => (
     <div className="content-wrapper">
       <h3 className="mt-4">Nano Contract Detail</h3>
       <div className="mt-5">
@@ -207,6 +238,37 @@ function NanoContractDetail() {
       </div>
     </div>
   );
+
+  const renderNewUi = () => (
+    <div className="blueprint-content-wrapper">
+      <h3>Nano Contract Detail</h3>
+      <p className="blueprint-id-name-info">
+        <strong style={{ whiteSpace: 'nowrap' }}>NANO CONTRACT ID: </strong>
+        <span>{ncId}</span>
+      </p>
+      <p className="blueprint-id-name-info">
+        <strong>BLUEPRINT: </strong>
+        <span>
+          <span>{ncState.blueprint_name}</span>(
+          <Link to={`/blueprint/detail/${txData.nc_blueprint_id}`}>{txData.nc_blueprint_id}</Link>)
+        </span>
+      </p>
+      <div className="blueprint-attributes">
+        <h4>Attributes</h4>
+        {renderNewUiAttributes()}
+      </div>
+      <div className="blueprint-attributes">
+        <h4>Balances</h4>
+        {renderNewUiNCBalances()}
+      </div>
+      <div className="nano-history">
+        <h3>History</h3>
+        <NanoContractHistory ncId={ncId} />
+      </div>
+    </div>
+  );
+
+  return newUiEnabled ? renderNewUi() : renderUi();
 }
 
 export default NanoContractDetail;

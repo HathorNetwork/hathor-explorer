@@ -5,7 +5,7 @@ import { useFlag } from '@unleash/proxy-client-react';
 
 const ConditionalNavigation = ({ featureToggle, to, label }) => {
   return useFlag(featureToggle) ? (
-    <li className="nav-item">
+    <span className="nav-item">
       <NavLink
         to={to}
         exact
@@ -15,7 +15,7 @@ const ConditionalNavigation = ({ featureToggle, to, label }) => {
       >
         {label}
       </NavLink>
-    </li>
+    </span>
   ) : null;
 };
 

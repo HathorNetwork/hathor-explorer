@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) Hathor Labs and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -16,7 +23,7 @@ class TimeSeries extends React.Component {
     };
   }
 
-  render() {
+  renderUi() {
     if (!this.state.featureFlag) {
       return null;
     }
@@ -46,6 +53,42 @@ class TimeSeries extends React.Component {
         {renderDashboard()}
       </div>
     );
+  }
+
+  renderNewUi() {
+    if (!this.state.featureFlag) {
+      return null;
+    }
+
+    const renderDashboard = () => {
+      if (this.state.maintenanceMode) {
+        return (
+          <ErrorMessageWithIcon message="This feature is under maintenance. Please try again after some time" />
+        );
+      }
+      return (
+        <div>
+          <ScreenStatusMessage newUiEnabled={this.props.newUiEnabled} />
+          <iframe
+            title="Time Series Data"
+            id="timeseries-iframe"
+            className="new-timeseries-iframe"
+            src={TIMESERIES_DASHBOARD_URL}
+          ></iframe>
+        </div>
+      );
+    };
+
+    return (
+      <div>
+        <h2 className="statistics-data-title">Historical Data</h2>
+        {renderDashboard()}
+      </div>
+    );
+  }
+
+  render() {
+    return this.props.newUiEnabled ? this.renderNewUi() : this.renderUi();
   }
 }
 

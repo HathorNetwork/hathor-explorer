@@ -7,13 +7,28 @@
 
 import React from 'react';
 import Features from '../components/feature_activation/Features';
+import { useNewUiEnabled } from '../hooks';
 
 function FeatureList() {
-  return (
-    <div className="content-wrapper">
-      <Features title={<h1>Feature Activation</h1>} />
-    </div>
-  );
+  const newUiEnabled = useNewUiEnabled();
+
+  const renderUi = () => {
+    return (
+      <div className="content-wrapper">
+        <Features title={<h1>Feature Activation</h1>} />
+      </div>
+    );
+  };
+
+  const renderNewUi = () => {
+    return (
+      <div className="section-tables-stylized">
+        <Features title="Feature Activation" newUiEnabled={newUiEnabled} />
+      </div>
+    );
+  };
+
+  return newUiEnabled ? renderNewUi() : renderUi();
 }
 
 export default FeatureList;

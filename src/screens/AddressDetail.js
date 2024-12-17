@@ -27,7 +27,7 @@ const AddressDetail = () => {
   }
 
   if (latestMode) {
-    return <AddressDetailExplorer history={history} match={{ params }} />;
+    return <AddressDetailExplorer />;
   }
 
   return <AddressDetailLegacy history={history} match={{ params }} />;

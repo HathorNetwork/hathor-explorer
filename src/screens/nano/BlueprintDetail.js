@@ -11,6 +11,8 @@ import python from 'highlight.js/lib/languages/python';
 import { useParams } from 'react-router-dom';
 import Loading from '../../components/Loading';
 import nanoApi from '../../api/nanoApi';
+import { useNewUiEnabled } from '../../hooks';
+import { DropDetails } from '../../components/DropDetails';
 
 hljs.registerLanguage('python', python);
 
@@ -34,6 +36,7 @@ function BlueprintDetail() {
   const [showCode, setShowCode] = useState(false);
 
   const codeRef = useRef();
+  const newUiEnabled = useNewUiEnabled();
 
   useEffect(() => {
     let ignore = false;
@@ -73,6 +76,12 @@ function BlueprintDetail() {
     }
   }, [blueprintSourceCode]);
 
+  useEffect(() => {
+    if (showCode && codeRef.current) {
+      hljs.highlightBlock(codeRef.current);
+    }
+  }, [blueprintSourceCode, showCode]);
+
   if (errorMessage) {
     return <p className="text-danger mb-4">{errorMessage}</p>;
   }
@@ -89,6 +98,22 @@ function BlueprintDetail() {
             <tr>
               <th className="d-lg-table-cell">Name</th>
               <th className="d-lg-table-cell">Type</th>
+            </tr>
+          </thead>
+          <tbody>{renderAttributes()}</tbody>
+        </table>
+      </div>
+    );
+  };
+
+  const renderNewUiBlueprintAttributes = () => {
+    return (
+      <div className="table-responsive blueprint-attrubutes-table">
+        <table className="table-stylized" id="attributes-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
             </tr>
           </thead>
           <tbody>{renderAttributes()}</tbody>
@@ -123,6 +148,21 @@ function BlueprintDetail() {
     );
   };
 
+  const renderNewUiBlueprintMethods = (key, header) => {
+    return (
+      <div className="table-responsive blueprint-methods-table">
+        <table className="table-stylized" id={`methods-table-${key}`}>
+          <thead>
+            <tr>
+              <th className="blueprint-table-methods-header">{header}</th>
+            </tr>
+          </thead>
+          <tbody>{renderMethods(key)}</tbody>
+        </table>
+      </div>
+    );
+  };
+
   const renderMethods = key => {
     return Object.entries(blueprintInformation[key]).map(([name, detail]) => {
       return (
@@ -144,11 +184,13 @@ function BlueprintDetail() {
    * @param {Event} e Click event
    */
   const onToggleShowCode = e => {
-    e.preventDefault();
+    if (e) {
+      e.preventDefault();
+    }
     setShowCode(!showCode);
   };
 
-  return (
+  const renderUi = () => (
     <div className="content-wrapper">
       <h3 className="mt-4">Blueprint Information</h3>
       <div className="mt-5">
@@ -180,6 +222,47 @@ function BlueprintDetail() {
       </div>
     </div>
   );
+
+  const renderNewUi = () => (
+    <div className="blueprint-content-wrapper">
+      <h3>Blueprint Information</h3>
+      <p className="blueprint-id-name-info">
+        <strong>ID: </strong>
+        <span>{blueprintId}</span>
+      </p>
+      <p className="blueprint-id-name-info">
+        <strong>NAME: </strong>
+        <span>{blueprintInformation.name}</span>
+      </p>
+      <div className="blueprint-attributes">
+        <h4>Attributes</h4>
+        {renderNewUiBlueprintAttributes()}
+      </div>
+      <div className="blueprint-methods-container">
+        <div className="blueprint-methods">
+          {renderNewUiBlueprintMethods('public_methods', 'Public Methods')}
+        </div>
+        <div className="blueprint-methods">
+          {renderNewUiBlueprintMethods('private_methods', 'Private Methods')}
+        </div>
+      </div>
+      <div className="blueprint-source-code">
+        <div style={{ display: 'flex' }}>
+          <DropDetails title="Source Code" onToggle={e => onToggleShowCode(e)}>
+            <div className={`source-code ${showCode ? 'show' : ''}`}>
+              <pre>
+                <code ref={codeRef} className="language-python">
+                  {blueprintSourceCode}
+                </code>
+              </pre>
+            </div>
+          </DropDetails>
+        </div>
+      </div>
+    </div>
+  );
+
+  return newUiEnabled ? renderNewUi() : renderUi();
 }
 
 export default BlueprintDetail;
