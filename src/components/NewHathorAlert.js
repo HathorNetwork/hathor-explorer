@@ -15,6 +15,7 @@ import { ReactComponent as SuccessIcon } from '../assets/images/success-icon.svg
  * @param {Object} props - Component properties.
  * @param {string} props.type - Defines the alert type for styling (e.g., "success", "error").
  * @param {string} props.text - The message text displayed in the alert.
+ * @param {boolean} [props.fixedPosition=false] - If true, the alert will be fixed at the bottom right of the screen
  * @param {React.Ref} ref - A reference to call the `show` method from parent components.
  *
  * @example:
@@ -24,7 +25,7 @@ import { ReactComponent as SuccessIcon } from '../assets/images/success-icon.svg
  * alertRef.current.show(2000); // Show the alert for 2 seconds
  * ```
  */
-const NewHathorAlert = forwardRef(({ type, text, showAlert }, ref) => {
+const NewHathorAlert = forwardRef(({ type, text, showAlert, fixedPosition }, ref) => {
   const alertDiv = useRef(null);
 
   /**
@@ -56,10 +57,11 @@ const NewHathorAlert = forwardRef(({ type, text, showAlert }, ref) => {
     show,
   }));
 
+  const fixedPositionClass = fixedPosition ? 'fixed-position' : '';
   return (
     <div
       ref={alertDiv}
-      className={`new-hathor-alert alert alert-${type} alert-dismissible fade`}
+      className={`new-hathor-alert alert alert-${type} alert-dismissible fade ${fixedPositionClass}`}
       role="alert"
       style={{ display: 'flex', flexDirection: 'row' }}
     >

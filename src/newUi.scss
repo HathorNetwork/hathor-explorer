@@ -963,6 +963,12 @@ nav {
   justify-content: space-between;
   z-index: 9999;
   margin: 0;
+
+  &.fixed-position {
+    position: fixed !important;
+    right: 2rem;
+    bottom: 2rem;
+  }
 }
 
 .alert-success-container {

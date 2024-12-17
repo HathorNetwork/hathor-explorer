@@ -29,6 +29,7 @@ import {
   REACT_APP_NETWORK,
 } from '../constants';
 import { toggleTheme } from '../actions';
+import NewHathorAlert from './NewHathorAlert';
 
 function Navigation() {
   const history = useHistory();
@@ -86,56 +87,109 @@ function Navigation() {
     const hathorNetwork = `Hathor ${REACT_APP_NETWORK}`;
 
     return (
-      <nav>
-        <div className="hide-logo-container-mobile">
-          <div className="newLogo-explorer-container">
-            <div className="d-flex flex-column align-items-center">
-              <Link className="navbar-brand" to="/" href="/">
-                <NewLogo
-                  className={`newLogo ${theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'}`}
-                />
-              </Link>
+      <>
+        <nav>
+          <div className="hide-logo-container-mobile">
+            <div className="newLogo-explorer-container">
+              <div className="d-flex flex-column align-items-center">
+                <Link className="navbar-brand" to="/" href="/">
+                  <NewLogo
+                    className={`newLogo ${
+                      theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'
+                    }`}
+                  />
+                </Link>
+              </div>
+              {!showSearchInput ? (
+                <button
+                  className="navbar-toggler"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#navbarSupportedContent"
+                  aria-controls="navbarSupportedContent"
+                  aria-expanded="false"
+                  aria-label="Toggle navigation"
+                >
+                  <span>EXPLORER</span>
+                </button>
+              ) : (
+                ''
+              )}
             </div>
-            {!showSearchInput ? (
-              <button
-                className="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-              >
-                <span>EXPLORER</span>
-              </button>
-            ) : (
-              ''
-            )}
+            <div className="hide-network-mobile">
+              <GlobeNetwork
+                className={`${
+                  theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'
+                } theme-network-logo`}
+              />
+              <span className="nav-title">{hathorNetwork}</span>
+            </div>
           </div>
-          <div className="hide-network-mobile">
-            <GlobeNetwork
-              className={`${
-                theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'
-              } theme-network-logo`}
-            />
-            <span className="nav-title">{hathorNetwork}</span>
-          </div>
-        </div>
-        <div className="nav-tabs-container hide-tabs">
-          <ul className="navbar-nav me-auto">
-            <li className="nav-item">
-              <NavLink
-                to="/"
-                exact
-                className="nav-link"
-                activeClassName="active"
-                activeStyle={{ fontWeight: 'bold' }}
-              >
-                Home
-              </NavLink>
-            </li>
-            {showTokensTab && (
-              <ul className="nav-item dropdown">
+          <div className="nav-tabs-container hide-tabs">
+            <ul className="navbar-nav me-auto">
+              <li className="nav-item">
+                <NavLink
+                  to="/"
+                  exact
+                  className="nav-link"
+                  activeClassName="active"
+                  activeStyle={{ fontWeight: 'bold' }}
+                >
+                  Home
+                </NavLink>
+              </li>
+              {showTokensTab && (
+                <ul className="nav-item dropdown">
+                  <span
+                    className="nav-link dropdown-toggle custom-dropdown-toggle"
+                    id="navbarDropdown"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    Tokens
+                    <ArrorDownNavItem className="dropdown-icon" />
+                  </span>
+                  <div className="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <li>
+                      <ConditionalNavigation
+                        to="/tokens"
+                        label="Token list"
+                        featureToggle={`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`}
+                      />
+                      <ConditionalNavigation
+                        to="/token_balances"
+                        label="Token balances"
+                        featureToggle={`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.rollout`}
+                      />
+                    </li>
+                  </div>
+                </ul>
+              )}
+              <li className="nav-item">
+                <NavLink
+                  to="/network"
+                  exact
+                  className="nav-link"
+                  activeClassName="active"
+                  activeStyle={{ fontWeight: 'bold' }}
+                >
+                  Network
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink
+                  to="/statistics"
+                  exact
+                  className="nav-link"
+                  activeClassName="active"
+                  activeStyle={{ fontWeight: 'bold' }}
+                >
+                  Statistics
+                </NavLink>
+              </li>
+              <li className="nav-item dropdown">
                 <span
                   className="nav-link dropdown-toggle custom-dropdown-toggle"
                   id="navbarDropdown"
@@ -144,132 +198,89 @@ function Navigation() {
                   aria-haspopup="true"
                   aria-expanded="false"
                 >
-                  Tokens
+                  Tools
                   <ArrorDownNavItem className="dropdown-icon" />
                 </span>
                 <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li>
-                    <ConditionalNavigation
-                      to="/tokens"
-                      label="Token list"
-                      featureToggle={`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`}
-                    />
-                    <ConditionalNavigation
-                      to="/token_balances"
-                      label="Token balances"
-                      featureToggle={`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.rollout`}
-                    />
-                  </li>
+                  <NavLink to="/decode-tx/" exact className="nav-link">
+                    Decode Tx
+                  </NavLink>
+                  <NavLink to="/push-tx/" exact className="nav-link">
+                    Push Tx
+                  </NavLink>
+                  <NavLink to="/dag/" exact className="nav-link">
+                    DAG
+                  </NavLink>
+                  <NavLink to="/features/" exact className="nav-link">
+                    Features
+                  </NavLink>
                 </div>
-              </ul>
-            )}
-            <li className="nav-item">
-              <NavLink
-                to="/network"
-                exact
-                className="nav-link"
-                activeClassName="active"
-                activeStyle={{ fontWeight: 'bold' }}
-              >
-                Network
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink
-                to="/statistics"
-                exact
-                className="nav-link"
-                activeClassName="active"
-                activeStyle={{ fontWeight: 'bold' }}
-              >
-                Statistics
-              </NavLink>
-            </li>
-            <li className="nav-item dropdown">
-              <span
-                className="nav-link dropdown-toggle custom-dropdown-toggle"
-                id="navbarDropdown"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-              >
-                Tools
-                <ArrorDownNavItem className="dropdown-icon" />
-              </span>
-              <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                <NavLink to="/decode-tx/" exact className="nav-link">
-                  Decode Tx
-                </NavLink>
-                <NavLink to="/push-tx/" exact className="nav-link">
-                  Push Tx
-                </NavLink>
-                <NavLink to="/dag/" exact className="nav-link">
-                  DAG
-                </NavLink>
-                <NavLink to="/features/" exact className="nav-link">
-                  Features
-                </NavLink>
+              </li>
+            </ul>
+            <div className="d-flex flex-row align-items-center ms-auto navigation-search">
+              <div className="d-flex flex-row align-items-center">
+                <input
+                  className="form-control me-2 bg-dark text-light navigation-search-input"
+                  type="search"
+                  placeholder={`Search here`}
+                  aria-label="Search"
+                  ref={txSearchRef}
+                  onKeyUp={handleKeyUp}
+                />
               </div>
-            </li>
-          </ul>
-          <div className="d-flex flex-row align-items-center ms-auto navigation-search">
-            <div className="d-flex flex-row align-items-center">
+            </div>
+          </div>
+          <div className="network-container hide-tabs">
+            <img
+              src={theme === 'dark' ? sun : moon}
+              alt="themeColorButton"
+              className="theme-color-btn"
+              onClick={() => dispatch(toggleTheme())}
+              role="button"
+            />
+            <div className="network-icon-container">
+              <GlobeNetwork
+                className={`${theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'}`}
+              />
+              <span className="nav-title">{hathorNetwork}</span>
+            </div>
+          </div>
+          <div className="mobile-tabs">
+            {showSearchInput ? (
               <input
-                className="form-control me-2 bg-dark text-light navigation-search-input"
                 type="search"
-                placeholder={`Search here`}
+                className={`form-control me-2 bg-dark text-light mobile-search-input ${
+                  showSearchInput ? 'expanded' : ''
+                }`}
+                placeholder="Search..."
                 aria-label="Search"
                 ref={txSearchRef}
                 onKeyUp={handleKeyUp}
+                onBlur={() => setShowSearchInput(false)}
+                autoFocus
               />
-            </div>
-          </div>
-        </div>
-        <div className="network-container hide-tabs">
-          <img
-            src={theme === 'dark' ? sun : moon}
-            alt="themeColorButton"
-            className="theme-color-btn"
-            onClick={() => dispatch(toggleTheme())}
-            role="button"
-          />
-          <div className="network-icon-container">
-            <GlobeNetwork
-              className={`${theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'}`}
-            />
-            <span className="nav-title">{hathorNetwork}</span>
-          </div>
-        </div>
-        <div className="mobile-tabs">
-          {showSearchInput ? (
-            <input
-              type="search"
-              className={`form-control me-2 bg-dark text-light mobile-search-input ${
-                showSearchInput ? 'expanded' : ''
-              }`}
-              placeholder="Search..."
-              aria-label="Search"
-              ref={txSearchRef}
-              onKeyUp={handleKeyUp}
-              onBlur={() => setShowSearchInput(false)}
-              autoFocus
-            />
-          ) : (
-            <SearchIcon
+            ) : (
+              <SearchIcon
+                fill={theme === 'dark' ? 'white' : 'black'}
+                onClick={toggleSearchInput}
+                className="mobile-search-icon"
+              />
+            )}
+            <MenuIcon
               fill={theme === 'dark' ? 'white' : 'black'}
-              onClick={toggleSearchInput}
-              className="mobile-search-icon"
+              onClick={showSidebarHandler}
+              className="mobile-sidebar-icon"
             />
-          )}
-          <MenuIcon
-            fill={theme === 'dark' ? 'white' : 'black'}
-            onClick={showSidebarHandler}
-            className="mobile-sidebar-icon"
-          />
-        </div>
-        <Sidebar close={() => setShowSidebar(false)} open={showSidebar} />
-      </nav>
+          </div>
+          <Sidebar close={() => setShowSidebar(false)} open={showSidebar} />
+        </nav>
+        <NewHathorAlert
+          ref={alertErrorRef}
+          text="Invalid hash format or address"
+          type="error"
+          fixedPosition
+        />
+      </>
     );
   };
 
