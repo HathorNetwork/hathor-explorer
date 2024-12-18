@@ -605,12 +605,12 @@ nav {
     }
 
     figure p {
-        color: var(--bold-text-color);
-        font-size: 16px;
-        font-weight: 700;
-        line-height: 20px;
-        letter-spacing: 0.03em;
-        text-align: center;
+      color: var(--bold-text-color);
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 20px;
+      letter-spacing: 0.03em;
+      text-align: center;
     }
   }
 }
@@ -934,6 +934,7 @@ nav {
     width: fit-content !important;
     background-color: var(--secondary-color);
     z-index: 1000;
+    padding: 5px 10px;
   }
 
   svg {
@@ -1863,7 +1864,11 @@ nav {
   .info-tooltip-container {
     .info-tooltip {
       border-radius: 15px;
-      min-width: 120px !important;
+      width: auto !important;
+
+      white-space: wrap;
+      width: 30vw !important;
+      text-align: left;
     }
   }
 }
