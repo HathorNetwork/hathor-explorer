@@ -5,8 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useEffect, useState } from 'react';
-import { get } from 'lodash';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ReactLoading from 'react-loading';
 import { numberUtils } from '@hathor/wallet-lib';
@@ -14,31 +13,41 @@ import colors from '../index.scss';
 import { useNewUiEnabled } from '../hooks';
 import helpers from '../utils/helpers';
 import TimeSeriesDashboard from './TimeSeriesDashboard';
-import blockApi from '../api/blockApi';
 import useTimelapseCounter from '../hooks/useTimelapseCounter';
 
 function Dashboard() {
   const newUiEnabled = useNewUiEnabled();
   const [timestamp, setTimestamp] = useState(null);
-
-  useEffect(() => {
-    const fetchInitialTimestamp = async () => {
-      const blockApiResponse = await blockApi.getBestChainHeight();
-      const blockApiResponseData = get(blockApiResponse, 'data.hits[0]', {});
-      const apiTimestamp = blockApiResponseData.timestamp;
-
-      if (apiTimestamp) {
-        setTimestamp(new Date(apiTimestamp).getTime());
-      }
+  /**
+   * @property {number} transactions
+   * @property {number} bestBlockHeight
+   * @property {number} hashRate
+   * @property {number} lastTimestamp
+   */
+  const { transactions, bestBlockHeight, hashRate, bestTimestamp } = useSelector(state => {
+    return {
+      transactions: state.data?.transactions,
+      bestBlockHeight: state.data?.best_block_height,
+      hashRate: state.data?.hash_rate,
+      bestTimestamp: state.data?.time,
     };
-
-    fetchInitialTimestamp();
-  }, []);
-
+  });
+  const lastBlockHeight = useRef(bestBlockHeight);
   const renderCount = useTimelapseCounter(timestamp);
 
-  const { data } = useSelector(state => ({ data: state.data }));
-  if (data === null) {
+  // Calculating the timestamp data
+  useEffect(() => {
+    // Do not recalculate if the exhibited data has not changed
+    if (bestBlockHeight === lastBlockHeight.current) {
+      return;
+    }
+
+    // Setting the timestamp of when this screen was last updated with a block height
+    lastBlockHeight.current = bestBlockHeight;
+    setTimestamp(new Date(bestTimestamp * 1000));
+  }, [bestBlockHeight, bestTimestamp]);
+
+  if (!bestBlockHeight) {
     return (
       <div className="content-wrapper">
         <ReactLoading type="spin" color={colors.purpleHathor} delay={500} />
@@ -46,32 +55,29 @@ function Dashboard() {
     );
   }
 
-  const { transactions } = data;
-  const height = data.best_block_height;
+  const hashRateValue = parseFloat(hashRate.toFixed(2));
+  const prettified = helpers.divideValueIntoPrefix(hashRateValue);
+  const prettyValue = prettified.value;
+  const prefix = helpers.getUnitPrefix(prettified.divisions);
+  const formattedHashRate = `${prettyValue} ${prefix}h/s`;
 
-  const hashRateValue = parseFloat(data.hash_rate.toFixed(2));
-  const prettyfied = helpers.divideValueIntoPrefix(hashRateValue);
-  const prettyValue = prettyfied.value;
-  const prefix = helpers.getUnitPrefix(prettyfied.divisions);
-  const hashRate = `${prettyValue} ${prefix}h/s`;
-
-  const bestBlockHeight = numberUtils.prettyValue(height, 0);
-  const ptransactions = numberUtils.prettyValue(transactions, 0);
+  const formattedBestBlockHeight = numberUtils.prettyValue(bestBlockHeight, 0);
+  const formattedTransactions = numberUtils.prettyValue(transactions, 0);
 
   const renderUi = () => (
     <div className="content-wrapper">
       <h2 className="statistics-title">Real time</h2>
       <p>
         <strong>Blocks (best height): </strong>
-        {bestBlockHeight}
+        {formattedBestBlockHeight}
       </p>
       <p>
         <strong>Transactions: </strong>
-        {ptransactions}
+        {formattedTransactions}
       </p>
       <p className="color-hathor">
         <strong>Hash rate: </strong>
-        {hashRate}
+        {formattedHashRate}
       </p>
       <TimeSeriesDashboard />
     </div>
@@ -82,22 +88,22 @@ function Dashboard() {
       <div className="statistics-title-container">
         <h2 className="statistics-title">Statistics</h2>
         <span>Real time</span>
+        <span className="synced-at">
+          <p>LATEST BLOCK {renderCount} SECONDS AGO</p>
+        </span>
       </div>
       <div className="real-time-info-container">
         <span className="real-time-info">
           <strong>BLOCKS</strong>
-          <span>{bestBlockHeight}</span>
-          <p>UPDATED {renderCount} SECONDS AGO</p>
+          <span>{formattedBestBlockHeight}</span>
         </span>
         <span className="real-time-info">
           <strong>TRANSACTIONS</strong>
-          <span>{ptransactions}</span>
-          <p>UPDATED {renderCount} SECONDS AGO</p>
+          <span>{formattedTransactions}</span>
         </span>
         <span className="real-time-info">
           <strong>HASH RATE</strong>
-          <span>{hashRate}</span>
-          <p>UPDATED {renderCount} SECONDS AGO</p>
+          <span>{formattedHashRate}</span>
         </span>
       </div>
       <TimeSeriesDashboard />
