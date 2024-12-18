@@ -107,7 +107,7 @@ function Dashboard() {
       <div className="statistics-title-container">
         <h2 className="statistics-title">Statistics</h2>
         <span>Real time</span>
-        <span className="real-time-info">
+        <span className="synced-at">
           <p>LATEST BLOCK {renderCount} SECONDS AGO</p>
         </span>
       </div>

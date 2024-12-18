@@ -1477,6 +1477,18 @@ nav {
     padding: 4px 12px 4px 12px;
     border-radius: 4px;
   }
+
+  span.synced-at {
+    border: 0;
+    background-color: inherit;
+    margin: auto 0;
+    font-family: 'San Francisco Pro';
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 18px;
+    letter-spacing: 0.03em;
+    text-align: left;
+  }
 }
 
 .real-time-info-container {
@@ -1511,17 +1523,6 @@ nav {
     line-height: 44px;
     text-align: left;
     color: var(--bold-text-color);
-  }
-
-  p {
-    margin: 0;
-    font-family: 'San Francisco Pro';
-    font-size: 10px;
-    font-weight: 500;
-    line-height: 18px;
-    letter-spacing: 0.03em;
-    text-align: left;
-    color: #57606a;
   }
 }
 
