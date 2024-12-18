@@ -18,6 +18,12 @@ import useTimelapseCounter from '../hooks/useTimelapseCounter';
 function Dashboard() {
   const newUiEnabled = useNewUiEnabled();
   const [timestamp, setTimestamp] = useState(null);
+  /**
+   * Data from the last block received from the WS
+   * @property {number} transactions Number of transactions in the last block
+   * @property {number} best_block_height Best block height
+   * @property {number} hash_rate Hash rate
+   */
   const heightData = useSelector(state => state.data);
   const [summary, setSummary] = useState({
     transactions: 0,
@@ -41,13 +47,24 @@ function Dashboard() {
       return;
     }
 
-    setSummary({
-      bestBlockHeight: heightData.best_block_height,
-      transactions: heightData.transactions,
-      hashRate: heightData.hash_rate,
-    });
-    setTimestamp(new Date(heightData.time * 1000));
-  }, [heightData, summary.bestBlockHeight, summary.transactions]);
+    const newSummary = { ...summary };
+
+    // Handling the transactions number
+    if (heightData.transactions !== summary.transactions) {
+      newSummary.transactions = heightData.transactions;
+    }
+
+    // Handling the best block height, hash rate and sync timestamp
+    if (heightData.best_block_height !== summary.bestBlockHeight) {
+      newSummary.bestBlockHeight = heightData.best_block_height;
+      newSummary.hashRate = heightData.hash_rate;
+
+      // Setting the timestamp of when the last block was synced with this screen
+      setTimestamp(new Date(heightData.time * 1000));
+    }
+
+    setSummary(newSummary);
+  }, [heightData, summary]);
 
   if (heightData === null) {
     return (
@@ -90,22 +107,22 @@ function Dashboard() {
       <div className="statistics-title-container">
         <h2 className="statistics-title">Statistics</h2>
         <span>Real time</span>
+        <span className="real-time-info">
+          <p>LATEST BLOCK {renderCount} SECONDS AGO</p>
+        </span>
       </div>
       <div className="real-time-info-container">
         <span className="real-time-info">
           <strong>BLOCKS</strong>
           <span>{bestBlockHeight}</span>
-          <p>UPDATED {renderCount} SECONDS AGO</p>
         </span>
         <span className="real-time-info">
           <strong>TRANSACTIONS</strong>
           <span>{transactions}</span>
-          <p>UPDATED {renderCount} SECONDS AGO</p>
         </span>
         <span className="real-time-info">
           <strong>HASH RATE</strong>
           <span>{hashRate}</span>
-          <p>UPDATED {renderCount} SECONDS AGO</p>
         </span>
       </div>
       <TimeSeriesDashboard />
