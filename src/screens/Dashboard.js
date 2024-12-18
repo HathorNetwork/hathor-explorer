@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ReactLoading from 'react-loading';
 import { numberUtils } from '@hathor/wallet-lib';
@@ -19,54 +19,35 @@ function Dashboard() {
   const newUiEnabled = useNewUiEnabled();
   const [timestamp, setTimestamp] = useState(null);
   /**
-   * Data from the last block received from the WS
-   * @property {number} transactions Number of transactions in the last block
-   * @property {number} best_block_height Best block height
-   * @property {number} hash_rate Hash rate
+   * @property {number} transactions
+   * @property {number} bestBlockHeight
+   * @property {number} hashRate
+   * @property {number} lastTimestamp
    */
-  const heightData = useSelector(state => state.data);
-  const [summary, setSummary] = useState({
-    transactions: 0,
-    hashRate: 0.0,
-    bestBlockHeight: 0,
+  const { transactions, bestBlockHeight, hashRate, bestTimestamp } = useSelector(state => {
+    return {
+      transactions: state.data?.transactions,
+      bestBlockHeight: state.data?.best_block_height,
+      hashRate: state.data?.hash_rate,
+      bestTimestamp: state.data?.time,
+    };
   });
+  const lastBlockHeight = useRef(bestBlockHeight);
   const renderCount = useTimelapseCounter(timestamp);
 
-  // Calculating the summary data
+  // Calculating the timestamp data
   useEffect(() => {
-    // Skip this effect if there is no summary data
-    if (!heightData) {
-      return;
-    }
-
     // Do not recalculate if the exhibited data has not changed
-    if (
-      heightData.best_block_height === summary.bestBlockHeight &&
-      heightData.transactions === summary.transactions
-    ) {
+    if (bestBlockHeight === lastBlockHeight.current) {
       return;
     }
 
-    const newSummary = { ...summary };
+    // Setting the timestamp of when this screen was last updated with a block height
+    lastBlockHeight.current = bestBlockHeight;
+    setTimestamp(new Date(bestTimestamp * 1000));
+  }, [bestBlockHeight, bestTimestamp]);
 
-    // Handling the transactions number
-    if (heightData.transactions !== summary.transactions) {
-      newSummary.transactions = heightData.transactions;
-    }
-
-    // Handling the best block height, hash rate and sync timestamp
-    if (heightData.best_block_height !== summary.bestBlockHeight) {
-      newSummary.bestBlockHeight = heightData.best_block_height;
-      newSummary.hashRate = heightData.hash_rate;
-
-      // Setting the timestamp of when the last block was synced with this screen
-      setTimestamp(new Date(heightData.time * 1000));
-    }
-
-    setSummary(newSummary);
-  }, [heightData, summary]);
-
-  if (heightData === null) {
+  if (!bestBlockHeight) {
     return (
       <div className="content-wrapper">
         <ReactLoading type="spin" color={colors.purpleHathor} delay={500} />
@@ -74,29 +55,29 @@ function Dashboard() {
     );
   }
 
-  const hashRateValue = parseFloat(summary.hashRate.toFixed(2));
+  const hashRateValue = parseFloat(hashRate.toFixed(2));
   const prettified = helpers.divideValueIntoPrefix(hashRateValue);
   const prettyValue = prettified.value;
   const prefix = helpers.getUnitPrefix(prettified.divisions);
-  const hashRate = `${prettyValue} ${prefix}h/s`;
+  const formattedHashRate = `${prettyValue} ${prefix}h/s`;
 
-  const bestBlockHeight = numberUtils.prettyValue(summary.bestBlockHeight, 0);
-  const transactions = numberUtils.prettyValue(summary.transactions, 0);
+  const formattedBestBlockHeight = numberUtils.prettyValue(bestBlockHeight, 0);
+  const formattedTransactions = numberUtils.prettyValue(transactions, 0);
 
   const renderUi = () => (
     <div className="content-wrapper">
       <h2 className="statistics-title">Real time</h2>
       <p>
         <strong>Blocks (best height): </strong>
-        {bestBlockHeight}
+        {formattedBestBlockHeight}
       </p>
       <p>
         <strong>Transactions: </strong>
-        {transactions}
+        {formattedTransactions}
       </p>
       <p className="color-hathor">
         <strong>Hash rate: </strong>
-        {hashRate}
+        {formattedHashRate}
       </p>
       <TimeSeriesDashboard />
     </div>
@@ -114,15 +95,15 @@ function Dashboard() {
       <div className="real-time-info-container">
         <span className="real-time-info">
           <strong>BLOCKS</strong>
-          <span>{bestBlockHeight}</span>
+          <span>{formattedBestBlockHeight}</span>
         </span>
         <span className="real-time-info">
           <strong>TRANSACTIONS</strong>
-          <span>{transactions}</span>
+          <span>{formattedTransactions}</span>
         </span>
         <span className="real-time-info">
           <strong>HASH RATE</strong>
-          <span>{hashRate}</span>
+          <span>{formattedHashRate}</span>
         </span>
       </div>
       <TimeSeriesDashboard />
