@@ -58,11 +58,11 @@ a:hover {
 }
 
 .main-nav > nav a {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgb(255 255 255 / 60%);
 }
 
 .main-nav > nav a.active {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgb(255 255 255 / 90%);
 }
 
 .nav-tabs a, .nav-tabs a:hover {
@@ -82,7 +82,7 @@ a:hover {
 }
 
 .version-wrapper span {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgb(255 255 255 / 60%);
   font-size: 11px;
 }
 
@@ -187,7 +187,7 @@ i.pointer {
 
 .navigation-search-token {
   max-width: 600px;
-  padding-left: 0px;
+  padding-left: 0;
   margin-top: 2rem;
   margin-bottom: 2rem;
 }
@@ -205,7 +205,7 @@ i.pointer {
 }
 
 tr.tr-title {
-  background-color: rgba(0,0,0,0.05);
+  background-color: rgb(0 0 0 / 5%);
   cursor: default !important;
 }
 
@@ -215,6 +215,7 @@ tr.tr-title {
     tr {
       border-top: 1px solid #dee2e6;
     }
+
     th {
       border-bottom: 2px solid #dee2e6;
     }
@@ -222,7 +223,7 @@ tr.tr-title {
 
   tbody {
     tr.tr-title td {
-      background-color: rgb(242,242,242);
+      background-color: rgb(242 242 242);
       cursor: default !important;
     }
 
@@ -243,7 +244,7 @@ svg.svg-wrapper {
 
 .svg-wrapper line {
   stroke: #ddd;
-  shape-rendering: crispEdges;
+  shape-rendering: crispedges;
 }
 
 .svg-wrapper circle {
@@ -262,13 +263,13 @@ svg.svg-wrapper {
   width: 70px;
 }
 
-@media (max-width: 992px) {
+@media (width <= 992px) {
   .content-wrapper {
     margin: 2rem;
   }
 
   .navbar-nav li.nav-item {
-    padding: 0rem 1rem;
+    padding: 0 1rem;
   }
 
   .navbar-right {
@@ -284,7 +285,7 @@ svg.svg-wrapper {
 .grid line {
   stroke: lightgrey;
   stroke-opacity: 0.7;
-  shape-rendering: crispEdges;
+  shape-rendering: crispedges;
 }
 
 .grid path {
@@ -314,7 +315,7 @@ svg.svg-wrapper {
 }
 
 #graph .tx .tx-text, #graph .block .block-text {
-  stroke-width: 0px;
+  stroke-width: 0;
   font-size: 4px;
 }
 
@@ -327,7 +328,7 @@ svg.svg-wrapper {
   border-style: solid;
   border-radius: 4px;
   border-width: 1px;
-  box-shadow: 3px 3px 10px rgba(0, 0, 0, .5);
+  box-shadow: 3px 3px 10px rgb(0 0 0 / 50%);
   pointer-events: none;
 }
 
@@ -345,7 +346,7 @@ svg.svg-wrapper {
   color: white;
 }
 
-.btn-hathor:hover, .btn-hathor:active, .btn-hathor:visited, .btn-hathor:not(:disabled):not(.disabled):active {
+.btn-hathor:hover, .btn-hathor:active, .btn-hathor:visited, .btn-hathor:not(:disabled, .disabled):active {
   background-color: $purpleHathorHover;
   border-color: $purpleHathorHover;
   color: white;
@@ -358,7 +359,7 @@ svg.svg-wrapper {
 .bordered-wrapper > div {
   width: 100%;
   border: 2px solid #eee;
-  border-bottom: 0px;
+  border-bottom: 0;
 }
 
 .bordered-wrapper > div:first-child {
@@ -413,7 +414,7 @@ svg.svg-wrapper {
 
 .token-wrapper i {
   font-size: 1.2rem;
-  color: rgba(0,0,0,0.5);
+  color: rgb(0 0 0 / 50%);
 }
 
 .token-general-info {
@@ -426,7 +427,6 @@ svg.svg-wrapper {
 }
 
 .token-nft-preview {
-
   & figure {
     margin: 0;
   }
@@ -535,6 +535,7 @@ p, span {
 
   &:hover {
     color: inherit;
+
     .info-hover-popover {
       display: block;
     }
@@ -561,7 +562,7 @@ p, span {
 
 .navigation-autocomplete-token {
   width: 100%;
-  padding-left: 0px;
+  padding-left: 0;
   margin-top: 3rem;
   margin-bottom: 1rem;
   position: relative;
@@ -573,7 +574,6 @@ p, span {
 .autocomplete-results {
   position: absolute;
   border: 1px solid #d4d4d4;
-
   z-index: 99;
   top: 100%;
   left: 0;
@@ -583,10 +583,8 @@ p, span {
   list-style-type: none;
   margin: 0;
   padding: 0;
-
   margin-left: 15px;
   margin-right: 38px;
-
   background: white;
   max-height: 400px;
   overflow-y: scroll;
@@ -668,8 +666,6 @@ th.sortable {
 }
 
 .source-code {
-  -webkit-transition: all 1s ease;
-  -moz-transition: all 1s ease;
   transition: all 1s ease;
   height: 0;
   opacity: 0;
