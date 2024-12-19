@@ -367,7 +367,7 @@ class DagComponent extends React.Component {
 
   drawGraph() {
     // Setting svg width depending on the window size
-    this.width = this.props.newUiEnabled ? '100%' : Math.min(960, this.refs.dagWrapper.offsetWidth);
+    this.width = Math.min(960, this.refs.dagWrapper.offsetWidth);
 
     // Create svg and auxiliar g elements
     this.svg = select(this.props.newUiEnabled ? '#graph' : 'svg')
