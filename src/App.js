@@ -51,10 +51,18 @@ const NavigationRoute = ({ internalScreen: InternalScreen }) => {
   const newUiEnabled = useNewUiEnabled();
 
   return (
-    <div>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100%',
+      }}
+    >
       <Navigation />
-      <InternalScreen />
-      {newUiEnabled ? <Footer /> : ''}
+      <div style={{ flex: 1 }}>
+        <InternalScreen />
+      </div>
+      {newUiEnabled && <Footer />}
     </div>
   );
 };
