@@ -51,10 +51,12 @@ const NavigationRoute = ({ internalScreen: InternalScreen }) => {
   const newUiEnabled = useNewUiEnabled();
 
   return (
-    <div>
-      <Navigation />
-      <InternalScreen />
-      {newUiEnabled ? <Footer /> : ''}
+    <div className='app-body'>
+      <div className='app-container'>
+        <Navigation />
+        <InternalScreen />
+        {newUiEnabled ? <Footer /> : ''}
+      </div>
     </div>
   );
 };
