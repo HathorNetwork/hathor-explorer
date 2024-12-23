@@ -603,12 +603,12 @@ nav {
     }
 
     figure p {
-        color: var(--bold-text-color);
-        font-size: 16px;
-        font-weight: 700;
-        line-height: 20px;
-        letter-spacing: 0.03em;
-        text-align: center;
+      color: var(--bold-text-color);
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 20px;
+      letter-spacing: 0.03em;
+      text-align: center;
     }
   }
 }
@@ -3343,6 +3343,10 @@ th.sortable {
   line-height: 20px;
   letter-spacing: 0.03em;
   text-align: left;
+
+  & .address-container-description {
+    width: 100%;
+  }
 }
 
 .token-option {
@@ -3396,7 +3400,7 @@ th.sortable {
 .summary-balance-info-container {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: baseline;
 }
 
 .container-big-links {

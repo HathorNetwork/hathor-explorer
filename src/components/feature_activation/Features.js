@@ -308,7 +308,8 @@ class Features extends React.Component {
       return this.getColumnDescriptions().map(({ name, description }) => {
         return (
           <div key={name} className="summary-balance-info-container">
-            <div className="address-container-title">{name}:</div> <span>{description}</span>
+            <div className="address-container-title">{name}:</div>{' '}
+            <span className="address-container-description">{description}</span>
           </div>
         );
       });
