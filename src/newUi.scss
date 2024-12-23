@@ -122,6 +122,24 @@ body {
   purpleHathor: $purpleHathor;
 }
 
+.app-body {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.app-container {
+  max-width: 1920px;  
+}
+
+@media screen and (min-width: 1920px) {
+  .app-body {
+    height: 100%;
+  }
+}
+
 .nav-title {
   color: var(--bold-text-color);
   white-space: nowrap;
