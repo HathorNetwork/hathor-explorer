@@ -1933,8 +1933,8 @@ nav {
 
       .mobile-search-input {
         transition: width 0.3s ease, padding 0.3s ease;
-        color: var(--secondary-color);
-        background-color: var(--input-background) !important;
+        color: var(--bold-text-color);
+        background-color: var(--input-background);
         padding-left: 35px;
         background-size: 16px;
         border: 1px solid var(--border-color);
@@ -3450,7 +3450,7 @@ th.sortable {
 
       .mobile-search-input {
         transition: width 0.3s ease, padding 0.3s ease;
-        color: var(--secondary-color);
+        color: var(--bold-text-color) !important;
         background-color: var(--input-background) !important;
         padding-left: 35px;
         background-size: 16px;
