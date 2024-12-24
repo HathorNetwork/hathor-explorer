@@ -12,7 +12,7 @@ import TxData from '../components/tx/TxData';
 import txApi from '../api/txApi';
 import metadataApi from '../api/metadataApi';
 import Spinner from '../components/Spinner';
-import { useNewUiEnabled } from '../hooks';
+import { useIsMobile, useNewUiEnabled } from '../hooks';
 
 /**
  * Shows the detail of a transaction or block
@@ -22,6 +22,7 @@ import { useNewUiEnabled } from '../hooks';
 function TransactionDetail() {
   const { id: txUid } = useParams();
   const newUiEnabled = useNewUiEnabled();
+  const isMobile = useIsMobile();
 
   /**
    * transaction {Object} Loaded transaction
@@ -105,6 +106,7 @@ function TransactionDetail() {
             showRaw={true}
             showConflicts={true}
             newUiEnabled={newUiEnabled}
+            isMobile={isMobile}
           />
         ) : (
           <p className="text-danger">Transaction with hash {txUid} not found</p>

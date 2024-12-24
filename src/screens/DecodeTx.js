@@ -10,7 +10,7 @@ import TxTextInput from '../components/tx/TxTextInput';
 import TxData from '../components/tx/TxData';
 import helpers from '../utils/helpers';
 import txApi from '../api/txApi';
-import { useNewUiEnabled } from '../hooks';
+import { useIsMobile, useNewUiEnabled } from '../hooks';
 import { ReactComponent as InfoIcon } from '../assets/images/icon-info.svg';
 import NewHathorAlert from '../components/NewHathorAlert';
 
@@ -36,6 +36,8 @@ function DecodeTx() {
   const newUiEnabled = useNewUiEnabled();
 
   const alertNotFound = useRef(null);
+
+  const isMobile = useIsMobile();
 
   const showSuccess = () => {
     alertNotFound.current.show(3000);
@@ -133,6 +135,7 @@ function DecodeTx() {
             meta={meta}
             showConflicts={false}
             newUiEnabled
+            isMobile={isMobile}
           />
         ) : null}
         <div
