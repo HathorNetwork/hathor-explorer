@@ -1176,11 +1176,12 @@ class TxData extends React.Component {
           </h2>
           <div className="tx-id-container">
             <label className="tx-title-purple">
-              {hathorLib.transactionUtils.isBlock(this.props.transaction)
-                ? 'Block'
-                : this.props.isMobile
-                ? 'TX'
-                : 'Transaction'}{' '}
+              {(() => {
+                if (hathorLib.transactionUtils.isBlock(this.props.transaction)) {
+                  return 'Block';
+                }
+                return this.props.isMobile ? 'TX' : 'Transaction';
+              })()}{' '}
               ID:
             </label>{' '}
             <label className="tx-id-top">{this.props.transaction.hash}</label>
