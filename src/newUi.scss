@@ -517,9 +517,9 @@ nav {
 
       span:nth-of-type(1) {
         word-break: break-word;
-        font-weight: 600;
+        font-weight: 900;
         font-family: 'Mona Sans';
-        size: 14px;
+        font-size: 14px;
         line-height: 20px;
         letter-spacing: 0.03em;
         color: var(--bold-text-color);
@@ -527,10 +527,10 @@ nav {
 
       span:nth-of-type(2) {
         font-family: 'San Francisco Pro';
-        font-weight: 400;
-        size: 14px;
+        font-weight: 200;
+        font-size: 15px;
         line-height: 20px;
-        letter-spacing: 0.03em;
+        letter-spacing: 0.1em;
         color: var(--normal-text-color);
       }
     }
