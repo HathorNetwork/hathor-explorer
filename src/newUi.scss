@@ -124,20 +124,13 @@ body {
 
 .app-body {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  height: 100%;
+  display: grid;
+  place-items: center;
 }
 
 .app-container {
-  max-width: 1920px;  
-}
-
-@media screen and (min-width: 1920px) {
-  .app-body {
-    height: 100%;
-  }
+  max-width: 1440px;
 }
 
 .nav-title {
@@ -152,7 +145,7 @@ body {
 }
 
 .footer-container {
-  width: 1, 440px;
+  width: 100%;
   height: 220px;
   border-top: 1px solid var(--border-color);
   display: flex;
@@ -623,12 +616,12 @@ nav {
     }
 
     figure p {
-        color: var(--bold-text-color);
-        font-size: 16px;
-        font-weight: 700;
-        line-height: 20px;
-        letter-spacing: 0.03em;
-        text-align: center;
+      color: var(--bold-text-color);
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 20px;
+      letter-spacing: 0.03em;
+      text-align: center;
     }
   }
 }
