@@ -903,7 +903,7 @@ class TxData extends React.Component {
     const renderNCActions = () => {
       const actionsCount = get(this.props.transaction, 'nc_context.actions.length', 0);
       return this.props.newUiEnabled ? (
-        <DropDetails title={`Actions ${actionsCount}`}>
+        <DropDetails title={`Actions (${actionsCount})`}>
           {actionsCount > 0 && renderNCActionsList()}
         </DropDetails>
       ) : (
