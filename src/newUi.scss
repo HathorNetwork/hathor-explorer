@@ -603,12 +603,12 @@ nav {
     }
 
     figure p {
-        color: var(--bold-text-color);
-        font-size: 16px;
-        font-weight: 700;
-        line-height: 20px;
-        letter-spacing: 0.03em;
-        text-align: center;
+      color: var(--bold-text-color);
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 20px;
+      letter-spacing: 0.03em;
+      text-align: center;
     }
   }
 }
@@ -919,13 +919,13 @@ nav {
     left: 20px;
     display: none;
     border-radius: 100px;
-    padding: 6px;
     border: 1px solid var(--border-color);
     text-align: center;
     white-space: nowrap;
     width: fit-content !important;
     background-color: var(--secondary-color);
     z-index: 1000;
+    padding: 5px 10px;
   }
 
   svg {
@@ -1853,7 +1853,9 @@ nav {
   .info-tooltip-container {
     .info-tooltip {
       border-radius: 15px;
-      min-width: 120px !important;
+      white-space: wrap;
+      width: 30vw !important;
+      text-align: left;
     }
   }
 }
