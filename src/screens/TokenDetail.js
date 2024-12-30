@@ -158,7 +158,6 @@ function TokenDetail() {
           title={<h1 className="title-tx-page">Transactions</h1>}
           shouldUpdateList={shouldUpdateList}
           updateData={updateListData}
-          noPagination
         />
       </div>
     </div>
