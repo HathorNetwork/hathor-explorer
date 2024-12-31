@@ -305,11 +305,14 @@ class Network extends React.Component {
             <div className="progress">
               <div
                 className="progress-bar bg-success"
-                style={{ width: `${synced_percent}%`, borderRadius: '5px' }}
+                style={{
+                  width: `${synced_percent}%`,
+                  borderRadius: `${synced_percent}% 0px 0px ${synced_percent}%}`,
+                }}
               ></div>
               <div
                 className="progress-bar bg-warning"
-                style={{ width: `${general_percent}%`, borderRadius: '5px' }}
+                style={{ width: `${general_percent}%`, borderRadius: '0px 5px 5px 0px' }}
               ></div>
             </div>
           </div>
