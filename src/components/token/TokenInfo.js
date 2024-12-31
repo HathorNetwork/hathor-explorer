@@ -130,7 +130,7 @@ const TokenInfo = props => {
             TOKENS
           </span>
           <span className="info-tooltip-container">
-            <div style={{ whiteSpace: 'nowrap' }}>{token.canMelt ? 'Yes' : 'No'}</div>
+            <div style={{ whiteSpace: 'nowrap' }}>{token.canMint ? 'Yes' : 'No'}</div>
             <div className="tooltip-info-icon">
               <InfoIcon />
               <span className="info-tooltip">
