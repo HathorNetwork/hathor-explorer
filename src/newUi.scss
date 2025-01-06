@@ -3305,6 +3305,7 @@ th.sortable {
   background-color: var(--input-background);
   width: 100%;
   border-radius: 8px;
+  z-index: 10;
 }
 
 .custom-select-options ul {
