@@ -943,14 +943,25 @@ nav {
   }
 }
 
+.new-hathor-alert-container {
+  display: flex;
+  position: fixed;
+  justify-content: center;
+  align-items: center;
+  padding: 0px 0px 17px 0px;
+  bottom: 220px;
+  width: 100%;
+}
+
 .new-hathor-alert {
+  white-space: nowrap;
   display: flex;
   flex-direction: row;
-  padding: 4px 8px;
+  padding: 4px 100px 4px 100px;
   gap: 4px;
   border-radius: 4px;
   border: none;
-  width: 70%;
+  width: fit-content;
   color: white;
   justify-content: space-between;
   z-index: 9999;
@@ -958,8 +969,8 @@ nav {
 
   &.fixed-position {
     position: fixed !important;
-    right: 2rem;
-    bottom: 2rem;
+    right: 15%;
+    bottom: 50%;
   }
 }
 
@@ -3510,6 +3521,10 @@ th.sortable {
     .hide-version {
       display: none;
     }
+  }
+
+  .new-hathor-alert {
+    padding: 4px 8px 4px 8px;
   }
 }
 
