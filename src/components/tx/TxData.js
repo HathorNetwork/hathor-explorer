@@ -380,7 +380,10 @@ class TxData extends React.Component {
       return (
         <div key={idx}>
           <div>
-            {outputValue(output)} {renderOutputToken(output)}
+            <span style={this.props.newUiEnabled ? { fontWeight: '600' } : null}>
+              {outputValue(output)}
+            </span>{' '}
+            {renderOutputToken(output)}
           </div>
           <div>
             {renderDecodedScript(output)}
