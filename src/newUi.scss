@@ -133,6 +133,14 @@ body {
   max-width: 1440px;
 }
 
+.limit-section {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
 .nav-title {
   color: var(--bold-text-color);
   white-space: nowrap;
@@ -1564,7 +1572,7 @@ nav {
 
 .new-timeseries-iframe {
   display: flex;
-  height: 2300px;
+  height: 1080px;
   width: 100%;
   border: none;
 }
