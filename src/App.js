@@ -51,7 +51,6 @@ const NavigationRoute = ({ internalScreen: InternalScreen }) => {
   const newUiEnabled = useNewUiEnabled();
 
   return (
-
     <div className="limit-section">
       <Navigation />
       <div style={{ flex: 1 }}>
