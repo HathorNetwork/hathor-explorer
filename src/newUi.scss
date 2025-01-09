@@ -120,6 +120,14 @@ body {
   purpleHathor: $purpleHathor;
 }
 
+.limit-section {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
 .nav-title {
   color: var(--bold-text-color);
   white-space: nowrap;
@@ -951,6 +959,7 @@ nav {
   padding: 0px 0px 17px 0px;
   bottom: 220px;
   width: 100%;
+  left: 0;
 }
 
 .new-hathor-alert {
@@ -1557,7 +1566,7 @@ nav {
 
 .new-timeseries-iframe {
   display: flex;
-  height: 2300px;
+  height: 1080px;
   width: 100%;
   border: none;
 }
