@@ -274,9 +274,12 @@ function Navigation() {
           </div>
           <Sidebar close={() => setShowSidebar(false)} open={showSidebar} />
         </nav>
-        <div className="new-hathor-alert-container">
-          <NewHathorAlert ref={alertErrorRef} text="Invalid hash format or address" type="error" />
-        </div>
+        <NewHathorAlert
+          ref={alertErrorRef}
+          text="Invalid hash format or address"
+          type="error"
+          fixedPosition
+        />
       </>
     );
   };

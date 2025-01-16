@@ -952,7 +952,7 @@ nav {
 }
 
 .new-hathor-alert-container {
-  display: flex;
+  display: none;
   position: fixed;
   justify-content: center;
   align-items: center;
@@ -960,6 +960,10 @@ nav {
   bottom: 220px;
   width: 100%;
   left: 0;
+
+  &.show {
+    display: flex;
+  }
 }
 
 .new-hathor-alert {
@@ -975,12 +979,6 @@ nav {
   justify-content: space-between;
   z-index: 9999;
   margin: 0;
-
-  &.fixed-position {
-    position: fixed !important;
-    right: 15%;
-    bottom: 50%;
-  }
 }
 
 .alert-success-container {
