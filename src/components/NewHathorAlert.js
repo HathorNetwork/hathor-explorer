@@ -37,7 +37,10 @@ const NewHathorAlert = forwardRef(({ type, text, showAlert, fixedPosition }, ref
     if (alertDiv.current) {
       alertDiv.current.classList.add('show');
       setTimeout(() => {
-        alertDiv.current.classList.remove('show');
+        // By the time the timeout is called, the component may have been unmounted
+        if (alertDiv?.current) {
+          alertDiv.current.classList.remove('show');
+        }
       }, duration);
     }
   };
