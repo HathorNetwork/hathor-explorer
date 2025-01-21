@@ -380,7 +380,10 @@ class TxData extends React.Component {
       return (
         <div key={idx}>
           <div>
-            {outputValue(output)} {renderOutputToken(output)}
+            <span style={this.props.newUiEnabled ? { fontWeight: '600' } : null}>
+              {outputValue(output)}
+            </span>{' '}
+            {renderOutputToken(output)}
           </div>
           <div>
             {renderDecodedScript(output)}
@@ -903,7 +906,7 @@ class TxData extends React.Component {
     const renderNCActions = () => {
       const actionsCount = get(this.props.transaction, 'nc_context.actions.length', 0);
       return this.props.newUiEnabled ? (
-        <DropDetails title={`Actions ${actionsCount}`}>
+        <DropDetails title={`Actions (${actionsCount})`}>
           {actionsCount > 0 && renderNCActionsList()}
         </DropDetails>
       ) : (
@@ -1174,10 +1177,14 @@ class TxData extends React.Component {
             {hathorLib.transactionUtils.isBlock(this.props.transaction) ? 'Block' : 'Transaction'}{' '}
             Details
           </h2>
-
           <div className="tx-id-container">
             <label className="tx-title-purple">
-              {hathorLib.transactionUtils.isBlock(this.props.transaction) ? 'Block' : 'Transaction'}{' '}
+              {(() => {
+                if (hathorLib.transactionUtils.isBlock(this.props.transaction)) {
+                  return 'Block';
+                }
+                return this.props.isMobile ? 'TX' : 'Transaction';
+              })()}{' '}
               ID:
             </label>{' '}
             <label className="tx-id-top">{this.props.transaction.hash}</label>
