@@ -8,23 +8,19 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useFlag } from '@unleash/proxy-client-react';
 import { useSelector } from 'react-redux';
-import { NavLink, Link, useHistory } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import {
-  REACT_APP_NETWORK,
   UNLEASH_TOKENS_BASE_FEATURE_FLAG,
   UNLEASH_TOKEN_BALANCES_FEATURE_FLAG,
 } from '../constants';
 import ConditionalNavigation from './ConditionalNavigation';
 import { ThemeSwitch } from './ThemeSwitch';
-import { ReactComponent as SidebarLogo } from '../assets/images/logo-sidebar.svg';
 import { ReactComponent as SunIconLight } from '../assets/images/sun-light.svg';
 import { ReactComponent as SunIconDark } from '../assets/images/sun-dark.svg';
 import { ReactComponent as MoonIcon } from '../assets/images/moon.svg';
-import { ReactComponent as GlobeNetwork } from '../assets/images/global.svg';
 import { ReactComponent as ArrorDownNavItem } from '../assets/images/arrow-down-nav-dropdown.svg';
 
 function Sidebar({ close, open }) {
-  const history = useHistory();
   const isTokensBaseEnabled = useFlag(`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`);
   const isTokensBalanceEnabled = useFlag(`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.rollout`);
   const showTokensTab = isTokensBalanceEnabled || isTokensBaseEnabled;
