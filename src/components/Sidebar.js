@@ -15,7 +15,6 @@ import {
   UNLEASH_TOKEN_BALANCES_FEATURE_FLAG,
 } from '../constants';
 import ConditionalNavigation from './ConditionalNavigation';
-import Version from './Version';
 import { ThemeSwitch } from './ThemeSwitch';
 import { ReactComponent as SidebarLogo } from '../assets/images/logo-sidebar.svg';
 import { ReactComponent as SunIconLight } from '../assets/images/sun-light.svg';
@@ -31,7 +30,6 @@ function Sidebar({ close, open }) {
   const showTokensTab = isTokensBalanceEnabled || isTokensBaseEnabled;
   const theme = useSelector(state => state.theme);
   const sidebarRef = useRef(null);
-  const hathorNetwork = `Hathor ${REACT_APP_NETWORK}`;
   const [tokensOpen, setTokensOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
 
@@ -59,25 +57,6 @@ function Sidebar({ close, open }) {
       </div>
       <aside ref={sidebarRef} className={`sidebar  ${open ? 'active' : 'inactive'}`}>
         <div className="aside-explore-container">
-          <div className="newLogo-explorer-container">
-            <div className="d-flex flex-column align-items-center">
-              <Link className="aside-brand" to="/" href="/">
-                <SidebarLogo fill={theme === 'dark' ? 'white' : 'black'} className={`newLogo`} />
-              </Link>
-            </div>
-            <button
-              className="navbar-toggler"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#navbarSupportedContent"
-              aria-controls="navbarSupportedContent"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
-              onClick={() => history.push('/')}
-            >
-              <span>EXPLORER</span>
-            </button>
-          </div>
           <div className="aside-tabs-container">
             <ul className="navbar-nav me-auto">
               <li className="nav-item item-sidebar">
@@ -184,19 +163,6 @@ function Sidebar({ close, open }) {
               <ThemeSwitch />
               <MoonIcon fill={theme === 'dark' ? 'white' : 'black'} />
             </div>
-          </div>
-          <div className="aside-network">
-            <GlobeNetwork
-              width={11}
-              height={11}
-              className={`${
-                theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'
-              } theme-network-logo`}
-            />
-            <span className="nav-title">{hathorNetwork}</span>
-          </div>
-          <div className="aside-version">
-            <Version explorer />
           </div>
         </div>
       </aside>
