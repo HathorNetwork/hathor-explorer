@@ -132,7 +132,6 @@ body {
   color: var(--bold-text-color);
   white-space: nowrap;
   font-family: 'San Francisco Pro', sans-serif;
-  text-transform: capitalize;
 }
 
 .footer-title {
@@ -171,7 +170,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items: flex-start;
+    align-items: center;
     gap: 16px;
     color: var(--bold-text-color);
 
@@ -186,13 +185,13 @@ body {
   .links-container {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 8px;
   }
 
   .terms-container {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 8px;
   }
 
   .footer-button {
@@ -202,7 +201,7 @@ body {
     justify-content: center;
     border: 1px solid var(--border-color);
     border-radius: 5px;
-    height: 24px;
+    height: 28px;
     width: fit-content;
     font-size: 10px;
     color: $text-dark-bold;
@@ -218,6 +217,21 @@ body {
     font-size: 12px;
     font-weight: 500;
     white-space: nowrap;
+  }
+
+  .footer-explorer > button {
+    padding: 0px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    height: 24px;
+    font-size: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+    background-color: transparent;
+    color: var(--bold-text-color);
+    border: 1px solid var(--border-color);
   }
 }
 
@@ -327,10 +341,6 @@ nav {
 
   .main-nav {
     background-color: #0d1117;
-  }
-
-  .navbar-brand {
-    margin: 5px;
   }
 
   .newLogo {
@@ -658,11 +668,19 @@ nav {
 
 .network-icon-container {
   display: flex;
-  gap: 10px;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  white-space: nowrap;
   background-color: transparent;
-  border: none;
+  color: var(--bold-text-color);
+  border: 1px solid var(--border-color);
 }
 
 .sidebar {
@@ -1906,6 +1924,13 @@ nav {
 
     .logo-version-container {
       margin-bottom: 20px;
+      flex-wrap: wrap;
+      flex-direction: row;
+      gap: 8px;
+    }
+
+    .footer-explorer {
+      flex: 1 1 calc(50% - 16px);
     }
 
     .hide-version {
@@ -2598,6 +2623,14 @@ i.pointer {
   position: fixed !important;
   right: 1rem;
   bottom: 1rem;
+}
+
+.navigation-search {
+  min-width: 350px;
+}
+
+.navigation-search > div {
+  width: 100%;
 }
 
 .navigation-search i {

@@ -84,14 +84,14 @@ function Navigation() {
   };
 
   const renderNewUi = () => {
-    const hathorNetwork = `Hathor ${REACT_APP_NETWORK}`;
+    const hathorNetwork = `${REACT_APP_NETWORK}`;
 
     return (
       <>
         <nav>
           <div className="hide-logo-container-mobile">
             <div className="newLogo-explorer-container">
-              <div className="d-flex flex-column align-items-center">
+              <div className="d-flex flex-column align-items-start">
                 <Link className="navbar-brand" to="/" href="/">
                   <NewLogo
                     className={`newLogo ${
@@ -99,30 +99,13 @@ function Navigation() {
                     }`}
                   />
                 </Link>
+                <div className="network-icon-container">
+                  <GlobeNetwork
+                    className={`${theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'}`}
+                  />
+                  <span className="nav-title">{hathorNetwork}</span>
+                </div>
               </div>
-              {!showSearchInput ? (
-                <button
-                  className="navbar-toggler"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#navbarSupportedContent"
-                  aria-controls="navbarSupportedContent"
-                  aria-expanded="false"
-                  aria-label="Toggle navigation"
-                >
-                  <span>EXPLORER</span>
-                </button>
-              ) : (
-                ''
-              )}
-            </div>
-            <div className="hide-network-mobile">
-              <GlobeNetwork
-                className={`${
-                  theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'
-                } theme-network-logo`}
-              />
-              <span className="nav-title">{hathorNetwork}</span>
             </div>
           </div>
           <div className="nav-tabs-container hide-tabs">
@@ -238,12 +221,6 @@ function Navigation() {
               onClick={() => dispatch(toggleTheme())}
               role="button"
             />
-            <div className="network-icon-container">
-              <GlobeNetwork
-                className={`${theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'}`}
-              />
-              <span className="nav-title">{hathorNetwork}</span>
-            </div>
           </div>
           <div className="mobile-tabs">
             {showSearchInput ? (
