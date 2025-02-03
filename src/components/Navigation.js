@@ -113,7 +113,6 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/"
-                  exact
                   className="nav-link"
                   activeClassName="active"
                   activeStyle={{ fontWeight: 'bold' }}
@@ -153,7 +152,6 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/network"
-                  exact
                   className="nav-link"
                   activeClassName="active"
                   activeStyle={{ fontWeight: 'bold' }}
@@ -164,7 +162,6 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/statistics"
-                  exact
                   className="nav-link"
                   activeClassName="active"
                   activeStyle={{ fontWeight: 'bold' }}
@@ -185,16 +182,16 @@ function Navigation() {
                   <ArrorDownNavItem className="dropdown-icon" />
                 </span>
                 <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <NavLink to="/decode-tx/" exact className="nav-link">
+                  <NavLink to="/decode-tx/" className="nav-link">
                     Decode Tx
                   </NavLink>
-                  <NavLink to="/push-tx/" exact className="nav-link">
+                  <NavLink to="/push-tx/" className="nav-link">
                     Push Tx
                   </NavLink>
-                  <NavLink to="/dag/" exact className="nav-link">
+                  <NavLink to="/dag/" className="nav-link">
                     DAG
                   </NavLink>
-                  <NavLink to="/features/" exact className="nav-link">
+                  <NavLink to="/features/" className="nav-link">
                     Features
                   </NavLink>
                 </div>
@@ -286,7 +283,6 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/"
-                  exact
                   className="nav-link"
                   activeClassName="active"
                   activeStyle={{ fontWeight: 'bold' }}
@@ -325,7 +321,6 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/network"
-                  exact
                   className="nav-link"
                   activeClassName="active"
                   activeStyle={{ fontWeight: 'bold' }}
@@ -336,7 +331,6 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/statistics"
-                  exact
                   className="nav-link"
                   activeClassName="active"
                   activeStyle={{ fontWeight: 'bold' }}
@@ -356,16 +350,16 @@ function Navigation() {
                   Tools
                 </span>
                 <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <NavLink to="/decode-tx/" exact className="nav-link">
+                  <NavLink to="/decode-tx/" className="nav-link">
                     Decode Tx
                   </NavLink>
-                  <NavLink to="/push-tx/" exact className="nav-link">
+                  <NavLink to="/push-tx/" className="nav-link">
                     Push Tx
                   </NavLink>
-                  <NavLink to="/dag/" exact className="nav-link">
+                  <NavLink to="/dag/" className="nav-link">
                     DAG
                   </NavLink>
-                  <NavLink to="/features/" exact className="nav-link">
+                  <NavLink to="/features/" className="nav-link">
                     Features
                   </NavLink>
                 </div>

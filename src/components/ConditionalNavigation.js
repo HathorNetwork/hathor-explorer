@@ -8,7 +8,6 @@ const ConditionalNavigation = ({ featureToggle, to, label }) => {
     <span className="nav-item">
       <NavLink
         to={to}
-        exact
         className="nav-link"
         activeClassName="active"
         activeStyle={{ fontWeight: 'bold' }}

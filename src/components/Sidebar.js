@@ -58,7 +58,6 @@ function Sidebar({ close, open }) {
               <li className="nav-item item-sidebar">
                 <NavLink
                   to="/"
-                  exact
                   className="nav-link"
                   activeClassName="active"
                   activeStyle={{ fontWeight: 'bold' }}
@@ -101,7 +100,6 @@ function Sidebar({ close, open }) {
               <li className="nav-item item-sidebar">
                 <NavLink
                   to="/network"
-                  exact
                   className="nav-link"
                   activeClassName="active"
                   activeStyle={{ fontWeight: 'bold' }}
@@ -112,7 +110,6 @@ function Sidebar({ close, open }) {
               <li className="nav-item item-sidebar">
                 <NavLink
                   to="/statistics"
-                  exact
                   className="nav-link"
                   activeClassName="active"
                   activeStyle={{ fontWeight: 'bold' }}
@@ -132,16 +129,16 @@ function Sidebar({ close, open }) {
                   <div>
                     <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
                       <li>
-                        <NavLink to="/decode-tx/" exact className="nav-link">
+                        <NavLink to="/decode-tx/" className="nav-link">
                           Decode Tx
                         </NavLink>
-                        <NavLink to="/push-tx/" exact className="nav-link">
+                        <NavLink to="/push-tx/" className="nav-link">
                           Push Tx
                         </NavLink>
-                        <NavLink to="/dag/" exact className="nav-link">
+                        <NavLink to="/dag/" className="nav-link">
                           DAG
                         </NavLink>
-                        <NavLink to="/features/" exact className="nav-link">
+                        <NavLink to="/features/" className="nav-link">
                           Features
                         </NavLink>
                       </li>
