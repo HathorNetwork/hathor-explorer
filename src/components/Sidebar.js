@@ -56,7 +56,10 @@ function Sidebar({ close, open }) {
           <div className="aside-tabs-container">
             <ul className="navbar-nav me-auto">
               <li className="nav-item item-sidebar">
-                <NavLink to="/" className={({ isActive }) => `nav-link ${isActive && 'active'}`}>
+                <NavLink
+                  to="/"
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                >
                   Home
                 </NavLink>
               </li>
@@ -95,7 +98,7 @@ function Sidebar({ close, open }) {
               <li className="nav-item item-sidebar">
                 <NavLink
                   to="/network"
-                  className={({ isActive }) => `nav-link ${isActive && 'active'}`}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 >
                   Network
                 </NavLink>
@@ -103,7 +106,7 @@ function Sidebar({ close, open }) {
               <li className="nav-item item-sidebar">
                 <NavLink
                   to="/statistics"
-                  className={({ isActive }) => `nav-link ${isActive && 'active'}`}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 >
                   Statistics
                 </NavLink>
