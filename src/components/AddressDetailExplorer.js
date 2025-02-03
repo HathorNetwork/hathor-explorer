@@ -9,7 +9,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import hathorLib from '@hathor/wallet-lib';
 import ReactLoading from 'react-loading';
 import { find } from 'lodash';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useNewUiEnabled } from '../hooks';
 import AddressSummary from './AddressSummary';
 import AddressHistory from './AddressHistory';
@@ -63,7 +63,7 @@ function AddressDetailExplorer() {
   );
 
   const { address } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
   const newUiEnabled = useNewUiEnabled();
 
   /*
@@ -380,7 +380,7 @@ function AddressDetailExplorer() {
    */
   const updateTokenURL = token => {
     const newURL = pagination.current.setURLParameters({ token });
-    history.push(newURL);
+    navigate(newURL);
   };
 
   /**
@@ -389,7 +389,7 @@ function AddressDetailExplorer() {
    * @param {String} hash Hash of tx clicked
    */
   const onRowClicked = hash => {
-    history.push(`/transaction/${hash}`);
+    navigate(`/transaction/${hash}`);
   };
 
   /**

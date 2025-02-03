@@ -8,7 +8,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { get, last, find, isEmpty } from 'lodash';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { numberUtils, constants as hathorLibConstants } from '@hathor/wallet-lib';
 import { useSelector } from 'react-redux';
 import { useNewUiEnabled } from '../../hooks';
@@ -22,7 +22,7 @@ import TokenAutoCompleteField from './TokenAutoCompleteField';
  * Displays custom tokens in a table with pagination buttons and a search bar.
  */
 function TokenBalances({ maintenanceMode }) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const newUiEnabled = useNewUiEnabled();
   const serverInfo = useSelector(state => state.serverInfo);
 
@@ -161,9 +161,9 @@ function TokenBalances({ maintenanceMode }) {
         order: newOrder,
       });
 
-      history.push(newURL);
+      navigate(newURL);
     },
-    [history]
+    [navigate]
   );
 
   /**

@@ -303,7 +303,7 @@ class AddressDetailLegacy extends React.Component {
     const queryParams = this.pagination.obtainQueryParams();
     queryParams.token = token;
     const newURL = this.pagination.setURLParameters(queryParams);
-    this.props.history.push(newURL);
+    this.props.navigate(newURL);
   };
 
   /**
@@ -337,7 +337,7 @@ class AddressDetailLegacy extends React.Component {
    * @param {String} hash Hash of tx clicked
    */
   onRowClicked = hash => {
-    this.props.history.push(`/transaction/${hash}`);
+    this.props.navigate(`/transaction/${hash}`);
   };
 
   /**

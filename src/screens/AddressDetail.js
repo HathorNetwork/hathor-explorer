@@ -7,8 +7,7 @@
 
 import React from 'react';
 import { useFlag } from '@unleash/proxy-client-react';
-import { useHistory } from 'react-router-dom/cjs/react-router-dom';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import AddressDetailExplorer from '../components/AddressDetailExplorer';
 import AddressDetailLegacy from '../components/AddressDetailLegacy';
 import { UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG } from '../constants';
@@ -17,7 +16,7 @@ import ErrorMessageWithIcon from '../components/error/ErrorMessageWithIcon';
 const AddressDetail = () => {
   const maintenanceMode = useFlag(`${UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG}.maintenance`);
   const latestMode = useFlag(`${UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG}.latest`);
-  const history = useHistory();
+  const navigate = useNavigate();
   const params = useParams();
 
   if (maintenanceMode) {
@@ -30,7 +29,7 @@ const AddressDetail = () => {
     return <AddressDetailExplorer />;
   }
 
-  return <AddressDetailLegacy history={history} match={{ params }} />;
+  return <AddressDetailLegacy navigate={navigate} match={{ params }} />;
 };
 
 export default AddressDetail;

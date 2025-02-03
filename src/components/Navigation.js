@@ -6,7 +6,7 @@
  */
 
 import React, { useRef, useState } from 'react';
-import { NavLink, Link, useHistory } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import hathorLib from '@hathor/wallet-lib';
 import { useFlag } from '@unleash/proxy-client-react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -32,7 +32,7 @@ import { toggleTheme } from '../actions';
 import NewHathorAlert from './NewHathorAlert';
 
 function Navigation() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const alertErrorRef = useRef(null);
   const txSearchRef = useRef(null);
@@ -65,13 +65,13 @@ function Navigation() {
       const regex = /[A-Fa-f\d]{64}/g;
       if (regex.test(text)) {
         // It's a valid hash
-        history.push(`/transaction/${text}`);
+        navigate(`/transaction/${text}`);
       } else {
         const network = hathorLib.config.getNetwork();
         const addressObj = new hathorLib.Address(text, { network });
         if (addressObj.isValid()) {
           // It's a valid address
-          history.push(`/address/${text}`);
+          navigate(`/address/${text}`);
         } else {
           showError();
         }
@@ -113,10 +113,7 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/"
-                  exact
-                  className="nav-link"
-                  activeClassName="active"
-                  activeStyle={{ fontWeight: 'bold' }}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 >
                   Home
                 </NavLink>
@@ -153,10 +150,7 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/network"
-                  exact
-                  className="nav-link"
-                  activeClassName="active"
-                  activeStyle={{ fontWeight: 'bold' }}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 >
                   Network
                 </NavLink>
@@ -164,10 +158,7 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/statistics"
-                  exact
-                  className="nav-link"
-                  activeClassName="active"
-                  activeStyle={{ fontWeight: 'bold' }}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 >
                   Statistics
                 </NavLink>
@@ -185,16 +176,16 @@ function Navigation() {
                   <ArrorDownNavItem className="dropdown-icon" />
                 </span>
                 <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <NavLink to="/decode-tx/" exact className="nav-link">
+                  <NavLink to="/decode-tx/" className="nav-link">
                     Decode Tx
                   </NavLink>
-                  <NavLink to="/push-tx/" exact className="nav-link">
+                  <NavLink to="/push-tx/" className="nav-link">
                     Push Tx
                   </NavLink>
-                  <NavLink to="/dag/" exact className="nav-link">
+                  <NavLink to="/dag/" className="nav-link">
                     DAG
                   </NavLink>
-                  <NavLink to="/features/" exact className="nav-link">
+                  <NavLink to="/features/" className="nav-link">
                     Features
                   </NavLink>
                 </div>
@@ -286,10 +277,7 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/"
-                  exact
-                  className="nav-link"
-                  activeClassName="active"
-                  activeStyle={{ fontWeight: 'bold' }}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 >
                   Transactions
                 </NavLink>
@@ -325,10 +313,7 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/network"
-                  exact
-                  className="nav-link"
-                  activeClassName="active"
-                  activeStyle={{ fontWeight: 'bold' }}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 >
                   Network
                 </NavLink>
@@ -336,10 +321,7 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/statistics"
-                  exact
-                  className="nav-link"
-                  activeClassName="active"
-                  activeStyle={{ fontWeight: 'bold' }}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 >
                   Statistics
                 </NavLink>
@@ -356,16 +338,16 @@ function Navigation() {
                   Tools
                 </span>
                 <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <NavLink to="/decode-tx/" exact className="nav-link">
+                  <NavLink to="/decode-tx/" className="nav-link">
                     Decode Tx
                   </NavLink>
-                  <NavLink to="/push-tx/" exact className="nav-link">
+                  <NavLink to="/push-tx/" className="nav-link">
                     Push Tx
                   </NavLink>
-                  <NavLink to="/dag/" exact className="nav-link">
+                  <NavLink to="/dag/" className="nav-link">
                     DAG
                   </NavLink>
-                  <NavLink to="/features/" exact className="nav-link">
+                  <NavLink to="/features/" className="nav-link">
                     Features
                   </NavLink>
                 </div>
