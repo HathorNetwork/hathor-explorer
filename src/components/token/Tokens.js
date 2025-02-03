@@ -316,11 +316,11 @@ class Tokens extends React.Component {
 }
 
 /**
- * title: Tokens Page title
+ * title: Tokens Page title, used only in the old UI
  * maintenanceMode: A "circuit breaker" to remove additional load when a problem is affecting explorer-service or its downstream services
  */
 Tokens.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   maintenanceMode: PropTypes.bool.isRequired,
 };
 

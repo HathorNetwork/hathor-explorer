@@ -24,7 +24,6 @@ const TokenList = () => {
         <div className="container-title-page">
           <p className="title-page">Tokens</p>
           <Tokens
-            title={'Tokens'}
             maintenanceMode={maintenanceMode}
             newUiEnabled={newUiEnabled}
             navigate={navigate}
