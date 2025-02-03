@@ -111,11 +111,7 @@ function Navigation() {
           <div className="nav-tabs-container hide-tabs">
             <ul className="navbar-nav me-auto">
               <li className="nav-item">
-                <NavLink
-                  to="/"
-                  className={({ isActive }) => `nav-link ${isActive && 'active'}`}
-                  activeStyle={{ fontWeight: 'bold' }}
-                >
+                <NavLink to="/" className={({ isActive }) => `nav-link ${isActive && 'active'}`}>
                   Home
                 </NavLink>
               </li>
@@ -152,7 +148,6 @@ function Navigation() {
                 <NavLink
                   to="/network"
                   className={({ isActive }) => `nav-link ${isActive && 'active'}`}
-                  activeStyle={{ fontWeight: 'bold' }}
                 >
                   Network
                 </NavLink>
@@ -161,7 +156,6 @@ function Navigation() {
                 <NavLink
                   to="/statistics"
                   className={({ isActive }) => `nav-link ${isActive && 'active'}`}
-                  activeStyle={{ fontWeight: 'bold' }}
                 >
                   Statistics
                 </NavLink>
@@ -278,11 +272,7 @@ function Navigation() {
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav me-auto">
               <li className="nav-item">
-                <NavLink
-                  to="/"
-                  className={({ isActive }) => `nav-link ${isActive && 'active'}`}
-                  activeStyle={{ fontWeight: 'bold' }}
-                >
+                <NavLink to="/" className={({ isActive }) => `nav-link ${isActive && 'active'}`}>
                   Transactions
                 </NavLink>
               </li>
@@ -318,7 +308,6 @@ function Navigation() {
                 <NavLink
                   to="/network"
                   className={({ isActive }) => `nav-link ${isActive && 'active'}`}
-                  activeStyle={{ fontWeight: 'bold' }}
                 >
                   Network
                 </NavLink>
@@ -327,7 +316,6 @@ function Navigation() {
                 <NavLink
                   to="/statistics"
                   className={({ isActive }) => `nav-link ${isActive && 'active'}`}
-                  activeStyle={{ fontWeight: 'bold' }}
                 >
                   Statistics
                 </NavLink>

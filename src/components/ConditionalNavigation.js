@@ -6,11 +6,7 @@ import { useFlag } from '@unleash/proxy-client-react';
 const ConditionalNavigation = ({ featureToggle, to, label }) => {
   return useFlag(featureToggle) ? (
     <span className="nav-item">
-      <NavLink
-        to={to}
-        className={({ isActive }) => `nav-link ${isActive && 'active'}`}
-        activeStyle={{ fontWeight: 'bold' }}
-      >
+      <NavLink to={to} className={({ isActive }) => `nav-link ${isActive && 'active'}`}>
         {label}
       </NavLink>
     </span>

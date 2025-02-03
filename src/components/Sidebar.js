@@ -56,11 +56,7 @@ function Sidebar({ close, open }) {
           <div className="aside-tabs-container">
             <ul className="navbar-nav me-auto">
               <li className="nav-item item-sidebar">
-                <NavLink
-                  to="/"
-                  className={({ isActive }) => `nav-link ${isActive && 'active'}`}
-                  activeStyle={{ fontWeight: 'bold' }}
-                >
+                <NavLink to="/" className={({ isActive }) => `nav-link ${isActive && 'active'}`}>
                   Home
                 </NavLink>
               </li>
@@ -100,7 +96,6 @@ function Sidebar({ close, open }) {
                 <NavLink
                   to="/network"
                   className={({ isActive }) => `nav-link ${isActive && 'active'}`}
-                  activeStyle={{ fontWeight: 'bold' }}
                 >
                   Network
                 </NavLink>
@@ -109,7 +104,6 @@ function Sidebar({ close, open }) {
                 <NavLink
                   to="/statistics"
                   className={({ isActive }) => `nav-link ${isActive && 'active'}`}
-                  activeStyle={{ fontWeight: 'bold' }}
                 >
                   Statistics
                 </NavLink>
