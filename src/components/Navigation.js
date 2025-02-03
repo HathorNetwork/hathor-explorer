@@ -113,8 +113,7 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/"
-                  className="nav-link"
-                  activeClassName="active"
+                  className={({ isActive }) => `nav-link ${isActive && 'active'}`}
                   activeStyle={{ fontWeight: 'bold' }}
                 >
                   Home
@@ -152,8 +151,7 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/network"
-                  className="nav-link"
-                  activeClassName="active"
+                  className={({ isActive }) => `nav-link ${isActive && 'active'}`}
                   activeStyle={{ fontWeight: 'bold' }}
                 >
                   Network
@@ -162,8 +160,7 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/statistics"
-                  className="nav-link"
-                  activeClassName="active"
+                  className={({ isActive }) => `nav-link ${isActive && 'active'}`}
                   activeStyle={{ fontWeight: 'bold' }}
                 >
                   Statistics
@@ -283,8 +280,7 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/"
-                  className="nav-link"
-                  activeClassName="active"
+                  className={({ isActive }) => `nav-link ${isActive && 'active'}`}
                   activeStyle={{ fontWeight: 'bold' }}
                 >
                   Transactions
@@ -321,8 +317,7 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/network"
-                  className="nav-link"
-                  activeClassName="active"
+                  className={({ isActive }) => `nav-link ${isActive && 'active'}`}
                   activeStyle={{ fontWeight: 'bold' }}
                 >
                   Network
@@ -331,8 +326,7 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/statistics"
-                  className="nav-link"
-                  activeClassName="active"
+                  className={({ isActive }) => `nav-link ${isActive && 'active'}`}
                   activeStyle={{ fontWeight: 'bold' }}
                 >
                   Statistics

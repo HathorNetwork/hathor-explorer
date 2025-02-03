@@ -58,8 +58,7 @@ function Sidebar({ close, open }) {
               <li className="nav-item item-sidebar">
                 <NavLink
                   to="/"
-                  className="nav-link"
-                  activeClassName="active"
+                  className={({ isActive }) => `nav-link ${isActive && 'active'}`}
                   activeStyle={{ fontWeight: 'bold' }}
                 >
                   Home
@@ -100,8 +99,7 @@ function Sidebar({ close, open }) {
               <li className="nav-item item-sidebar">
                 <NavLink
                   to="/network"
-                  className="nav-link"
-                  activeClassName="active"
+                  className={({ isActive }) => `nav-link ${isActive && 'active'}`}
                   activeStyle={{ fontWeight: 'bold' }}
                 >
                   Network
@@ -110,8 +108,7 @@ function Sidebar({ close, open }) {
               <li className="nav-item item-sidebar">
                 <NavLink
                   to="/statistics"
-                  className="nav-link"
-                  activeClassName="active"
+                  className={({ isActive }) => `nav-link ${isActive && 'active'}`}
                   activeStyle={{ fontWeight: 'bold' }}
                 >
                   Statistics
