@@ -8,7 +8,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { get, last, find, isEmpty } from 'lodash';
-import { withRouter } from 'react-router-dom';
 import TokensTable from './TokensTable';
 import TokenSearchField from './TokenSearchField';
 import tokensApi from '../../api/tokensApi';
@@ -176,7 +175,7 @@ class Tokens extends React.Component {
       order: this.state.order,
     });
 
-    this.props.history.push(newURL);
+    this.props.navigate(newURL);
   };
 
   /**
@@ -325,4 +324,4 @@ Tokens.propTypes = {
   maintenanceMode: PropTypes.bool.isRequired,
 };
 
-export default withRouter(Tokens);
+export default Tokens;

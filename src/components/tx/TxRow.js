@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import hathorLib from '@hathor/wallet-lib';
 import dateFormatter from '../../utils/date';
 import { useNewUiEnabled } from '../../hooks';
@@ -14,10 +14,10 @@ import EllipsiCell from '../EllipsiCell';
 
 const TxRow = ({ tx, ellipsis }) => {
   const newUiEnabled = useNewUiEnabled();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleClickTr = hash => {
-    history.push(`/transaction/${hash}`);
+    navigate(`/transaction/${hash}`);
   };
 
   const renderNewUi = () => (

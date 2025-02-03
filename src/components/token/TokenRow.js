@@ -8,13 +8,13 @@
 import React from 'react';
 import hathorLib from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import dateFormatter from '../../utils/date';
 import { useIsMobile, useNewUiEnabled } from '../../hooks';
 import EllipsiCell from '../EllipsiCell';
 
 function TokenRow({ token }) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const newUiEnabled = useNewUiEnabled();
   const isMobile = useIsMobile();
 
@@ -24,7 +24,7 @@ function TokenRow({ token }) {
    * @param {String} uid UID of token clicked
    */
   const onRowClicked = uid => {
-    history.push(`/token_detail/${uid}`);
+    navigate(`/token_detail/${uid}`);
   };
 
   const Symbol = ({ children }) => {

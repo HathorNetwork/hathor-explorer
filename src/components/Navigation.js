@@ -6,7 +6,7 @@
  */
 
 import React, { useRef, useState } from 'react';
-import { NavLink, Link, useHistory } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import hathorLib from '@hathor/wallet-lib';
 import { useFlag } from '@unleash/proxy-client-react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -32,7 +32,7 @@ import { toggleTheme } from '../actions';
 import NewHathorAlert from './NewHathorAlert';
 
 function Navigation() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const alertErrorRef = useRef(null);
   const txSearchRef = useRef(null);
@@ -65,13 +65,13 @@ function Navigation() {
       const regex = /[A-Fa-f\d]{64}/g;
       if (regex.test(text)) {
         // It's a valid hash
-        history.push(`/transaction/${text}`);
+        navigate(`/transaction/${text}`);
       } else {
         const network = hathorLib.config.getNetwork();
         const addressObj = new hathorLib.Address(text, { network });
         if (addressObj.isValid()) {
           // It's a valid address
-          history.push(`/address/${text}`);
+          navigate(`/address/${text}`);
         } else {
           showError();
         }
