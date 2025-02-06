@@ -2,6 +2,13 @@
 // Disabling no-param-reassign because ImmerJS uses it as a default pattern
 // See https://github.com/immerjs/immer/issues/189
 
+/**
+ * Copyright (c) Hathor Labs and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 import { createSlice } from '@reduxjs/toolkit';
 import { constants } from '@hathor/wallet-lib';
 import themeUtils from '../utils/theme';
