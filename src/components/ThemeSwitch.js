@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleTheme } from '../actions';
+import { toggleTheme } from '../reducers';
 
 export const ThemeSwitch = () => {
   const theme = useSelector(state => state.theme);

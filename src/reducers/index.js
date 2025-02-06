@@ -1,12 +1,9 @@
-/**
- * Copyright (c) Hathor Labs and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
+/* eslint-disable no-param-reassign */
+// Disabling no-param-reassign because ImmerJS uses it as a default pattern
+// See https://github.com/immerjs/immer/issues/189
 
+import { createSlice } from '@reduxjs/toolkit';
 import { constants } from '@hathor/wallet-lib';
-import { cloneDeep } from 'lodash';
 import themeUtils from '../utils/theme';
 
 /**
@@ -49,6 +46,7 @@ import themeUtils from '../utils/theme';
  * @property {boolean} isVersionAllowed - if the backend API version is allowed for this admin.
  * @property {ServerInfo} serverInfo - server info from version api.
  * @property {boolean} apiLoadError - If we had an error while loading the initial data from the server.
+ * @property {'dark'|'light'} theme - current theme of the app.
  */
 
 /**
@@ -66,41 +64,39 @@ const initialState = {
   theme: themeUtils.initializeTheme(),
 };
 
-const rootReducer = (state = initialState, action) => {
-  switch (action.type) {
-    case 'dashboard_update':
-      return { ...state, data: action.payload };
-    case 'is_version_allowed_update':
-      return { ...state, isVersionAllowed: action.payload.allowed };
-    case 'api_load_error_update':
-      return { ...state, apiLoadError: action.payload.apiLoadError };
-    case 'update_server_info':
-      return setServerInfo(state, action);
-    case 'toggle_theme':
-      return { ...state, theme: action.payload };
-    default:
-      return state;
-  }
-};
+const dashboardSlice = createSlice({
+  name: 'dashboard',
+  initialState,
+  reducers: {
+    dashboardUpdate(state, action) {
+      state.data = action.payload;
+    },
+    isVersionAllowedUpdate(state, action) {
+      state.isVersionAllowed = action.payload.allowed;
+    },
+    apiLoadErrorUpdate(state, action) {
+      state.apiLoadError = action.payload.apiLoadError;
+    },
+    updateServerInfo(state, action) {
+      const serverInfo = { ...action.payload };
+      serverInfo.decimal_places = serverInfo.decimal_places ?? constants.DECIMAL_PLACES;
+      serverInfo.native_token = serverInfo.native_token ?? constants.DEFAULT_NATIVE_TOKEN_CONFIG;
+      state.serverInfo = serverInfo;
+    },
+    toggleTheme(state) {
+      const currentTheme = state.theme === 'light' ? 'dark' : 'light';
+      themeUtils.applyTheme(currentTheme);
+      state.theme = currentTheme;
+    },
+  },
+});
 
-/**
- * Set the server info a.k.a '/version' data on storage.
- * Will update keys based on default values.
- *
- * @param {ReduxStore} state - Current store state.
- * @param {payload} ServerInfo - Server info to save on storage.
- * @returns {ReduxStore} New state for the store.
- */
-const setServerInfo = (state, { payload }) => {
-  const serverInfo = cloneDeep(payload);
-  // Default values
-  serverInfo.decimal_places = serverInfo.decimal_places ?? constants.DECIMAL_PLACES;
-  serverInfo.native_token = serverInfo.native_token ?? constants.DEFAULT_NATIVE_TOKEN_CONFIG;
+export const {
+  dashboardUpdate,
+  isVersionAllowedUpdate,
+  apiLoadErrorUpdate,
+  updateServerInfo,
+  toggleTheme,
+} = dashboardSlice.actions;
 
-  return {
-    ...state,
-    serverInfo,
-  };
-};
-
-export default rootReducer;
+export default dashboardSlice.reducer;
