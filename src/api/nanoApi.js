@@ -133,7 +133,9 @@ const nanoApi = {
       .get(`node_api/nc_builtin_blueprints`, { params: data })
       .then(res => res.data)
       .catch(err => {
-        throw new Error(err?.data?.message || err?.message || `Unknown error on get builtin blueprint list`);
+        throw new Error(
+          err?.data?.message || err?.message || `Unknown error on get builtin blueprint list`
+        );
       });
   },
 
@@ -173,7 +175,9 @@ const nanoApi = {
       .get(`node_api/nc_on_chain_blueprints`, { params: data })
       .then(res => res.data)
       .catch(err => {
-        throw new Error(err?.data?.message || err?.message || `Unknown error on get on chain blueprint list`);
+        throw new Error(
+          err?.data?.message || err?.message || `Unknown error on get on chain blueprint list`
+        );
       });
   },
 };

@@ -10,7 +10,7 @@ class OnChainBlueprintsTable extends SortableTable {
   /*
    * Get header of first column. In the mobile we show the element
    * of two columns in one.
-  */
+   */
   getFirstHeaderName() {
     if (this.props.isMobile) {
       return 'BLUEPRINT ID AND NAME';
@@ -51,12 +51,8 @@ class OnChainBlueprintsTable extends SortableTable {
   renderDesktopRow(blueprint) {
     return (
       <>
-        <td className="d-lg-table-cell pe-3">
-          {blueprint.id}
-        </td>
-        <td className="d-lg-table-cell pe-3">
-          {blueprint.name}
-        </td>
+        <td className="d-lg-table-cell pe-3">{blueprint.id}</td>
+        <td className="d-lg-table-cell pe-3">{blueprint.name}</td>
         <td className="d-lg-table-cell pe-3">
           {dateFormatter.parseTimestampNewUi(blueprint.created_at)}
         </td>

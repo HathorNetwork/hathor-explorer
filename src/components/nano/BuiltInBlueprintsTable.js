@@ -20,11 +20,13 @@ class BuiltInBlueprintsTable extends SortableTable {
       return (
         <tr key={blueprint.id} onClick={_e => this.props.handleClickRow(blueprint.id)}>
           <td className="d-lg-table-cell pe-3">
-            {this.props.isMobile ? <EllipsiCell id={blueprint.id} countBefore={10} countAfter={10} /> : blueprint.id}
+            {this.props.isMobile ? (
+              <EllipsiCell id={blueprint.id} countBefore={10} countAfter={10} />
+            ) : (
+              blueprint.id
+            )}
           </td>
-          <td className="d-lg-table-cell pe-3">
-            {blueprint.name}
-          </td>
+          <td className="d-lg-table-cell pe-3">{blueprint.name}</td>
         </tr>
       );
     });

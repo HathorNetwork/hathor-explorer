@@ -9,7 +9,7 @@ import React from 'react';
 
 const EllipsiCell = ({ id, countBefore, countAfter }) => {
   const idStart = id.substring(0, countBefore);
-  const idEnd = id.substring(id.length - (countAfter), id.length);
+  const idEnd = id.substring(id.length - countAfter, id.length);
 
   return (
     <div className="id-cell">
