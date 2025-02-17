@@ -34,6 +34,7 @@ import ErrorMessage from './components/error/ErrorMessage';
 import WebSocketHandler from './WebSocketHandler';
 import NanoContractDetail from './screens/nano/NanoContractDetail';
 import BlueprintDetail from './screens/nano/BlueprintDetail';
+import BlueprintList from './screens/nano/BlueprintList';
 import {
   apiLoadErrorUpdate,
   dashboardUpdate,
@@ -167,6 +168,10 @@ function Root() {
             path="/blueprint/detail/:blueprint_id"
             element={<NavigationRoute internalScreen={BlueprintDetail} />}
           />
+          <Route
+            path="/blueprints/">
+            element={<NavigationRoute internalScreen={BlueprintList} />}
+          </Route>
           <Route path="" element={<NavigationRoute internalScreen={DashboardTx} />} />
         </Routes>
       </BrowserRouter>
