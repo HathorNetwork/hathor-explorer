@@ -21,7 +21,12 @@ class SortableTable extends React.Component {
 
   renderTable(content) {
     return this.props.newUiEnabled ? (
-      <table className={`table-stylized ${this.props.tableClass ? this.props.tableClass : 'table-tokens'}`} id="">
+      <table
+        className={`table-stylized ${
+          this.props.tableClass ? this.props.tableClass : 'table-tokens'
+        }`}
+        id=""
+      >
         {content}
       </table>
     ) : (

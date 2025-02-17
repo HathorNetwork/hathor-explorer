@@ -25,7 +25,11 @@ const TxRow = ({ tx, ellipsis }) => {
   const renderNewUi = () => (
     <tr onClick={_e => handleClickTr(tx.tx_id)}>
       <td className=" d-lg-table-cell pe-3">
-        {ellipsis ? <EllipsiCell id={tx.tx_id} countBefore={ellipsisCount} countAfter={ellipsisCount} /> : tx.tx_id}
+        {ellipsis ? (
+          <EllipsiCell id={tx.tx_id} countBefore={ellipsisCount} countAfter={ellipsisCount} />
+        ) : (
+          tx.tx_id
+        )}
       </td>
       <td className=" d-lg-table-cell pe-3 date-cell">
         {dateFormatter.parseTimestampNewUi(tx.timestamp)}
