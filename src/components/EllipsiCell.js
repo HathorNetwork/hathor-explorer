@@ -6,12 +6,10 @@
  */
 
 import React from 'react';
-import { useIsMobile } from '../hooks';
 
-const EllipsiCell = ({ id }) => {
-  const isMobile = useIsMobile();
-  const idStart = id.substring(0, isMobile ? 4 : 12);
-  const idEnd = id.substring(id.length - (isMobile ? 4 : 12), id.length);
+const EllipsiCell = ({ id, countBefore, countAfter }) => {
+  const idStart = id.substring(0, countBefore);
+  const idEnd = id.substring(id.length - (countAfter), id.length);
 
   return (
     <div className="id-cell">

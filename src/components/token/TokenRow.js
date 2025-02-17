@@ -35,14 +35,14 @@ function TokenRow({ token }) {
     isMobile ? (
       <tr onClick={_e => onRowClicked(token.uid)}>
         <td className="d-lg-table-cell pe-3">
-          <EllipsiCell id={token.uid} />
+          <EllipsiCell id={token.uid} countBefore={4} countAfter={4} />
         </td>
         <td className="d-lg-table-cell pe-3">{token.name}</td>
       </tr>
     ) : (
       <tr onClick={_e => onRowClicked(token.uid)}>
         <td className="d-lg-table-cell pe-3">
-          <EllipsiCell id={token.uid} />
+          <EllipsiCell id={token.uid} countBefore={12} countAfter={12} />
         </td>
         <td className="d-lg-table-cell pe-3">{token.name}</td>
         <td className="d-lg-table-cell pe-3">
