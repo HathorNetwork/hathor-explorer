@@ -28,7 +28,7 @@ import {
   UNLEASH_TOKEN_BALANCES_FEATURE_FLAG,
   REACT_APP_NETWORK,
 } from '../constants';
-import { toggleTheme } from '../store/defaultSlice';
+import { toggleTheme } from '../store/rootSlice';
 import NewHathorAlert from './NewHathorAlert';
 
 function Navigation() {

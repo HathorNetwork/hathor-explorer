@@ -71,8 +71,8 @@ const initialState = {
   theme: themeUtils.initializeTheme(),
 };
 
-const dashboardSlice = createSlice({
-  name: 'dashboard',
+const rootSlice = createSlice({
+  name: 'root',
   initialState,
   reducers: {
     dashboardUpdate(state, action) {
@@ -104,6 +104,6 @@ export const {
   apiLoadErrorUpdate,
   updateServerInfo,
   toggleTheme,
-} = dashboardSlice.actions;
+} = rootSlice.actions;
 
-export default dashboardSlice.reducer;
+export default rootSlice.reducer;

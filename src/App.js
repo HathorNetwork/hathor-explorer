@@ -39,7 +39,7 @@ import {
   dashboardUpdate,
   isVersionAllowedUpdate,
   updateServerInfo,
-} from './store/defaultSlice';
+} from './store/rootSlice';
 import versionApi from './api/version';
 import helpers from './utils/helpers';
 import { BASE_URL } from './constants';
