@@ -142,10 +142,6 @@ function Root() {
             path="/token_balances"
             element={<NavigationRoute internalScreen={TokenBalancesList} />}
           />
-          <Route
-            path="/token_balances"
-            element={<NavigationRoute internalScreen={TokenBalancesList} />}
-          />
           <Route path="/blocks" element={<NavigationRoute internalScreen={BlockList} />} />
           <Route path="/dag" component={Dag} element={<NavigationRoute internalScreen={Dag} />} />
           <Route path="/features" element={<NavigationRoute internalScreen={FeatureList} />} />
