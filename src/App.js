@@ -39,7 +39,7 @@ import {
   dashboardUpdate,
   isVersionAllowedUpdate,
   updateServerInfo,
-} from './actions/index';
+} from './store/rootSlice';
 import versionApi from './api/version';
 import helpers from './utils/helpers';
 import { BASE_URL } from './constants';
@@ -138,10 +138,6 @@ function Root() {
             element={<NavigationRoute internalScreen={TransactionList} />}
           />
           <Route path="/tokens" element={<NavigationRoute internalScreen={TokenList} />} />
-          <Route
-            path="/token_balances"
-            element={<NavigationRoute internalScreen={TokenBalancesList} />}
-          />
           <Route
             path="/token_balances"
             element={<NavigationRoute internalScreen={TokenBalancesList} />}
