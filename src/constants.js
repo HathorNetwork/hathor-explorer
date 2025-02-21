@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { version } from '../package.json';
+import packageJson from '../package.json';
+
+const { version } = packageJson;
 
 export const BASE_URL =
   process.env.REACT_APP_BASE_URL || 'https://node.explorer.hathor.network/v1a/';
