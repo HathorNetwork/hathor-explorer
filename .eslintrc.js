@@ -5,7 +5,7 @@ module.exports = {
     node: true,
   },
   extends: ['airbnb-base', 'plugin:react/recommended', 'plugin:prettier/recommended'],
-  parser: 'babel-eslint',
+  parser: '@babel/eslint-parser',
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
