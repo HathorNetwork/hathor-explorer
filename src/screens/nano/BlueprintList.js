@@ -87,7 +87,6 @@ function BlueprintList() {
             after,
             before,
             search,
-            null,
             sortOrder
           );
         }

@@ -107,12 +107,11 @@ const nanoApi = {
    * @param {number | null} count Number of elements to get the list
    * @param {string | null} after ID of the blueprint to get as reference for after pagination
    * @param {string | null} before ID of the blueprint to get as reference for before pagination
-   * @param {string | null} blueprintID ID of the blueprint to filter
-   * @param {string | null} blueprintName Name of the blueprint to filter
+   * @param {string | null} search Blueprint ID to search for in the API
    *
    * For more details, see full node api docs
    */
-  getBuiltInBlueprintList(count, after, before, blueprintID, blueprintName) {
+  getBuiltInBlueprintList(count, after, before, search) {
     const data = {};
     if (count) {
       data.count = count;
@@ -123,11 +122,8 @@ const nanoApi = {
     if (before) {
       data.before = before;
     }
-    if (blueprintID) {
-      data.find_blueprint_id = blueprintID;
-    }
-    if (blueprintName) {
-      data.find_blueprint_name = blueprintName;
+    if (search) {
+      data.search = search;
     }
     return requestExplorerServiceV1
       .get(`node_api/nc_builtin_blueprints`, { params: data })
@@ -145,13 +141,12 @@ const nanoApi = {
    * @param {number | null} count Number of elements to get the list
    * @param {string | null} after ID of the blueprint to get as reference for after pagination
    * @param {string | null} before ID of the blueprint to get as reference for before pagination
-   * @param {string | null} blueprintID ID of the blueprint to filter
-   * @param {string | null} blueprintName Name of the blueprint to filter
+   * @param {string | null} search Blueprint ID to search for in the API
    * @param {string | null} order Order of the sorting ('asc' or 'desc')
    *
    * For more details, see full node api docs
    */
-  getOnChainBlueprintList(count, after, before, blueprintID, blueprintName, order) {
+  getOnChainBlueprintList(count, after, before, search, order) {
     const data = {};
     if (count) {
       data.count = count;
@@ -162,11 +157,8 @@ const nanoApi = {
     if (before) {
       data.before = before;
     }
-    if (blueprintID) {
-      data.find_blueprint_id = blueprintID;
-    }
-    if (blueprintName) {
-      data.find_blueprint_name = blueprintName;
+    if (search) {
+      data.search = search;
     }
     if (order) {
       data.order = order;
