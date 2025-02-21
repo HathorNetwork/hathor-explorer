@@ -6,7 +6,7 @@
  */
 
 import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { reverse } from 'lodash';
 import OnChainBlueprintsTable from '../../components/nano/OnChainBlueprintsTable';
 import BuiltInBlueprintsTable from '../../components/nano/BuiltInBlueprintsTable';
@@ -39,7 +39,7 @@ function BlueprintList() {
   const searchRef = useRef(null);
   const isMobile = useIsMobile();
   const location = useLocation();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   // Tab selected
   const [type, setType] = useState(BlueprintType.BUILT_IN);
@@ -184,7 +184,7 @@ function BlueprintList() {
     if (searchRef.current.value === '' && isSearching) {
       setIsSearching(false);
       const newURL = pagination.setURLParameters({}, ['search']);
-      history.push(newURL);
+      navigate(newURL);
       handleLoadData();
     }
   };
@@ -199,8 +199,11 @@ function BlueprintList() {
       setIsSearching(true);
       // If we are starting a new search, we must ignore the pagination parameters
       const paramsToDelete = ['id', 'page'];
-      const newURL = pagination.setURLParameters({ search: searchRef.current.value }, paramsToDelete);
-      history.push(newURL);
+      const newURL = pagination.setURLParameters(
+        { search: searchRef.current.value },
+        paramsToDelete
+      );
+      navigate(newURL);
       handleLoadData();
     }
   };
@@ -211,7 +214,7 @@ function BlueprintList() {
    * @param {string} id Blueprint id
    */
   const handleClickRow = id => {
-    history.push(`/blueprint/detail/${id}`);
+    navigate(`/blueprint/detail/${id}`);
   };
 
   /**
@@ -224,7 +227,7 @@ function BlueprintList() {
     // We reset all parameters
     const paramsToDelete = ['id', 'page', 'sort'];
     const newURL = pagination.setURLParameters({ type: typeClicked }, paramsToDelete);
-    history.push(newURL);
+    navigate(newURL);
   };
 
   /**
@@ -241,7 +244,7 @@ function BlueprintList() {
     // When we change the sorting of the list, we must go to the first page
     const paramsToDelete = ['id', 'page'];
     const newURL = pagination.setURLParameters({ sort: newSort }, paramsToDelete);
-    history.push(newURL);
+    navigate(newURL);
   };
 
   /**
@@ -249,7 +252,7 @@ function BlueprintList() {
    */
   const onNextPageClicked = () => {
     const newURL = pagination.setURLParameters({ id: data.slice(-1).pop().id, page: 'next' });
-    history.push(newURL);
+    navigate(newURL);
   };
 
   /**
@@ -257,7 +260,7 @@ function BlueprintList() {
    */
   const onPreviousPageClicked = () => {
     const newURL = pagination.setURLParameters({ id: data[0].id, page: 'previous' });
-    history.push(newURL);
+    navigate(newURL);
   };
 
   const renderSearch = () => {

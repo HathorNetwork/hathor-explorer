@@ -168,10 +168,7 @@ function Root() {
             path="/blueprint/detail/:blueprint_id"
             element={<NavigationRoute internalScreen={BlueprintDetail} />}
           />
-          <Route
-            path="/blueprints/">
-            element={<NavigationRoute internalScreen={BlueprintList} />}
-          </Route>
+          <Route path="/blueprints/" element={<NavigationRoute internalScreen={BlueprintList} />} />
           <Route path="" element={<NavigationRoute internalScreen={DashboardTx} />} />
         </Routes>
       </BrowserRouter>
