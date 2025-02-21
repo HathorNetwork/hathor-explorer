@@ -143,7 +143,7 @@ body {
     font-size: 20px;
     line-height: 24px;
     font-weight: 700;
-    color: #fff;
+    color: var(--bold-text-color);
   }
 
   .filter-container {
@@ -165,7 +165,7 @@ body {
         width: 100%;
         text-align: center;
         cursor: pointer;
-        color: #fff;
+        color: var(--bold-text-color);
         transition: 0.3s;
       }
 
@@ -2584,7 +2584,7 @@ a:hover {
 }
 
 .page-item:not(.disable-button) .page-link {
-  color: white !important;
+  color: var(--bold-text-color) !important;
 }
 
 .page-link:hover {
