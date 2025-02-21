@@ -197,7 +197,9 @@ function BlueprintList() {
   const handleKeyUp = e => {
     if (e.key === 'Enter') {
       setIsSearching(true);
-      const newURL = pagination.setURLParameters({ search: searchRef.current.value });
+      // If we are starting a new search, we must ignore the pagination parameters
+      const paramsToDelete = ['id', 'page'];
+      const newURL = pagination.setURLParameters({ search: searchRef.current.value }, paramsToDelete);
       history.push(newURL);
       handleLoadData();
     }
