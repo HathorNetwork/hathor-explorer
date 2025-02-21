@@ -27,6 +27,7 @@ function Sidebar({ close, open }) {
   const theme = useSelector(state => state.theme);
   const sidebarRef = useRef(null);
   const [tokensOpen, setTokensOpen] = useState(false);
+  const [nanoOpen, setNanoOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
 
   useEffect(() => {
@@ -95,6 +96,26 @@ function Sidebar({ close, open }) {
                   )}
                 </span>
               )}
+              <li className="nav-item item-sidebar">
+                <span onClick={() => setNanoOpen(!nanoOpen)}>
+                  Nano{' '}
+                  <ArrorDownNavItem
+                    style={{ marginLeft: '5px', rotate: toolsOpen ? '180deg' : '0deg' }}
+                    className="dropdown-icon"
+                  />
+                </span>
+                {nanoOpen && (
+                  <div>
+                    <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+                      <li>
+                        <NavLink to="/blueprints/?type=built-in" exact className="nav-link">
+                          Blueprints List
+                        </NavLink>
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </li>
               <li className="nav-item item-sidebar">
                 <NavLink
                   to="/network"

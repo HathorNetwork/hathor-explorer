@@ -138,6 +138,49 @@ body {
   color: var(--bold-text-color);
 }
 
+.nano-list-container {
+  .nano-list-title {
+    font-size: 20px;
+    line-height: 24px;
+    font-weight: 700;
+    color: var(--bold-text-color);
+  }
+
+  .filter-container {
+    margin-top: 2rem;
+    margin-bottom: 3.75rem;
+    gap: 2rem;
+
+    .tabs-container {
+      gap: 2rem;
+      width: 100%;
+
+      .tab {
+        padding: 0.75rem 1.25rem;
+        font-size: 16px;
+        line-height: 20px;
+        font-weight: 500;
+        border-bottom: 1px solid #24292F;
+        max-width: 300px;
+        width: 100%;
+        text-align: center;
+        cursor: pointer;
+        color: var(--bold-text-color);
+        transition: 0.3s;
+      }
+
+      .tab:hover {
+        border-bottom: 1px solid #8C46FF;
+      }
+
+      .tab.active {
+        border-bottom: 1px solid #8C46FF;
+        cursor: default;
+      }
+    }
+  }
+}
+
 .footer-container {
   width: 100%;
   height: 220px;
@@ -301,6 +344,28 @@ nav {
   text-transform: uppercase;
 }
 
+.navigation-search-input, .nano-list-container .search .search-input {
+  background-image: var(--search-icon);
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  color: var(--normal-text-color) !important;
+  background-color: var(--input-background) !important;
+  padding-left: 35px;
+  background-size: 16px;
+  border: 1px solid var(--border-color) !important;
+}
+
+.navigation-search-input:focus, .nano-list-container .search .search-input:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: transparent;
+}
+
+.navigation-search-input::placeholder, .nano-list-container .search .search-input::placeholder {
+  color: var(--normal-text-color);
+  opacity: 1;
+}
+
 nav {
   display: flex;
   flex-flow: row nowrap;
@@ -389,27 +454,6 @@ nav {
     }
   }
 
-  .navigation-search-input {
-    background-image: var(--search-icon);
-    background-repeat: no-repeat;
-    background-position: 10px center;
-    color: var(--normal-text-color) !important;
-    background-color: var(--input-background) !important;
-    padding-left: 35px;
-    background-size: 16px;
-    border: 1px solid var(--border-color) !important;
-  }
-
-  .navigation-search-input:focus {
-    outline: none;
-    box-shadow: none;
-    border-color: transparent;
-  }
-
-  .navigation-search-input::placeholder {
-    color: var(--normal-text-color);
-    opacity: 1;
-  }
 }
 
 .search-bar-container {
@@ -879,10 +923,6 @@ nav {
     border-top: 1px solid var(--border-color);
     border-bottom: 1px solid var(--border-color);
     cursor: pointer;
-  }
-
-  & tbody tr td:nth-of-type(2) {
-    color: var(--timestamp-text);
   }
 
   & tbody tr:hover {
@@ -2226,6 +2266,10 @@ nav {
   text-transform: uppercase;
 }
 
+.table-stylized.blueprints-table {
+  table-layout: auto;
+}
+
 .table-tokens th:nth-child(1) {
   width: 400px;
 }
@@ -2539,10 +2583,8 @@ a:hover {
   border-color: var(--border-color) !important;
 }
 
-.page-item.active .page-link {
-  background-color: $purpleHathor !important;
-  border-color: $purpleHathor;
-  color: white !important;
+.page-item:not(.disable-button) .page-link {
+  color: var(--bold-text-color) !important;
 }
 
 .page-link:hover {
@@ -2633,11 +2675,11 @@ i.pointer {
   width: 100%;
 }
 
-.navigation-search i {
+.navigation-search i, .nano-list-container .search .search-input i {
   color: #fff;
 }
 
-.navigation-search input {
+.navigation-search input, .nano-list-container .search .search-input input {
   border: none;
 }
 
@@ -2650,6 +2692,7 @@ i.pointer {
 
 .search-input {
   width: 400px;
+  height: 100%;
 }
 
 .page-loader {
@@ -3718,5 +3761,51 @@ th.sortable {
   }
 
   .container-big-links span {
+  }
+
+  .nano-list-container {
+
+    .filter-container {
+      flex-direction: column !important;
+
+      .search .search-input {
+        width: 100%;
+      }
+    }
+
+    .tabs-container {
+
+      .tab {
+        max-width: 100% !important;
+      }
+    }
+  }
+}
+
+.error-container, .no-results-container {
+  color: var(--bold-text-color);
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .retry-button {
+    display: flex;
+    gap: 16px;
+    width: 200px;
+    padding: 16px 0;
+    flex: 1;
+    padding: 14px;
+    border-radius: 4px;
+    font-family: 'Mona Sans';
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 20px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    color: #fff;
+    white-space: nowrap;
+    background-color: transparent;
+    color: var(--bold-text-color);
+    justify-content: center;
   }
 }

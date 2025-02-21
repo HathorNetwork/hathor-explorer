@@ -147,6 +147,24 @@ function Navigation() {
                   </div>
                 </ul>
               )}
+              <li className="nav-item dropdown">
+                <span
+                  className="nav-link dropdown-toggle custom-dropdown-toggle"
+                  id="navbarDropdown"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  Nano
+                  <ArrorDownNavItem className="dropdown-icon" />
+                </span>
+                <div className="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <NavLink to="/blueprints/?type=built-in" exact className="nav-link">
+                    Blueprints List
+                  </NavLink>
+                </div>
+              </li>
               <li className="nav-item">
                 <NavLink
                   to="/network"
