@@ -25,7 +25,6 @@ class SortableTable extends React.Component {
         className={`table-stylized ${
           this.props.tableClass ? this.props.tableClass : 'table-tokens'
         }`}
-        id=""
       >
         {content}
       </table>
