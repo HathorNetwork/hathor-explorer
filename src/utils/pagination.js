@@ -73,7 +73,7 @@ class PaginationURL {
     }
 
     for (const param of paramsToDelete) {
-      if (!url.searchParams.get(param)) {
+      if (!url.searchParams.has(param)) {
         // Param does not exist in URL
         continue;
       }
