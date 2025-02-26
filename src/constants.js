@@ -116,6 +116,9 @@ export const NANO_CONTRACT_TX_HISTORY_COUNT = 5;
 // Number of elements in the blueprint list table
 export const BLUEPRINT_LIST_COUNT = 10;
 
+// Number of elements in the nano contracts list table
+export const NANO_CONTRACTS_LIST_COUNT = 10;
+
 export const COLORS = {
   danger: '#991300',
   success: '#44A32E',
