@@ -24,7 +24,12 @@ function Sidebar({ close, open }) {
   const isTokensBaseEnabled = useFlag(`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`);
   const isTokensBalanceEnabled = useFlag(`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.rollout`);
   const showTokensTab = isTokensBalanceEnabled || isTokensBaseEnabled;
-  const theme = useSelector(state => state.theme);
+  const { serverInfo, theme } = useSelector(state => {
+    return {
+      serverInfo: state.serverInfo,
+      theme: state.theme
+    };
+  });
   const sidebarRef = useRef(null);
   const [tokensOpen, setTokensOpen] = useState(false);
   const [nanoOpen, setNanoOpen] = useState(false);
@@ -96,29 +101,31 @@ function Sidebar({ close, open }) {
                   )}
                 </span>
               )}
-              <li className="nav-item item-sidebar">
-                <span onClick={() => setNanoOpen(!nanoOpen)}>
-                  Nano{' '}
-                  <ArrorDownNavItem
-                    style={{ marginLeft: '5px', rotate: toolsOpen ? '180deg' : '0deg' }}
-                    className="dropdown-icon"
-                  />
-                </span>
-                {nanoOpen && (
-                  <div>
-                    <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
-                      <li>
-                        <NavLink to="/nano_contracts/" exact className="nav-link">
-                          Nano Conctracts List
-                        </NavLink>
-                        <NavLink to="/blueprints/?type=built-in" exact className="nav-link">
-                          Blueprints List
-                        </NavLink>
-                      </li>
-                    </ul>
-                  </div>
-                )}
-              </li>
+              {serverInfo.nano_contracts_enabled && (
+                <li className="nav-item item-sidebar">
+                  <span onClick={() => setNanoOpen(!nanoOpen)}>
+                    Nano{' '}
+                    <ArrorDownNavItem
+                      style={{ marginLeft: '5px', rotate: toolsOpen ? '180deg' : '0deg' }}
+                      className="dropdown-icon"
+                    />
+                  </span>
+                  {nanoOpen && (
+                    <div>
+                      <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+                        <li>
+                          <NavLink to="/nano_contracts/" exact className="nav-link">
+                            Nano Conctracts List
+                          </NavLink>
+                          <NavLink to="/blueprints/?type=built-in" exact className="nav-link">
+                            Blueprints List
+                          </NavLink>
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                </li>
+              )}
               <li className="nav-item item-sidebar">
                 <NavLink
                   to="/network"
