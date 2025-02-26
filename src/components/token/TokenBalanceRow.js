@@ -39,7 +39,9 @@ function TokenBalanceRow({ tokenId, address, total, unlocked, locked }) {
 
   const renderNewUi = () => (
     <tr onClick={onRowClicked}>
-      <td className="d-lg-table-cell pe-3">{isMobile ? <EllipsiCell id={address} /> : address}</td>
+      <td className="d-lg-table-cell pe-3">
+        {isMobile ? <EllipsiCell id={address} countBefore={4} countAfter={4} /> : address}
+      </td>
       <td className="d-lg-table-cell pe-3">{numberUtils.prettyValue(total, decimalPlaces)}</td>
       <td className="d-lg-table-cell pe-3 td-mobile">
         {numberUtils.prettyValue(unlocked, decimalPlaces)}

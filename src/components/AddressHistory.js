@@ -16,6 +16,7 @@ import EllipsiCell from './EllipsiCell';
 import { ReactComponent as RowBottomIcon } from '../assets/images/leading-icon.svg';
 import { ReactComponent as RowTopIcon } from '../assets/images/leading-top-icon.svg';
 import { COLORS } from '../constants';
+import { useIsMobile } from '../hooks';
 
 const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
@@ -174,6 +175,8 @@ class AddressHistory extends SortableTable {
   }
 
   renderNewTableBodyUi() {
+    const isMobile = useIsMobile();
+    const ellipsisCount = isMobile ? 4 : 12;
     return this.props.data.map(tx => {
       let statusElement = '';
       let trClass = '';
@@ -224,7 +227,7 @@ class AddressHistory extends SortableTable {
         <tr key={tx.tx_id} className={trClass} onClick={_e => this.props.onRowClicked(tx.tx_id)}>
           <td className="pe-3">{hathorLib.transactionUtils.getTxType(tx)}</td>
           <td className="pe-3">
-            <EllipsiCell id={tx.tx_id} />
+            <EllipsiCell id={tx.tx_id} countBefore={ellipsisCount} countAfter={ellipsisCount} />
           </td>
           <td className="pe-3 td-mobile date-cell">
             {dateFormatter.parseTimestampNewUi(tx.timestamp)}

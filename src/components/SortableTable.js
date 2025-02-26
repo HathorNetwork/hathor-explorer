@@ -21,7 +21,11 @@ class SortableTable extends React.Component {
 
   renderTable(content) {
     return this.props.newUiEnabled ? (
-      <table className="table-stylized table-tokens" id="">
+      <table
+        className={`table-stylized ${
+          this.props.tableClass ? this.props.tableClass : 'table-tokens'
+        }`}
+      >
         {content}
       </table>
     ) : (
@@ -150,7 +154,7 @@ class SortableTable extends React.Component {
                   if (this.props.calculatingPage) {
                     return 'page-item disable-button';
                   }
-                  return 'page-item active';
+                  return 'page-item';
                 })()}
               >
                 <button onClick={e => this.props.onNextPageClicked(e)} className="page-link">
@@ -196,7 +200,7 @@ class SortableTable extends React.Component {
  * order: If sorted field must be ordered asc or desc
  * tableHeaderClicked: This indicates that user wants data to be sorted by a determined field
  * calculatingPage: Indicates if next page is being retrieved from explorer-service
- * tableClasses: Extra classes to add to the table element
+ * tableClass: CSS class to add to the table element. The default value is 'table-tokens'.
  */
 SortableTable.propTypes = {
   data: PropTypes.array.isRequired,
@@ -209,6 +213,7 @@ SortableTable.propTypes = {
   tableHeaderClicked: PropTypes.func,
   sortBy: PropTypes.string,
   order: PropTypes.string,
+  tableClass: PropTypes.string,
 };
 
 export default SortableTable;
