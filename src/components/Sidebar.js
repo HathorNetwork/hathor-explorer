@@ -108,6 +108,9 @@ function Sidebar({ close, open }) {
                   <div>
                     <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
                       <li>
+                        <NavLink to="/nano_contracts/" exact className="nav-link">
+                          Nano Conctracts List
+                        </NavLink>
                         <NavLink to="/blueprints/?type=built-in" exact className="nav-link">
                           Blueprints List
                         </NavLink>

@@ -160,6 +160,9 @@ function Navigation() {
                   <ArrorDownNavItem className="dropdown-icon" />
                 </span>
                 <div className="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <NavLink to="/nano_contracts/" exact className="nav-link">
+                    Nano Contracts List
+                  </NavLink>
                   <NavLink to="/blueprints/?type=built-in" exact className="nav-link">
                     Blueprints List
                   </NavLink>
