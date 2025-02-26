@@ -41,7 +41,7 @@ function Navigation() {
   const { serverInfo, theme } = useSelector(state => {
     return {
       serverInfo: state.serverInfo,
-      theme: state.theme
+      theme: state.theme,
     };
   });
   const newUiEnabled = useNewUiEnabled();
