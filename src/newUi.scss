@@ -1128,17 +1128,19 @@ nav {
   border-bottom: none !important;
 }
 
+.fs-14 {
+  font-size: 14px !important;
+}
+
 .table-details td {
-  color: var(--purple-text);
-  padding: 20px 10px;
+  padding: 20px 0px;
   border-bottom: 1px solid var(--border-color);
   font-family: 'San Francisco Pro', sans-serif;
-  font-size: 12px;
+  font-size: 16px;
   text-align: left;
   white-space: wrap;
   word-break: break-word;
-  font-weight: 500;
-  line-height: 20px;
+  line-height: 24px;
   letter-spacing: 0.03em;
 }
 
@@ -2343,7 +2345,7 @@ nav {
   flex-direction: row;
   gap: 2px;
   align-items: center;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
   line-height: 20px;
   letter-spacing: 0.03em;

@@ -320,22 +320,17 @@ class TxData extends React.Component {
     };
 
     const renderInputs = inputs => {
-      return inputs.map(input => {
-        return (
-          <div key={`${input.tx_id}${input.index}`}>
-            <Link to={`/transaction/${input.tx_id}`}>{helpers.getShortHash(input.tx_id)}</Link> (
-            {input.index}){renderInputOrOutput(input, 0, false)}
-          </div>
-        );
-      });
+      const obj = inputs.map(input =>
+        <div key={`${input.tx_id}${input.index}`}>
+          <Link to={`/transaction/${input.tx_id}`}>{helpers.getShortHash(input.tx_id)}</Link> (
+          {input.index}){renderInputOrOutput(input, 0, false)}
+        </div>
+      );
+      return renderListWithSpacer(obj);
     };
 
     const renderOutputToken = output => {
-      return (
-        <strong>
-          {this.getOutputToken(hathorLib.tokensUtils.getTokenIndexFromData(output.token_data))}
-        </strong>
-      );
+      return this.getOutputToken(hathorLib.tokensUtils.getTokenIndexFromData(output.token_data));
     };
 
     const outputValue = output => {
@@ -367,7 +362,8 @@ class TxData extends React.Component {
     const renderOutputLink = idx => {
       if (idx in this.props.spentOutputs) {
         return (
-          <span>
+          // TODO for some reason, bold does not work with SF Pro
+          <span className="fw-bold">
             {' '}
             (<Link to={`/transaction/${this.props.spentOutputs[idx]}`}>Spent</Link>)
           </span>
@@ -378,9 +374,10 @@ class TxData extends React.Component {
 
     const renderInputOrOutput = (output, idx, isOutput) => {
       return (
+        // TODO for some reason, bold does not work with SF Pro
         <div key={idx}>
-          <div>
-            <span style={this.props.newUiEnabled ? { fontWeight: '600' } : null}>
+          <div className="fw-bold">
+            <span>
               {outputValue(output)}
             </span>{' '}
             {renderOutputToken(output)}
@@ -394,9 +391,8 @@ class TxData extends React.Component {
     };
 
     const renderOutputs = outputs => {
-      return outputs.map((output, idx) => {
-        return renderInputOrOutput(output, idx, true);
-      });
+      const obj = outputs.map((output, idx) => renderInputOrOutput(output, idx, true));
+      return renderListWithSpacer(obj);
     };
 
     const renderDecodedScript = output => {
@@ -509,14 +505,19 @@ class TxData extends React.Component {
       ));
     };
 
-    const renderNewUiDivList = hashes => {
+    const renderTxListWithSpacer = hashes => {
+      const obj = hashes.map( h => <Link className="fs-14" to={`/transaction/${h}`}>{h}</Link> );
+      return renderListWithSpacer(obj);
+    }
+
+    const renderListWithSpacer = children => {
       return (
         <table className="table-details">
           <tbody>
-            {hashes.map((h, index) => (
-              <tr className="tr-details" key={h}>
-                <td className={index === hashes.length - 1 ? 'tr-details-last-cell' : ''}>
-                  <Link to={`/transaction/${h}`}>{h}</Link>
+            {children.map((child, index) => (
+              <tr className="tr-details" key={index}>
+                <td className={index === children.length - 1 ? 'tr-details-last-cell' : ''}>
+                  {child}
                 </td>
               </tr>
             ))}
@@ -820,26 +821,21 @@ class TxData extends React.Component {
         }
         return <Link to={`/token_detail/${token.uid}`}>{token.uid}</Link>;
       };
-      const tokens = this.state.tokens.map(token => {
-        return (
-          <div key={token.uid}>
+      const obj = this.state.tokens.map(token =>
+        // TODO I don't think we have a TokenMarker here on Figma. Remove?
+        <div key={token.uid}>
+          <div>
             <TokenMarkers token={token} />
             <span>
-              {token.name} <strong>({token.symbol})</strong> | {renderTokenUID(token)}
+              {token.name} ({token.symbol})
             </span>
           </div>
-        );
-      });
-      return this.props.newUiEnabled ? (
-        <DropDetails title="Tokens">{tokens}</DropDetails>
-      ) : (
-        <div className="d-flex flex-column align-items-start mb-3 common-div bordered-wrapper">
           <div>
-            <label>Tokens:</label>
+            {renderTokenUID(token)}
           </div>
-          {tokens}
         </div>
       );
+      return <DropDetails startOpen title="Tokens">{renderListWithSpacer(obj)}</DropDetails>;
     };
 
     const renderFirstBlock = () => {
@@ -1256,10 +1252,10 @@ class TxData extends React.Component {
             {this.state.tokens.length > 0 && renderTokenList()}
             <div className="tx-drop-container-div">
               <DropDetails title="Parents:">
-                {renderNewUiDivList(this.props.transaction.parents)}
+                {renderTxListWithSpacer(this.props.transaction.parents)}
               </DropDetails>
               <DropDetails title="Children:">
-                {renderNewUiDivList(this.props.meta.children)}
+                {renderTxListWithSpacer(this.props.meta.children)}
               </DropDetails>
             </div>
             {this.state.graphs.map((graph, index) => renderNewUiGraph(index))}
