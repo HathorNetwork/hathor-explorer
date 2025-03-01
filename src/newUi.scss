@@ -1191,11 +1191,17 @@ nav {
   gap: 16px;
 }
 
+.drop-arrow-color {
+  color: var(--bold-text-color);
+  cursor: pointer;
+}
+
 .container-drop-header {
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
   align-items: center;
+  cursor: pointer;
 }
 
 .container-drop-header-title {
@@ -3408,11 +3414,6 @@ th.sortable {
   font-weight: 500;
   line-height: 20px;
   text-align: center;
-}
-
-.drop-arrow-color {
-  color: var(--bold-text-color);
-  cursor: pointer;
 }
 
 .custom-select-options ul li:hover {

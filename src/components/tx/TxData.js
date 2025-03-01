@@ -761,7 +761,6 @@ class TxData extends React.Component {
               {this.props.transaction.parents && this.props.transaction.parents.length ? (
                 <a className="arrow-graph" href="true">
                   <RowDown
-                    className="drop-arrow-color"
                     width="24px"
                     height="24px"
                     style={{
