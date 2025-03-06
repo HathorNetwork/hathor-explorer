@@ -200,7 +200,7 @@ function NanoContractsList() {
    */
   const onSortClicked = () => {
     let newSort;
-    if (sort && sort === 'asc') {
+    if (sort === 'asc') {
       newSort = 'desc';
     } else {
       newSort = 'asc';
