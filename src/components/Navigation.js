@@ -38,12 +38,10 @@ function Navigation() {
   const txSearchRef = useRef(null);
   const isTokensBaseEnabled = useFlag(`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`);
   const isTokensBalanceEnabled = useFlag(`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.rollout`);
-  const { serverInfo, theme } = useSelector(state => {
-    return {
-      serverInfo: state.serverInfo,
-      theme: state.theme,
-    };
-  });
+  const { serverInfo, theme } = useSelector(state => ({
+    serverInfo: state.serverInfo,
+    theme: state.theme,
+  }));
   const newUiEnabled = useNewUiEnabled();
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);

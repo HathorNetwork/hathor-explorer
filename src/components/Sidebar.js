@@ -24,12 +24,10 @@ function Sidebar({ close, open }) {
   const isTokensBaseEnabled = useFlag(`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`);
   const isTokensBalanceEnabled = useFlag(`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.rollout`);
   const showTokensTab = isTokensBalanceEnabled || isTokensBaseEnabled;
-  const { serverInfo, theme } = useSelector(state => {
-    return {
-      serverInfo: state.serverInfo,
-      theme: state.theme,
-    };
-  });
+  const { serverInfo, theme } = useSelector(state => ({
+    serverInfo: state.serverInfo,
+    theme: state.theme,
+  }));
   const sidebarRef = useRef(null);
   const [tokensOpen, setTokensOpen] = useState(false);
   const [nanoOpen, setNanoOpen] = useState(false);
