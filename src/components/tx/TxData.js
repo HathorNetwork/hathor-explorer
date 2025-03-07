@@ -320,12 +320,12 @@ class TxData extends React.Component {
     };
 
     const renderInputs = inputs => {
-      const obj = inputs.map(input =>
+      const obj = inputs.map(input => (
         <div key={`${input.tx_id}${input.index}`}>
           <Link to={`/transaction/${input.tx_id}`}>{helpers.getShortHash(input.tx_id)}</Link> (
           {input.index}){renderInputOrOutput(input, 0, false)}
         </div>
-      );
+      ));
       return renderListWithSpacer(obj);
     };
 
@@ -377,10 +377,7 @@ class TxData extends React.Component {
         // TODO for some reason, bold does not work with SF Pro
         <div key={idx}>
           <div className="fw-bold">
-            <span>
-              {outputValue(output)}
-            </span>{' '}
-            {renderOutputToken(output)}
+            <span>{outputValue(output)}</span> {renderOutputToken(output)}
           </div>
           <div>
             {renderDecodedScript(output)}
@@ -506,9 +503,13 @@ class TxData extends React.Component {
     };
 
     const renderTxListWithSpacer = hashes => {
-      const obj = hashes.map( h => <Link className="fs-14" to={`/transaction/${h}`}>{h}</Link> );
+      const obj = hashes.map((h, key) => (
+        <Link className="fs-14" key={key} to={`/transaction/${h}`}>
+          {h}
+        </Link>
+      ));
       return renderListWithSpacer(obj);
-    }
+    };
 
     const renderListWithSpacer = children => {
       return (
@@ -820,7 +821,7 @@ class TxData extends React.Component {
         }
         return <Link to={`/token_detail/${token.uid}`}>{token.uid}</Link>;
       };
-      const obj = this.state.tokens.map(token =>
+      const obj = this.state.tokens.map(token => (
         // TODO I don't think we have a TokenMarker here on Figma. Remove?
         <div key={token.uid}>
           <div>
@@ -829,12 +830,14 @@ class TxData extends React.Component {
               {token.name} ({token.symbol})
             </span>
           </div>
-          <div>
-            {renderTokenUID(token)}
-          </div>
+          <div>{renderTokenUID(token)}</div>
         </div>
+      ));
+      return (
+        <DropDetails startOpen title="Tokens">
+          {renderListWithSpacer(obj)}
+        </DropDetails>
       );
-      return <DropDetails startOpen title="Tokens">{renderListWithSpacer(obj)}</DropDetails>;
     };
 
     const renderFirstBlock = () => {
