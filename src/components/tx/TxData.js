@@ -362,7 +362,6 @@ class TxData extends React.Component {
     const renderOutputLink = idx => {
       if (idx in this.props.spentOutputs) {
         return (
-          // TODO for some reason, bold does not work with SF Pro
           <span className="fw-bold">
             {' '}
             (<Link to={`/transaction/${this.props.spentOutputs[idx]}`}>Spent</Link>)
@@ -374,7 +373,6 @@ class TxData extends React.Component {
 
     const renderInputOrOutput = (output, idx, isOutput) => {
       return (
-        // TODO for some reason, bold does not work with SF Pro
         <div key={idx}>
           <div className="fw-bold">
             <span>{outputValue(output)}</span> {renderOutputToken(output)}
