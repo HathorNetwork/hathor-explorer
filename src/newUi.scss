@@ -99,6 +99,13 @@ $secondary-color-dark: #191c21;
 }
 
 @font-face {
+  font-family: 'San Francisco Pro';
+  src: url('./assets/fonts/SFPRODISPLAYBOLD.OTF') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
   font-family: 'Mona Sans';
   src: url('./assets/fonts/Mona-Sans.woff2') format('woff2');
   font-weight: normal;
