@@ -132,7 +132,6 @@ function NanoContractHistory({ ncId }) {
             // so we must clear the query params
             pagination.clearOptionalQueryParams();
           }
-          return;
         }
       } catch (e) {
         // Error in request
