@@ -29,11 +29,10 @@ export const DropDetails = ({ title, startOpen, onToggle, children }) => {
 
   return (
     <div className={`container-drop-div ${open ? 'container-drop-div-open' : ''}`}>
-      <div className="container-drop-header">
+      <div className="container-drop-header" onClick={click}>
         <div className="container-drop-header-title">{title}</div>
-        <div onClick={click}>
+        <div>
           <RowDown
-            className="drop-arrow-color"
             width="24px"
             height="24px"
             style={{ transform: `${!open ? 'rotate(180deg)' : ''}` }}
