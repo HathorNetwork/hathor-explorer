@@ -38,7 +38,10 @@ function Navigation() {
   const txSearchRef = useRef(null);
   const isTokensBaseEnabled = useFlag(`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`);
   const isTokensBalanceEnabled = useFlag(`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.rollout`);
-  const theme = useSelector(state => state.theme);
+  const { serverInfo, theme } = useSelector(state => ({
+    serverInfo: state.serverInfo,
+    theme: state.theme,
+  }));
   const newUiEnabled = useNewUiEnabled();
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
@@ -147,24 +150,29 @@ function Navigation() {
                   </div>
                 </ul>
               )}
-              <li className="nav-item dropdown">
-                <span
-                  className="nav-link dropdown-toggle custom-dropdown-toggle"
-                  id="navbarDropdown"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-haspopup="true"
-                  aria-expanded="false"
-                >
-                  Nano
-                  <ArrorDownNavItem className="dropdown-icon" />
-                </span>
-                <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <NavLink to="/blueprints/?type=built-in" exact className="nav-link">
-                    Blueprints List
-                  </NavLink>
-                </div>
-              </li>
+              {serverInfo.nano_contracts_enabled && (
+                <li className="nav-item dropdown">
+                  <span
+                    className="nav-link dropdown-toggle custom-dropdown-toggle"
+                    id="navbarDropdown"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    Nano
+                    <ArrorDownNavItem className="dropdown-icon" />
+                  </span>
+                  <div className="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <NavLink to="/nano_contracts/" className="nav-link">
+                      Nano Contracts List
+                    </NavLink>
+                    <NavLink to="/blueprints/?type=built-in" className="nav-link">
+                      Blueprints List
+                    </NavLink>
+                  </div>
+                </li>
+              )}
               <li className="nav-item">
                 <NavLink
                   to="/network"

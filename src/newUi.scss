@@ -99,6 +99,13 @@ $secondary-color-dark: #191c21;
 }
 
 @font-face {
+  font-family: 'San Francisco Pro';
+  src: url('./assets/fonts/SFPRODISPLAYBOLD.OTF') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
   font-family: 'Mona Sans';
   src: url('./assets/fonts/Mona-Sans.woff2') format('woff2');
   font-weight: normal;
@@ -1128,17 +1135,19 @@ nav {
   border-bottom: none !important;
 }
 
+.fs-14 {
+  font-size: 14px !important;
+}
+
 .table-details td {
-  color: var(--purple-text);
-  padding: 20px 10px;
+  padding: 20px 0px;
   border-bottom: 1px solid var(--border-color);
   font-family: 'San Francisco Pro', sans-serif;
-  font-size: 12px;
+  font-size: 16px;
   text-align: left;
   white-space: wrap;
   word-break: break-word;
-  font-weight: 500;
-  line-height: 20px;
+  line-height: 24px;
   letter-spacing: 0.03em;
 }
 
@@ -1189,11 +1198,17 @@ nav {
   gap: 16px;
 }
 
+.drop-arrow-color {
+  color: var(--bold-text-color);
+  cursor: pointer;
+}
+
 .container-drop-header {
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
   align-items: center;
+  cursor: pointer;
 }
 
 .container-drop-header-title {
@@ -2266,7 +2281,7 @@ nav {
   text-transform: uppercase;
 }
 
-.table-stylized.blueprints-table {
+.table-stylized.blueprints-table, .table-stylized.nano-contracts-table {
   table-layout: auto;
 }
 
@@ -2343,7 +2358,7 @@ nav {
   flex-direction: row;
   gap: 2px;
   align-items: center;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
   line-height: 20px;
   letter-spacing: 0.03em;
@@ -2688,6 +2703,14 @@ i.pointer {
   padding-left: 0;
   margin-top: 2rem;
   margin-bottom: 2rem;
+}
+
+.nano-creation-list .search {
+  width: 100%;
+}
+
+.search > .search-input.nano-list-search {
+  width: 100%;
 }
 
 .search-input {
@@ -3406,11 +3429,6 @@ th.sortable {
   font-weight: 500;
   line-height: 20px;
   text-align: center;
-}
-
-.drop-arrow-color {
-  color: var(--bold-text-color);
-  cursor: pointer;
 }
 
 .custom-select-options ul li:hover {
