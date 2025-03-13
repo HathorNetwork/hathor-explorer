@@ -10,7 +10,7 @@ import hathorLib from '@hathor/wallet-lib';
 import ReactLoading from 'react-loading';
 import { find } from 'lodash';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useNewUiEnabled } from '../hooks';
+import { useIsMobile, useNewUiEnabled } from '../hooks';
 import AddressSummary from './AddressSummary';
 import AddressHistory from './AddressHistory';
 import Loading from './Loading';
@@ -65,6 +65,7 @@ function AddressDetailExplorer() {
   const { address } = useParams();
   const navigate = useNavigate();
   const newUiEnabled = useNewUiEnabled();
+  const isMobile = useIsMobile();
 
   /*
    * selectedToken {String} UID of the selected token when address has many
@@ -596,6 +597,7 @@ function AddressDetailExplorer() {
           calculatingPage={loadingPagination}
           loading={loadingHistory}
           newUiEnabled={newUiEnabled}
+          isMobile={isMobile}
         />
       </div>
     );
