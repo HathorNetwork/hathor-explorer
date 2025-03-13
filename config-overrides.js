@@ -1,4 +1,5 @@
 const path = require('path');
+const stdLib = require('node-stdlib-browser');
 
 /**
  * Configures `react-app-rewired` with the necessary changes to make the app work in the browser
@@ -11,13 +12,13 @@ module.exports = function override(config) {
   config.resolve.fallback = {
     ...config.resolve.fallback,
     buffer: require.resolve('buffer'),
-    crypto: require.resolve('crypto-browserify'),
-    stream: require.resolve('stream-browserify'),
-    path: require.resolve('path-browserify'),
-    vm: require.resolve('vm-browserify'),
-    url: require.resolve('url'),
-    assert: require.resolve('assert'),
-    process: require.resolve('process/browser'),
+    crypto: stdLib.crypto,
+    stream: stdLib.stream,
+    path: stdLib.path,
+    vm: stdLib.vm,
+    url: stdLib.url,
+    assert: stdLib.assert,
+    process: stdLib.process,
   };
 
   config.resolve.alias = {
