@@ -173,7 +173,8 @@ class AddressHistory extends SortableTable {
     });
   }
 
-  renderNewTableBodyUi() {
+  renderNewTableBodyUi(isMobile) {
+    const ellipsisCount = isMobile ? 4 : 12;
     return this.props.data.map(tx => {
       let statusElement = '';
       let trClass = '';
@@ -224,7 +225,7 @@ class AddressHistory extends SortableTable {
         <tr key={tx.tx_id} className={trClass} onClick={_e => this.props.onRowClicked(tx.tx_id)}>
           <td className="pe-3">{hathorLib.transactionUtils.getTxType(tx)}</td>
           <td className="pe-3">
-            <EllipsiCell id={tx.tx_id} />
+            <EllipsiCell id={tx.tx_id} countBefore={ellipsisCount} countAfter={ellipsisCount} />
           </td>
           <td className="pe-3 td-mobile date-cell">
             {dateFormatter.parseTimestampNewUi(tx.timestamp)}
@@ -241,7 +242,9 @@ class AddressHistory extends SortableTable {
   }
 
   renderTableBody() {
-    return this.props.newUiEnabled ? this.renderNewTableBodyUi() : this.renderTableBodyUi();
+    return this.props.newUiEnabled
+      ? this.renderNewTableBodyUi(this.props.isMobile)
+      : this.renderTableBodyUi();
   }
 }
 
@@ -262,6 +265,8 @@ AddressHistory.propTypes = {
   selectedToken: PropTypes.string.isRequired,
   numTransactions: PropTypes.number.isRequired,
   txCache: PropTypes.object.isRequired,
+  newUiEnabled: PropTypes.bool.isRequired,
+  isMobile: PropTypes.bool.isRequired,
 };
 
 export default connect(mapStateToProps)(AddressHistory);

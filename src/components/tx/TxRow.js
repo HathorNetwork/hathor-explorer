@@ -6,24 +6,30 @@
  */
 
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import hathorLib from '@hathor/wallet-lib';
 import dateFormatter from '../../utils/date';
-import { useNewUiEnabled } from '../../hooks';
+import { useNewUiEnabled, useIsMobile } from '../../hooks';
 import EllipsiCell from '../EllipsiCell';
 
 const TxRow = ({ tx, ellipsis }) => {
+  const isMobile = useIsMobile();
+  const ellipsisCount = isMobile ? 4 : 12;
   const newUiEnabled = useNewUiEnabled();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleClickTr = hash => {
-    history.push(`/transaction/${hash}`);
+    navigate(`/transaction/${hash}`);
   };
 
   const renderNewUi = () => (
     <tr onClick={_e => handleClickTr(tx.tx_id)}>
       <td className=" d-lg-table-cell pe-3">
-        {ellipsis ? <EllipsiCell id={tx.tx_id} /> : tx.tx_id}
+        {ellipsis ? (
+          <EllipsiCell id={tx.tx_id} countBefore={ellipsisCount} countAfter={ellipsisCount} />
+        ) : (
+          tx.tx_id
+        )}
       </td>
       <td className=" d-lg-table-cell pe-3 date-cell">
         {dateFormatter.parseTimestampNewUi(tx.timestamp)}

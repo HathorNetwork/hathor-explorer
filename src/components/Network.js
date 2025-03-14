@@ -77,7 +77,7 @@ class Network extends React.Component {
   }
 
   onPeerChange(peerId) {
-    this.props.history.push(`/network/${peerId}`);
+    this.props.navigate(`/network/${peerId}`);
     clearInterval(this.loadTimer);
     this.setState({ peerId, loaded: false }, () => {
       this.loadData();

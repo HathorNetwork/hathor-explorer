@@ -8,31 +8,29 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useFlag } from '@unleash/proxy-client-react';
 import { useSelector } from 'react-redux';
-import { NavLink, Link, useHistory } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import {
-  REACT_APP_NETWORK,
   UNLEASH_TOKENS_BASE_FEATURE_FLAG,
   UNLEASH_TOKEN_BALANCES_FEATURE_FLAG,
 } from '../constants';
 import ConditionalNavigation from './ConditionalNavigation';
-import Version from './Version';
 import { ThemeSwitch } from './ThemeSwitch';
-import { ReactComponent as SidebarLogo } from '../assets/images/logo-sidebar.svg';
 import { ReactComponent as SunIconLight } from '../assets/images/sun-light.svg';
 import { ReactComponent as SunIconDark } from '../assets/images/sun-dark.svg';
 import { ReactComponent as MoonIcon } from '../assets/images/moon.svg';
-import { ReactComponent as GlobeNetwork } from '../assets/images/global.svg';
 import { ReactComponent as ArrorDownNavItem } from '../assets/images/arrow-down-nav-dropdown.svg';
 
 function Sidebar({ close, open }) {
-  const history = useHistory();
   const isTokensBaseEnabled = useFlag(`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`);
   const isTokensBalanceEnabled = useFlag(`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.rollout`);
   const showTokensTab = isTokensBalanceEnabled || isTokensBaseEnabled;
-  const theme = useSelector(state => state.theme);
+  const { serverInfo, theme } = useSelector(state => ({
+    serverInfo: state.serverInfo,
+    theme: state.theme,
+  }));
   const sidebarRef = useRef(null);
-  const hathorNetwork = `Hathor ${REACT_APP_NETWORK}`;
   const [tokensOpen, setTokensOpen] = useState(false);
+  const [nanoOpen, setNanoOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
 
   useEffect(() => {
@@ -59,34 +57,12 @@ function Sidebar({ close, open }) {
       </div>
       <aside ref={sidebarRef} className={`sidebar  ${open ? 'active' : 'inactive'}`}>
         <div className="aside-explore-container">
-          <div className="newLogo-explorer-container">
-            <div className="d-flex flex-column align-items-center">
-              <Link className="aside-brand" to="/" href="/">
-                <SidebarLogo fill={theme === 'dark' ? 'white' : 'black'} className={`newLogo`} />
-              </Link>
-            </div>
-            <button
-              className="navbar-toggler"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#navbarSupportedContent"
-              aria-controls="navbarSupportedContent"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
-              onClick={() => history.push('/')}
-            >
-              <span>EXPLORER</span>
-            </button>
-          </div>
           <div className="aside-tabs-container">
             <ul className="navbar-nav me-auto">
               <li className="nav-item item-sidebar">
                 <NavLink
                   to="/"
-                  exact
-                  className="nav-link"
-                  activeClassName="active"
-                  activeStyle={{ fontWeight: 'bold' }}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 >
                   Home
                 </NavLink>
@@ -123,13 +99,35 @@ function Sidebar({ close, open }) {
                   )}
                 </span>
               )}
+              {serverInfo.nano_contracts_enabled && (
+                <li className="nav-item item-sidebar">
+                  <span onClick={() => setNanoOpen(!nanoOpen)}>
+                    Nano{' '}
+                    <ArrorDownNavItem
+                      style={{ marginLeft: '5px', rotate: toolsOpen ? '180deg' : '0deg' }}
+                      className="dropdown-icon"
+                    />
+                  </span>
+                  {nanoOpen && (
+                    <div>
+                      <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+                        <li>
+                          <NavLink to="/nano_contracts/" exact className="nav-link">
+                            Nano Conctracts List
+                          </NavLink>
+                          <NavLink to="/blueprints/?type=built-in" exact className="nav-link">
+                            Blueprints List
+                          </NavLink>
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                </li>
+              )}
               <li className="nav-item item-sidebar">
                 <NavLink
                   to="/network"
-                  exact
-                  className="nav-link"
-                  activeClassName="active"
-                  activeStyle={{ fontWeight: 'bold' }}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 >
                   Network
                 </NavLink>
@@ -137,10 +135,7 @@ function Sidebar({ close, open }) {
               <li className="nav-item item-sidebar">
                 <NavLink
                   to="/statistics"
-                  exact
-                  className="nav-link"
-                  activeClassName="active"
-                  activeStyle={{ fontWeight: 'bold' }}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 >
                   Statistics
                 </NavLink>
@@ -157,16 +152,16 @@ function Sidebar({ close, open }) {
                   <div>
                     <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
                       <li>
-                        <NavLink to="/decode-tx/" exact className="nav-link">
+                        <NavLink to="/decode-tx/" className="nav-link">
                           Decode Tx
                         </NavLink>
-                        <NavLink to="/push-tx/" exact className="nav-link">
+                        <NavLink to="/push-tx/" className="nav-link">
                           Push Tx
                         </NavLink>
-                        <NavLink to="/dag/" exact className="nav-link">
+                        <NavLink to="/dag/" className="nav-link">
                           DAG
                         </NavLink>
-                        <NavLink to="/features/" exact className="nav-link">
+                        <NavLink to="/features/" className="nav-link">
                           Features
                         </NavLink>
                       </li>
@@ -184,19 +179,6 @@ function Sidebar({ close, open }) {
               <ThemeSwitch />
               <MoonIcon fill={theme === 'dark' ? 'white' : 'black'} />
             </div>
-          </div>
-          <div className="aside-network">
-            <GlobeNetwork
-              width={11}
-              height={11}
-              className={`${
-                theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'
-              } theme-network-logo`}
-            />
-            <span className="nav-title">{hathorNetwork}</span>
-          </div>
-          <div className="aside-version">
-            <Version explorer />
           </div>
         </div>
       </aside>

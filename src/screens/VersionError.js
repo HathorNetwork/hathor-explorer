@@ -10,7 +10,7 @@ import { useDispatch } from 'react-redux';
 import { MIN_API_VERSION } from '../constants';
 import versionApi from '../api/version';
 import helpers from '../utils/helpers';
-import { isVersionAllowedUpdate } from '../actions/index';
+import { isVersionAllowedUpdate } from '../store/rootSlice';
 import logo from '../assets/images/hathor-white-logo.png';
 import Version from '../components/Version';
 

@@ -22,7 +22,12 @@ function Footer() {
               className={`newLogo ${theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'}`}
             />
           </div>
-          <div className="hide-version">
+          <div className="footer-explorer">
+            <button type="button">
+              <span>EXPLORER</span>
+            </button>
+          </div>
+          <div>
             <Version />
           </div>
         </div>
