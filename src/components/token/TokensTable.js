@@ -24,7 +24,7 @@ class TokensTable extends SortableTable {
           className="d-lg-table-cell sortable th-table-token-mobile"
           onClick={e => this.props.tableHeaderClicked(e, 'transaction_timestamp')}
         >
-          Created At
+          Created At {this.getArrow('transaction_timestamp')}
         </th>
       </tr>
     ) : (

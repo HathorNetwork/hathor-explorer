@@ -7,7 +7,7 @@
 
 import React, { useCallback, useEffect } from 'react';
 
-import { Switch, BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { axios as hathorLibAxios, config as hathorLibConfig } from '@hathor/wallet-lib';
 import { useTheme, useNewUiEnabled, useNewUiLoad } from './hooks';
@@ -34,12 +34,14 @@ import ErrorMessage from './components/error/ErrorMessage';
 import WebSocketHandler from './WebSocketHandler';
 import NanoContractDetail from './screens/nano/NanoContractDetail';
 import BlueprintDetail from './screens/nano/BlueprintDetail';
+import BlueprintList from './screens/nano/BlueprintList';
+import NanoContractsList from './screens/nano/NanoContractsList';
 import {
   apiLoadErrorUpdate,
   dashboardUpdate,
   isVersionAllowedUpdate,
   updateServerInfo,
-} from './actions/index';
+} from './store/rootSlice';
 import versionApi from './api/version';
 import helpers from './utils/helpers';
 import { BASE_URL } from './constants';
@@ -106,12 +108,12 @@ function Root() {
   if (isVersionAllowed === undefined) {
     // Waiting for version
     return (
-      <Router>
+      <BrowserRouter>
         <>
           <Navigation />
           {apiLoadError ? <ErrorMessage /> : <Loading />}
         </>
-      </Router>
+      </BrowserRouter>
     );
   }
 
@@ -125,61 +127,56 @@ function Root() {
 
   return (
     <>
-      <Router>
-        <Switch>
-          <Route exact path="/transaction/:id">
-            <NavigationRoute internalScreen={TransactionDetail} />
-          </Route>
-          <Route exact path="/push-tx">
-            <NavigationRoute internalScreen={PushTx} />
-          </Route>
-          <Route exact path="/decode-tx">
-            <NavigationRoute internalScreen={DecodeTx} />
-          </Route>
-          <Route exact path="/transactions">
-            <NavigationRoute internalScreen={TransactionList} />
-          </Route>
-          <Route exact path="/tokens">
-            <NavigationRoute internalScreen={TokenList} />
-          </Route>
-          <Route exact path="/token_balances">
-            <NavigationRoute internalScreen={TokenBalancesList} />
-          </Route>
-          <Route exact path="/token_balances">
-            <NavigationRoute internalScreen={TokenBalancesList} />
-          </Route>
-          <Route exact path="/blocks">
-            <NavigationRoute internalScreen={BlockList} />
-          </Route>
-          <Route exact path="/dag" component={Dag}>
-            <NavigationRoute internalScreen={Dag} />
-          </Route>
-          <Route exact path="/features">
-            <NavigationRoute internalScreen={FeatureList} />
-          </Route>
-          <Route exact path="/network/:peerId?">
-            <NavigationRoute internalScreen={PeerAdmin} />
-          </Route>
-          <Route exact path="/statistics">
-            <NavigationRoute internalScreen={Dashboard} />
-          </Route>
-          <Route exact path="/token_detail/:tokenUID">
-            <NavigationRoute internalScreen={TokenDetail} />
-          </Route>
-          <Route exact path="/address/:address">
-            <NavigationRoute internalScreen={AddressDetail} />
-          </Route>
-          <Route exact path="/nano_contract/detail/:nc_id" component={NanoContractDetail}>
-            <NavigationRoute internalScreen={NanoContractDetail} />
-          </Route>
-          <Route exact path="/blueprint/detail/:blueprint_id">
-            <NavigationRoute internalScreen={BlueprintDetail} />
-          </Route>
-          <Route exact path="">
-            <NavigationRoute internalScreen={DashboardTx} />
-          </Route>
-        </Switch>
-      </Router>
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/transaction/:id"
+            element={<NavigationRoute internalScreen={TransactionDetail} />}
+          />
+          <Route path="/push-tx" element={<NavigationRoute internalScreen={PushTx} />} />
+          <Route path="/decode-tx" element={<NavigationRoute internalScreen={DecodeTx} />} />
+          <Route
+            path="/transactions"
+            element={<NavigationRoute internalScreen={TransactionList} />}
+          />
+          <Route path="/tokens" element={<NavigationRoute internalScreen={TokenList} />} />
+          <Route
+            path="/token_balances"
+            element={<NavigationRoute internalScreen={TokenBalancesList} />}
+          />
+          <Route path="/blocks" element={<NavigationRoute internalScreen={BlockList} />} />
+          <Route path="/dag" component={Dag} element={<NavigationRoute internalScreen={Dag} />} />
+          <Route path="/features" element={<NavigationRoute internalScreen={FeatureList} />} />
+          <Route
+            path="/network/:peerId?"
+            element={<NavigationRoute internalScreen={PeerAdmin} />}
+          />
+          <Route path="/statistics" element={<NavigationRoute internalScreen={Dashboard} />} />
+          <Route
+            path="/token_detail/:tokenUID"
+            element={<NavigationRoute internalScreen={TokenDetail} />}
+          />
+          <Route
+            path="/address/:address"
+            element={<NavigationRoute internalScreen={AddressDetail} />}
+          />
+          <Route
+            path="/nano_contract/detail/:nc_id"
+            component={NanoContractDetail}
+            element={<NavigationRoute internalScreen={NanoContractDetail} />}
+          />
+          <Route
+            path="/blueprint/detail/:blueprint_id"
+            element={<NavigationRoute internalScreen={BlueprintDetail} />}
+          />
+          <Route path="/blueprints/" element={<NavigationRoute internalScreen={BlueprintList} />} />
+          <Route
+            path="/nano_contracts/"
+            element={<NavigationRoute internalScreen={NanoContractsList} />}
+          />
+          <Route path="" element={<NavigationRoute internalScreen={DashboardTx} />} />
+        </Routes>
+      </BrowserRouter>
       <GDPRConsent />
     </>
   );

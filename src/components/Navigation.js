@@ -6,7 +6,7 @@
  */
 
 import React, { useRef, useState } from 'react';
-import { NavLink, Link, useHistory } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import hathorLib from '@hathor/wallet-lib';
 import { useFlag } from '@unleash/proxy-client-react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -28,17 +28,20 @@ import {
   UNLEASH_TOKEN_BALANCES_FEATURE_FLAG,
   REACT_APP_NETWORK,
 } from '../constants';
-import { toggleTheme } from '../actions';
+import { toggleTheme } from '../store/rootSlice';
 import NewHathorAlert from './NewHathorAlert';
 
 function Navigation() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const alertErrorRef = useRef(null);
   const txSearchRef = useRef(null);
   const isTokensBaseEnabled = useFlag(`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`);
   const isTokensBalanceEnabled = useFlag(`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.rollout`);
-  const theme = useSelector(state => state.theme);
+  const { serverInfo, theme } = useSelector(state => ({
+    serverInfo: state.serverInfo,
+    theme: state.theme,
+  }));
   const newUiEnabled = useNewUiEnabled();
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
@@ -65,13 +68,13 @@ function Navigation() {
       const regex = /[A-Fa-f\d]{64}/g;
       if (regex.test(text)) {
         // It's a valid hash
-        history.push(`/transaction/${text}`);
+        navigate(`/transaction/${text}`);
       } else {
         const network = hathorLib.config.getNetwork();
         const addressObj = new hathorLib.Address(text, { network });
         if (addressObj.isValid()) {
           // It's a valid address
-          history.push(`/address/${text}`);
+          navigate(`/address/${text}`);
         } else {
           showError();
         }
@@ -84,14 +87,14 @@ function Navigation() {
   };
 
   const renderNewUi = () => {
-    const hathorNetwork = `Hathor ${REACT_APP_NETWORK}`;
+    const hathorNetwork = `${REACT_APP_NETWORK}`;
 
     return (
       <>
         <nav>
           <div className="hide-logo-container-mobile">
             <div className="newLogo-explorer-container">
-              <div className="d-flex flex-column align-items-center">
+              <div className="d-flex flex-column align-items-start">
                 <Link className="navbar-brand" to="/" href="/">
                   <NewLogo
                     className={`newLogo ${
@@ -99,30 +102,13 @@ function Navigation() {
                     }`}
                   />
                 </Link>
+                <div className="network-icon-container">
+                  <GlobeNetwork
+                    className={`${theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'}`}
+                  />
+                  <span className="nav-title">{hathorNetwork}</span>
+                </div>
               </div>
-              {!showSearchInput ? (
-                <button
-                  className="navbar-toggler"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#navbarSupportedContent"
-                  aria-controls="navbarSupportedContent"
-                  aria-expanded="false"
-                  aria-label="Toggle navigation"
-                >
-                  <span>EXPLORER</span>
-                </button>
-              ) : (
-                ''
-              )}
-            </div>
-            <div className="hide-network-mobile">
-              <GlobeNetwork
-                className={`${
-                  theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'
-                } theme-network-logo`}
-              />
-              <span className="nav-title">{hathorNetwork}</span>
             </div>
           </div>
           <div className="nav-tabs-container hide-tabs">
@@ -130,10 +116,7 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/"
-                  exact
-                  className="nav-link"
-                  activeClassName="active"
-                  activeStyle={{ fontWeight: 'bold' }}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 >
                   Home
                 </NavLink>
@@ -167,13 +150,33 @@ function Navigation() {
                   </div>
                 </ul>
               )}
+              {serverInfo.nano_contracts_enabled && (
+                <li className="nav-item dropdown">
+                  <span
+                    className="nav-link dropdown-toggle custom-dropdown-toggle"
+                    id="navbarDropdown"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    Nano
+                    <ArrorDownNavItem className="dropdown-icon" />
+                  </span>
+                  <div className="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <NavLink to="/nano_contracts/" className="nav-link">
+                      Nano Contracts List
+                    </NavLink>
+                    <NavLink to="/blueprints/?type=built-in" className="nav-link">
+                      Blueprints List
+                    </NavLink>
+                  </div>
+                </li>
+              )}
               <li className="nav-item">
                 <NavLink
                   to="/network"
-                  exact
-                  className="nav-link"
-                  activeClassName="active"
-                  activeStyle={{ fontWeight: 'bold' }}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 >
                   Network
                 </NavLink>
@@ -181,10 +184,7 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/statistics"
-                  exact
-                  className="nav-link"
-                  activeClassName="active"
-                  activeStyle={{ fontWeight: 'bold' }}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 >
                   Statistics
                 </NavLink>
@@ -202,16 +202,16 @@ function Navigation() {
                   <ArrorDownNavItem className="dropdown-icon" />
                 </span>
                 <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <NavLink to="/decode-tx/" exact className="nav-link">
+                  <NavLink to="/decode-tx/" className="nav-link">
                     Decode Tx
                   </NavLink>
-                  <NavLink to="/push-tx/" exact className="nav-link">
+                  <NavLink to="/push-tx/" className="nav-link">
                     Push Tx
                   </NavLink>
-                  <NavLink to="/dag/" exact className="nav-link">
+                  <NavLink to="/dag/" className="nav-link">
                     DAG
                   </NavLink>
-                  <NavLink to="/features/" exact className="nav-link">
+                  <NavLink to="/features/" className="nav-link">
                     Features
                   </NavLink>
                 </div>
@@ -238,12 +238,6 @@ function Navigation() {
               onClick={() => dispatch(toggleTheme())}
               role="button"
             />
-            <div className="network-icon-container">
-              <GlobeNetwork
-                className={`${theme === 'dark' ? 'dark-theme-logo' : 'light-theme-logo'}`}
-              />
-              <span className="nav-title">{hathorNetwork}</span>
-            </div>
           </div>
           <div className="mobile-tabs">
             {showSearchInput ? (
@@ -309,10 +303,7 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/"
-                  exact
-                  className="nav-link"
-                  activeClassName="active"
-                  activeStyle={{ fontWeight: 'bold' }}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 >
                   Transactions
                 </NavLink>
@@ -348,10 +339,7 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/network"
-                  exact
-                  className="nav-link"
-                  activeClassName="active"
-                  activeStyle={{ fontWeight: 'bold' }}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 >
                   Network
                 </NavLink>
@@ -359,10 +347,7 @@ function Navigation() {
               <li className="nav-item">
                 <NavLink
                   to="/statistics"
-                  exact
-                  className="nav-link"
-                  activeClassName="active"
-                  activeStyle={{ fontWeight: 'bold' }}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 >
                   Statistics
                 </NavLink>
@@ -379,16 +364,16 @@ function Navigation() {
                   Tools
                 </span>
                 <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <NavLink to="/decode-tx/" exact className="nav-link">
+                  <NavLink to="/decode-tx/" className="nav-link">
                     Decode Tx
                   </NavLink>
-                  <NavLink to="/push-tx/" exact className="nav-link">
+                  <NavLink to="/push-tx/" className="nav-link">
                     Push Tx
                   </NavLink>
-                  <NavLink to="/dag/" exact className="nav-link">
+                  <NavLink to="/dag/" className="nav-link">
                     DAG
                   </NavLink>
-                  <NavLink to="/features/" exact className="nav-link">
+                  <NavLink to="/features/" className="nav-link">
                     Features
                   </NavLink>
                 </div>

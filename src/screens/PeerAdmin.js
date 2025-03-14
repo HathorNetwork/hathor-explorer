@@ -6,18 +6,18 @@
  */
 
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useNewUiEnabled } from '../hooks';
 import Network from '../components/Network';
 
 function PeerAdmin() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const params = useParams();
   const newUiEnabled = useNewUiEnabled();
 
   const renderUi = () => (
     <div className="content-wrapper">
-      <Network history={history} match={params} />
+      <Network navigate={navigate} match={params} />
     </div>
   );
 
@@ -25,7 +25,7 @@ function PeerAdmin() {
     <div className="network-wrapper">
       <h2 className="network-title">Network</h2>
       <div>
-        <Network history={history} match={params} newUiEnabled={newUiEnabled} />
+        <Network navigate={navigate} match={params} newUiEnabled={newUiEnabled} />
       </div>
     </div>
   );

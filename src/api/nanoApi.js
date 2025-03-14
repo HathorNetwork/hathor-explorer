@@ -100,6 +100,116 @@ const nanoApi = {
         );
       });
   },
+
+  /**
+   * Get built in blueprint list
+   *
+   * @param {number | null} count Number of elements to get the list
+   * @param {string | null} after ID of the blueprint to get as reference for after pagination
+   * @param {string | null} before ID of the blueprint to get as reference for before pagination
+   * @param {string | null} search Blueprint ID to search for in the API
+   *
+   * For more details, see full node api docs
+   */
+  getBuiltInBlueprintList(count, after, before, search) {
+    const data = {};
+    if (count) {
+      data.count = count;
+    }
+    if (after) {
+      data.after = after;
+    }
+    if (before) {
+      data.before = before;
+    }
+    if (search) {
+      data.search = search;
+    }
+    return requestExplorerServiceV1
+      .get(`node_api/nc_builtin_blueprints`, { params: data })
+      .then(res => res.data)
+      .catch(err => {
+        throw new Error(
+          err?.data?.message || err?.message || `Unknown error on get builtin blueprint list`
+        );
+      });
+  },
+
+  /**
+   * Get on chain blueprint list
+   *
+   * @param {number | null} count Number of elements to get the list
+   * @param {string | null} after ID of the blueprint to get as reference for after pagination
+   * @param {string | null} before ID of the blueprint to get as reference for before pagination
+   * @param {string | null} search Blueprint ID to search for in the API
+   * @param {string | null} order Order of the sorting ('asc' or 'desc')
+   *
+   * For more details, see full node api docs
+   */
+  getOnChainBlueprintList(count, after, before, search, order) {
+    const data = {};
+    if (count) {
+      data.count = count;
+    }
+    if (after) {
+      data.after = after;
+    }
+    if (before) {
+      data.before = before;
+    }
+    if (search) {
+      data.search = search;
+    }
+    if (order) {
+      data.order = order;
+    }
+    return requestExplorerServiceV1
+      .get(`node_api/nc_on_chain_blueprints`, { params: data })
+      .then(res => res.data)
+      .catch(err => {
+        throw new Error(
+          err?.data?.message || err?.message || `Unknown error on get on chain blueprint list`
+        );
+      });
+  },
+
+  /**
+   * Get list of nano contract creation txs
+   *
+   * @param {number | null} count Number of elements to get the list
+   * @param {string | null} after ID of the blueprint to get as reference for after pagination
+   * @param {string | null} before ID of the blueprint to get as reference for before pagination
+   * @param {string | null} search ID of the blueprint or nano contract creation to filter in the API
+   * @param {string | null} order Order of the sorting ('asc' or 'desc')
+   *
+   * For more details, see full node api docs
+   */
+  getNanoContractCreationList(count, after, before, search, order) {
+    const data = {};
+    if (count) {
+      data.count = count;
+    }
+    if (after) {
+      data.after = after;
+    }
+    if (before) {
+      data.before = before;
+    }
+    if (search) {
+      data.search = search;
+    }
+    if (order) {
+      data.order = order;
+    }
+    return requestExplorerServiceV1
+      .get(`node_api/nc_creation_list`, { params: data })
+      .then(res => res.data)
+      .catch(err => {
+        throw new Error(
+          err?.data?.message || err?.message || `Unknown error on get nano contract creation list`
+        );
+      });
+  },
 };
 
 export default nanoApi;
