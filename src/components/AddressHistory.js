@@ -16,7 +16,6 @@ import EllipsiCell from './EllipsiCell';
 import { ReactComponent as RowBottomIcon } from '../assets/images/leading-icon.svg';
 import { ReactComponent as RowTopIcon } from '../assets/images/leading-top-icon.svg';
 import { COLORS } from '../constants';
-import { useIsMobile } from '../hooks';
 
 const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
@@ -174,8 +173,7 @@ class AddressHistory extends SortableTable {
     });
   }
 
-  renderNewTableBodyUi() {
-    const isMobile = useIsMobile();
+  renderNewTableBodyUi(isMobile) {
     const ellipsisCount = isMobile ? 4 : 12;
     return this.props.data.map(tx => {
       let statusElement = '';
@@ -244,7 +242,9 @@ class AddressHistory extends SortableTable {
   }
 
   renderTableBody() {
-    return this.props.newUiEnabled ? this.renderNewTableBodyUi() : this.renderTableBodyUi();
+    return this.props.newUiEnabled
+      ? this.renderNewTableBodyUi(this.props.isMobile)
+      : this.renderTableBodyUi();
   }
 }
 
@@ -265,6 +265,8 @@ AddressHistory.propTypes = {
   selectedToken: PropTypes.string.isRequired,
   numTransactions: PropTypes.number.isRequired,
   txCache: PropTypes.object.isRequired,
+  newUiEnabled: PropTypes.bool.isRequired,
+  isMobile: PropTypes.bool.isRequired,
 };
 
 export default connect(mapStateToProps)(AddressHistory);
