@@ -123,7 +123,6 @@ function BlueprintList() {
             // so we must clear the id and page queryParams
             pagination.clearParametersWithoutRefresh(['id', 'page']);
           }
-          return;
         }
       } catch (e) {
         // Error in request
