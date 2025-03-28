@@ -10,7 +10,7 @@ import React, { useCallback, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { axios as hathorLibAxios, config as hathorLibConfig } from '@hathor/wallet-lib';
-import { useTheme, useNewUiEnabled, useNewUiLoad } from './hooks';
+import { useTheme, useNewUiLoad } from './hooks';
 import GDPRConsent from './components/GDPRConsent';
 import Loading from './components/Loading';
 import Navigation from './components/Navigation';
@@ -50,15 +50,13 @@ import createRequestInstance from './api/customAxiosInstance';
 hathorLibConfig.setServerUrl(BASE_URL);
 
 const NavigationRoute = ({ internalScreen: InternalScreen }) => {
-  const newUiEnabled = useNewUiEnabled();
-
   return (
     <div className="limit-section">
       <Navigation />
       <div style={{ flex: 1 }}>
         <InternalScreen />
       </div>
-      {newUiEnabled && <Footer />}
+      <Footer />
     </div>
   );
 };

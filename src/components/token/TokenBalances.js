@@ -11,7 +11,6 @@ import { get, last, find, isEmpty } from 'lodash';
 import { useNavigate } from 'react-router-dom';
 import { numberUtils, constants as hathorLibConstants } from '@hathor/wallet-lib';
 import { useSelector } from 'react-redux';
-import { useNewUiEnabled } from '../../hooks';
 import TokenBalancesTable from './TokenBalancesTable';
 import tokensApi from '../../api/tokensApi';
 import PaginationURL from '../../utils/pagination';
@@ -23,7 +22,6 @@ import TokenAutoCompleteField from './TokenAutoCompleteField';
  */
 function TokenBalances({ maintenanceMode }) {
   const navigate = useNavigate();
-  const newUiEnabled = useNewUiEnabled();
   const serverInfo = useSelector(state => state.serverInfo);
 
   /**
@@ -320,7 +318,6 @@ function TokenBalances({ maintenanceMode }) {
         onTokenSelected={onTokenSelected}
         tokenId={tokenId}
         loadingFinished={loadingFinished}
-        newUiEnabled={newUiEnabled}
       />
     );
   };
@@ -343,42 +340,9 @@ function TokenBalances({ maintenanceMode }) {
         order={order}
         tableHeaderClicked={tableHeaderClicked}
         calculatingPage={calculatingPage}
-        newUiEnabled={newUiEnabled}
       />
     );
   };
-
-  const renderUi = () => (
-    <div className="w-100">
-      {renderSearchField()}
-
-      <div className="token-balances-information-wrapper">
-        {tokenId !== hathorLibConstants.NATIVE_TOKEN_UID && (
-          <p>
-            <a href={`/token_detail/${tokenId}`}>Click here to see the token details</a>
-          </p>
-        )}
-
-        {!tokenBalanceInformationError && (
-          <p>
-            <b>Total number of addresses:</b> {numberUtils.prettyValue(addressesCount, 0)}
-          </p>
-        )}
-
-        {!tokensApiError && (
-          <p>
-            <b>Total number of transactions:</b> {numberUtils.prettyValue(transactionsCount, 0)}
-          </p>
-        )}
-
-        {(tokensApiError || tokenBalanceInformationError) && (
-          <ErrorMessageWithIcon message="Error loading the complete token balance information. Please try again." />
-        )}
-      </div>
-
-      {tokenId && renderTokensTable()}
-    </div>
-  );
 
   const renderNewUi = () => (
     <div className="container-title-page">
@@ -423,7 +387,7 @@ function TokenBalances({ maintenanceMode }) {
     </div>
   );
 
-  return newUiEnabled ? renderNewUi() : renderUi();
+  return renderNewUi();
 }
 
 /**

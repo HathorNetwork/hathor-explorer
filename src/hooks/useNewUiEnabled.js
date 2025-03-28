@@ -8,6 +8,10 @@
 import { useFlag } from '@unleash/proxy-client-react';
 import { UNLEASH_NEW_UI_FEATURE_FLAG } from '../constants';
 
+/**
+ * @deprecated
+ * @returns {boolean}
+ */
 export const useNewUiEnabled = () => {
   const newUiEnabled = useFlag(UNLEASH_NEW_UI_FEATURE_FLAG);
 

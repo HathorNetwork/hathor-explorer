@@ -9,11 +9,8 @@ import React from 'react';
 import Transactions from '../components/tx/Transactions';
 import txApi from '../api/txApi';
 import { TX_COUNT } from '../constants';
-import { useNewUiEnabled } from '../hooks';
 
 function TransactionList() {
-  const newUiEnabled = useNewUiEnabled();
-
   /**
    * Checks if the recently arrived transaction should trigger an update on the list
    * It returns true if it's a transaction (not a block)
@@ -52,19 +49,7 @@ function TransactionList() {
     );
   };
 
-  const renderUi = () => {
-    return (
-      <div className="content-wrapper">
-        <Transactions
-          title={<h1>Transactions</h1>}
-          shouldUpdateList={shouldUpdateList}
-          updateData={updateData}
-        />
-      </div>
-    );
-  };
-
-  return newUiEnabled ? renderNewUi() : renderUi();
+  return renderNewUi();
 }
 
 export default TransactionList;

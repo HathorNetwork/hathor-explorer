@@ -6,16 +6,14 @@
  */
 
 import React from 'react';
-import hathorLib from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import dateFormatter from '../../utils/date';
-import { useIsMobile, useNewUiEnabled } from '../../hooks';
+import { useIsMobile } from '../../hooks';
 import EllipsiCell from '../EllipsiCell';
 
 function TokenRow({ token }) {
   const navigate = useNavigate();
-  const newUiEnabled = useNewUiEnabled();
   const isMobile = useIsMobile();
 
   /**
@@ -55,19 +53,7 @@ function TokenRow({ token }) {
       </tr>
     );
 
-  const renderUi = () => (
-    <tr onClick={_e => onRowClicked(token.uid)}>
-      <td className="d-lg-table-cell pe-3">{hathorLib.helpersUtils.getShortHash(token.uid)}</td>
-      <td className="d-lg-table-cell pe-3">{token.name}</td>
-      <td className="d-lg-table-cell pe-3">{token.symbol}</td>
-      <td className="d-lg-table-cell pe-3">{token.nft ? 'NFT' : 'Custom Token'}</td>
-      <td className="d-lg-table-cell pe-3">
-        {dateFormatter.parseTimestamp(token.transaction_timestamp)}
-      </td>
-    </tr>
-  );
-
-  return newUiEnabled ? renderNewUi() : renderUi();
+  return renderNewUi();
 }
 
 /**

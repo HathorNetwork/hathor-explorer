@@ -7,16 +7,14 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import hathorLib from '@hathor/wallet-lib';
-import ReactLoading from 'react-loading';
 import { find } from 'lodash';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useIsMobile, useNewUiEnabled } from '../hooks';
+import { useIsMobile } from '../hooks';
 import AddressSummary from './AddressSummary';
 import AddressHistory from './AddressHistory';
 import Loading from './Loading';
 import ErrorMessageWithIcon from './error/ErrorMessageWithIcon';
 import PaginationURL from '../utils/pagination';
-import colors from '../index.scss';
 import WebSocketHandler from '../WebSocketHandler';
 import { TOKEN_COUNT, TX_COUNT } from '../constants';
 import metadataApi from '../api/metadataApi';
@@ -64,7 +62,6 @@ function AddressDetailExplorer() {
 
   const { address } = useParams();
   const navigate = useNavigate();
-  const newUiEnabled = useNewUiEnabled();
   const isMobile = useIsMobile();
 
   /*
@@ -559,11 +556,7 @@ function AddressDetailExplorer() {
       );
     }
     if (loadingSummary || loadingHistory || loadingTokens) {
-      return newUiEnabled ? (
-        <Loading />
-      ) : (
-        <ReactLoading type="spin" color={colors.purpleHathor} delay={500} />
-      );
+      return <Loading />;
     }
 
     return (
@@ -578,7 +571,6 @@ function AddressDetailExplorer() {
           tokenSelectChanged={onTokenSelectChanged}
           isNFT={isNFT()}
           metadataLoaded={metadataLoaded}
-          newUiEnabled={newUiEnabled}
         />
         <AddressHistory
           address={address}
@@ -596,18 +588,13 @@ function AddressDetailExplorer() {
           metadataLoaded={metadataLoaded}
           calculatingPage={loadingPagination}
           loading={loadingHistory}
-          newUiEnabled={newUiEnabled}
           isMobile={isMobile}
         />
       </div>
     );
   };
 
-  return (
-    <div className={newUiEnabled ? 'section-tables-stylized' : 'content-wrapper'}>
-      {renderData()}
-    </div>
-  );
+  return <div className={'section-tables-stylized'}>{renderData()}</div>;
 }
 
 export default AddressDetailExplorer;

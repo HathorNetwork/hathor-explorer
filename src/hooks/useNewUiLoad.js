@@ -6,18 +6,12 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useNewUiEnabled } from './useNewUiEnabled';
 
 export const useNewUiLoad = () => {
   const [loading, setLoading] = useState(true);
-  const newUiEnabled = useNewUiEnabled();
 
   useEffect(() => {
-    if (!newUiEnabled) {
-      setLoading(false);
-      return;
-    }
-
+    // TODO: Remove this dynamic import after fully reviewing the removal of the old UI
     import('../newUi.css')
       .then(() => {
         setLoading(false);
@@ -26,7 +20,7 @@ export const useNewUiLoad = () => {
         console.error('Failed to load newUi.css:', error);
         setLoading(false);
       });
-  }, [newUiEnabled]);
+  }, []);
 
   return loading;
 };

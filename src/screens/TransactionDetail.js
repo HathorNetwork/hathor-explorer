@@ -12,7 +12,7 @@ import TxData from '../components/tx/TxData';
 import txApi from '../api/txApi';
 import metadataApi from '../api/metadataApi';
 import Spinner from '../components/Spinner';
-import { useIsMobile, useNewUiEnabled } from '../hooks';
+import { useIsMobile } from '../hooks';
 
 /**
  * Shows the detail of a transaction or block
@@ -21,7 +21,6 @@ import { useIsMobile, useNewUiEnabled } from '../hooks';
  */
 function TransactionDetail() {
   const { id: txUid } = useParams();
-  const newUiEnabled = useNewUiEnabled();
   const isMobile = useIsMobile();
 
   /**
@@ -75,25 +74,6 @@ function TransactionDetail() {
     updateTxInfo(txUid).catch(e => console.error(e));
   }, [txUid, updateTxInfo]);
 
-  const renderTx = () => {
-    return (
-      <div className="content-wrapper">
-        {transaction ? (
-          <TxData
-            transaction={transaction}
-            confirmationData={confirmationData}
-            spentOutputs={spentOutputs}
-            meta={meta}
-            showRaw={true}
-            showConflicts={true}
-          />
-        ) : (
-          <p className="text-danger">Transaction with hash {txUid} not found</p>
-        )}
-      </div>
-    );
-  };
-
   const renderNewUiTx = () => {
     return (
       <>
@@ -105,7 +85,6 @@ function TransactionDetail() {
             meta={meta}
             showRaw={true}
             showConflicts={true}
-            newUiEnabled={newUiEnabled}
             isMobile={isMobile}
           />
         ) : (
@@ -121,10 +100,7 @@ function TransactionDetail() {
         if (!loaded) {
           return <Spinner />;
         }
-        if (newUiEnabled) {
-          return renderNewUiTx();
-        }
-        return renderTx();
+        return renderNewUiTx();
       })()}
     </div>
   );

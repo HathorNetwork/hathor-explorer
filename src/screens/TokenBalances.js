@@ -9,25 +9,17 @@ import React from 'react';
 import { useFlag } from '@unleash/proxy-client-react';
 import TokenBalances from '../components/token/TokenBalances';
 import { UNLEASH_TOKEN_BALANCES_FEATURE_FLAG } from '../constants';
-import { useNewUiEnabled } from '../hooks';
 
 const TokenBalancesList = () => {
   const maintenanceMode = useFlag(`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.maintenance`);
-  const newUiEnabled = useNewUiEnabled();
-
-  const renderUi = () => (
-    <div className="content-wrapper">
-      <TokenBalances maintenanceMode={maintenanceMode} newUiEnabled={newUiEnabled} />
-    </div>
-  );
 
   const renderNewUi = () => (
     <div className="section-tables-stylized">
-      <TokenBalances maintenanceMode={maintenanceMode} newUiEnabled={newUiEnabled} />
+      <TokenBalances maintenanceMode={maintenanceMode} />
     </div>
   );
 
-  return newUiEnabled ? renderNewUi() : renderUi();
+  return renderNewUi();
 };
 
 export default TokenBalancesList;
