@@ -65,37 +65,6 @@ class ScreenStatusMessage extends React.Component {
     });
   };
 
-  renderUi() {
-    const height = numberUtils.prettyValue(this.state.height, 0);
-
-    if (this.state.error) {
-      return (
-        <div>
-          <ErrorMessageWithIcon message="Could not load the last block updated" />
-        </div>
-      );
-    }
-
-    if (this.state.loading) {
-      return (
-        <div>
-          <Loading />
-        </div>
-      );
-    }
-
-    return (
-      <div>
-        <p className="screen-status">
-          <strong>
-            This screen is updated until block at height {height} and the last update was on{' '}
-            {dateFormatter.parseTimestampFromSQLTimestamp(this.state.timestamp)}
-          </strong>
-        </p>
-      </div>
-    );
-  }
-
   renderNewUi() {
     const height = numberUtils.prettyValue(this.state.height, 0);
 
@@ -129,7 +98,7 @@ class ScreenStatusMessage extends React.Component {
   }
 
   render() {
-    return this.props.newUiEnabled ? this.renderNewUi() : this.renderUi();
+    return this.renderNewUi();
   }
 }
 

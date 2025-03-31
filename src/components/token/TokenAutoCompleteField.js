@@ -4,7 +4,6 @@ import { debounce, get } from 'lodash';
 import { constants as hathorLibConstants } from '@hathor/wallet-lib';
 import { connect } from 'react-redux';
 import tokensApi from '../../api/tokensApi';
-import Loading from '../Loading';
 
 const DEBOUNCE_SEARCH_TIME = 200; // ms
 
@@ -185,38 +184,6 @@ class TokenAutoCompleteField extends React.Component {
     return searchResults;
   };
 
-  _renderInputForm() {
-    if (this.state.selectedItem) {
-      return (
-        <div className="selectedItemWrapper me-2 form-control">
-          <div className="autocomplete-selected-item">
-            <span>
-              {this.state.selectedItem.name} ({this.state.selectedItem.symbol}) -{' '}
-              {this.state.selectedItem.id}
-            </span>
-            <i
-              className="fa fa-times-circle pointer close-icon"
-              onClick={() => this.onClearSelectedItem()}
-            />
-          </div>
-        </div>
-      );
-    }
-    const nativeToken = this.getNativeToken();
-
-    return (
-      <input
-        className="form-control me-2 autocomplete-input"
-        type="search"
-        value={this.state.searchText}
-        onKeyUp={this.onSearchTextKeyUp}
-        onChange={this.onSearchTextChanged}
-        placeholder={`${nativeToken.name} (${nativeToken.symbol}) - Type to search for other tokens by UID, name or symbol`}
-        aria-label="Search"
-      />
-    );
-  }
-
   _renderNewInputForm() {
     if (this.state.selectedItem) {
       return (
@@ -255,34 +222,6 @@ class TokenAutoCompleteField extends React.Component {
     );
   }
 
-  _renderSearchIcon() {
-    if (this.props.isSearchLoading && !this.props.loading) {
-      return (
-        <Loading
-          width={25}
-          height={25}
-          delay={0}
-          useLoadingWrapper={false}
-          showSlowLoadMessage={false}
-        />
-      );
-    }
-
-    return <i className="fa fa-search pointer" onClick={() => this.performSearchDebounce()} />;
-  }
-
-  _renderAutocompleteResults() {
-    return this.state.searchResults.map(result => (
-      <li
-        key={result.id}
-        onClick={() => this.onItemSelected(result)}
-        className="autocomplete-result-item"
-      >
-        {result.name} ({result.symbol}) - {result.id}
-      </li>
-    ));
-  }
-
   _renderNewAutocompleteResults() {
     return this.state.searchResults.map(result => (
       <li
@@ -293,24 +232,6 @@ class TokenAutoCompleteField extends React.Component {
         {result.name} ({result.symbol}) - {result.id}
       </li>
     ));
-  }
-
-  renderUi() {
-    return (
-      <div className="d-flex align-items-center navigation-autocomplete-token">
-        <div className="d-flex flex-row align-items-center col-12">
-          {this._renderInputForm()}
-          {this._renderSearchIcon()}
-        </div>
-        <ul
-          className={`autocomplete-results ${
-            this.state.searchResults.length === 0 ? 'hidden' : ''
-          }`}
-        >
-          {this._renderAutocompleteResults()}
-        </ul>
-      </div>
-    );
   }
 
   renderNewUi() {
@@ -331,7 +252,7 @@ class TokenAutoCompleteField extends React.Component {
   }
 
   render() {
-    return this.props.newUiEnabled ? this.renderNewUi() : this.renderUi();
+    return this.renderNewUi();
   }
 }
 

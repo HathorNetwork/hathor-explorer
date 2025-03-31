@@ -123,118 +123,6 @@ class Features extends React.Component {
     this.setState({ showColumnDescriptions: !this.state.showColumnDescriptions });
   };
 
-  renderUi() {
-    const loadPagination = () => {
-      if (this.state.pages.length === 0) {
-        return null;
-      }
-      return (
-        <nav aria-label="Feature pagination" className="d-flex justify-content-center">
-          <ul className="pagination">
-            <li
-              ref="featurePrevious"
-              className={`page-item me-3 ${this.hasBefore() ? '' : 'disabled'}`}
-            >
-              <Link
-                className="page-link"
-                to={this.pagination.setURLParameters({ page: this.state.page - 1 })}
-              >
-                Previous
-              </Link>
-            </li>
-            <li ref="featureNext" className={`page-item ${this.hasAfter() ? '' : 'disabled'}`}>
-              <Link
-                className="page-link"
-                to={this.pagination.setURLParameters({ page: this.state.page + 1 })}
-              >
-                Next
-              </Link>
-            </li>
-          </ul>
-        </nav>
-      );
-    };
-
-    const loadTable = () => {
-      return (
-        <div className="table-responsive mt-5">
-          <table className="table table-striped" id="features-table">
-            <thead>
-              <tr>
-                <th className="d-lg-table-cell">Name</th>
-                <th className="d-lg-table-cell">State</th>
-                <th className="d-lg-table-cell">Acceptance</th>
-                <th className="d-lg-table-cell">Threshold</th>
-                <th className="d-lg-table-cell">Start Height</th>
-                <th className="d-lg-table-cell">Minimum Activation Height</th>
-                <th className="d-lg-table-cell">Timeout Height</th>
-                <th className="d-lg-table-cell">Lock-in on Timeout</th>
-                <th className="d-lg-table-cell">Since Version</th>
-              </tr>
-            </thead>
-            <tbody>{loadTableBody()}</tbody>
-          </table>
-        </div>
-      );
-    };
-
-    const loadTableBody = () => {
-      return this.getPageFeatures().map(feature => {
-        return <FeatureRow key={feature.name} feature={feature} />;
-      });
-    };
-
-    const loadColumnDescriptions = () => {
-      return this.getColumnDescriptions().map(({ name, description }) => {
-        return (
-          <div key={name}>
-            <label>{name}</label>
-            <p>{description}</p>
-          </div>
-        );
-      });
-    };
-
-    const loadFeaturesPage = () => {
-      const height = numberUtils.prettyValue(this.state.block_height, 0);
-      return (
-        <div>
-          <div>
-            Showing feature states for{' '}
-            <Link to={`/transaction/${this.state.block_hash}`}>current best block</Link> at height{' '}
-            {height}.
-          </div>
-          {!this.state.loaded ? (
-            <ReactLoading type="spin" color={colors.purpleHathor} delay={500} />
-          ) : (
-            loadTable()
-          )}
-          {loadPagination()}
-          <div className="f-flex flex-column align-items-start common-div bordered-wrapper mt-3 mt-lg-0 w-100 feature-column-descriptions">
-            <div>
-              <label>Column descriptions: </label>
-              <a href="true" className="ms-1" onClick={e => this.toggleColumnDescriptions(e)}>
-                {this.state.showColumnDescriptions ? 'Click to hide' : 'Click to show'}
-              </a>
-            </div>
-            {this.state.showColumnDescriptions && loadColumnDescriptions()}
-          </div>
-        </div>
-      );
-    };
-
-    return (
-      <div className="w-100">
-        {this.props.title}
-        {this.state.pages.length !== 0 ? (
-          loadFeaturesPage()
-        ) : (
-          <div>There are currently no features.</div>
-        )}
-      </div>
-    );
-  }
-
   renderNewUi() {
     const loadPagination = () => {
       if (this.state.pages.length === 0) {
@@ -359,7 +247,7 @@ class Features extends React.Component {
   }
 
   render() {
-    return this.props.newUiEnabled ? this.renderNewUi() : this.renderUi();
+    return this.renderNewUi();
   }
 }
 
