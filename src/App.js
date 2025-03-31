@@ -10,7 +10,7 @@ import React, { useCallback, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { axios as hathorLibAxios, config as hathorLibConfig } from '@hathor/wallet-lib';
-import { useTheme, useNewUiLoad } from './hooks';
+import { useTheme } from './hooks';
 import GDPRConsent from './components/GDPRConsent';
 import Loading from './components/Loading';
 import Navigation from './components/Navigation';
@@ -66,7 +66,6 @@ function Root() {
   const dispatch = useDispatch();
   const isVersionAllowed = useSelector(state => state.isVersionAllowed);
   const apiLoadError = useSelector(state => state.apiLoadError);
-  const newUiLoading = useNewUiLoad();
 
   const handleWebsocket = useCallback(
     wsData => {
@@ -117,10 +116,6 @@ function Root() {
 
   if (!isVersionAllowed) {
     return <VersionError />;
-  }
-
-  if (newUiLoading) {
-    return <Loading />;
   }
 
   return (
