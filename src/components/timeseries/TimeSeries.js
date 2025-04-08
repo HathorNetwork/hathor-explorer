@@ -23,38 +23,6 @@ class TimeSeries extends React.Component {
     };
   }
 
-  renderUi() {
-    if (!this.state.featureFlag) {
-      return null;
-    }
-
-    const renderDashboard = () => {
-      if (this.state.maintenanceMode) {
-        return (
-          <ErrorMessageWithIcon message="This feature is under maintenance. Please try again after some time" />
-        );
-      }
-      return (
-        <div>
-          <ScreenStatusMessage />
-          <iframe
-            title="Time Series Data"
-            id="timeseries-iframe"
-            className="timeseries-iframe"
-            src={TIMESERIES_DASHBOARD_URL}
-          ></iframe>
-        </div>
-      );
-    };
-
-    return (
-      <div>
-        <h2 className="statistics-title">Historical Data</h2>
-        {renderDashboard()}
-      </div>
-    );
-  }
-
   renderNewUi() {
     if (!this.state.featureFlag) {
       return null;
@@ -68,7 +36,7 @@ class TimeSeries extends React.Component {
       }
       return (
         <div>
-          <ScreenStatusMessage newUiEnabled={this.props.newUiEnabled} />
+          <ScreenStatusMessage />
           <iframe
             title="Time Series Data"
             id="timeseries-iframe"
@@ -88,7 +56,7 @@ class TimeSeries extends React.Component {
   }
 
   render() {
-    return this.props.newUiEnabled ? this.renderNewUi() : this.renderUi();
+    return this.renderNewUi();
   }
 }
 

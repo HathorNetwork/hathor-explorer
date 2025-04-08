@@ -30,18 +30,6 @@ class AddressSummary extends React.Component {
       return null;
     }
 
-    const loadMainInfo = () => {
-      return (
-        <div className="card text-white bg-dark mb-3">
-          <div className="card-body">
-            Address: {this.props.address}
-            <br />
-            Number of tokens: {Object.keys(this.props.tokens).length}
-          </div>
-        </div>
-      );
-    };
-
     const newLoadMainInfo = () => {
       return (
         <div className="summary-main-info alter-background">
@@ -84,35 +72,6 @@ class AddressSummary extends React.Component {
       }
 
       return numberUtils.prettyValue(value, this.props.isNFT ? 0 : this.props.decimalPlaces);
-    };
-
-    const loadBalanceInfo = () => {
-      return (
-        <div className="card bg-light mb-3">
-          <div className="card-body">
-            Token: {renderTokenData()}
-            <br />
-            Type: {renderType()}
-            <br />
-            Number of transactions: {this.props.balance.transactions}
-            <br />
-            Total received: {renderValue(this.props.balance.total_received)}
-            <br />
-            Total spent:{' '}
-            {renderValue(
-              this.props.balance.total_received -
-                this.props.balance.unlocked_balance -
-                this.props.balance.locked_balance
-            )}
-            <br />
-            <strong>Unlocked balance: </strong>
-            {renderValue(this.props.balance.unlocked_balance)}
-            <br />
-            <strong>Locked balance: </strong>
-            {renderValue(this.props.balance.locked_balance)}
-          </div>
-        </div>
-      );
     };
 
     const newLoadBalanceInfo = () => {
@@ -172,22 +131,6 @@ class AddressSummary extends React.Component {
       return null;
     };
 
-    const renderTokenData = () => {
-      if (Object.keys(this.props.tokens).length === 1) {
-        const token = this.props.tokens[this.props.selectedToken];
-        return (
-          <span>
-            {token.name} ({token.symbol})
-          </span>
-        );
-      }
-      return (
-        <select value={this.props.selectedToken} onChange={this.selectChanged}>
-          {renderTokenOptions()}
-        </select>
-      );
-    };
-
     const newRenderTokenData = () => {
       if (Object.keys(this.props.tokens).length === 1) {
         const token = this.props.tokens[this.props.selectedToken];
@@ -206,17 +149,6 @@ class AddressSummary extends React.Component {
       );
     };
 
-    const renderTokenOptions = () => {
-      return Object.keys(this.props.tokens).map(uid => {
-        const token = this.props.tokens[uid];
-        return (
-          <option value={uid} key={uid}>
-            {token.name} ({token.symbol})
-          </option>
-        );
-      });
-    };
-
     const newRenderTokenOptions = () => {
       return Object.keys(this.props.tokens).map(uid => {
         const token = this.props.tokens[uid];
@@ -225,15 +157,6 @@ class AddressSummary extends React.Component {
           name: `${token.name} (${token.symbol})`,
         };
       });
-    };
-
-    const loadSummary = () => {
-      return (
-        <div>
-          {loadMainInfo()}
-          {loadBalanceInfo()}
-        </div>
-      );
     };
 
     const newLoadSummary = () => {
@@ -245,9 +168,7 @@ class AddressSummary extends React.Component {
       );
     };
 
-    return (
-      <div className="w-100">{this.props.newUiEnabled ? newLoadSummary() : loadSummary()}</div>
-    );
+    return <div className="w-100">{newLoadSummary()}</div>;
   }
 }
 

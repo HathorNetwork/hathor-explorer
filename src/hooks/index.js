@@ -6,6 +6,4 @@
  */
 
 export { useIsMobile } from './useIsMobile';
-export { useNewUiEnabled } from './useNewUiEnabled';
-export { useNewUiLoad } from './useNewUiLoad';
 export { useTheme } from './useTheme';

@@ -328,7 +328,6 @@ function BlueprintList() {
       return (
         <BuiltInBlueprintsTable
           tableClass="blueprints-table"
-          newUiEnabled={true}
           handleClickRow={handleClickRow}
           data={data}
           loading={false}
@@ -346,7 +345,6 @@ function BlueprintList() {
         tableClass="blueprints-table"
         handleClickRow={handleClickRow}
         data={data}
-        newUiEnabled={true}
         sortBy="created_at"
         order={sort}
         tableHeaderClicked={onSortClicked}

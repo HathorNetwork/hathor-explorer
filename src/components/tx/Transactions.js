@@ -6,16 +6,14 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import ReactLoading from 'react-loading';
 import { Link, useLocation } from 'react-router-dom';
 import { reverse } from 'lodash';
 import { TX_COUNT } from '../../constants';
 import TxRow from './TxRow';
 import helpers from '../../utils/helpers';
 import WebSocketHandler from '../../WebSocketHandler';
-import colors from '../../index.scss';
 import PaginationURL from '../../utils/pagination';
-import { useNewUiEnabled, useIsMobile } from '../../hooks';
+import { useIsMobile } from '../../hooks';
 import Spinner from '../Spinner';
 
 /**
@@ -35,7 +33,6 @@ import Spinner from '../Spinner';
  *   page = "next"
  */
 function Transactions({ shouldUpdateList, updateData, title, noPagination }) {
-  const newUiEnabled = useNewUiEnabled();
   const isMobile = useIsMobile();
 
   // We can't use a simple variable here because it triggers a re-render everytime.
@@ -218,70 +215,6 @@ function Transactions({ shouldUpdateList, updateData, title, noPagination }) {
     };
   }, [handleWebsocket]);
 
-  const loadPagination = () => {
-    if (transactions.length === 0) {
-      return null;
-    }
-
-    return (
-      <nav aria-label="Tx pagination" className="d-flex justify-content-center">
-        <ul className="pagination">
-          <li
-            className={
-              !hasBefore || transactions.length === 0 ? 'page-item me-3 disabled' : 'page-item me-3'
-            }
-          >
-            <Link
-              className="page-link"
-              to={pagination.setURLParameters({
-                ts: firstTimestamp,
-                hash: firstHash,
-                page: 'previous',
-              })}
-            >
-              Previous
-            </Link>
-          </li>
-          <li
-            className={!hasAfter || transactions.length === 0 ? 'page-item disabled' : 'page-item'}
-          >
-            <Link
-              className="page-link"
-              to={pagination.setURLParameters({
-                ts: lastTimestamp,
-                hash: lastHash,
-                page: 'next',
-              })}
-            >
-              Next
-            </Link>
-          </li>
-        </ul>
-      </nav>
-    );
-  };
-
-  const loadTable = () => {
-    return (
-      <div className="table-responsive mt-5">
-        <table className="table table-striped" id="tx-table">
-          <thead className="new-thead">
-            <tr>
-              <th className="d-none d-lg-table-cell">Hash</th>
-              <th className="d-none d-lg-table-cell">Timestamp</th>
-              <th className="d-table-cell d-lg-none" colSpan="2">
-                Hash
-                <br />
-                Timestamp
-              </th>
-            </tr>
-          </thead>
-          <tbody>{loadTableBody()}</tbody>
-        </table>
-      </div>
-    );
-  };
-
   const loadTableBody = () => {
     return transactions.map(tx => {
       return <TxRow key={tx.tx_id} tx={tx} ellipsis={!!isMobile} />;
@@ -361,20 +294,6 @@ function Transactions({ shouldUpdateList, updateData, title, noPagination }) {
     );
   };
 
-  const renderUi = () => {
-    return (
-      <div className="w-100">
-        {title}
-        {!loaded ? (
-          <ReactLoading type="spin" color={colors.purpleHathor} delay={500} />
-        ) : (
-          loadTable()
-        )}
-        {loadPagination()}
-      </div>
-    );
-  };
-
   const renderNewUi = () => {
     return (
       <div className="w-100">
@@ -385,7 +304,7 @@ function Transactions({ shouldUpdateList, updateData, title, noPagination }) {
     );
   };
 
-  return newUiEnabled ? renderNewUi() : renderUi();
+  return renderNewUi();
 }
 
 export default Transactions;

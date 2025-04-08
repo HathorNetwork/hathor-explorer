@@ -296,7 +296,6 @@ function NanoContractsList() {
         tableClass="nano-contracts-table"
         handleClickRow={handleClickRow}
         data={data}
-        newUiEnabled={true}
         sortBy="created_at"
         order={sort}
         tableHeaderClicked={onSortClicked}

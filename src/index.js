@@ -16,6 +16,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'font-awesome/css/font-awesome.min.css';
 import 'highlight.js/styles/github.css';
 import './index.css';
+import './newUi.css';
 
 import store from './store/index';
 import { UNLEASH_CONFIG } from './constants';

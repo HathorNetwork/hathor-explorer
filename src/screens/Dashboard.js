@@ -10,13 +10,11 @@ import { useSelector } from 'react-redux';
 import ReactLoading from 'react-loading';
 import { numberUtils } from '@hathor/wallet-lib';
 import colors from '../index.scss';
-import { useNewUiEnabled } from '../hooks';
 import helpers from '../utils/helpers';
 import TimeSeriesDashboard from './TimeSeriesDashboard';
 import useTimelapseCounter from '../hooks/useTimelapseCounter';
 
 function Dashboard() {
-  const newUiEnabled = useNewUiEnabled();
   const [timestamp, setTimestamp] = useState(null);
   /**
    * @property {number} transactions
@@ -64,25 +62,6 @@ function Dashboard() {
   const formattedBestBlockHeight = numberUtils.prettyValue(bestBlockHeight, 0);
   const formattedTransactions = numberUtils.prettyValue(transactions, 0);
 
-  const renderUi = () => (
-    <div className="content-wrapper">
-      <h2 className="statistics-title">Real time</h2>
-      <p>
-        <strong>Blocks (best height): </strong>
-        {formattedBestBlockHeight}
-      </p>
-      <p>
-        <strong>Transactions: </strong>
-        {formattedTransactions}
-      </p>
-      <p className="color-hathor">
-        <strong>Hash rate: </strong>
-        {formattedHashRate}
-      </p>
-      <TimeSeriesDashboard />
-    </div>
-  );
-
   const renderNewUi = () => (
     <div className="statistics-content-wrapper">
       <div className="statistics-title-container">
@@ -110,7 +89,7 @@ function Dashboard() {
     </div>
   );
 
-  return newUiEnabled ? renderNewUi() : renderUi();
+  return renderNewUi();
 }
 
 export default Dashboard;

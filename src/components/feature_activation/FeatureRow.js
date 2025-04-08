@@ -9,7 +9,6 @@ import React, { useEffect, useState } from 'react';
 import { numberUtils } from '@hathor/wallet-lib';
 import featureActivation from '../../utils/featureActivation';
 import { ReactComponent as RowDown } from '../../assets/images/chevron-up.svg';
-import { useNewUiEnabled } from '../../hooks/useNewUiEnabled';
 import { useIsMobile } from '../../hooks/useIsMobile';
 
 const FeatureRow = ({ feature }) => {
@@ -37,24 +36,6 @@ const FeatureRow = ({ feature }) => {
 
   const acceptance_percentage = acceptance === null ? '-' : `${(acceptance * 100).toFixed(0)}%`;
   const prettyState = featureActivation.getPrettyState(state);
-
-  const newUiEnabled = useNewUiEnabled();
-
-  const renderUi = () => (
-    <tr>
-      <td className="d-lg-table-cell pe-3">{name}</td>
-      <td className="d-lg-table-cell pe-3">{prettyState}</td>
-      <td className="d-lg-table-cell pe-3">{acceptance_percentage}</td>
-      <td className="d-lg-table-cell pe-3">{(threshold * 100).toFixed(0)}%</td>
-      <td className="d-lg-table-cell pe-3">{numberUtils.prettyValue(start_height, 0)}</td>
-      <td className="d-lg-table-cell pe-3">
-        {numberUtils.prettyValue(minimum_activation_height, 0)}
-      </td>
-      <td className="d-lg-table-cell pe-3">{numberUtils.prettyValue(timeout_height, 0)}</td>
-      <td className="d-lg-table-cell pe-3">{lock_in_on_timeout.toString()}</td>
-      <td className="d-lg-table-cell pe-3">{version}</td>
-    </tr>
-  );
 
   const renderNewUi = () => (
     <>
@@ -151,7 +132,7 @@ const FeatureRow = ({ feature }) => {
     </>
   );
 
-  return newUiEnabled ? renderNewUi() : renderUi();
+  return renderNewUi();
 };
 
 export default FeatureRow;

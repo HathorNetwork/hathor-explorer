@@ -10,10 +10,9 @@ import React, { useEffect } from 'react';
 import CookieConsent from 'react-cookie-consent';
 import TagManager from 'react-gtm-module';
 import { GTM_ID } from '../constants';
-import { useIsMobile, useNewUiEnabled } from '../hooks';
+import { useIsMobile } from '../hooks';
 
 const GDPRConsent = () => {
-  const newUiEnabled = useNewUiEnabled();
   const isMobile = useIsMobile();
 
   const newUiStyle = {
@@ -77,28 +76,7 @@ const GDPRConsent = () => {
     );
   };
 
-  const renderUi = () => {
-    return (
-      <CookieConsent
-        disableButtonStyles={true}
-        buttonText="Got it!"
-        buttonWrapperClasses="mx-auto"
-        buttonClasses="btn btn-hathor m-3"
-      >
-        This website uses cookies to ensure you get the best experience on our website.
-        <a
-          href="https://hathor.network/terms-and-conditions/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn more
-        </a>
-        .
-      </CookieConsent>
-    );
-  };
-
-  return newUiEnabled ? renderNewUi() : renderUi();
+  return renderNewUi();
 };
 
 export default GDPRConsent;

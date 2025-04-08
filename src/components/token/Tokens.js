@@ -298,7 +298,6 @@ class Tokens extends React.Component {
           order={this.state.order}
           tableHeaderClicked={this.tableHeaderClicked}
           calculatingPage={this.state.calculatingPage}
-          newUiEnabled={this.props.newUiEnabled}
         />
       );
     };

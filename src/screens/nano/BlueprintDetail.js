@@ -11,7 +11,6 @@ import python from 'highlight.js/lib/languages/python';
 import { useParams } from 'react-router-dom';
 import Loading from '../../components/Loading';
 import nanoApi from '../../api/nanoApi';
-import { useNewUiEnabled } from '../../hooks';
 import { DropDetails } from '../../components/DropDetails';
 
 hljs.registerLanguage('python', python);
@@ -36,7 +35,6 @@ function BlueprintDetail() {
   const [showCode, setShowCode] = useState(false);
 
   const codeRef = useRef();
-  const newUiEnabled = useNewUiEnabled();
 
   useEffect(() => {
     let ignore = false;
@@ -90,22 +88,6 @@ function BlueprintDetail() {
     return <Loading />;
   }
 
-  const renderBlueprintAttributes = () => {
-    return (
-      <div className="table-responsive">
-        <table className="table table-striped table-bordered" id="attributes-table">
-          <thead>
-            <tr>
-              <th className="d-lg-table-cell">Name</th>
-              <th className="d-lg-table-cell">Type</th>
-            </tr>
-          </thead>
-          <tbody>{renderAttributes()}</tbody>
-        </table>
-      </div>
-    );
-  };
-
   const renderNewUiBlueprintAttributes = () => {
     return (
       <div className="table-responsive blueprint-attrubutes-table">
@@ -131,21 +113,6 @@ function BlueprintDetail() {
         </tr>
       );
     });
-  };
-
-  const renderBlueprintMethods = (key, header) => {
-    return (
-      <div className="table-responsive mt-5">
-        <table className="table table-striped table-bordered" id={`methods-table-${key}`}>
-          <thead>
-            <tr>
-              <th className="d-lg-table-cell">{header}</th>
-            </tr>
-          </thead>
-          <tbody>{renderMethods(key)}</tbody>
-        </table>
-      </div>
-    );
   };
 
   const renderNewUiBlueprintMethods = (key, header) => {
@@ -190,39 +157,6 @@ function BlueprintDetail() {
     setShowCode(!showCode);
   };
 
-  const renderUi = () => (
-    <div className="content-wrapper">
-      <h3 className="mt-4">Blueprint Information</h3>
-      <div className="mt-5">
-        <p>
-          <strong>ID: </strong>
-          {blueprintId}
-        </p>
-        <p>
-          <strong>Name: </strong>
-          {blueprintInformation.name}
-        </p>
-        <h4 className="mt-5 mb-4">Attributes</h4>
-        {renderBlueprintAttributes()}
-        {renderBlueprintMethods('public_methods', 'Public Methods')}
-        {renderBlueprintMethods('private_methods', 'Private Methods')}
-        <div className="d-flex flex-row align-items-center mb-4 mt-4">
-          <h4 className="mb-0 me-3">Source Code</h4>
-          <a href="true" onClick={e => onToggleShowCode(e)}>
-            {showCode ? 'Hide' : 'Show'}
-          </a>
-        </div>
-        <div className={`source-code ${showCode ? 'show' : ''}`}>
-          <pre>
-            <code ref={codeRef} className="language-python">
-              {blueprintSourceCode}
-            </code>
-          </pre>
-        </div>
-      </div>
-    </div>
-  );
-
   const renderNewUi = () => (
     <div className="blueprint-content-wrapper">
       <h3>Blueprint Information</h3>
@@ -262,7 +196,7 @@ function BlueprintDetail() {
     </div>
   );
 
-  return newUiEnabled ? renderNewUi() : renderUi();
+  return renderNewUi();
 }
 
 export default BlueprintDetail;

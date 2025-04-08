@@ -16,7 +16,7 @@ import helpers from '../../utils/helpers';
 import nanoApi from '../../api/nanoApi';
 import WebSocketHandler from '../../WebSocketHandler';
 import PaginationURL from '../../utils/pagination';
-import { useNewUiEnabled, useIsMobile } from '../../hooks';
+import { useIsMobile } from '../../hooks';
 
 /**
  * Displays nano tx history in a table with pagination buttons. As the user navigates through the history,
@@ -45,7 +45,6 @@ function NanoContractHistory({ ncId }) {
   );
 
   const location = useLocation();
-  const newUiEnabled = useNewUiEnabled();
   const isMobile = useIsMobile();
 
   // loading {boolean} Bool to show/hide loading element
@@ -196,27 +195,6 @@ function NanoContractHistory({ ncId }) {
     return <Loading />;
   }
 
-  const loadTable = () => {
-    return (
-      <div className="table-responsive mt-5">
-        <table className="table table-striped" id="tx-table">
-          <thead>
-            <tr>
-              <th className="d-none d-lg-table-cell">Hash</th>
-              <th className="d-none d-lg-table-cell">Timestamp</th>
-              <th className="d-table-cell d-lg-none" colSpan="2">
-                Hash
-                <br />
-                Timestamp
-              </th>
-            </tr>
-          </thead>
-          <tbody>{loadTableBody()}</tbody>
-        </table>
-      </div>
-    );
-  };
-
   const loadNewUiTable = () => {
     return (
       <div className="table-responsive mt-5">
@@ -240,38 +218,6 @@ function NanoContractHistory({ ncId }) {
       rowTx.tx_id = rowTx.hash;
       return <TxRow key={rowTx.tx_id} tx={rowTx} ellipsis={!!isMobile} />;
     });
-  };
-
-  const loadPagination = () => {
-    if (history.length === 0) {
-      return null;
-    }
-    return (
-      <nav aria-label="nano history tx pagination" className="d-flex justify-content-center">
-        <ul className="pagination">
-          <li
-            className={
-              !hasBefore || history.length === 0 ? 'page-item me-3 disabled' : 'page-item me-3'
-            }
-          >
-            <Link
-              className="page-link"
-              to={pagination.setURLParameters({ hash: history[0].hash, page: 'previous' })}
-            >
-              Previous
-            </Link>
-          </li>
-          <li className={!hasAfter || history.length === 0 ? 'page-item disabled' : 'page-item'}>
-            <Link
-              className="page-link"
-              to={pagination.setURLParameters({ hash: history.slice(-1).pop().hash, page: 'next' })}
-            >
-              Next
-            </Link>
-          </li>
-        </ul>
-      </nav>
-    );
   };
 
   const loadNewUiPagination = () => {
@@ -319,13 +265,6 @@ function NanoContractHistory({ ncId }) {
     );
   };
 
-  const renderUi = () => (
-    <div className="w-100">
-      {loadTable()}
-      {loadPagination()}
-    </div>
-  );
-
   const renderNewUi = () => (
     <div className="w-100">
       {loadNewUiTable()}
@@ -333,7 +272,7 @@ function NanoContractHistory({ ncId }) {
     </div>
   );
 
-  return newUiEnabled ? renderNewUi() : renderUi();
+  return renderNewUi();
 }
 
 export default NanoContractHistory;
