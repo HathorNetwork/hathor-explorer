@@ -844,19 +844,19 @@ class TxData extends React.Component {
       return tokenData && tokenData.meta && tokenData.meta.nft;
     };
 
-    const isBlueprint = (tx) => {
-      return tx.version === hathorLib.constants.ON_CHAIN_BLUEPRINTS_VERSION;
-    }
+    const isBlueprint = () => {
+      return this.props.transaction.version === 6; // hathorLib.constants.ON_CHAIN_BLUEPRINTS_VERSION
+    };
 
     /**
      * FIXME: The "On-Chain Blueprint" transaction type should be included on the lib util.
      */
-    const getTxType = (tx) => {
-      if (tx.version === hathorLib.constants.ON_CHAIN_BLUEPRINTS_VERSION) {
+    const getTxType = () => {
+      if (this.props.transaction.version === 6) {
         return 'On-Chain Blueprint';
       }
-      return hathorLib.transactionUtils.getTxType(tx);
-    }
+      return hathorLib.transactionUtils.getTxType(this.props.transaction);
+    };
 
     const renderBitSignalTable = () => {
       if (this.state.signalBits.length === 0) {
@@ -915,11 +915,12 @@ class TxData extends React.Component {
           <div className="summary-balance-info">
             <h2 className="details-title">Overview</h2>
             <div className="summary-balance-info-container">
-              <div className="address-container-title">Type</div>{' '}
-              {getTxType(this.props.transaction)}{' '}
+              <div className="address-container-title">Type</div> {getTxType()}{' '}
               {isNFTCreation() && '(NFT)'}
-              {isBlueprint(this.props.transaction) && <Link to={`/blueprint/detail/${this.props.transaction.uid}`}>(see details)</Link>}
-              {' '}<TxMarkers tx={this.props.transaction} />
+              {isBlueprint() && (
+                <Link to={`/blueprint/detail/${this.props.transaction.hash}`}>(see details)</Link>
+              )}{' '}
+              <TxMarkers tx={this.props.transaction} />
             </div>
             <div className="summary-balance-info-container">
               <div className="address-container-title">Time</div>{' '}
