@@ -844,6 +844,20 @@ class TxData extends React.Component {
       return tokenData && tokenData.meta && tokenData.meta.nft;
     };
 
+    const isBlueprint = (tx) => {
+      return tx.version === hathorLib.constants.ON_CHAIN_BLUEPRINTS_VERSION;
+    }
+
+    /**
+     * FIXME: The "On-Chain Blueprint" transaction type should be included on the lib util.
+     */
+    const getTxType = (tx) => {
+      if (tx.version === hathorLib.constants.ON_CHAIN_BLUEPRINTS_VERSION) {
+        return 'On-Chain Blueprint';
+      }
+      return hathorLib.transactionUtils.getTxType(tx);
+    }
+
     const renderBitSignalTable = () => {
       if (this.state.signalBits.length === 0) {
         return <div>There are currently no features.</div>;
@@ -902,8 +916,10 @@ class TxData extends React.Component {
             <h2 className="details-title">Overview</h2>
             <div className="summary-balance-info-container">
               <div className="address-container-title">Type</div>{' '}
-              {hathorLib.transactionUtils.getTxType(this.props.transaction)}{' '}
-              {isNFTCreation() && '(NFT)'} <TxMarkers tx={this.props.transaction} />
+              {getTxType(this.props.transaction)}{' '}
+              {isNFTCreation() && '(NFT)'}
+              {isBlueprint(this.props.transaction) && <Link to={`/blueprint/detail/${this.props.transaction.uid}`}>(see details)</Link>}
+              {' '}<TxMarkers tx={this.props.transaction} />
             </div>
             <div className="summary-balance-info-container">
               <div className="address-container-title">Time</div>{' '}
