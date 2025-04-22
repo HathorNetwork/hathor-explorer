@@ -918,7 +918,9 @@ class TxData extends React.Component {
               <div className="address-container-title">Type</div> {getTxType()}{' '}
               {isNFTCreation() && '(NFT)'}
               {isBlueprint() && (
-                <Link to={`/blueprint/detail/${this.props.transaction.hash}`}> (see details)</Link>
+                <Link to={`/blueprint/detail/${this.props.transaction.hash}`}>
+                  &nbsp;(see details)
+                </Link>
               )}{' '}
               <TxMarkers tx={this.props.transaction} />
             </div>
