@@ -852,7 +852,7 @@ class TxData extends React.Component {
      * FIXME: The "On-Chain Blueprint" transaction type should be included on the lib util.
      */
     const getTxType = () => {
-      if (this.props.transaction.version === 6) {
+      if (isBlueprint()) {
         return 'On-Chain Blueprint';
       }
       return hathorLib.transactionUtils.getTxType(this.props.transaction);
