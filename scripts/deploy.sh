@@ -37,6 +37,16 @@ case $site in
     S3_BUCKET=hathor-nano-testnet-public-explorer-2
     CLOUDFRONT_ID=EN58551BWE3XZ
     ;;
+  nano-testnet-hackaton)
+    FULLNODE_HOST=node1.hackaton.hathor.network
+    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
+    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
+    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.hackaton.hathor.network/
+    REACT_APP_TIMESERIES_DASHBOARD_ID=7e29e360-16ed-11f0-b1d4-99e4bfb760b1
+    REACT_APP_NETWORK=nano-testnet-alpha
+    S3_BUCKET=hathor-nano-testnet-hackaton-public-explorer
+    CLOUDFRONT_ID=E1DJWV2MDJCYPE 
+    ;;
   ekvilibro-testnet)
     FULLNODE_HOST=node-side-dag.ekvilibro-testnet.hathor.network
     REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
