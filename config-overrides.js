@@ -27,12 +27,18 @@ module.exports = function override(config) {
   };
 
   // Relaxing js/mjs extension resolve
-  config.module.rules.push({
-    test: /\.m?js/, // Apply this rule to .js and .mjs files
-    resolve: {
-      fullySpecified: false, // Allow resolving modules without fully specifying the file extension
+  config.module.rules.push(
+    {
+      test: /\.m?js/, // Apply this rule to .js and .mjs files
+      resolve: {
+        fullySpecified: false, // Allow resolving modules without fully specifying the file extension
+      },
     },
-  });
+    {
+      test: /\.cjs/, // Apply this rule to .cjs files
+      type: 'javascript/auto',
+    }
+  );
 
   // Solves process and buffer issues for WebPack
   const webpack = require('webpack');
