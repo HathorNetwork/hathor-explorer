@@ -2,7 +2,7 @@ name: deploy
 
 on:
   push:
-    branches: [release]
+    branches: [release, 'ci/force-hackaton-deploy']
     tags: ['v*']
 
 permissions:
@@ -105,7 +105,7 @@ jobs:
           make deploy site=nano-testnet
 
   deploy-nano-testnet-hackaton-explorer:
-    if: github.ref == 'refs/heads/release'
+    if: github.ref == 'refs/heads/ci/force-hackaton-deploy'
     needs: dependencies
     runs-on: ubuntu-latest
     steps:
