@@ -10,8 +10,6 @@ import { NavLink, Link, useNavigate } from 'react-router-dom';
 import hathorLib from '@hathor/wallet-lib';
 import { useFlag } from '@unleash/proxy-client-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNewUiEnabled } from '../hooks';
-import logo from '../assets/images/hathor-white-logo.png';
 import moon from '../assets/images/moon.svg';
 import sun from '../assets/images/sun-dark.svg';
 import { ReactComponent as NewLogo } from '../assets/images/new-logo.svg';
@@ -19,8 +17,6 @@ import { ReactComponent as GlobeNetwork } from '../assets/images/global.svg';
 import { ReactComponent as SearchIcon } from '../assets/images/search-icon.svg';
 import { ReactComponent as MenuIcon } from '../assets/images/sidebar-menu.svg';
 import { ReactComponent as ArrorDownNavItem } from '../assets/images/arrow-down-nav-dropdown.svg';
-import HathorAlert from './HathorAlert';
-import Version from './Version';
 import ConditionalNavigation from './ConditionalNavigation';
 import Sidebar from './Sidebar';
 import {
@@ -42,7 +38,6 @@ function Navigation() {
     serverInfo: state.serverInfo,
     theme: state.theme,
   }));
-  const newUiEnabled = useNewUiEnabled();
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const showTokensTab = isTokensBalanceEnabled || isTokensBaseEnabled;
@@ -278,129 +273,7 @@ function Navigation() {
     );
   };
 
-  const renderUi = () => {
-    return (
-      <div className="main-nav">
-        <nav className="navbar navbar-expand-lg navbar-dark ps-3 ps-lg-0">
-          <div className="d-flex flex-column align-items-center">
-            <Link className="navbar-brand" to="/" href="/">
-              <img src={logo} alt="" />
-            </Link>
-          </div>
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon" />
-          </button>
-          <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul className="navbar-nav me-auto">
-              <li className="nav-item">
-                <NavLink
-                  to="/"
-                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                >
-                  Transactions
-                </NavLink>
-              </li>
-              {showTokensTab && (
-                <li className="nav-item dropdown">
-                  <span
-                    className="nav-link dropdown-toggle"
-                    id="navbarDropdown"
-                    role="button"
-                    data-bs-toggle="dropdown"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                  >
-                    Tokens
-                  </span>
-                  <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <ul>
-                      <ConditionalNavigation
-                        to="/tokens"
-                        label="Token list"
-                        featureToggle={`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`}
-                      />
-                      <ConditionalNavigation
-                        to="/token_balances"
-                        label="Token balances"
-                        featureToggle={`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.rollout`}
-                      />
-                    </ul>
-                  </div>
-                </li>
-              )}
-              <li className="nav-item">
-                <NavLink
-                  to="/network"
-                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                >
-                  Network
-                </NavLink>
-              </li>
-              <li className="nav-item">
-                <NavLink
-                  to="/statistics"
-                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                >
-                  Statistics
-                </NavLink>
-              </li>
-              <li className="nav-item dropdown">
-                <span
-                  className="nav-link dropdown-toggle"
-                  id="navbarDropdown"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-haspopup="true"
-                  aria-expanded="false"
-                >
-                  Tools
-                </span>
-                <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <NavLink to="/decode-tx/" className="nav-link">
-                    Decode Tx
-                  </NavLink>
-                  <NavLink to="/push-tx/" className="nav-link">
-                    Push Tx
-                  </NavLink>
-                  <NavLink to="/dag/" className="nav-link">
-                    DAG
-                  </NavLink>
-                  <NavLink to="/features/" className="nav-link">
-                    Features
-                  </NavLink>
-                </div>
-              </li>
-            </ul>
-            <div className="d-flex flex-row align-items-center ms-auto navigation-search">
-              <div className="d-flex flex-row align-items-center">
-                <input
-                  className="form-control me-2"
-                  type="search"
-                  placeholder="Search tx or address"
-                  aria-label="Search"
-                  ref={txSearchRef}
-                  onKeyUp={handleKeyUp}
-                />
-                <i className="fa fa-search pointer" onClick={search}></i>
-              </div>
-              <Version />
-            </div>
-          </div>
-        </nav>
-        <HathorAlert ref={alertErrorRef} text="Invalid hash format or address" type="danger" />
-      </div>
-    );
-  };
-
-  return newUiEnabled ? renderNewUi() : renderUi();
+  return renderNewUi();
 }
 
 export default Navigation;

@@ -123,7 +123,6 @@ function BlueprintList() {
             // so we must clear the id and page queryParams
             pagination.clearParametersWithoutRefresh(['id', 'page']);
           }
-          return;
         }
       } catch (e) {
         // Error in request
@@ -329,7 +328,6 @@ function BlueprintList() {
       return (
         <BuiltInBlueprintsTable
           tableClass="blueprints-table"
-          newUiEnabled={true}
           handleClickRow={handleClickRow}
           data={data}
           loading={false}
@@ -347,7 +345,6 @@ function BlueprintList() {
         tableClass="blueprints-table"
         handleClickRow={handleClickRow}
         data={data}
-        newUiEnabled={true}
         sortBy="created_at"
         order={sort}
         tableHeaderClicked={onSortClicked}

@@ -20,16 +20,12 @@ class SortableTable extends React.Component {
   }
 
   renderTable(content) {
-    return this.props.newUiEnabled ? (
+    return (
       <table
         className={`table-stylized ${
           this.props.tableClass ? this.props.tableClass : 'table-tokens'
         }`}
       >
-        {content}
-      </table>
-    ) : (
-      <table className="table table-striped table-home" id="tx-table">
         {content}
       </table>
     );
@@ -62,49 +58,6 @@ class SortableTable extends React.Component {
             <tbody>{this.renderTableBody()}</tbody>
           </>
         )}
-      </div>
-    );
-  }
-
-  renderPagination() {
-    return (
-      <div className="d-flex col-sm-12">
-        <nav
-          aria-label="Paginated table"
-          className="d-flex offset-sm-4 col-sm-4 justify-content-center"
-        >
-          <ul className="pagination">
-            <li
-              ref="pagePrevious"
-              className={
-                !this.props.hasBefore || this.props.calculatingPage
-                  ? 'page-item me-3 disabled'
-                  : 'page-item me-3'
-              }
-            >
-              <button onClick={e => this.props.onPreviousPageClicked(e)} className="page-link">
-                Previous
-              </button>
-            </li>
-            <li
-              ref="pageNext"
-              className={
-                !this.props.hasAfter || this.props.calculatingPage
-                  ? 'page-item disabled'
-                  : 'page-item'
-              }
-            >
-              <button onClick={e => this.props.onNextPageClicked(e)} className="page-link">
-                Next
-              </button>
-            </li>
-          </ul>
-        </nav>
-        <div className="d-flex col-sm-4 page-loader">
-          {this.props.calculatingPage ? (
-            <Loading width={35} height={35} useLoadingWrapper={false} showSlowLoadMessage={false} />
-          ) : null}
-        </div>
       </div>
     );
   }
@@ -176,7 +129,7 @@ class SortableTable extends React.Component {
       return null;
     }
 
-    return this.props.newUiEnabled ? this.newRenderPagination() : this.renderPagination();
+    return this.newRenderPagination();
   }
 
   render() {

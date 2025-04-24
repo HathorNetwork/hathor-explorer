@@ -8,7 +8,6 @@
 import React, { useRef, useState } from 'react';
 import TxTextInput from '../components/tx/TxTextInput';
 import txApi from '../api/txApi';
-import { useNewUiEnabled } from '../hooks';
 import { ReactComponent as InfoIcon } from '../assets/images/icon-info.svg';
 import NewHathorAlert from '../components/NewHathorAlert';
 
@@ -22,8 +21,6 @@ function PushTx() {
   const textRef = useRef();
 
   const alertNotFound = useRef(null);
-
-  const newUiEnabled = useNewUiEnabled();
 
   const showSuccess = () => {
     alertNotFound.current.show(3000);
@@ -69,27 +66,6 @@ function PushTx() {
     );
   };
 
-  const renderUi = () => {
-    return (
-      <div className="content-wrapper">
-        <TxTextInput
-          ref={textRef}
-          buttonClicked={buttonClicked}
-          action="Push tx"
-          onChange={handleChangeData}
-          otherAction="decode"
-          link="/decode-tx/"
-          helpText="Write your transaction in hex value and click the button to send it to the network. (We do not push blocks to the network, only transactions)"
-        />
-        {canForce ? renderForceCheckbox() : null}
-        {success ? (
-          <span className="text-success">Transaction pushed to the network with success!</span>
-        ) : null}
-        {errorMessage ? <span className="text-danger">{errorMessage}</span> : null}
-      </div>
-    );
-  };
-
   const renderNewUi = () => {
     return (
       <div className="section-tables-stylized">
@@ -103,7 +79,6 @@ function PushTx() {
           onChange={handleChangeData}
           otherAction="decode"
           link="/decode-tx/"
-          newUiEnabled
           placeholder="E.g.: XXXXXXXX"
           helpText={
             <div className="pushtx-helptext">
@@ -147,7 +122,7 @@ function PushTx() {
     );
   };
 
-  return newUiEnabled ? renderNewUi() : renderUi();
+  return renderNewUi();
 }
 
 export default PushTx;

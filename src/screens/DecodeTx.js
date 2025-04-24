@@ -10,7 +10,7 @@ import TxTextInput from '../components/tx/TxTextInput';
 import TxData from '../components/tx/TxData';
 import helpers from '../utils/helpers';
 import txApi from '../api/txApi';
-import { useIsMobile, useNewUiEnabled } from '../hooks';
+import { useIsMobile } from '../hooks';
 import { ReactComponent as InfoIcon } from '../assets/images/icon-info.svg';
 import NewHathorAlert from '../components/NewHathorAlert';
 
@@ -22,8 +22,6 @@ import NewHathorAlert from '../components/NewHathorAlert';
 function DecodeTx() {
   /* transaction {Object} Decoded transaction */
   const [transaction, setTransaction] = useState(null);
-  /* success {boolean} If had success decoding transaction on the server */
-  const [success, setSuccess] = useState(null);
   /* dataToDecode {string} Text written by the user as the serialized transaction to be decoded */
   const [dataToDecode, setDataToDecode] = useState(null);
   /* meta {Object} Metadata of decoded transaction received from the server */
@@ -32,9 +30,6 @@ function DecodeTx() {
   const [spentOutputs, setSpentOutputs] = useState(null);
   /* confirmationData {Object} Confirmation data of decoded transaction received from the server */
   const [confirmationData, setConfirmationData] = useState(null);
-
-  const newUiEnabled = useNewUiEnabled();
-
   const alertNotFound = useRef(null);
 
   const isMobile = useIsMobile();
@@ -63,11 +58,9 @@ function DecodeTx() {
         setConfirmationData(null);
         setMeta(null);
         setSpentOutputs(null);
-        setSuccess(false);
         showSuccess();
         return;
       }
-      setSuccess(true);
       setTransaction(data.tx);
       setMeta(data.meta);
       setSpentOutputs(data.spent_outputs);
@@ -79,34 +72,6 @@ function DecodeTx() {
     } catch (e) {
       console.error(e);
     }
-  };
-
-  const renderUi = () => {
-    return (
-      <div className="content-wrapper">
-        <TxTextInput
-          onChange={handleChangeData}
-          buttonClicked={buttonClicked}
-          action="Decode tx"
-          otherAction="push"
-          link="/push-tx/"
-          helpText="Write your transaction in hex value and click the button to get a human value description"
-        />
-        {transaction ? (
-          <TxData
-            transaction={transaction}
-            showRaw={false}
-            confirmationData={confirmationData}
-            spentOutputs={spentOutputs}
-            meta={meta}
-            showConflicts={false}
-          />
-        ) : null}
-        {success === false ? (
-          <p className="text-danger">Could not decode this data to a transaction</p>
-        ) : null}
-      </div>
-    );
   };
 
   const renderNewUi = () => {
@@ -124,7 +89,6 @@ function DecodeTx() {
           link="/push-tx/"
           helpText="Write your transaction in hex value and click the button to get a human value description."
           placeholder="E.g.: XXXXXXXX"
-          newUiEnabled
         />
         {transaction ? (
           <TxData
@@ -134,7 +98,6 @@ function DecodeTx() {
             spentOutputs={spentOutputs}
             meta={meta}
             showConflicts={false}
-            newUiEnabled
             isMobile={isMobile}
           />
         ) : null}
@@ -157,7 +120,7 @@ function DecodeTx() {
     );
   };
 
-  return newUiEnabled ? renderNewUi() : renderUi();
+  return renderNewUi();
 }
 
 export default DecodeTx;

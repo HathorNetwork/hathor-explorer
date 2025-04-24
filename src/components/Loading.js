@@ -7,13 +7,10 @@
 
 import React, { useEffect, useState } from 'react';
 
-import ReactLoading from 'react-loading';
 import Spinner from './Spinner';
 import colors from '../index.scss';
-import { useNewUiEnabled } from '../hooks';
 
 const Loading = props => {
-  const newUiEnabled = useNewUiEnabled();
   const slowDelay = props.slowDelay || 3000;
 
   const [slowLoad, setSlowLoad] = useState(false);
@@ -28,15 +25,6 @@ const Loading = props => {
 
   const { showSlowLoadMessage, useLoadingWrapper, ...reactLoadProps } = props;
 
-  const renderUi = () => {
-    return (
-      <div className={useLoadingWrapper ? 'loading-wrapper' : ''}>
-        <ReactLoading {...reactLoadProps} />
-        {slowLoad && showSlowLoadMessage ? <span>Still loading... Please, be patient.</span> : null}
-      </div>
-    );
-  };
-
   const renderNewUi = () => {
     return (
       <div className={useLoadingWrapper ? 'loading-wrapper' : ''}>
@@ -46,7 +34,7 @@ const Loading = props => {
     );
   };
 
-  return newUiEnabled ? renderNewUi() : renderUi();
+  return renderNewUi();
 };
 
 Loading.defaultProps = {

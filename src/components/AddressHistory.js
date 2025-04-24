@@ -52,38 +52,17 @@ class AddressHistory extends SortableTable {
   };
 
   renderTable(content) {
-    return this.props.newUiEnabled ? (
-      <table className=" table-stylized table-address">{content}</table>
-    ) : (
-      <table className="table table-striped address-history" id="tx-table">
-        {content}
-      </table>
-    );
+    return <table className=" table-stylized table-address">{content}</table>;
   }
 
   renderTableHead() {
-    return this.props.newUiEnabled ? (
+    return (
       <tr>
         <th>Type</th>
         <th>Hash</th>
         <th className="th-table-token-mobile">Timestamp</th>
         <th className="th-table-token-mobile"></th>
         <th className="th-table-token-mobile">Value</th>
-      </tr>
-    ) : (
-      <tr>
-        <th className="d-none d-lg-table-cell">Type</th>
-        <th className="d-none d-lg-table-cell">Hash</th>
-        <th className="d-none d-lg-table-cell">Timestamp</th>
-        <th className="d-none d-lg-table-cell"></th>
-        <th className="d-none d-lg-table-cell">Value</th>
-        <th className="d-table-cell d-lg-none" colSpan="3">
-          Type
-          <br />
-          Hash
-          <br />
-          Timestamp
-        </th>
       </tr>
     );
   }
@@ -97,80 +76,6 @@ class AddressHistory extends SortableTable {
       value,
       this.props.isNFT ? 0 : this.props.decimalPlaces
     );
-  }
-
-  renderTableBodyUi() {
-    return this.props.data.map(tx => {
-      let statusElement = '';
-      let trClass = '';
-      let prettyValue = this.renderValue(tx.balance);
-
-      if (tx.balance > 0) {
-        if (tx.version === hathorLib.constants.CREATE_TOKEN_TX_VERSION) {
-          statusElement = (
-            <span>
-              Token creation <i className={`fa ms-3 fa-long-arrow-down`}></i>
-            </span>
-          );
-        } else {
-          statusElement = (
-            <span>
-              Received <i className={`fa ms-3 fa-long-arrow-down`}></i>
-            </span>
-          );
-        }
-        trClass = 'output-tr';
-      } else if (tx.balance < 0) {
-        if (tx.version === hathorLib.constants.CREATE_TOKEN_TX_VERSION) {
-          statusElement = (
-            <span>
-              Token deposit <i className={`fa ms-3 fa-long-arrow-up`}></i>
-            </span>
-          );
-        } else {
-          statusElement = (
-            <span>
-              Sent <i className={`fa ms-3 fa-long-arrow-up`}></i>
-            </span>
-          );
-        }
-        trClass = 'input-tr';
-      } else if (this.props.txCache[tx.tx_id]) {
-        if (this.isAllAuthority(this.props.txCache[tx.tx_id])) {
-          statusElement = <span>Authority</span>;
-          prettyValue = '--';
-        }
-      }
-
-      if (!this.props.metadataLoaded) {
-        // We don't show green/red info while metadata is not loaded
-        trClass = '';
-      }
-      return (
-        <tr key={tx.tx_id} className={trClass} onClick={_e => this.props.onRowClicked(tx.tx_id)}>
-          <td className="d-none d-lg-table-cell pe-3">
-            {hathorLib.transactionUtils.getTxType(tx)}
-          </td>
-          <td className="d-none d-lg-table-cell pe-3">
-            {hathorLib.helpersUtils.getShortHash(tx.tx_id)}
-          </td>
-          <td className="d-none d-lg-table-cell pe-3">
-            {dateFormatter.parseTimestamp(tx.timestamp)}
-          </td>
-          <td className="state">{statusElement}</td>
-          <td className="value">
-            <span>{prettyValue}</span>
-          </td>
-          <td className="d-lg-none d-table-cell pe-3" colSpan="3">
-            {hathorLib.transactionUtils.getTxType(tx)}
-            <br />
-            {hathorLib.helpersUtils.getShortHash(tx.tx_id)}
-            <br />
-            {dateFormatter.parseTimestamp(tx.timestamp)}
-          </td>
-        </tr>
-      );
-    });
   }
 
   renderNewTableBodyUi(isMobile) {
@@ -242,9 +147,7 @@ class AddressHistory extends SortableTable {
   }
 
   renderTableBody() {
-    return this.props.newUiEnabled
-      ? this.renderNewTableBodyUi(this.props.isMobile)
-      : this.renderTableBodyUi();
+    return this.renderNewTableBodyUi(this.props.isMobile);
   }
 }
 
@@ -265,7 +168,6 @@ AddressHistory.propTypes = {
   selectedToken: PropTypes.string.isRequired,
   numTransactions: PropTypes.number.isRequired,
   txCache: PropTypes.object.isRequired,
-  newUiEnabled: PropTypes.bool.isRequired,
   isMobile: PropTypes.bool.isRequired,
 };
 

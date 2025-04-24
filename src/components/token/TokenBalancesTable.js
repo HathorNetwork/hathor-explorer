@@ -5,7 +5,7 @@ import SortableTable from '../SortableTable';
 
 class TokenBalancesTable extends SortableTable {
   renderTableHead() {
-    return this.props.newUiEnabled ? (
+    return (
       <tr>
         <th className="d-lg-table-cell">Address</th>
         <th
@@ -22,28 +22,6 @@ class TokenBalancesTable extends SortableTable {
         </th>
         <th
           className="d-lg-table-cell sortable th-table-token-mobile"
-          onClick={e => this.props.tableHeaderClicked(e, 'locked_balance')}
-        >
-          Locked {this.getArrow('locked_balance')}
-        </th>
-      </tr>
-    ) : (
-      <tr>
-        <th className="d-lg-table-cell">Address</th>
-        <th
-          className="d-lg-table-cell sortable"
-          onClick={e => this.props.tableHeaderClicked(e, 'total')}
-        >
-          Total {this.getArrow('total')}
-        </th>
-        <th
-          className="d-lg-table-cell sortable"
-          onClick={e => this.props.tableHeaderClicked(e, 'unlocked_balance')}
-        >
-          Unlocked {this.getArrow('unlocked_balance')}
-        </th>
-        <th
-          className="d-lg-table-cell sortable"
           onClick={e => this.props.tableHeaderClicked(e, 'locked_balance')}
         >
           Locked {this.getArrow('locked_balance')}

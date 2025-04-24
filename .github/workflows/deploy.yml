@@ -104,6 +104,32 @@ jobs:
         run: |
           make deploy site=nano-testnet
 
+  deploy-nano-testnet-hackaton-explorer:
+    if: github.ref == 'refs/heads/release'
+    needs: dependencies
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/actions/checkout/releases/tag/v4.1.7
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      - name: Configure AWS Credentials
+        # https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.0.2
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          aws-region: eu-central-1
+          role-to-assume: arn:aws:iam::644483925420:role/ExplorerGitHubActionsRole
+      - name: Download node modules
+        # https://github.com/actions/download-artifact/releases/tag/v4.1.8
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        with:
+          name: node_modules
+      - name: Build
+        run: |
+          tar -xf node_modules.tar
+          make build site=nano-testnet-hackaton
+      - name: Deploy Nano Testnet Hackaton Explorer
+        run: |
+          make deploy site=nano-testnet-hackaton
+
   deploy-ekvilibro-testnet-explorer:
     if: github.ref == 'refs/heads/release'
     needs: dependencies

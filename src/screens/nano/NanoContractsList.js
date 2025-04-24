@@ -103,7 +103,6 @@ function NanoContractsList() {
             // so we must clear the id and page queryParams
             pagination.clearParametersWithoutRefresh(['id', 'page']);
           }
-          return;
         }
       } catch (e) {
         // Error in request
@@ -297,7 +296,6 @@ function NanoContractsList() {
         tableClass="nano-contracts-table"
         handleClickRow={handleClickRow}
         data={data}
-        newUiEnabled={true}
         sortBy="created_at"
         order={sort}
         tableHeaderClicked={onSortClicked}

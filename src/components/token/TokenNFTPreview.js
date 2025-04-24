@@ -6,11 +6,9 @@ import {
   VIDEO_MEDIA_TYPES_BY_EXTENSION,
   AUDIO_MEDIA_TYPES_BY_EXTENSION,
 } from '../../constants';
-import { useNewUiEnabled } from '../../hooks';
 
 const TokenNFTPreview = props => {
   const [token, setToken] = useState(props.token);
-  const isNewUiEnabled = useNewUiEnabled();
 
   useEffect(() => {
     // ensure data binding with props.token re rendering when changed
@@ -107,23 +105,10 @@ const TokenNFTPreview = props => {
     media = <p> Preview Unavailable </p>;
   }
 
-  if (isNewUiEnabled) {
-    return (
-      <div className="token-nft-preview">
-        <p>
-          <strong>NFT PREVIEW</strong>
-        </p>
-        <figure className="figure flex-fill p-4 d-flex align-items-center justify-content-center">
-          {media}
-        </figure>
-      </div>
-    );
-  }
-
   return (
-    <div className="d-flex flex-column token-nft-preview">
+    <div className="token-nft-preview">
       <p>
-        <strong>NFT preview</strong>
+        <strong>NFT PREVIEW</strong>
       </p>
       <figure className="figure flex-fill p-4 d-flex align-items-center justify-content-center">
         {media}
