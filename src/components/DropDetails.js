@@ -33,6 +33,7 @@ export const DropDetails = ({ title, startOpen, onToggle, children }) => {
         <div className="container-drop-header-title">{title}</div>
         <div>
           <RowDown
+            className={`drop-arrow-color`}
             width="24px"
             height="24px"
             style={{ transform: `${!open ? 'rotate(180deg)' : ''}` }}
