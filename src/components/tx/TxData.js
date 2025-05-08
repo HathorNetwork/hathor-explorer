@@ -102,25 +102,31 @@ class TxData extends React.Component {
   };
 
   handleNanoContractFetch = async () => {
-    if (this.props.transaction.version !== hathorLib.constants.NANO_CONTRACTS_VERSION) {
+    if (this.props.transaction.nc_id === undefined) {
       this.setState({ ncLoading: false });
       return;
     }
 
     this.setState({ ncLoading: true });
 
-    const network = hathorLib.config.getNetwork();
-    const ncData = this.props.transaction;
-    const deserializer = new hathorLib.NanoContractTransactionParser(
-      ncData.nc_blueprint_id,
-      ncData.nc_method,
-      ncData.nc_pubkey,
-      network,
-      ncData.nc_args
-    );
-    deserializer.parseAddress();
-    await deserializer.parseArguments();
-    this.setState({ ncDeserializer: deserializer, ncLoading: false });
+    try {
+      const network = hathorLib.config.getNetwork();
+      const ncData = this.props.transaction;
+      const deserializer = new hathorLib.NanoContractTransactionParser(
+        ncData.nc_blueprint_id,
+        ncData.nc_method,
+        ncData.nc_pubkey,
+        network,
+        ncData.nc_args
+      );
+      deserializer.parseAddress();
+      await deserializer.parseArguments();
+      this.setState({ ncDeserializer: deserializer, ncLoading: false });
+    } catch (e) {
+      // Catch any errors deserializing the transaction
+      console.error(e);
+      this.setState({ ncLoading: false });
+    }
   };
 
   /**
@@ -958,11 +964,11 @@ class TxData extends React.Component {
               renderConfirmationLevel()}
           </div>
           <div className="details-container-gap">
-            {this.props.transaction.version === hathorLib.constants.NANO_CONTRACTS_VERSION && (
+            {this.props.transaction.nc_id !== undefined && (
               <div className="d-flex flex-row align-items-start mb-3">{renderNCData()}</div>
             )}
 
-            {this.props.transaction.version === hathorLib.constants.NANO_CONTRACTS_VERSION && (
+            {this.props.transaction.nc_id !== undefined && (
               <div className="d-flex flex-row align-items-start mb-3"> {renderNCActions()}</div>
             )}
 
