@@ -72,7 +72,7 @@ function NanoContractHistory({ ncId }) {
         return;
       }
 
-      if (tx.version !== hathorLib.constants.NANO_CONTRACTS_VERSION || tx.nc_id !== ncId) {
+      if (tx.nc_id !== ncId) {
         return;
       }
 
