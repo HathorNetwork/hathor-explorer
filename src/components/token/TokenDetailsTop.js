@@ -38,7 +38,7 @@ const TokenDetailsTop = props => {
           </p>
         </div>
         <TokenAlerts token={token} />
-        <div className="token-medium-containers">
+        <div className="d-flex token-medium-containers">
           <div className="d-flex flex-column justify-content-between">
             <TokenInfo token={token} metadataLoaded={metadataLoaded} />
           </div>

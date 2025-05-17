@@ -545,8 +545,10 @@ nav {
     margin-top: 16px;
     justify-content: center;
     gap: 16px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+  }
+
+  .token-medium-containers > div {
+    flex: 1 1 0px;
   }
 
   .token-new-general-info {
