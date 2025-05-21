@@ -7,7 +7,6 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import hathorLib from '@hathor/wallet-lib';
 import { reverse } from 'lodash';
 import Loading from '../Loading';
 import { NANO_CONTRACT_TX_HISTORY_COUNT } from '../../constants';
