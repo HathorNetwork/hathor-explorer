@@ -77,7 +77,7 @@ class TxData extends React.Component {
         ...this.baseItemGraph,
       },
     ],
-    ncDeserializer: null,
+    ncParser: null,
     ncLoading: false,
   };
 
@@ -112,16 +112,15 @@ class TxData extends React.Component {
     try {
       const network = hathorLib.config.getNetwork();
       const ncData = this.props.transaction;
-      const deserializer = new hathorLib.NanoContractTransactionParser(
+      const ncParser = new hathorLib.NanoContractTransactionParser(
         ncData.nc_blueprint_id,
         ncData.nc_method,
-        ncData.nc_pubkey,
+        ncData.nc_address,
         network,
         ncData.nc_args
       );
-      deserializer.parseAddress();
-      await deserializer.parseArguments();
-      this.setState({ ncDeserializer: deserializer, ncLoading: false });
+      await ncParser.parseArguments();
+      this.setState({ ncParser, ncLoading: false });
     } catch (e) {
       // Catch any errors deserializing the transaction
       console.error(e);
@@ -779,8 +778,8 @@ class TxData extends React.Component {
           </div>
         );
       }
-      const deserializer = this.state.ncDeserializer;
-      if (!deserializer) {
+      const ncParser = this.state.ncParser;
+      if (!ncParser) {
         // This should never happen
         return null;
       }
@@ -796,7 +795,7 @@ class TxData extends React.Component {
           </div>
           <div className="summary-balance-info-container">
             <div className="address-container-title">Address used to sign</div>{' '}
-            {deserializer.address.base58}
+            {ncParser.address.base58}
           </div>
           <div className="summary-balance-info-container">
             <div className="address-container-title">Method</div>{' '}
@@ -805,7 +804,7 @@ class TxData extends React.Component {
 
           <h2 className="details-title">Arguments</h2>
 
-          {renderNCArguments(deserializer.parsedArgs)}
+          {renderNCArguments(ncParser.parsedArgs)}
         </div>
       );
     };
@@ -824,20 +823,17 @@ class TxData extends React.Component {
     };
 
     const renderArgValue = arg => {
-      const typeBytesOrigin = ['bytes', 'TxOutputScript', 'TokenUid', 'VertexId', 'ContractId'];
-      if (typeBytesOrigin.includes(arg.type)) {
-        return arg.parsed.toString('hex');
-      }
+      const { parsed: parsedValue } = arg.toApiInput();
 
       if (arg.type === 'Timestamp') {
-        return dateFormatter.parseTimestamp(arg.parsed);
+        return dateFormatter.parseTimestamp(parsedValue);
       }
 
       if (arg.type === 'Amount') {
-        return hathorLib.numberUtils.prettyValue(arg.parsed, this.props.decimalPlaces);
+        return hathorLib.numberUtils.prettyValue(parsedValue, this.props.decimalPlaces);
       }
 
-      return arg.parsed;
+      return parsedValue;
     };
 
     const isNFTCreation = () => {
@@ -851,16 +847,10 @@ class TxData extends React.Component {
     };
 
     const isBlueprint = () => {
-      return this.props.transaction.version === 6; // hathorLib.constants.ON_CHAIN_BLUEPRINTS_VERSION
+      return this.props.transaction.version === hathorLib.constants.ON_CHAIN_BLUEPRINTS_VERSION
     };
 
-    /**
-     * FIXME: The "On-Chain Blueprint" transaction type should be included on the lib util.
-     */
     const getTxType = () => {
-      if (isBlueprint()) {
-        return 'On-Chain Blueprint';
-      }
       return hathorLib.transactionUtils.getTxType(this.props.transaction);
     };
 
