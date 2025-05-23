@@ -778,7 +778,7 @@ class TxData extends React.Component {
           </div>
         );
       }
-      const ncParser = this.state.ncParser;
+      const { ncParser } = this.state;
       if (!ncParser) {
         // This should never happen
         return null;
@@ -847,7 +847,7 @@ class TxData extends React.Component {
     };
 
     const isBlueprint = () => {
-      return this.props.transaction.version === hathorLib.constants.ON_CHAIN_BLUEPRINTS_VERSION
+      return this.props.transaction.version === hathorLib.constants.ON_CHAIN_BLUEPRINTS_VERSION;
     };
 
     const getTxType = () => {
