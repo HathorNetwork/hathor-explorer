@@ -19,6 +19,7 @@ module.exports = function override(config) {
     url: stdLib.url,
     assert: stdLib.assert,
     process: stdLib.process,
+    zlib: stdLib.zlib,
   };
 
   config.resolve.alias = {
