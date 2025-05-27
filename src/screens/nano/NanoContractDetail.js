@@ -46,7 +46,7 @@ function NanoContractDetail() {
       setTxData(null);
       try {
         const transactionData = await txApi.getTransaction(ncId);
-        if (transactionData.tx.version !== hathorLib.constants.NANO_CONTRACTS_VERSION) {
+        if (transactionData.tx.nc_id === undefined) {
           if (ignore) {
             // This is to prevent setting a state after the component has been already cleaned
             return;

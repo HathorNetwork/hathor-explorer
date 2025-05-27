@@ -77,7 +77,7 @@ class TxData extends React.Component {
         ...this.baseItemGraph,
       },
     ],
-    ncDeserializer: null,
+    ncParser: null,
     ncLoading: false,
   };
 
@@ -102,25 +102,30 @@ class TxData extends React.Component {
   };
 
   handleNanoContractFetch = async () => {
-    if (this.props.transaction.version !== hathorLib.constants.NANO_CONTRACTS_VERSION) {
+    if (this.props.transaction.nc_id === undefined) {
       this.setState({ ncLoading: false });
       return;
     }
 
     this.setState({ ncLoading: true });
 
-    const network = hathorLib.config.getNetwork();
-    const ncData = this.props.transaction;
-    const deserializer = new hathorLib.NanoContractTransactionParser(
-      ncData.nc_blueprint_id,
-      ncData.nc_method,
-      ncData.nc_pubkey,
-      network,
-      ncData.nc_args
-    );
-    deserializer.parseAddress();
-    await deserializer.parseArguments();
-    this.setState({ ncDeserializer: deserializer, ncLoading: false });
+    try {
+      const network = hathorLib.config.getNetwork();
+      const ncData = this.props.transaction;
+      const ncParser = new hathorLib.NanoContractTransactionParser(
+        ncData.nc_blueprint_id,
+        ncData.nc_method,
+        ncData.nc_address,
+        network,
+        ncData.nc_args
+      );
+      await ncParser.parseArguments();
+      this.setState({ ncParser, ncLoading: false });
+    } catch (e) {
+      // Catch any errors deserializing the transaction
+      console.error(e);
+      this.setState({ ncLoading: false });
+    }
   };
 
   /**
@@ -381,7 +386,8 @@ class TxData extends React.Component {
     };
 
     const renderOutputs = outputs => {
-      const obj = outputs.map((output, idx) => renderInputOrOutput(output, idx, true));
+      const mappedOutputs = outputs.map(o => ({ ...o, value: BigInt(o.value) }));
+      const obj = mappedOutputs.map((output, idx) => renderInputOrOutput(output, idx, true));
       return renderListWithSpacer(obj);
     };
 
@@ -773,8 +779,8 @@ class TxData extends React.Component {
           </div>
         );
       }
-      const deserializer = this.state.ncDeserializer;
-      if (!deserializer) {
+      const { ncParser } = this.state;
+      if (!ncParser) {
         // This should never happen
         return null;
       }
@@ -790,7 +796,7 @@ class TxData extends React.Component {
           </div>
           <div className="summary-balance-info-container">
             <div className="address-container-title">Address used to sign</div>{' '}
-            {deserializer.address.base58}
+            {ncParser.address.base58}
           </div>
           <div className="summary-balance-info-container">
             <div className="address-container-title">Method</div>{' '}
@@ -799,7 +805,7 @@ class TxData extends React.Component {
 
           <h2 className="details-title">Arguments</h2>
 
-          {renderNCArguments(deserializer.parsedArgs)}
+          {renderNCArguments(ncParser.parsedArgs)}
         </div>
       );
     };
@@ -818,20 +824,17 @@ class TxData extends React.Component {
     };
 
     const renderArgValue = arg => {
-      const typeBytesOrigin = ['bytes', 'TxOutputScript', 'TokenUid', 'VertexId', 'ContractId'];
-      if (typeBytesOrigin.includes(arg.type)) {
-        return arg.parsed.toString('hex');
-      }
+      const { parsed: parsedValue } = arg.toApiInput();
 
       if (arg.type === 'Timestamp') {
-        return dateFormatter.parseTimestamp(arg.parsed);
+        return dateFormatter.parseTimestamp(parsedValue);
       }
 
       if (arg.type === 'Amount') {
-        return hathorLib.numberUtils.prettyValue(arg.parsed, this.props.decimalPlaces);
+        return hathorLib.numberUtils.prettyValue(parsedValue, this.props.decimalPlaces);
       }
 
-      return arg.parsed;
+      return parsedValue;
     };
 
     const isNFTCreation = () => {
@@ -845,16 +848,10 @@ class TxData extends React.Component {
     };
 
     const isBlueprint = () => {
-      return this.props.transaction.version === 6; // hathorLib.constants.ON_CHAIN_BLUEPRINTS_VERSION
+      return this.props.transaction.version === hathorLib.constants.ON_CHAIN_BLUEPRINTS_VERSION;
     };
 
-    /**
-     * FIXME: The "On-Chain Blueprint" transaction type should be included on the lib util.
-     */
     const getTxType = () => {
-      if (isBlueprint()) {
-        return 'On-Chain Blueprint';
-      }
       return hathorLib.transactionUtils.getTxType(this.props.transaction);
     };
 
@@ -958,11 +955,11 @@ class TxData extends React.Component {
               renderConfirmationLevel()}
           </div>
           <div className="details-container-gap">
-            {this.props.transaction.version === hathorLib.constants.NANO_CONTRACTS_VERSION && (
+            {this.props.transaction.nc_id !== undefined && (
               <div className="d-flex flex-row align-items-start mb-3">{renderNCData()}</div>
             )}
 
-            {this.props.transaction.version === hathorLib.constants.NANO_CONTRACTS_VERSION && (
+            {this.props.transaction.nc_id !== undefined && (
               <div className="d-flex flex-row align-items-start mb-3"> {renderNCActions()}</div>
             )}
 
