@@ -386,7 +386,8 @@ class TxData extends React.Component {
     };
 
     const renderOutputs = outputs => {
-      const obj = outputs.map((output, idx) => renderInputOrOutput(output, idx, true));
+      const mappedOutputs = outputs.map(o => ({ ...o, value: BigInt(o.value) }));
+      const obj = mappedOutputs.map((output, idx) => renderInputOrOutput(output, idx, true));
       return renderListWithSpacer(obj);
     };
 
