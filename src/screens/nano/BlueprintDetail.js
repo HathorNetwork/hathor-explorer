@@ -90,7 +90,7 @@ function BlueprintDetail() {
 
   const renderNewUiBlueprintAttributes = () => {
     return (
-      <div className="table-responsive blueprint-attrubutes-table">
+      <div className="table-responsive blueprint-attributes-table">
         <table className="table-stylized" id="attributes-table">
           <thead>
             <tr>

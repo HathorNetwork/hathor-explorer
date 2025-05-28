@@ -115,8 +115,8 @@ function NanoContractDetail() {
   };
 
   const renderNewUiNCBalances = () => (
-    <div className="table-responsive blueprint-attrubutes-table">
-      <table className="table-stylized" id="attributes-table">
+    <div className="table-responsive blueprint-balance-table">
+      <table className="table-stylized" id="balance-table">
         <thead>
           <tr>
             <th>Token</th>
@@ -131,7 +131,7 @@ function NanoContractDetail() {
   );
 
   const renderNewUiAttributes = () => (
-    <div className="table-responsive blueprint-attrubutes-table">
+    <div className="table-responsive blueprint-attributes-table">
       <table className="table-stylized" id="attributes-table">
         <thead>
           <tr>
