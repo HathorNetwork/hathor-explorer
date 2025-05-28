@@ -745,23 +745,23 @@ class TxData extends React.Component {
       );
     };
 
-    const renderNCActionBalance = (action) => {
-      const authority_actions = [ 'grant_authority', 'invoke_authority' ];
-      const token_actions = [ 'deposit', 'withdrawal' ];
+    const renderNCActionBalance = action => {
+      const authority_actions = ['grant_authority', 'invoke_authority'];
+      const token_actions = ['deposit', 'withdrawal'];
 
       if (authority_actions.includes(action.type.toLowerCase())) {
         return (
           <div>
             {action.mint ? (
               <div>
-                <label>Mint: </label>{' Yes'}
-                {this.getSymbol(action.token_uid)}
+                <label>Mint {this.getSymbol(action.token_uid)}: </label>
+                {' Yes'}
               </div>
             ) : null}
             {action.melt ? (
               <div>
-                <label>Melt: </label>{' Yes'}
-                {this.getSymbol(action.token_uid)}
+                <label>Melt {this.getSymbol(action.token_uid)}: </label>
+                {' Yes'}
               </div>
             ) : null}
           </div>

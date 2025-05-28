@@ -108,8 +108,8 @@ function NanoContractDetail() {
           )}
         </td>
         <td>{hathorLib.numberUtils.prettyValue(data.value, decimalPlaces)}</td>
-        <td>{data.can_mint ? "Yes" : "No"}</td>
-        <td>{data.can_melt ? "Yes" : "No"}</td>
+        <td>{data.can_mint ? 'Yes' : 'No'}</td>
+        <td>{data.can_melt ? 'Yes' : 'No'}</td>
       </tr>
     ));
   };
