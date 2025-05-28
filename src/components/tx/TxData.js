@@ -745,17 +745,47 @@ class TxData extends React.Component {
       );
     };
 
+    const renderNCActionBalance = (action) => {
+      const authority_actions = [ 'grant_authority', 'invoke_authority' ];
+      const token_actions = [ 'deposit', 'withdrawal' ];
+
+      if (authority_actions.includes(action.type.toLowerCase())) {
+        return (
+          <div>
+            {action.mint ? (
+              <div>
+                <label>Mint: </label>{' Yes'}
+                {this.getSymbol(action.token_uid)}
+              </div>
+            ) : null}
+            {action.melt ? (
+              <div>
+                <label>Melt: </label>{' Yes'}
+                {this.getSymbol(action.token_uid)}
+              </div>
+            ) : null}
+          </div>
+        );
+      } else if (token_actions.includes(action.type.toLowerCase())) {
+        return (
+          <div>
+            <label>Amount:</label>{' '}
+            {hathorLib.numberUtils.prettyValue(action.amount, this.props.decimalPlaces)}{' '}
+            {this.getSymbol(action.token_uid)}
+          </div>
+        );
+      }
+      // Unsupported action
+      return null;
+    };
+
     const renderNCActionsList = () => {
       return this.props.transaction.nc_context.actions.map((action, index) => (
         <div key={index} className="d-flex flex-column align-items-start">
           <div>
             <label>Type:</label> {upperFirst(action.type)}
           </div>
-          <div>
-            <label>Amount:</label>{' '}
-            {hathorLib.numberUtils.prettyValue(action.amount, this.props.decimalPlaces)}{' '}
-            {this.getSymbol(action.token_uid)}
-          </div>
+          {renderNCActionBalance(action)}
         </div>
       ));
     };
