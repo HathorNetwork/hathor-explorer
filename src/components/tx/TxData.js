@@ -766,7 +766,9 @@ class TxData extends React.Component {
             ) : null}
           </div>
         );
-      } else if (token_actions.includes(action.type.toLowerCase())) {
+      }
+
+      if (token_actions.includes(action.type.toLowerCase())) {
         return (
           <div>
             <label>Amount:</label>{' '}
@@ -775,6 +777,7 @@ class TxData extends React.Component {
           </div>
         );
       }
+
       // Unsupported action
       return null;
     };
