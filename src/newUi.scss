@@ -1862,6 +1862,58 @@ nav {
   }
 }
 
+.nanocontract-actions-table {
+  .table-stylized {
+    thead {
+      tr {
+        th:nth-child(1) {
+          width: 20%;
+        }
+
+        th:nth-child(2) {
+          width: 20%;
+        }
+
+        th:nth-child(3) {
+          width: 20%;
+        }
+
+        th:nth-child(4) {
+          width: 20%;
+        }
+
+        th:nth-child(5) {
+          width: 20%;
+        }
+      }
+    }
+
+    tbody {
+      tr {
+        th:nth-child(1) {
+          width: 20%;
+        }
+
+        th:nth-child(2) {
+          width: 20%;
+        }
+
+        th:nth-child(3) {
+          width: 20%;
+        }
+
+        th:nth-child(4) {
+          width: 20%;
+        }
+
+        th:nth-child(5) {
+          width: 20%;
+        }
+      }
+    }
+  }
+}
+
 .blueprint-methods-table {
   .table-stylized {
     thead {
@@ -2285,6 +2337,58 @@ nav {
           }
 
           td:nth-child(4) {
+            width: 20%;
+          }
+        }
+      }
+    }
+  }
+
+  .nanocontract-actions-table {
+    .table-stylized {
+      thead {
+        tr {
+          th:nth-child(1) {
+            width: 20%;
+          }
+
+          th:nth-child(2) {
+            width: 20%;
+          }
+
+          th:nth-child(3) {
+            width: 20%;
+          }
+
+          th:nth-child(4) {
+            width: 20%;
+          }
+
+          th:nth-child(5) {
+            width: 20%;
+          }
+        }
+      }
+
+      tbody {
+        tr {
+          td:nth-child(1) {
+            width: 20%;
+          }
+
+          td:nth-child(2) {
+            width: 20%;
+          }
+
+          td:nth-child(3) {
+            width: 20%;
+          }
+
+          td:nth-child(4) {
+            width: 20%;
+          }
+
+          td:nth-child(5) {
             width: 20%;
           }
         }
