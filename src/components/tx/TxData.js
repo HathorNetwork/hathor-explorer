@@ -29,6 +29,7 @@ import { DropDetails } from '../DropDetails';
 import { ReactComponent as Copy } from '../../assets/images/copy-icon.svg';
 import { ReactComponent as ValidIcon } from '../../assets/images/success-icon.svg';
 import { ReactComponent as RowDown } from '../../assets/images/chevron-down.svg';
+import EllipsiCell from '../EllipsiCell';
 
 const mapStateToProps = state => ({
   nativeToken: state.serverInfo.native_token,
@@ -278,6 +279,22 @@ class TxData extends React.Component {
     }
     const tokenConfig = this.props.transaction.tokens[tokenData - 1];
     return tokenConfig.symbol;
+  };
+
+  /**
+   * Get name of token from UID iterating through possible tokens in the transaction
+   *
+   * @param {string} uid UID of token to get the name
+   *
+   * @return {string} Token name
+   */
+  getTokenName = uid => {
+    if (uid === hathorLib.constants.NATIVE_TOKEN_UID) {
+      return this.getNativeToken().symbol;
+    }
+    const tokenConfig = this.state.tokens.find(token => token.uid === uid);
+    if (tokenConfig === undefined) return '';
+    return tokenConfig.name;
   };
 
   /**
@@ -745,26 +762,64 @@ class TxData extends React.Component {
       );
     };
 
-    const renderNCActionsList = () => {
+    const renderNCActionsTableBody = () => {
       return this.props.transaction.nc_context.actions.map((action, index) => (
-        <div key={index} className="d-flex flex-column align-items-start">
-          <div>
-            <label>Type:</label> {upperFirst(action.type)}
-          </div>
-          <div>
-            <label>Amount:</label>{' '}
-            {hathorLib.numberUtils.prettyValue(action.amount, this.props.decimalPlaces)}{' '}
-            {this.getSymbol(action.token_uid)}
-          </div>
-        </div>
+        <tr key={index}>
+          <td>
+            {action.type
+              .split('_')
+              .map(t => upperFirst(t))
+              .join(' ')}
+          </td>
+          <td>
+            {action.token_uid === hathorLib.constants.NATIVE_TOKEN_UID ? (
+              action.token_uid
+            ) : (
+              <Link to={`/token_detail/${action.token_uid}`}>
+                {this.getTokenName(action.token_uid)}
+                <br />
+                <EllipsiCell id={action.token_uid} countBefore={4} countAfter={4} />
+              </Link>
+            )}
+          </td>
+          <td>
+            {action.amount ? (
+              <>
+                {hathorLib.numberUtils.prettyValue(action.amount, this.props.decimalPlaces)}{' '}
+                {this.getSymbol(action.token_uid)}
+              </>
+            ) : (
+              '-'
+            )}
+          </td>
+          <td>{action.mint ? 'Yes' : 'No'}</td>
+          <td>{action.melt ? 'Yes' : 'No'}</td>
+        </tr>
       ));
     };
+
+    const renderNCActionsTable = () => (
+      <div className="table-responsive nanocontract-actions-table">
+        <table className="table-stylized" id="nanocontract-actions-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Token</th>
+              <th>Amount</th>
+              <th>Mint</th>
+              <th>Melt</th>
+            </tr>
+          </thead>
+          <tbody>{renderNCActionsTableBody()}</tbody>
+        </table>
+      </div>
+    );
 
     const renderNCActions = () => {
       const actionsCount = get(this.props.transaction, 'nc_context.actions.length', 0);
       return (
         <DropDetails title={`Actions (${actionsCount})`}>
-          {actionsCount > 0 && renderNCActionsList()}
+          {actionsCount > 0 && renderNCActionsTable()}
         </DropDetails>
       );
     };

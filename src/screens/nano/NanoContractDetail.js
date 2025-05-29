@@ -108,17 +108,21 @@ function NanoContractDetail() {
           )}
         </td>
         <td>{hathorLib.numberUtils.prettyValue(data.value, decimalPlaces)}</td>
+        <td>{data.can_mint ? 'Yes' : 'No'}</td>
+        <td>{data.can_melt ? 'Yes' : 'No'}</td>
       </tr>
     ));
   };
 
   const renderNewUiNCBalances = () => (
-    <div className="table-responsive blueprint-attrubutes-table">
-      <table className="table-stylized" id="attributes-table">
+    <div className="table-responsive blueprint-balance-table">
+      <table className="table-stylized" id="balance-table">
         <thead>
           <tr>
             <th>Token</th>
             <th>Amount</th>
+            <th>Can mint</th>
+            <th>Can melt</th>
           </tr>
         </thead>
         <tbody>{renderBalances()}</tbody>
@@ -127,7 +131,7 @@ function NanoContractDetail() {
   );
 
   const renderNewUiAttributes = () => (
-    <div className="table-responsive blueprint-attrubutes-table">
+    <div className="table-responsive blueprint-attributes-table">
       <table className="table-stylized" id="attributes-table">
         <thead>
           <tr>
