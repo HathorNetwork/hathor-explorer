@@ -284,7 +284,7 @@ class TxData extends React.Component {
   /**
    * Get name of token from UID iterating through possible tokens in the transaction
    *
-   * @param {string} uid UID of token to get the symbol
+   * @param {string} uid UID of token to get the name
    *
    * @return {string} Token name
    */
