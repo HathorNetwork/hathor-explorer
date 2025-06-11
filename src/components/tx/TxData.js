@@ -879,17 +879,15 @@ class TxData extends React.Component {
     };
 
     const renderArgValue = arg => {
-      const { parsed: parsedValue } = arg.toApiInput();
-
       if (arg.type === 'Timestamp') {
-        return dateFormatter.parseTimestamp(parsedValue);
+        return dateFormatter.parseTimestamp(arg.value);
       }
 
       if (arg.type === 'Amount') {
-        return hathorLib.numberUtils.prettyValue(parsedValue, this.props.decimalPlaces);
+        return hathorLib.numberUtils.prettyValue(arg.value, this.props.decimalPlaces);
       }
 
-      return parsedValue;
+      return arg.value;
     };
 
     const isNFTCreation = () => {
