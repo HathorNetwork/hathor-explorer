@@ -2,12 +2,13 @@
 
 # Check if site and command parameters are provided
 if [ -z "$1" ] || [ -z "$2" ]; then
-  echo "Usage: $0 <site> <command>"
+  echo "Usage: $0 <site> <command> [aws_profile]"
   exit 1
 fi
 
 site=$1
 command=$2
+aws_profile=$3
 
 # Define environment variables for each site
 case $site in
@@ -36,6 +37,16 @@ case $site in
     REACT_APP_NETWORK=nano-testnet-alpha
     S3_BUCKET=hathor-nano-testnet-public-explorer-2
     CLOUDFRONT_ID=EN58551BWE3XZ
+    ;;
+  nano-testnet-bravo)
+    FULLNODE_HOST=node1.bravo.nano-testnet.hathor.network
+    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
+    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
+    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.bravo.nano-testnet.hathor.network/
+    REACT_APP_TIMESERIES_DASHBOARD_ID=
+    REACT_APP_NETWORK=nano-testnet-bravo
+    S3_BUCKET=hathor-nano-testnet-bravo-public-explorer
+    CLOUDFRONT_ID=ERBB1LFGS2AMQ
     ;;
   nano-testnet-hackaton)
     FULLNODE_HOST=node1.hackaton.hathor.network
@@ -119,11 +130,19 @@ case $command in
     ;;
   sync)
     echo "Syncing for site: $site"
-    aws s3 sync --delete ./build/ s3://$S3_BUCKET
+    if [ -n "$aws_profile" ]; then
+      aws s3 sync --delete ./build/ s3://$S3_BUCKET --profile $aws_profile
+    else
+      aws s3 sync --delete ./build/ s3://$S3_BUCKET
+    fi
     ;;
   clear_cache)
     echo "Clearing CloudFront cache for site: $site"
-    aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/index.html"
+    if [ -n "$aws_profile" ]; then
+      aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/index.html" --profile $aws_profile
+    else
+      aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/index.html"
+    fi
     ;;
   start)
     echo "Starting for site: $site"
