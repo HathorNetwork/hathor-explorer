@@ -51,7 +51,10 @@ jobs:
           retention-days: 1
 
   deploy-testnet-explorer:
-    if: github.ref == 'refs/heads/release'
+    # We've changed this to a special branch, effectively to disable automatated deploys to
+    # nano-testnet alpha, but still leaving the deploy job in place in case needed, deploying
+    # from a different branch. 
+    if: github.ref == 'refs/heads/release-nano-alpha'
     needs: dependencies
     runs-on: ubuntu-latest
     steps:
