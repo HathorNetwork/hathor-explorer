@@ -7,7 +7,7 @@ sync:
 	./scripts/deploy.sh $(site) sync $(aws_profile)
 
 .PHONY: deploy
-deploy: check_version sync clear_cloudfront_cache
+deploy: check_version build sync clear_cloudfront_cache
 
 .PHONY: check_version
 check_version:
