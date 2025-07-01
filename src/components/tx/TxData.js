@@ -29,6 +29,7 @@ import { DropDetails } from '../DropDetails';
 import { ReactComponent as Copy } from '../../assets/images/copy-icon.svg';
 import { ReactComponent as ValidIcon } from '../../assets/images/success-icon.svg';
 import { ReactComponent as RowDown } from '../../assets/images/chevron-down.svg';
+import EllipsiCell from '../EllipsiCell';
 
 const mapStateToProps = state => ({
   nativeToken: state.serverInfo.native_token,
@@ -77,7 +78,7 @@ class TxData extends React.Component {
         ...this.baseItemGraph,
       },
     ],
-    ncDeserializer: null,
+    ncParser: null,
     ncLoading: false,
   };
 
@@ -102,25 +103,30 @@ class TxData extends React.Component {
   };
 
   handleNanoContractFetch = async () => {
-    if (this.props.transaction.version !== hathorLib.constants.NANO_CONTRACTS_VERSION) {
+    if (this.props.transaction.nc_id === undefined) {
       this.setState({ ncLoading: false });
       return;
     }
 
     this.setState({ ncLoading: true });
 
-    const network = hathorLib.config.getNetwork();
-    const ncData = this.props.transaction;
-    const deserializer = new hathorLib.NanoContractTransactionParser(
-      ncData.nc_blueprint_id,
-      ncData.nc_method,
-      ncData.nc_pubkey,
-      network,
-      ncData.nc_args
-    );
-    deserializer.parseAddress();
-    await deserializer.parseArguments();
-    this.setState({ ncDeserializer: deserializer, ncLoading: false });
+    try {
+      const network = hathorLib.config.getNetwork();
+      const ncData = this.props.transaction;
+      const ncParser = new hathorLib.NanoContractTransactionParser(
+        ncData.nc_blueprint_id,
+        ncData.nc_method,
+        ncData.nc_address,
+        network,
+        ncData.nc_args
+      );
+      await ncParser.parseArguments();
+      this.setState({ ncParser, ncLoading: false });
+    } catch (e) {
+      // Catch any errors deserializing the transaction
+      console.error(e);
+      this.setState({ ncLoading: false });
+    }
   };
 
   /**
@@ -276,6 +282,22 @@ class TxData extends React.Component {
   };
 
   /**
+   * Get name of token from UID iterating through possible tokens in the transaction
+   *
+   * @param {string} uid UID of token to get the name
+   *
+   * @return {string} Token name
+   */
+  getTokenName = uid => {
+    if (uid === hathorLib.constants.NATIVE_TOKEN_UID) {
+      return this.getNativeToken().symbol;
+    }
+    const tokenConfig = this.state.tokens.find(token => token.uid === uid);
+    if (tokenConfig === undefined) return '';
+    return tokenConfig.name;
+  };
+
+  /**
    * Get symbol of token from UID iterating through possible tokens in the transaction
    *
    * @param {string} uid UID of token to get the symbol
@@ -381,7 +403,8 @@ class TxData extends React.Component {
     };
 
     const renderOutputs = outputs => {
-      const obj = outputs.map((output, idx) => renderInputOrOutput(output, idx, true));
+      const mappedOutputs = outputs.map(o => ({ ...o, value: BigInt(o.value) }));
+      const obj = mappedOutputs.map((output, idx) => renderInputOrOutput(output, idx, true));
       return renderListWithSpacer(obj);
     };
 
@@ -739,26 +762,64 @@ class TxData extends React.Component {
       );
     };
 
-    const renderNCActionsList = () => {
+    const renderNCActionsTableBody = () => {
       return this.props.transaction.nc_context.actions.map((action, index) => (
-        <div key={index} className="d-flex flex-column align-items-start">
-          <div>
-            <label>Type:</label> {upperFirst(action.type)}
-          </div>
-          <div>
-            <label>Amount:</label>{' '}
-            {hathorLib.numberUtils.prettyValue(action.amount, this.props.decimalPlaces)}{' '}
-            {this.getSymbol(action.token_uid)}
-          </div>
-        </div>
+        <tr key={index}>
+          <td>
+            {action.type
+              .split('_')
+              .map(t => upperFirst(t))
+              .join(' ')}
+          </td>
+          <td>
+            {action.token_uid === hathorLib.constants.NATIVE_TOKEN_UID ? (
+              action.token_uid
+            ) : (
+              <Link to={`/token_detail/${action.token_uid}`}>
+                {this.getTokenName(action.token_uid)}
+                <br />
+                <EllipsiCell id={action.token_uid} countBefore={4} countAfter={4} />
+              </Link>
+            )}
+          </td>
+          <td>
+            {action.amount ? (
+              <>
+                {hathorLib.numberUtils.prettyValue(action.amount, this.props.decimalPlaces)}{' '}
+                {this.getSymbol(action.token_uid)}
+              </>
+            ) : (
+              '-'
+            )}
+          </td>
+          <td>{action.mint ? 'Yes' : 'No'}</td>
+          <td>{action.melt ? 'Yes' : 'No'}</td>
+        </tr>
       ));
     };
+
+    const renderNCActionsTable = () => (
+      <div className="table-responsive nanocontract-actions-table">
+        <table className="table-stylized" id="nanocontract-actions-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Token</th>
+              <th>Amount</th>
+              <th>Mint</th>
+              <th>Melt</th>
+            </tr>
+          </thead>
+          <tbody>{renderNCActionsTableBody()}</tbody>
+        </table>
+      </div>
+    );
 
     const renderNCActions = () => {
       const actionsCount = get(this.props.transaction, 'nc_context.actions.length', 0);
       return (
         <DropDetails title={`Actions (${actionsCount})`}>
-          {actionsCount > 0 && renderNCActionsList()}
+          {actionsCount > 0 && renderNCActionsTable()}
         </DropDetails>
       );
     };
@@ -773,8 +834,8 @@ class TxData extends React.Component {
           </div>
         );
       }
-      const deserializer = this.state.ncDeserializer;
-      if (!deserializer) {
+      const { ncParser } = this.state;
+      if (!ncParser) {
         // This should never happen
         return null;
       }
@@ -790,7 +851,7 @@ class TxData extends React.Component {
           </div>
           <div className="summary-balance-info-container">
             <div className="address-container-title">Address used to sign</div>{' '}
-            {deserializer.address.base58}
+            {ncParser.address.base58}
           </div>
           <div className="summary-balance-info-container">
             <div className="address-container-title">Method</div>{' '}
@@ -799,7 +860,7 @@ class TxData extends React.Component {
 
           <h2 className="details-title">Arguments</h2>
 
-          {renderNCArguments(deserializer.parsedArgs)}
+          {renderNCArguments(ncParser.parsedArgs)}
         </div>
       );
     };
@@ -818,20 +879,15 @@ class TxData extends React.Component {
     };
 
     const renderArgValue = arg => {
-      const typeBytesOrigin = ['bytes', 'TxOutputScript', 'TokenUid', 'VertexId', 'ContractId'];
-      if (typeBytesOrigin.includes(arg.type)) {
-        return arg.parsed.toString('hex');
-      }
-
       if (arg.type === 'Timestamp') {
-        return dateFormatter.parseTimestamp(arg.parsed);
+        return dateFormatter.parseTimestamp(arg.value);
       }
 
       if (arg.type === 'Amount') {
-        return hathorLib.numberUtils.prettyValue(arg.parsed, this.props.decimalPlaces);
+        return hathorLib.numberUtils.prettyValue(arg.value, this.props.decimalPlaces);
       }
 
-      return arg.parsed;
+      return arg.value;
     };
 
     const isNFTCreation = () => {
@@ -845,16 +901,10 @@ class TxData extends React.Component {
     };
 
     const isBlueprint = () => {
-      return this.props.transaction.version === 6; // hathorLib.constants.ON_CHAIN_BLUEPRINTS_VERSION
+      return this.props.transaction.version === hathorLib.constants.ON_CHAIN_BLUEPRINTS_VERSION;
     };
 
-    /**
-     * FIXME: The "On-Chain Blueprint" transaction type should be included on the lib util.
-     */
     const getTxType = () => {
-      if (isBlueprint()) {
-        return 'On-Chain Blueprint';
-      }
       return hathorLib.transactionUtils.getTxType(this.props.transaction);
     };
 
@@ -958,11 +1008,11 @@ class TxData extends React.Component {
               renderConfirmationLevel()}
           </div>
           <div className="details-container-gap">
-            {this.props.transaction.version === hathorLib.constants.NANO_CONTRACTS_VERSION && (
+            {this.props.transaction.nc_id !== undefined && (
               <div className="d-flex flex-row align-items-start mb-3">{renderNCData()}</div>
             )}
 
-            {this.props.transaction.version === hathorLib.constants.NANO_CONTRACTS_VERSION && (
+            {this.props.transaction.nc_id !== undefined && (
               <div className="d-flex flex-row align-items-start mb-3"> {renderNCActions()}</div>
             )}
 

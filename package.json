@@ -7,7 +7,7 @@
   },
   "private": true,
   "dependencies": {
-    "@hathor/wallet-lib": "1.10.0",
+    "@hathor/wallet-lib": "2.5.1",
     "@reduxjs/toolkit": "2.5.1",
     "@unleash/proxy-client-react": "1.0.4",
     "axios": "1.8.2",
