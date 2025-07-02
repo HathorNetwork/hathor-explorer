@@ -43,7 +43,7 @@ case $site in
     REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
     REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
     REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.bravo.nano-testnet.hathor.network/
-    REACT_APP_TIMESERIES_DASHBOARD_ID=
+    REACT_APP_TIMESERIES_DASHBOARD_ID=00c45139-8e79-4ed1-8558-00c8ebf3c326
     REACT_APP_NETWORK=nano-testnet-bravo
     S3_BUCKET=hathor-nano-testnet-bravo-public-explorer
     CLOUDFRONT_ID=ERBB1LFGS2AMQ
