@@ -873,9 +873,25 @@ class TxData extends React.Component {
       return args.map(arg => (
         <div className="summary-balance-info-container" key={arg.name}>
           <div className="address-container-title">{arg.name}:</div>
-          <span>{renderArgValue(arg)}</span>
+          {renderArgItem(arg)}
         </div>
       ));
+    };
+
+    const renderArgItem = arg => {
+      if (arg.type.startsWith('SignedData')) {
+        return (
+          <div>
+            <span>Type: {arg.value.type}</span>
+            <br />
+            <span>Data: {renderArgValue(arg.value)}</span>
+            <br />
+            <span>Signature: {arg.value.signature}</span>
+          </div>
+        );
+      }
+
+      return <span>{renderArgValue(arg)}</span>;
     };
 
     const renderArgValue = arg => {
@@ -887,7 +903,7 @@ class TxData extends React.Component {
         return hathorLib.numberUtils.prettyValue(arg.value, this.props.decimalPlaces);
       }
 
-      return arg.value;
+      return hathorLib.bigIntUtils.JSONBigInt.stringify(arg.value);
     };
 
     const isNFTCreation = () => {
