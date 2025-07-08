@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { numberUtils } from '@hathor/wallet-lib';
+import { numberUtils, TokenInfoVersion, isTokenInfoVersion } from '@hathor/wallet-lib';
 import { connect } from 'react-redux';
 import { ReactComponent as InfoIcon } from '../../assets/images/icon-info.svg';
 
@@ -45,6 +45,25 @@ const TokenInfo = props => {
     return `${amount} ${token.symbol}`;
   };
 
+  /**
+   * Returns a human-readable string representing the token version.
+   * If the version is not recognized, logs a warning and returns an empty string.
+   *
+   * @param {number} version - The version number of the token.
+   * @returns {string} - The string representation of the token version.
+   */
+  const getTokenVersion = version => {
+    if (!isTokenInfoVersion(version)) {
+      console.log('Unknown token version:', version);
+      return '';
+    }
+    const versions = {
+      [TokenInfoVersion.DEPOSIT]: 'Deposit based token',
+      [TokenInfoVersion.FEE]: 'Fee based token',
+    };
+    return versions[version];
+  };
+
   const renderNewUi = () => {
     return (
       <div className="token-new-general-info">
@@ -64,6 +83,10 @@ const TokenInfo = props => {
         <div>
           <span>SYMBOL</span>
           <span>{token.symbol}</span>
+        </div>
+        <div>
+          <span>VERSION</span>
+          <span>{getTokenVersion(token.version)}</span>
         </div>
         <div>
           <span>TOTAL SUPPLY</span>
