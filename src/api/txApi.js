@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import { txApi as libTxApi } from '@hathor/wallet-lib';
 import requestExplorerServiceV1 from './axiosInstance';
 
 const txApi = {
@@ -37,7 +38,7 @@ const txApi = {
     return requestExplorerServiceV1
       .get(`node_api/transaction`, { params: { id } })
       .then(res => {
-        return res.data;
+        return libTxApi.schemas.transactionApi.parse(res.data);
       })
       .catch(e => {
         throw new Error(e);
