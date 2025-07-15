@@ -23,6 +23,7 @@ function TokenDetail() {
    *    - uid {string} UID of token
    *    - name {string} Token Name
    *    - symbol {string} Token symbol
+   *    - version {TokenInfoVersion} Token version
    *    - totalSupply {number} Token total supply
    *    - canMint {boolean} If this token can still be minted
    *    - canMelt {boolean} If this token can still be melted
@@ -63,6 +64,7 @@ function TokenDetail() {
       uid: id,
       name: response.name,
       symbol: response.symbol,
+      version: response.version,
       totalSupply: response.total,
       canMint: response.mint.length > 0,
       canMelt: response.melt.length > 0,
