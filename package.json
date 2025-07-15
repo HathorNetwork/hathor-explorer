@@ -1,6 +1,6 @@
 {
   "name": "hathor-admin",
-  "version": "0.24.1",
+  "version": "0.24.2",
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=10.0.0"
