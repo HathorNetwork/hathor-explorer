@@ -78,6 +78,34 @@ jobs:
         run: |
           make deploy site=testnet
 
+  deploy-testnet-hotel-explorer:
+    if: github.ref == 'refs/heads/release'
+    needs: dependencies
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/actions/checkout/releases/tag/v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Configure AWS Credentials
+        # https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.2.1
+        uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::769498303037:role/ExplorerGitHubActionsRoleTestnetHotel
+      - name: Download node modules
+        # https://github.com/actions/download-artifact/releases/tag/v4.3.0
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: node_modules
+
+      - name: Build
+        run: |
+          tar -xf node_modules.tar
+          make build site=testnet-hotel
+
+      - name: Deploy Testnet Explorer
+        run: |
+          make deploy site=testnet-hotel
+
   deploy-nano-testnet-explorer:
     # We've changed this to a special branch, effectively to disable automatated deploys to
     # nano-testnet alpha, but still leaving the deploy job in place in case needed, deploying
