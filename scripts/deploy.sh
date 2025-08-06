@@ -79,10 +79,10 @@ case $site in
     CLOUDFRONT_ID=E1NI147Y237J4M
     ;;
   testnet)
-    FULLNODE_HOST=node.explorer.testnet.hathor.network
+    FULLNODE_HOST=node.explorer.golf.testnet.hathor.network
     REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
     REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
-    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.testnet.hathor.network/
+    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.golf.testnet.hathor.network/
     REACT_APP_TIMESERIES_DASHBOARD_ID=35379840-e8c5-11ec-a7f2-0fee9be0d8ee
     REACT_APP_NETWORK=testnet
     S3_BUCKET=hathor-testnet-golf-public-explorer
