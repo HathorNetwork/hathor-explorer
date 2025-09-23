@@ -162,7 +162,7 @@ function Navigation() {
                     <NavLink to="/nano_contracts/" className="nav-link">
                       Nano Contracts List
                     </NavLink>
-                    <NavLink to="/blueprints/?type=built-in" className="nav-link">
+                    <NavLink to="/blueprints/?type=on-chain" className="nav-link">
                       Blueprints List
                     </NavLink>
                   </div>

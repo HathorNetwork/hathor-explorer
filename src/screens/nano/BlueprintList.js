@@ -42,7 +42,7 @@ function BlueprintList() {
   const navigate = useNavigate();
 
   // Tab selected
-  const [type, setType] = useState(BlueprintType.BUILT_IN);
+  const [type, setType] = useState(BlueprintType.ON_CHAIN);
   // If is loading data
   const [loading, setLoading] = useState(true);
   // error {boolean} If there was an error when loading data
@@ -365,16 +365,16 @@ function BlueprintList() {
         {isMobile && renderSearch()}
         <div className="tabs-container d-flex flex-row">
           <div
-            className={`tab ${type === BlueprintType.BUILT_IN && 'active'}`}
-            onClick={() => onTabClicked(BlueprintType.BUILT_IN)}
-          >
-            Built In
-          </div>
-          <div
             className={`tab ${type === BlueprintType.ON_CHAIN && 'active'}`}
             onClick={() => onTabClicked(BlueprintType.ON_CHAIN)}
           >
             On Chain
+          </div>
+          <div
+            className={`tab ${type === BlueprintType.BUILT_IN && 'active'}`}
+            onClick={() => onTabClicked(BlueprintType.BUILT_IN)}
+          >
+            Built In
           </div>
         </div>
         {!isMobile && renderSearch()}
