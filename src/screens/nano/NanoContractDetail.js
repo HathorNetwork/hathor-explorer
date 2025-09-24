@@ -12,7 +12,6 @@ import { useSelector } from 'react-redux';
 import NanoContractHistory from '../../components/nano/NanoContractHistory';
 import Loading from '../../components/Loading';
 import nanoApi from '../../api/nanoApi';
-import txApi from '../../api/txApi';
 
 /**
  * Details of a Nano Contract
@@ -26,8 +25,6 @@ function NanoContractDetail() {
   const [ncState, setNcState] = useState(null);
   // blueprintInformation {Object | null} Blueprint Information from API
   const [blueprintInformation, setBlueprintInformation] = useState(null);
-  // txData {Object | null} Nano contract transaction data
-  const [txData, setTxData] = useState(null);
   // loadingDetail {boolean} Bool to show/hide loading when getting transaction detail
   const [loadingDetail, setLoadingDetail] = useState(true);
   // errorMessage {string | null} Error message in case a request to get nano contract data fails
@@ -43,20 +40,14 @@ function NanoContractDetail() {
     async function loadBlueprintInformation() {
       setLoadingDetail(true);
       setNcState(null);
-      setTxData(null);
       try {
-        const transactionData = await txApi.getTransaction(ncId);
-        if (transactionData.tx.nc_id === undefined) {
-          if (ignore) {
-            // This is to prevent setting a state after the component has been already cleaned
-            return;
-          }
-          setErrorMessage('Transaction is not a nano contract.');
-          return;
-        }
+        // This screen need the contract to be already confirmed by a block
+        // so we can get its state, so we can use the state API directly to get
+        // the blueprintID
+        const auxState = await nanoApi.getState(ncId, [], [], []);
 
         const blueprintInformationData = await nanoApi.getBlueprintInformation(
-          transactionData.tx.nc_blueprint_id
+          auxState.blueprint_id
         );
         const dataState = await nanoApi.getState(
           ncId,
@@ -65,16 +56,15 @@ function NanoContractDetail() {
           []
         );
         if (ignore) {
-          // This is to prevent setting a state after the componenet has been already cleaned
+          // This is to prevent setting a state after the component has been already cleaned
           return;
         }
         setBlueprintInformation(blueprintInformationData);
         setNcState(dataState);
-        setTxData(transactionData.tx);
         setLoadingDetail(false);
       } catch (e) {
         if (ignore) {
-          // This is to prevent setting a state after the componenet has been already cleaned
+          // This is to prevent setting a state after the component has been already cleaned
           return;
         }
         setErrorMessage('Error getting nano contract state.');
@@ -196,7 +186,8 @@ function NanoContractDetail() {
         <strong>BLUEPRINT: </strong>
         <span>
           <span>{ncState.blueprint_name}</span>(
-          <Link to={`/blueprint/detail/${txData.nc_blueprint_id}`}>{txData.nc_blueprint_id}</Link>)
+          <Link to={`/blueprint/detail/${blueprintInformation.id}`}>{blueprintInformation.id}</Link>
+          )
         </span>
       </p>
       <div className="blueprint-attributes">
