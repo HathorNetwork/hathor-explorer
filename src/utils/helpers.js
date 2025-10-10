@@ -47,14 +47,11 @@ const helpers = {
     return Math.round(n * 100) / 100;
   },
 
+  /*
+  / Verifies if the version in parameter is allowed to make requests to the API backend
+  / We check with our min api version
+  */
   isVersionAllowed(version) {
-    // Verifies if the version in parameter is allowed to make requests to the API backend
-    // We check with our min api version
-    if (version.includes('beta') !== MIN_API_VERSION.includes('beta')) {
-      // If one version is beta and the other is not, it's not allowed to use it
-      return false;
-    }
-
     // Clean the version string to have an array of integers
     // Check for each value if the version is allowed
     const versionTestArr = this.getCleanVersionArray(version);
