@@ -121,6 +121,9 @@ export const BLUEPRINT_LIST_COUNT = 10;
 // Number of elements in the nano contracts list table
 export const NANO_CONTRACTS_LIST_COUNT = 10;
 
+// Hex of b'nc-fail' from voided txs
+export const NANO_CONTRACT_EXECUTION_FAIL = '6e632d6661696c';
+
 export const COLORS = {
   danger: '#991300',
   success: '#44A32E',
