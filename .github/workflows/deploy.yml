@@ -16,11 +16,11 @@ jobs:
       # https://github.com/actions/checkout/releases/tag/v4.2.2
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - name: Set up Node.js 20.x
+      - name: Set up Node.js 22.x
         # https://github.com/actions/setup-node/releases/tag/v4.4.0
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
-          node-version: 20.x
+          node-version: 22.x
 
       - name: Cache node modules
         # https://github.com/actions/cache/releases/tag/v4.2.2
@@ -57,26 +57,11 @@ jobs:
     steps:
       # https://github.com/actions/checkout/releases/tag/v4.2.2
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Configure AWS Credentials
-        # https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.2.1
-        uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df
+      - uses: ./.github/actions/deploy-explorer
         with:
+          site: testnet
           aws-region: us-east-1
-          role-to-assume: arn:aws:iam::769498303037:role/ExplorerGitHubActionsRoleTestnet
-      - name: Download node modules
-        # https://github.com/actions/download-artifact/releases/tag/v4.3.0
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
-        with:
-          name: node_modules
-
-      - name: Build
-        run: |
-          tar -xf node_modules.tar
-          make build site=testnet
-
-      - name: Deploy Testnet Explorer
-        run: |
-          make deploy site=testnet
+          aws-role: arn:aws:iam::769498303037:role/ExplorerGitHubActionsRoleTestnet
 
   deploy-testnet-hotel-explorer:
     if: github.ref == 'refs/heads/release'
@@ -85,26 +70,24 @@ jobs:
     steps:
       # https://github.com/actions/checkout/releases/tag/v4.2.2
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Configure AWS Credentials
-        # https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.2.1
-        uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df
+      - uses: ./.github/actions/deploy-explorer
         with:
+          site: testnet-hotel
           aws-region: us-east-1
-          role-to-assume: arn:aws:iam::769498303037:role/ExplorerGitHubActionsRoleTestnetHotel
-      - name: Download node modules
-        # https://github.com/actions/download-artifact/releases/tag/v4.3.0
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+          aws-role: arn:aws:iam::769498303037:role/ExplorerGitHubActionsRoleTestnetHotel
+
+  deploy-testnet-india-explorer:
+    if: github.ref == 'refs/heads/release'
+    needs: dependencies
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/actions/checkout/releases/tag/v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: ./.github/actions/deploy-explorer
         with:
-          name: node_modules
-
-      - name: Build
-        run: |
-          tar -xf node_modules.tar
-          make build site=testnet-hotel
-
-      - name: Deploy Testnet Explorer
-        run: |
-          make deploy site=testnet-hotel
+          site: testnet-india
+          aws-region: us-east-1
+          aws-role: arn:aws:iam::769498303037:role/ExplorerGitHubActionsRoleTestnetIndia
 
   deploy-nano-testnet-explorer:
     # We've changed this to a special branch, effectively to disable automatated deploys to
@@ -116,24 +99,11 @@ jobs:
     steps:
       # https://github.com/actions/checkout/releases/tag/v4.2.2
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Configure AWS Credentials
-        # https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.2.1
-        uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df
+      - uses: ./.github/actions/deploy-explorer
         with:
+          site: nano-testnet
           aws-region: eu-central-1
-          role-to-assume: arn:aws:iam::471112952246:role/ExplorerGitHubActionsRole
-      - name: Download node modules
-        # https://github.com/actions/download-artifact/releases/tag/v4.3.0
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
-        with:
-          name: node_modules
-      - name: Build
-        run: |
-          tar -xf node_modules.tar
-          make build site=nano-testnet
-      - name: Deploy Nano Testnet Explorer
-        run: |
-          make deploy site=nano-testnet
+          aws-role: arn:aws:iam::471112952246:role/ExplorerGitHubActionsRole
 
   deploy-nano-testnet-bravo-explorer:
     if: github.ref == 'refs/heads/release'
@@ -142,24 +112,11 @@ jobs:
     steps:
       # https://github.com/actions/checkout/releases/tag/v4.2.2
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Configure AWS Credentials
-        # https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.2.1
-        uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df
+      - uses: ./.github/actions/deploy-explorer
         with:
+          site: nano-testnet-bravo
           aws-region: eu-central-1
-          role-to-assume: arn:aws:iam::471112952246:role/ExplorerGitHubActionsRoleBravo
-      - name: Download node modules
-        # https://github.com/actions/download-artifact/releases/tag/v4.3.0
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
-        with:
-          name: node_modules
-      - name: Build
-        run: |
-          tar -xf node_modules.tar
-          make build site=nano-testnet-bravo
-      - name: Deploy Nano Testnet Bravo Explorer
-        run: |
-          make deploy site=nano-testnet-bravo
+          aws-role: arn:aws:iam::471112952246:role/ExplorerGitHubActionsRoleBravo
 
   deploy-nano-testnet-hackaton-explorer:
     if: github.ref == 'refs/heads/release'
@@ -168,24 +125,11 @@ jobs:
     steps:
       # https://github.com/actions/checkout/releases/tag/v4.2.2
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Configure AWS Credentials
-        # https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.2.1
-        uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df
+      - uses: ./.github/actions/deploy-explorer
         with:
+          site: nano-testnet-hackaton
           aws-region: eu-central-1
-          role-to-assume: arn:aws:iam::644483925420:role/ExplorerGitHubActionsRole
-      - name: Download node modules
-        # https://github.com/actions/download-artifact/releases/tag/v4.3.0
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
-        with:
-          name: node_modules
-      - name: Build
-        run: |
-          tar -xf node_modules.tar
-          make build site=nano-testnet-hackaton
-      - name: Deploy Nano Testnet Hackaton Explorer
-        run: |
-          make deploy site=nano-testnet-hackaton
+          aws-role: arn:aws:iam::644483925420:role/ExplorerGitHubActionsRole
 
   deploy-ekvilibro-testnet-explorer:
     if: github.ref == 'refs/heads/release'
@@ -194,24 +138,12 @@ jobs:
     steps:
       # https://github.com/actions/checkout/releases/tag/v4.2.2
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Configure AWS Credentials
-        # https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.2.1
-        uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df
+      - uses: ./.github/actions/deploy-explorer
         with:
+          site: ekvilibro-testnet
           aws-region: eu-central-1
-          role-to-assume: arn:aws:iam::730335348496:role/ExplorerGitHubActionsRoleEkvilibroTestnet
-      - name: Download node modules
-        # https://github.com/actions/download-artifact/releases/tag/v4.3.0
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
-        with:
-          name: node_modules
-      - name: Build
-        run: |
-          tar -xf node_modules.tar
-          make build site=ekvilibro-testnet
-      - name: Deploy Ekvilibro Testnet Explorer
-        run: |
-          make deploy site=ekvilibro-testnet
+          aws-role: arn:aws:iam::730335348496:role/ExplorerGitHubActionsRoleEkvilibroTestnet
+
   deploy-ekvilibro-mainnet-explorer:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: dependencies
@@ -219,24 +151,12 @@ jobs:
     steps:
       # https://github.com/actions/checkout/releases/tag/v4.2.2
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Configure AWS Credentials
-        # https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.2.1
-        uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df
+      - uses: ./.github/actions/deploy-explorer
         with:
+          site: ekvilibro-mainnet
           aws-region: eu-central-1
-          role-to-assume: arn:aws:iam::730335348496:role/ExplorerGitHubActionsRoleEkvilibroMainnet
-      - name: Download node modules
-        # https://github.com/actions/download-artifact/releases/tag/v4.3.0
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
-        with:
-          name: node_modules
-      - name: Build
-        run: |
-          tar -xf node_modules.tar
-          make build site=ekvilibro-mainnet
-      - name: Deploy Ekvilibro Mainnet Explorer
-        run: |
-          make deploy site=ekvilibro-mainnet
+          aws-role: arn:aws:iam::730335348496:role/ExplorerGitHubActionsRoleEkvilibroMainnet
+
   deploy-mainnet-explorer:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: dependencies
@@ -244,23 +164,8 @@ jobs:
     steps:
       # https://github.com/actions/checkout/releases/tag/v4.2.2
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Configure AWS Credentials
-        # https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.2.1
-        uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df
+      - uses: ./.github/actions/deploy-explorer
         with:
+          site: mainnet
           aws-region: us-east-1
-          role-to-assume: arn:aws:iam::769498303037:role/ExplorerGitHubActionsRoleMainnet
-      - name: Download node modules
-        # https://github.com/actions/download-artifact/releases/tag/v4.3.0
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
-        with:
-          name: node_modules
-
-      - name: Build
-        run: |
-          tar -xf node_modules.tar
-          make build site=mainnet
-
-      - name: Deploy Mainnet Explorer
-        run: |
-          make deploy site=mainnet
+          aws-role: arn:aws:iam::769498303037:role/ExplorerGitHubActionsRoleMainnet

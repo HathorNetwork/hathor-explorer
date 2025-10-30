@@ -18,6 +18,7 @@ import TokenMarkers from '../token/TokenMarkers';
 import TxAlerts from './TxAlerts';
 import TxMarkers from './TxMarkers';
 import dateFormatter from '../../utils/date';
+import { NANO_CONTRACT_EXECUTION_FAIL } from '../../constants';
 import helpers from '../../utils/helpers';
 import metadataApi from '../../api/metadataApi';
 import graphvizApi from '../../api/graphvizApi';
@@ -466,22 +467,24 @@ class TxData extends React.Component {
       if (hashes.length === 0) {
         return null;
       }
-      if (hashes.length === 1) {
-        const h = hashes[0];
+      const ncFailedExecution = 'Nano contract failed execution';
+      const renderSingleElement = h => {
+        if (h === NANO_CONTRACT_EXECUTION_FAIL) {
+          return <span>{ncFailedExecution}</span>;
+        }
+
         return (
           <Link to={`/transaction/${h}`}>
             {' '}
             {h} {h === this.props.transaction.hash && ' (Current transaction)'}
           </Link>
         );
+      };
+      if (hashes.length === 1) {
+        const h = hashes[0];
+        return renderSingleElement(h);
       }
-      const v = hashes.map(h => (
-        <li key={h}>
-          <Link to={`/transaction/${h}`}>
-            {h} {h === this.props.transaction.hash && ' (Current transaction)'}
-          </Link>
-        </li>
-      ));
+      const v = hashes.map(h => <li key={h}>{renderSingleElement(h)}</li>);
       return <ul>{v}</ul>;
     };
 

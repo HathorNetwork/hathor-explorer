@@ -35,9 +35,7 @@ class AddressSummary extends React.Component {
         <div className="summary-main-info alter-background">
           <div className="summary-main-info-container ">
             <div className="address-container-title summary-container-title-purple">Address</div>
-            <div className="address-div">
-              <p>{this.props.address}</p>
-            </div>
+            <div className="address-div">{this.props.address}</div>
           </div>
           <div className="summary-main-info-container">
             <div className="address-container-title summary-container-title-purple">
