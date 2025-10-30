@@ -176,3 +176,8 @@ Some useful links and strings to use on the QAs:
 1. Click on a tx in the history and validate it goes to the transaction detail screen.
 1. Go back and click on the blueprint link.
 1. See if it correctly loads the blueprint attributes, method, and source code.
+
+#### 15.a. Nano transaction without block confirmation
+1. Using one of the clients, create a nano contract transaction
+1. Immediately open the Explorer with the created transaction before a block arrives to confirm it
+1. The screen should open correctly, with the indication that it has no first block and confirmation level 0%
