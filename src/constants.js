@@ -113,7 +113,7 @@ export const TIMESERIES_DASHBOARD_URL = `https://hathor-explorer-75a9f9.kb.eu-ce
 export const SCREEN_STATUS_LOOP_INTERVAL_IN_SECONDS = 60; // This is the interval that ElasticSearch takes to ingest data from blocks
 
 // Number of elements in the nano contract transaction history table
-export const NANO_CONTRACT_TX_HISTORY_COUNT = 5;
+export const NANO_CONTRACT_TX_HISTORY_COUNT = 10;
 
 // Number of elements in the blueprint list table
 export const BLUEPRINT_LIST_COUNT = 10;
