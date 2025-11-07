@@ -39,6 +39,7 @@ function TokenDetail() {
    */
   const [token, setToken] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [tokenInfoLoaded, setTokenInfoLoaded] = useState(false);
   const [metadataLoaded, setMetadataLoaded] = useState(false);
 
   const { tokenUID } = useParams();
@@ -68,6 +69,7 @@ function TokenDetail() {
       canMelt: response.melt.length > 0,
       transactionsCount: response.transactions_count,
     }));
+    setTokenInfoLoaded(true);
   };
 
   const updateTokenMetadata = async id => {
@@ -131,7 +133,7 @@ function TokenDetail() {
     );
   }
 
-  if (!token) return null;
+  if (!token || !tokenInfoLoaded) return null;
 
   const renderNewUi = () => (
     <div className="flex align-items-center token-details-container">
