@@ -5,13 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import hathorLib from '@hathor/wallet-lib';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import NanoContractHistory from '../../components/nano/NanoContractHistory';
 import Loading from '../../components/Loading';
 import nanoApi from '../../api/nanoApi';
+import PaginationURL from '../../utils/pagination';
+import HathorSnackbar from '../../components/HathorSnackbar';
+import { ReactComponent as CopyIcon } from '../../assets/images/copy-icon.svg';
+
+const TabType = Object.freeze({
+  ATTRIBUTES: 'attributes',
+  BALANCES: 'balances',
+  HISTORY: 'history',
+});
 
 /**
  * Details of a Nano Contract
@@ -20,6 +30,17 @@ import nanoApi from '../../api/nanoApi';
  */
 function NanoContractDetail() {
   const { nc_id: ncId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Pagination utility for URL-based tab state
+  const pagination = useMemo(
+    () =>
+      new PaginationURL({
+        tab: { required: false, defaultValue: TabType.HISTORY },
+      }),
+    []
+  );
 
   // ncState {Object | null} Nano contract state
   const [ncState, setNcState] = useState(null);
@@ -29,10 +50,48 @@ function NanoContractDetail() {
   const [loadingDetail, setLoadingDetail] = useState(true);
   // errorMessage {string | null} Error message in case a request to get nano contract data fails
   const [errorMessage, setErrorMessage] = useState(null);
+  // activeTab {string} Currently active tab
+  const [activeTab, setActiveTab] = useState(TabType.HISTORY);
+
+  const snackbarRef = useRef(null);
 
   const { decimalPlaces } = useSelector(state => {
     return { decimalPlaces: state.serverInfo.decimal_places };
   });
+
+  /**
+   * Handle tab initialization from URL
+   */
+  const handleTabFromURL = useCallback(() => {
+    const queryParams = pagination.obtainQueryParams();
+    if (queryParams.tab) {
+      setActiveTab(queryParams.tab);
+    }
+  }, [pagination]);
+
+  /**
+   * When the user clicks a tab, update the URL
+   *
+   * @param {string} tab The tab that was clicked
+   */
+  const onTabClicked = tab => {
+    const newURL = pagination.setURLParameters({ tab });
+    navigate(newURL);
+  };
+
+  /**
+   * Called when contract ID is copied to clipboard
+   */
+  const copied = (_text, result) => {
+    if (result) {
+      snackbarRef.current.show(3000);
+    }
+  };
+
+  // Initialize tab from URL when location changes
+  useEffect(() => {
+    handleTabFromURL();
+  }, [location, handleTabFromURL]);
 
   useEffect(() => {
     let ignore = false;
@@ -106,7 +165,7 @@ function NanoContractDetail() {
 
   const renderNewUiNCBalances = () => (
     <div className="table-responsive blueprint-balance-table">
-      <table className="table-stylized" id="balance-table">
+      <table className="table-stylized table-no-hover" id="balance-table">
         <thead>
           <tr>
             <th>Token</th>
@@ -122,7 +181,7 @@ function NanoContractDetail() {
 
   const renderNewUiAttributes = () => (
     <div className="table-responsive blueprint-attributes-table">
-      <table className="table-stylized" id="attributes-table">
+      <table className="table-stylized table-no-hover" id="attributes-table">
         <thead>
           <tr>
             <th>Name</th>
@@ -175,33 +234,74 @@ function NanoContractDetail() {
     });
   };
 
+  const renderTabs = () => (
+    <div className="filter-container d-flex flex-row justify-content-between">
+      <div className="tabs-container d-flex flex-row">
+        <div
+          className={`tab ${activeTab === TabType.HISTORY && 'active'}`}
+          onClick={() => onTabClicked(TabType.HISTORY)}
+        >
+          History
+        </div>
+        <div
+          className={`tab ${activeTab === TabType.ATTRIBUTES && 'active'}`}
+          onClick={() => onTabClicked(TabType.ATTRIBUTES)}
+        >
+          Attributes
+        </div>
+        <div
+          className={`tab ${activeTab === TabType.BALANCES && 'active'}`}
+          onClick={() => onTabClicked(TabType.BALANCES)}
+        >
+          Balances
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderTabContent = () => {
+    if (activeTab === TabType.ATTRIBUTES) {
+      return <div className="blueprint-attributes">{renderNewUiAttributes()}</div>;
+    }
+
+    if (activeTab === TabType.BALANCES) {
+      return <div className="blueprint-attributes">{renderNewUiNCBalances()}</div>;
+    }
+
+    if (activeTab === TabType.HISTORY) {
+      return (
+        <div className="nano-history">
+          <NanoContractHistory ncId={ncId} />
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   const renderNewUi = () => (
     <div className="blueprint-content-wrapper">
       <h3>Nano Contract Detail</h3>
-      <p className="blueprint-id-name-info">
+      <p className="blueprint-id-name-info" style={{ marginBottom: '8px' }}>
         <strong style={{ whiteSpace: 'nowrap' }}>NANO CONTRACT ID: </strong>
-        <span>{ncId}</span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span>{ncId}</span>
+          <CopyToClipboard text={ncId} onCopy={copied}>
+            <CopyIcon className="copy-icon-inline" style={{ cursor: 'pointer' }} />
+          </CopyToClipboard>
+        </span>
       </p>
       <p className="blueprint-id-name-info">
         <strong>BLUEPRINT: </strong>
         <span>
-          <span>{ncState.blueprint_name}</span>(
+          <span>{ncState.blueprint_name}</span> (
           <Link to={`/blueprint/detail/${blueprintInformation.id}`}>{blueprintInformation.id}</Link>
           )
         </span>
       </p>
-      <div className="blueprint-attributes">
-        <h4>Attributes</h4>
-        {renderNewUiAttributes()}
-      </div>
-      <div className="blueprint-attributes">
-        <h4>Balances</h4>
-        {renderNewUiNCBalances()}
-      </div>
-      <div className="nano-history">
-        <h3>History</h3>
-        <NanoContractHistory ncId={ncId} />
-      </div>
+      {renderTabs()}
+      {renderTabContent()}
+      <HathorSnackbar ref={snackbarRef} text="Copied to clipboard!" type="success" />
     </div>
   );
 

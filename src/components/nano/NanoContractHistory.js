@@ -6,16 +6,17 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { reverse } from 'lodash';
 import Loading from '../Loading';
 import { NANO_CONTRACT_TX_HISTORY_COUNT } from '../../constants';
-import TxRow from '../tx/TxRow';
 import helpers from '../../utils/helpers';
 import nanoApi from '../../api/nanoApi';
 import WebSocketHandler from '../../WebSocketHandler';
 import PaginationURL from '../../utils/pagination';
 import { useIsMobile } from '../../hooks';
+import EllipsiCell from '../EllipsiCell';
+import dateFormatter from '../../utils/date';
 
 /**
  * Displays nano tx history in a table with pagination buttons. As the user navigates through the history,
@@ -44,6 +45,7 @@ function NanoContractHistory({ ncId }) {
   );
 
   const location = useLocation();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
 
   // loading {boolean} Bool to show/hide loading element
@@ -197,10 +199,11 @@ function NanoContractHistory({ ncId }) {
   const loadNewUiTable = () => {
     return (
       <div className="table-responsive mt-5">
-        <table className="new-table table-striped" id="tx-table">
+        <table className="new-table table-striped" id="tx-table" style={{ tableLayout: 'fixed' }}>
           <thead>
             <tr>
               <th>Hash</th>
+              <th>Method</th>
               <th>Timestamp</th>
             </tr>
           </thead>
@@ -210,13 +213,26 @@ function NanoContractHistory({ ncId }) {
     );
   };
 
+  const handleClickTr = hash => {
+    navigate(`/transaction/${hash}`);
+  };
+
   const loadTableBody = () => {
-    return history.map(tx => {
-      // For some reason this API returns tx.hash instead of tx.tx_id like the others
-      const rowTx = { ...tx };
-      rowTx.tx_id = rowTx.hash;
-      return <TxRow key={rowTx.tx_id} tx={rowTx} ellipsis={!!isMobile} />;
-    });
+    return history.map(tx => (
+      <tr key={tx.hash} onClick={() => handleClickTr(tx.hash)}>
+        <td className="d-lg-table-cell pe-3">
+          <EllipsiCell
+            id={tx.hash}
+            countBefore={isMobile ? 4 : 12}
+            countAfter={isMobile ? 4 : 12}
+          />
+        </td>
+        <td className="d-lg-table-cell pe-3">{tx.nc_method || '-'}</td>
+        <td className="d-lg-table-cell pe-3 date-cell">
+          {dateFormatter.parseTimestampNewUi(tx.timestamp)}
+        </td>
+      </tr>
+    ));
   };
 
   const loadNewUiPagination = () => {

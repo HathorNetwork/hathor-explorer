@@ -1735,6 +1735,40 @@ nav {
     color: var(--bold-text-color);
     margin-bottom: 26px;
   }
+
+  .filter-container {
+    margin-top: 4rem;
+    margin-bottom: 4rem;
+    gap: 2rem;
+
+    .tabs-container {
+      gap: 2rem;
+      width: 100%;
+
+      .tab {
+        padding: 0.75rem 1.25rem;
+        font-size: 16px;
+        line-height: 20px;
+        font-weight: 500;
+        border-bottom: 1px solid #24292F;
+        max-width: 300px;
+        width: 100%;
+        text-align: center;
+        cursor: pointer;
+        color: var(--bold-text-color);
+        transition: 0.3s;
+      }
+
+      .tab:hover {
+        border-bottom: 1px solid #8C46FF;
+      }
+
+      .tab.active {
+        border-bottom: 1px solid #8C46FF;
+        cursor: default;
+      }
+    }
+  }
 }
 
 .blueprint-id-name-info {
@@ -1788,6 +1822,12 @@ nav {
     letter-spacing: 0.03em;
     color: var(--bold-text-color);
   }
+}
+
+.table-stylized.table-no-hover tbody tr:hover td {
+  cursor: default !important;
+  background-color: transparent !important;
+  color: var(--normal-text-color) !important;
 }
 
 .blueprint-attributes-table {
