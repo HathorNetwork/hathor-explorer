@@ -128,3 +128,10 @@ export const COLORS = {
   danger: '#991300',
   success: '#44A32E',
 };
+
+export const EXPLORER_MODE_OPTIONS = {
+  FULL: 'full',
+  BASIC: 'basic',
+};
+
+export const EXPLORER_MODE = process.env.EXPLORER_MODE || EXPLORER_MODE_OPTIONS.FULL;

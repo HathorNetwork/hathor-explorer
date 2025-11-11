@@ -67,6 +67,19 @@ function Root() {
   const isVersionAllowed = useSelector(state => state.isVersionAllowed);
   const apiLoadError = useSelector(state => state.apiLoadError);
 
+  // Define routes that are only available in full explorer mode
+  const fullModeRoutes = [
+    { path: '/push-tx', component: PushTx },
+    { path: '/decode-tx', component: DecodeTx },
+    { path: '/tokens', component: TokenList },
+    { path: '/token_balances', component: TokenBalancesList },
+    { path: '/dag', component: Dag },
+    { path: '/features', component: FeatureList },
+    { path: '/network/:peerId?', component: PeerAdmin },
+    { path: '/statistics', component: Dashboard },
+    { path: '/address/:address', component: AddressDetail },
+  ];
+
   const handleWebsocket = useCallback(
     wsData => {
       if (wsData.type === 'dashboard:metrics') {
@@ -126,32 +139,25 @@ function Root() {
             path="/transaction/:id"
             element={<NavigationRoute internalScreen={TransactionDetail} />}
           />
-          <Route path="/push-tx" element={<NavigationRoute internalScreen={PushTx} />} />
-          <Route path="/decode-tx" element={<NavigationRoute internalScreen={DecodeTx} />} />
+
+          {/* Full mode only routes */}
+          {helpers.isExplorerModeFull() &&
+            fullModeRoutes.map(({ path, component }) => (
+              <Route
+                key={path}
+                path={path}
+                element={<NavigationRoute internalScreen={component} />}
+              />
+            ))}
+
           <Route
             path="/transactions"
             element={<NavigationRoute internalScreen={TransactionList} />}
           />
-          <Route path="/tokens" element={<NavigationRoute internalScreen={TokenList} />} />
-          <Route
-            path="/token_balances"
-            element={<NavigationRoute internalScreen={TokenBalancesList} />}
-          />
           <Route path="/blocks" element={<NavigationRoute internalScreen={BlockList} />} />
-          <Route path="/dag" component={Dag} element={<NavigationRoute internalScreen={Dag} />} />
-          <Route path="/features" element={<NavigationRoute internalScreen={FeatureList} />} />
-          <Route
-            path="/network/:peerId?"
-            element={<NavigationRoute internalScreen={PeerAdmin} />}
-          />
-          <Route path="/statistics" element={<NavigationRoute internalScreen={Dashboard} />} />
           <Route
             path="/token_detail/:tokenUID"
             element={<NavigationRoute internalScreen={TokenDetail} />}
-          />
-          <Route
-            path="/address/:address"
-            element={<NavigationRoute internalScreen={AddressDetail} />}
           />
           <Route
             path="/nano_contract/detail/:nc_id"
