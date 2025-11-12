@@ -134,4 +134,4 @@ export const EXPLORER_MODE_OPTIONS = {
   BASIC: 'basic',
 };
 
-export const EXPLORER_MODE = process.env.EXPLORER_MODE || EXPLORER_MODE_OPTIONS.FULL;
+export const EXPLORER_MODE = process.env.REACT_APP_EXPLORER_MODE || EXPLORER_MODE_OPTIONS.FULL;
