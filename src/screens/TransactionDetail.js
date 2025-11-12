@@ -13,6 +13,7 @@ import txApi from '../api/txApi';
 import metadataApi from '../api/metadataApi';
 import Spinner from '../components/Spinner';
 import { useIsMobile } from '../hooks';
+import helpers from '../utils/helpers';
 
 /**
  * Shows the detail of a transaction or block
@@ -64,9 +65,11 @@ function TransactionDetail() {
     }
 
     // Get transaction metadata from explorer service, adding to the transaction properties
-    const metadataResponse = await metadataApi.getDagMetadata(id);
-    if (metadataResponse) {
-      setTransaction({ ...txData.tx, meta: metadataResponse });
+    if (helpers.isExplorerModeFull()) {
+      const metadataResponse = await metadataApi.getDagMetadata(id);
+      if (metadataResponse) {
+        setTransaction({ ...txData.tx, meta: metadataResponse });
+      }
     }
   }, []);
 

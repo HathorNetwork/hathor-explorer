@@ -19,6 +19,7 @@ import { ReactComponent as SunIconLight } from '../assets/images/sun-light.svg';
 import { ReactComponent as SunIconDark } from '../assets/images/sun-dark.svg';
 import { ReactComponent as MoonIcon } from '../assets/images/moon.svg';
 import { ReactComponent as ArrorDownNavItem } from '../assets/images/arrow-down-nav-dropdown.svg';
+import helpers from '../utils/helpers';
 
 function Sidebar({ close, open }) {
   const isTokensBaseEnabled = useFlag(`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.rollout`);
@@ -67,7 +68,7 @@ function Sidebar({ close, open }) {
                   Home
                 </NavLink>
               </li>
-              {showTokensTab && (
+              {showTokensTab && helpers.isExplorerModeFull() && (
                 <span className="dropdown-sidebar">
                   <span
                     className="nav-link dropdown-toggle"
@@ -124,51 +125,55 @@ function Sidebar({ close, open }) {
                   )}
                 </li>
               )}
-              <li className="nav-item item-sidebar">
-                <NavLink
-                  to="/network"
-                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                >
-                  Network
-                </NavLink>
-              </li>
-              <li className="nav-item item-sidebar">
-                <NavLink
-                  to="/statistics"
-                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                >
-                  Statistics
-                </NavLink>
-              </li>
-              <li className="nav-item item-sidebar">
-                <span onClick={() => setToolsOpen(!toolsOpen)}>
-                  Tools{' '}
-                  <ArrorDownNavItem
-                    style={{ marginLeft: '5px', rotate: toolsOpen ? '180deg' : '0deg' }}
-                    className="dropdown-icon"
-                  />
-                </span>
-                {toolsOpen && (
-                  <div>
-                    <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
-                      <li>
-                        <NavLink to="/decode-tx/" className="nav-link">
-                          Decode Tx
-                        </NavLink>
-                        <NavLink to="/push-tx/" className="nav-link">
-                          Push Tx
-                        </NavLink>
-                        <NavLink to="/dag/" className="nav-link">
-                          DAG
-                        </NavLink>
-                        <NavLink to="/features/" className="nav-link">
-                          Features
-                        </NavLink>
-                      </li>
-                    </ul>
-                  </div>
-                )}
-              </li>
+              {helpers.isExplorerModeFull() && (
+                <>
+                  <li className="nav-item item-sidebar">
+                    <NavLink
+                      to="/network"
+                      className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                    >
+                      Network
+                    </NavLink>
+                  </li>
+                  <li className="nav-item item-sidebar">
+                    <NavLink
+                      to="/statistics"
+                      className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                    >
+                      Statistics
+                    </NavLink>
+                  </li>
+                  <li className="nav-item item-sidebar">
+                    <span onClick={() => setToolsOpen(!toolsOpen)}>
+                      Tools{' '}
+                      <ArrorDownNavItem
+                        style={{ marginLeft: '5px', rotate: toolsOpen ? '180deg' : '0deg' }}
+                        className="dropdown-icon"
+                      />
+                    </span>
+                    {toolsOpen && (
+                      <div>
+                        <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+                          <li>
+                            <NavLink to="/decode-tx/" className="nav-link">
+                              Decode Tx
+                            </NavLink>
+                            <NavLink to="/push-tx/" className="nav-link">
+                              Push Tx
+                            </NavLink>
+                            <NavLink to="/dag/" className="nav-link">
+                              DAG
+                            </NavLink>
+                            <NavLink to="/features/" className="nav-link">
+                              Features
+                            </NavLink>
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+                  </li>
+                </>
+              )}
             </ul>
           </div>
         </div>

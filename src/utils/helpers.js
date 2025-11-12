@@ -13,6 +13,8 @@ import {
   MAINNET_GENESIS_TX,
   TESTNET_GENESIS_TX,
   MIN_API_VERSION,
+  EXPLORER_MODE,
+  EXPLORER_MODE_OPTIONS,
 } from '../constants';
 
 const helpers = {
@@ -254,6 +256,17 @@ const helpers = {
       ...response,
       error: false,
     };
+  },
+
+  /**
+   * Checks if the explorer is running in full mode
+   *
+   * @return {boolean} true if explorer mode is 'full', false otherwise
+   * @memberof Helpers
+   * @inner
+   */
+  isExplorerModeFull() {
+    return EXPLORER_MODE === EXPLORER_MODE_OPTIONS.FULL;
   },
 };
 

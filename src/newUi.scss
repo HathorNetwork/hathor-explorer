@@ -448,6 +448,20 @@ nav {
     justify-content: center;
     align-items: center;
 
+    &.basic-mode {
+      justify-content: space-between;
+      width: 100%;
+
+      ul {
+        justify-content: flex-start;
+        margin-right: 0;
+      }
+
+      .navigation-search {
+        margin-left: auto;
+      }
+    }
+
     ul {
       display: flex;
       justify-content: center;

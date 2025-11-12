@@ -276,6 +276,10 @@ class AddressDetailLegacy extends React.Component {
   };
 
   getSelectedTokenMetadata = selectedToken => {
+    if (!helpers.isExplorerModeFull()) {
+      this.setState({ metadataLoaded: true });
+      return;
+    }
     metadataApi.getDagMetadata(selectedToken).then(data => {
       if (data) {
         this.setState({ selectedTokenMetadata: data });

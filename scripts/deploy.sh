@@ -12,6 +12,14 @@ aws_profile=$3
 
 # Define environment variables for each site
 case $site in
+  localnet)
+    # This is meant to be used with the guide in https://docs.hathor.network/how-to-guides/networks/set-up-localnet
+    FULLNODE_HOST=localhost:8080
+    REACT_APP_BASE_URL=http://$FULLNODE_HOST/v1a/
+    REACT_APP_WS_URL=ws://$FULLNODE_HOST/v1a/ws/
+    REACT_APP_NETWORK=local-privatenet
+    REACT_APP_EXPLORER_MODE=basic
+    ;;
   mainnet-local)
     FULLNODE_HOST=node.explorer.hathor.network
     REACT_APP_BASE_URL=http://$FULLNODE_HOST/v1a/
@@ -136,6 +144,7 @@ export REACT_APP_GTM_ID
 export REACT_APP_EXPLORER_SERVICE_BASE_URL
 export REACT_APP_TIMESERIES_DASHBOARD_ID
 export REACT_APP_NETWORK
+export REACT_APP_EXPLORER_MODE
 export S3_BUCKET
 export CLOUDFRONT_ID
 
@@ -149,6 +158,7 @@ case $command in
     echo "REACT_APP_EXPLORER_SERVICE_BASE_URL: $REACT_APP_EXPLORER_SERVICE_BASE_URL"
     echo "REACT_APP_TIMESERIES_DASHBOARD_ID: $REACT_APP_TIMESERIES_DASHBOARD_ID"
     echo "REACT_APP_NETWORK: $REACT_APP_NETWORK"
+    echo "REACT_APP_EXPLORER_MODE: $REACT_APP_EXPLORER_MODE"
     # Run the build command
     npm run build
     ;;

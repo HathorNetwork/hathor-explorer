@@ -20,6 +20,7 @@ import { TOKEN_COUNT, TX_COUNT } from '../constants';
 import metadataApi from '../api/metadataApi';
 import addressApi from '../api/addressApi';
 import txApi from '../api/txApi';
+import helpers from '../utils/helpers';
 
 /**
  * Check if the searched address is on the inputs or outputs of the new tx
@@ -224,6 +225,11 @@ function AddressDetailExplorer() {
   const getSelectedTokenMetadata = useCallback(async tokenToFetch => {
     if (tokenToFetch === hathorLib.constants.NATIVE_TOKEN_UID) {
       console.warn(`getSelectedTokenMetadata setting metadata loaded`);
+      setMetadataLoaded(true);
+      return;
+    }
+
+    if (!helpers.isExplorerModeFull()) {
       setMetadataLoaded(true);
       return;
     }
