@@ -11,6 +11,7 @@ import Transactions from '../components/tx/Transactions';
 import metadataApi from '../api/metadataApi';
 import tokenApi from '../api/tokenApi';
 import TokenDetailsTop from '../components/token/TokenDetailsTop';
+import helpers from '../utils/helpers';
 
 /**
  * Screen to manage a token. See total amount, if can mint/melt and the history of transaction
@@ -73,6 +74,10 @@ function TokenDetail() {
   };
 
   const updateTokenMetadata = async id => {
+    if (!helpers.isExplorerModeFull()) {
+      setMetadataLoaded(true);
+      return;
+    }
     const data = await metadataApi.getDagMetadata(id);
     setMetadataLoaded(true);
     if (!data) {
