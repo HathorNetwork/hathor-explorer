@@ -86,6 +86,15 @@ const explorerTxApi = {
     );
   },
 
+  /*
+   * Call api to get confirmation data of a tx
+   *
+   * @params {string} id Transaction hash in hex
+   *
+   * @return {Promise}
+   * @memberof TransactionApi
+   * @inner
+   */
   getConfirmationData(id) {
     const data = { id };
     return requestExplorerServiceV1
