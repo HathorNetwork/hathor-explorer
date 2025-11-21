@@ -120,6 +120,18 @@ case $site in
     S3_BUCKET=hathor-testnet-india-public-explorer
     CLOUDFRONT_ID=E1X9TV08O1DPS6
     ;;
+  testnet-playground)
+    FULLNODE_HOST=node1.playground.testnet.hathor.network
+    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
+    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
+    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.playground.testnet.hathor.network/
+    REACT_APP_TIMESERIES_DASHBOARD_ID=b43188d6-4d17-4167-9080-5181b6ce1346
+    # This one is currently only used to form the names of feature flags,
+    # so it made sense to keep it as testnet
+    REACT_APP_NETWORK=testnet
+    S3_BUCKET=hathor-testnet-playground-public-explorer
+    CLOUDFRONT_ID=E23KE3LYRLVKOQ
+    ;;
   mainnet)
     FULLNODE_HOST=node.explorer.hathor.network
     REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
