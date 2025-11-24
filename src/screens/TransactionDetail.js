@@ -14,6 +14,7 @@ import metadataApi from '../api/metadataApi';
 import Spinner from '../components/Spinner';
 import { useIsMobile } from '../hooks';
 import helpers from '../utils/helpers';
+import WebSocketHandler from '../WebSocketHandler';
 
 /**
  * Shows the detail of a transaction or block
@@ -37,6 +38,29 @@ function TransactionDetail() {
   const [spentOutputs, setSpentOutputs] = useState(null);
   /* confirmationData {Object} Confirmation data of loaded transaction received from the server */
   const [confirmationData, setConfirmationData] = useState(null);
+  /* warningRefreshPage {boolean} If should show a warning to refresh the page to see first block data */
+  const [warningRefreshPage, setWarningRefreshPage] = useState(false);
+
+  /**
+   * Called when 'network' ws message arrives
+   * If it's a new block, show warning to refresh the page
+   *
+   * @param {Object} wsData Data from websocket
+   */
+  const handleWebsocket = useCallback(wsData => {
+    // Ignore events not related to this screen
+    if (wsData.type !== 'network:new_tx_accepted') {
+      return;
+    }
+
+    // Check if the new transaction is a block
+    if (hathorLib.transactionUtils.isBlock(wsData)) {
+      // A new block was accepted, which might confirm our transaction
+      setWarningRefreshPage(true);
+      // Remove the listener since we only need to detect the first block once
+      WebSocketHandler.removeListener('network', handleWebsocket);
+    }
+  }, []);
 
   /**
    * Get transaction in the server
@@ -77,9 +101,63 @@ function TransactionDetail() {
     updateTxInfo(txUid).catch(e => console.error(e));
   }, [txUid, updateTxInfo]);
 
+  // WebSocket listener effect - only listen if transaction has no first block
+  useEffect(() => {
+    // Only start listening if we have loaded the transaction and it has no first block
+    if (!loaded || !transaction || hathorLib.transactionUtils.isBlock(transaction)) {
+      // Don't listen for blocks themselves or if data isn't loaded yet
+      return undefined;
+    }
+
+    // Check if transaction has no first block (not yet confirmed)
+    if (meta && meta.first_block) {
+      // Transaction already has a first block, no need to listen
+      return undefined;
+    }
+
+    // Transaction has no first block yet, start listening for new blocks
+    WebSocketHandler.on('network', handleWebsocket);
+
+    // Cleanup function to remove listener
+    return () => {
+      WebSocketHandler.removeListener('network', handleWebsocket);
+    };
+  }, [loaded, transaction, meta, handleWebsocket]);
+
+  /**
+   * Reload page to see updated transaction data
+   *
+   * @param {Event} e Click event
+   */
+  const reloadPage = e => {
+    e.preventDefault();
+    setWarningRefreshPage(false);
+    updateTxInfo(txUid).catch(err => console.error('Error on reloadPage', err));
+  };
+
+  /**
+   * Render warning alert if transaction got its first block
+   */
+  const renderWarningAlert = () => {
+    if (warningRefreshPage) {
+      return (
+        <div className="alert alert-warning refresh-alert" role="alert">
+          This transaction may have been confirmed by a new block. Please{' '}
+          <a href="true" onClick={reloadPage}>
+            refresh
+          </a>{' '}
+          the page to see the newest data.
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   const renderNewUiTx = () => {
     return (
       <>
+        {renderWarningAlert()}
         {transaction ? (
           <TxData
             transaction={transaction}
