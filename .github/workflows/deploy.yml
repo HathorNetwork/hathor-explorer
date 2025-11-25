@@ -89,6 +89,19 @@ jobs:
           aws-region: us-east-1
           aws-role: arn:aws:iam::769498303037:role/ExplorerGitHubActionsRoleTestnetIndia
 
+  deploy-testnet-playground-explorer:
+    if: github.ref == 'refs/heads/release'
+    needs: dependencies
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/actions/checkout/releases/tag/v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: ./.github/actions/deploy-explorer
+        with:
+          site: testnet-playground
+          aws-region: us-east-1
+          aws-role: arn:aws:iam::438696047887:role/ExplorerGitHubActionsRoleTestnetPlayground
+
   deploy-nano-testnet-explorer:
     # We've changed this to a special branch, effectively to disable automatated deploys to
     # nano-testnet alpha, but still leaving the deploy job in place in case needed, deploying
