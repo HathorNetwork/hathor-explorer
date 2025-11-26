@@ -38,8 +38,8 @@ function TransactionDetail() {
   const [spentOutputs, setSpentOutputs] = useState(null);
   /* confirmationData {Object} Confirmation data of loaded transaction received from the server */
   const [confirmationData, setConfirmationData] = useState(null);
-  /* warningRefreshPage {boolean} If should show a warning to refresh the page to see first block data */
-  const [warningRefreshPage, setWarningRefreshPage] = useState(false);
+  /* warningRefreshPage {boolean} If should show a warning to indicate the page was refreshed */
+  const [warningPageRefreshed, setWarningPageRefreshed] = useState(false);
 
   /**
    * Called when 'network' ws message arrives
@@ -47,19 +47,35 @@ function TransactionDetail() {
    *
    * @param {Object} wsData Data from websocket
    */
-  const handleWebsocket = useCallback(wsData => {
+  const handleWebsocket = useCallback(async wsData => {
     // Ignore events not related to this screen
     if (wsData.type !== 'network:new_tx_accepted') {
       return;
     }
 
-    // Check if the new transaction is a block
-    if (hathorLib.transactionUtils.isBlock(wsData)) {
-      // A new block was accepted, which might confirm our transaction
-      setWarningRefreshPage(true);
-      // Remove the listener since we only need to detect the first block once
-      WebSocketHandler.removeListener('network', handleWebsocket);
+    // If the new transaction isn't a block, it cannot have confirmed our tx
+    if (!hathorLib.transactionUtils.isBlock(wsData)) {
+      return;
     }
+
+    const txData = await txApi.getTransaction(txUid).catch(err => console.log(err));
+    if (!txData?.success) {
+      // The transaction couldn't be fetched, possibly a network error. Just return and wait for the next block.
+      return;
+    }
+
+    if (!txData.meta?.first_block) {
+      // The block did not confirm our transaction yet, just return and wait for the next one
+      return;
+    }
+
+    // Our transaction now has a first block, so we can update its data
+    setWarningPageRefreshed(true);
+
+    // Remove the listener since we only need to detect the first block once
+    WebSocketHandler.removeListener('network', handleWebsocket);
+
+    updateTxInfo(txUid).catch(e => console.error(e));
   }, []);
 
   /**
@@ -125,28 +141,13 @@ function TransactionDetail() {
   }, [loaded, transaction, meta, handleWebsocket]);
 
   /**
-   * Reload page to see updated transaction data
-   *
-   * @param {Event} e Click event
-   */
-  const reloadPage = e => {
-    e.preventDefault();
-    setWarningRefreshPage(false);
-    updateTxInfo(txUid).catch(err => console.error('Error on reloadPage', err));
-  };
-
-  /**
    * Render warning alert if transaction got its first block
    */
   const renderWarningAlert = () => {
-    if (warningRefreshPage) {
+    if (warningPageRefreshed) {
       return (
-        <div className="alert alert-warning refresh-alert" role="alert">
-          This transaction may have been confirmed by a new block. Please{' '}
-          <a href="true" onClick={reloadPage}>
-            refresh
-          </a>{' '}
-          the page to see the newest data.
+        <div className="alert alert-info refresh-alert" role="alert">
+          This transaction was confirmed by a new block.
         </div>
       );
     }
