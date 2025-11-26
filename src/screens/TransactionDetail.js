@@ -43,7 +43,8 @@ function TransactionDetail() {
 
   /**
    * Called when 'network' ws message arrives
-   * If it's a new block, show an info alert to refresh the page
+   * If the message references a new block that confirms this tx,
+   * show an info alert and refresh the page
    *
    * @param {Object} wsData Data from websocket
    */
@@ -75,14 +76,16 @@ function TransactionDetail() {
     // Remove the listener since we only need to detect the first block once
     WebSocketHandler.removeListener('network', handleWebsocket);
 
-    updateTxInfo(txUid).catch(e => console.error(e));
+    updateTxInfo(txUid, txData).catch(e => console.error(e));
   }, []);
 
   /**
    * Get transaction in the server
+   * @param {string} id Transaction hash
+   * @param {Object} [prefetchedTxData] Prefetched transaction data to avoid making a request again
    */
-  const updateTxInfo = useCallback(async id => {
-    const txData = await txApi.getTransaction(id);
+  const updateTxInfo = useCallback(async (id, prefetchedTxData = undefined) => {
+    const txData = prefetchedTxData ?? (await txApi.getTransaction(id));
 
     setLoaded(true);
     if (!txData.success) {
@@ -146,8 +149,14 @@ function TransactionDetail() {
   const renderInfoAlert = () => {
     if (alertPageRefreshed) {
       return (
-        <div className="alert alert-info refresh-alert" role="alert">
+        <div className="alert alert-info alert-dismissible fade show" role="alert">
           This transaction was confirmed by a new block.
+          <button
+            type="button"
+            className="btn-close"
+            data-bs-dismiss="alert"
+            aria-label="Close"
+          ></button>
         </div>
       );
     }
