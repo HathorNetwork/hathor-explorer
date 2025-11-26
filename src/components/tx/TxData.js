@@ -470,7 +470,15 @@ class TxData extends React.Component {
       const ncFailedExecution = 'Nano contract failed execution';
       const renderSingleElement = h => {
         if (h === NANO_CONTRACT_EXECUTION_FAIL) {
-          return <span>{ncFailedExecution}</span>;
+          return (
+            <span>
+              {ncFailedExecution} (
+              <Link to={`/nano_contract/logs/${this.props.transaction.hash}`}>
+                See execution logs
+              </Link>
+              )
+            </span>
+          );
         }
 
         return (
@@ -864,6 +872,10 @@ class TxData extends React.Component {
           <h2 className="details-title">Arguments</h2>
 
           {renderNCArguments(ncParser.parsedArgs)}
+
+          <div className="mt-3">
+            <Link to={`/nano_contract/logs/${this.props.transaction.hash}`}>Execution Logs</Link>
+          </div>
         </div>
       );
     };
