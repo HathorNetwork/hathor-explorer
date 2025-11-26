@@ -38,12 +38,12 @@ function TransactionDetail() {
   const [spentOutputs, setSpentOutputs] = useState(null);
   /* confirmationData {Object} Confirmation data of loaded transaction received from the server */
   const [confirmationData, setConfirmationData] = useState(null);
-  /* warningRefreshPage {boolean} If should show a warning to indicate the page was refreshed */
-  const [warningPageRefreshed, setWarningPageRefreshed] = useState(false);
+  /* alertPageRefreshed {boolean} If should show an info alert to indicate the page was refreshed */
+  const [alertPageRefreshed, setAlertPageRefreshed] = useState(false);
 
   /**
    * Called when 'network' ws message arrives
-   * If it's a new block, show warning to refresh the page
+   * If it's a new block, show an info alert to refresh the page
    *
    * @param {Object} wsData Data from websocket
    */
@@ -70,7 +70,7 @@ function TransactionDetail() {
     }
 
     // Our transaction now has a first block, so we can update its data
-    setWarningPageRefreshed(true);
+    setAlertPageRefreshed(true);
 
     // Remove the listener since we only need to detect the first block once
     WebSocketHandler.removeListener('network', handleWebsocket);
@@ -141,10 +141,10 @@ function TransactionDetail() {
   }, [loaded, transaction, meta, handleWebsocket]);
 
   /**
-   * Render warning alert if transaction got its first block
+   * Render info alert if transaction got its first block
    */
-  const renderWarningAlert = () => {
-    if (warningPageRefreshed) {
+  const renderInfoAlert = () => {
+    if (alertPageRefreshed) {
       return (
         <div className="alert alert-info refresh-alert" role="alert">
           This transaction was confirmed by a new block.
@@ -158,7 +158,7 @@ function TransactionDetail() {
   const renderNewUiTx = () => {
     return (
       <>
-        {renderWarningAlert()}
+        {renderInfoAlert()}
         {transaction ? (
           <TxData
             transaction={transaction}
