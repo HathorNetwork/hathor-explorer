@@ -36,6 +36,7 @@ import NanoContractDetail from './screens/nano/NanoContractDetail';
 import BlueprintDetail from './screens/nano/BlueprintDetail';
 import BlueprintList from './screens/nano/BlueprintList';
 import NanoContractsList from './screens/nano/NanoContractsList';
+import NanoContractLogs from './screens/nano/NanoContractLogs';
 import {
   apiLoadErrorUpdate,
   dashboardUpdate,
@@ -163,6 +164,10 @@ function Root() {
             path="/nano_contract/detail/:nc_id"
             component={NanoContractDetail}
             element={<NavigationRoute internalScreen={NanoContractDetail} />}
+          />
+          <Route
+            path="/nano_contract/logs/:nc_id"
+            element={<NavigationRoute internalScreen={NanoContractLogs} />}
           />
           <Route
             path="/blueprint/detail/:blueprint_id"

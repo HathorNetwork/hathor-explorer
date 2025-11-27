@@ -216,6 +216,25 @@ const explorerNanoApi = {
         );
       });
   },
+
+  /**
+   * Get logs for a nano contract execution
+   *
+   * @param {string} id Nano contract id
+   *
+   * For more details, see full node api docs
+   */
+  getLogs(id) {
+    const data = { id };
+    return requestExplorerServiceV1
+      .get(`node_api/nc_execution_logs`, { params: data })
+      .then(res => res.data)
+      .catch(err => {
+        throw new Error(
+          err?.data?.message || err?.message || `Unknown error on get nano contract logs for ${id}`
+        );
+      });
+  },
 };
 
 /**
@@ -324,6 +343,17 @@ const nanoApi = {
     return helpers.isExplorerModeFull()
       ? explorerNanoApi.getNanoContractCreationList(count, after, before, search, order)
       : libNanoApi.getNanoContractCreationList(count, after, before, search, order);
+  },
+
+  /**
+   * Get logs for a nano contract execution
+   *
+   * @param {string} id Nano contract id
+   */
+  getLogs(id) {
+    return helpers.isExplorerModeFull()
+      ? explorerNanoApi.getLogs(id)
+      : libNanoApi.getNanoContractLogs(id);
   },
 };
 
