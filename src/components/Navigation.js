@@ -26,6 +26,7 @@ import {
 } from '../constants';
 import { toggleTheme } from '../store/rootSlice';
 import NewHathorAlert from './NewHathorAlert';
+import helpers from '../utils/helpers';
 
 function Navigation() {
   const navigate = useNavigate();
@@ -64,7 +65,8 @@ function Navigation() {
       if (regex.test(text)) {
         // It's a valid hash
         navigate(`/transaction/${text}`);
-      } else {
+      } else if (helpers.isExplorerModeFull()) {
+        // Only allow address search for full mode
         const network = hathorLib.config.getNetwork();
         const addressObj = new hathorLib.Address(text, { network });
         if (addressObj.isValid()) {
@@ -106,8 +108,12 @@ function Navigation() {
               </div>
             </div>
           </div>
-          <div className="nav-tabs-container hide-tabs">
-            <ul className="navbar-nav me-auto">
+          <div
+            className={`nav-tabs-container hide-tabs ${
+              !helpers.isExplorerModeFull() ? 'basic-mode' : ''
+            }`}
+          >
+            <ul className="navbar-nav">
               <li className="nav-item">
                 <NavLink
                   to="/"
@@ -116,7 +122,7 @@ function Navigation() {
                   Home
                 </NavLink>
               </li>
-              {showTokensTab && (
+              {showTokensTab && helpers.isExplorerModeFull() && (
                 <ul className="nav-item dropdown">
                   <span
                     className="nav-link dropdown-toggle custom-dropdown-toggle"
@@ -168,49 +174,53 @@ function Navigation() {
                   </div>
                 </li>
               )}
-              <li className="nav-item">
-                <NavLink
-                  to="/network"
-                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                >
-                  Network
-                </NavLink>
-              </li>
-              <li className="nav-item">
-                <NavLink
-                  to="/statistics"
-                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                >
-                  Statistics
-                </NavLink>
-              </li>
-              <li className="nav-item dropdown">
-                <span
-                  className="nav-link dropdown-toggle custom-dropdown-toggle"
-                  id="navbarDropdown"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-haspopup="true"
-                  aria-expanded="false"
-                >
-                  Tools
-                  <ArrorDownNavItem className="dropdown-icon" />
-                </span>
-                <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <NavLink to="/decode-tx/" className="nav-link">
-                    Decode Tx
-                  </NavLink>
-                  <NavLink to="/push-tx/" className="nav-link">
-                    Push Tx
-                  </NavLink>
-                  <NavLink to="/dag/" className="nav-link">
-                    DAG
-                  </NavLink>
-                  <NavLink to="/features/" className="nav-link">
-                    Features
-                  </NavLink>
-                </div>
-              </li>
+              {helpers.isExplorerModeFull() && (
+                <>
+                  <li className="nav-item">
+                    <NavLink
+                      to="/network"
+                      className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                    >
+                      Network
+                    </NavLink>
+                  </li>
+                  <li className="nav-item">
+                    <NavLink
+                      to="/statistics"
+                      className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                    >
+                      Statistics
+                    </NavLink>
+                  </li>
+                  <li className="nav-item dropdown">
+                    <span
+                      className="nav-link dropdown-toggle custom-dropdown-toggle"
+                      id="navbarDropdown"
+                      role="button"
+                      data-bs-toggle="dropdown"
+                      aria-haspopup="true"
+                      aria-expanded="false"
+                    >
+                      Tools
+                      <ArrorDownNavItem className="dropdown-icon" />
+                    </span>
+                    <div className="dropdown-menu" aria-labelledby="navbarDropdown">
+                      <NavLink to="/decode-tx/" className="nav-link">
+                        Decode Tx
+                      </NavLink>
+                      <NavLink to="/push-tx/" className="nav-link">
+                        Push Tx
+                      </NavLink>
+                      <NavLink to="/dag/" className="nav-link">
+                        DAG
+                      </NavLink>
+                      <NavLink to="/features/" className="nav-link">
+                        Features
+                      </NavLink>
+                    </div>
+                  </li>
+                </>
+              )}
             </ul>
             <div className="d-flex flex-row align-items-center ms-auto navigation-search">
               <div className="d-flex flex-row align-items-center">

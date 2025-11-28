@@ -448,6 +448,20 @@ nav {
     justify-content: center;
     align-items: center;
 
+    &.basic-mode {
+      justify-content: space-between;
+      width: 100%;
+
+      ul {
+        justify-content: flex-start;
+        margin-right: 0;
+      }
+
+      .navigation-search {
+        margin-left: auto;
+      }
+    }
+
     ul {
       display: flex;
       justify-content: center;
@@ -1735,6 +1749,40 @@ nav {
     color: var(--bold-text-color);
     margin-bottom: 26px;
   }
+
+  .filter-container {
+    margin-top: 4rem;
+    margin-bottom: 4rem;
+    gap: 2rem;
+
+    .tabs-container {
+      gap: 2rem;
+      width: 100%;
+
+      .tab {
+        padding: 0.75rem 1.25rem;
+        font-size: 16px;
+        line-height: 20px;
+        font-weight: 500;
+        border-bottom: 1px solid #24292F;
+        max-width: 300px;
+        width: 100%;
+        text-align: center;
+        cursor: pointer;
+        color: var(--bold-text-color);
+        transition: 0.3s;
+      }
+
+      .tab:hover {
+        border-bottom: 1px solid #8C46FF;
+      }
+
+      .tab.active {
+        border-bottom: 1px solid #8C46FF;
+        cursor: default;
+      }
+    }
+  }
 }
 
 .blueprint-id-name-info {
@@ -1788,6 +1836,12 @@ nav {
     letter-spacing: 0.03em;
     color: var(--bold-text-color);
   }
+}
+
+.table-stylized.table-no-hover tbody tr:hover td {
+  cursor: default !important;
+  background-color: transparent !important;
+  color: var(--normal-text-color) !important;
 }
 
 .blueprint-attributes-table {
@@ -1958,10 +2012,25 @@ nav {
   margin-top: 32px;
   height: fit-content;
 
-  .language-python {
+  .language-python,
+  .language-json {
     background-color: transparent;
     color: var(--bold-text-color);
     white-space: pre-wrap;
+
+    // Override highlight.js colors for better visibility in dark/light modes
+    .hljs-string,
+    .hljs-attr {
+      color: #22863a; // Green color that works in both modes
+    }
+
+    .hljs-number {
+      color: #005cc5; // Blue for numbers
+    }
+
+    .hljs-literal {
+      color: #d73a49; // Red for true/false/null
+    }
   }
 }
 

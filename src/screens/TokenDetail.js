@@ -11,6 +11,7 @@ import Transactions from '../components/tx/Transactions';
 import metadataApi from '../api/metadataApi';
 import tokenApi from '../api/tokenApi';
 import TokenDetailsTop from '../components/token/TokenDetailsTop';
+import helpers from '../utils/helpers';
 
 /**
  * Screen to manage a token. See total amount, if can mint/melt and the history of transaction
@@ -39,6 +40,7 @@ function TokenDetail() {
    */
   const [token, setToken] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [tokenInfoLoaded, setTokenInfoLoaded] = useState(false);
   const [metadataLoaded, setMetadataLoaded] = useState(false);
 
   const { tokenUID } = useParams();
@@ -68,9 +70,14 @@ function TokenDetail() {
       canMelt: response.melt.length > 0,
       transactionsCount: response.transactions_count,
     }));
+    setTokenInfoLoaded(true);
   };
 
   const updateTokenMetadata = async id => {
+    if (!helpers.isExplorerModeFull()) {
+      setMetadataLoaded(true);
+      return;
+    }
     const data = await metadataApi.getDagMetadata(id);
     setMetadataLoaded(true);
     if (!data) {
@@ -131,7 +138,7 @@ function TokenDetail() {
     );
   }
 
-  if (!token) return null;
+  if (!token || !tokenInfoLoaded) return null;
 
   const renderNewUi = () => (
     <div className="flex align-items-center token-details-container">
