@@ -9,17 +9,11 @@ import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom';
 import { reverse } from 'lodash';
 import OnChainBlueprintsTable from '../../components/nano/OnChainBlueprintsTable';
-import BuiltInBlueprintsTable from '../../components/nano/BuiltInBlueprintsTable';
 import Loading from '../../components/Loading';
 import { useIsMobile } from '../../hooks';
 import PaginationURL from '../../utils/pagination';
 import { BLUEPRINT_LIST_COUNT } from '../../constants';
 import nanoApi from '../../api/nanoApi';
-
-const BlueprintType = Object.freeze({
-  BUILT_IN: 'built-in',
-  ON_CHAIN: 'on-chain',
-});
 
 function BlueprintList() {
   // We must use memo here because we were creating a new pagination
@@ -41,8 +35,6 @@ function BlueprintList() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Tab selected
-  const [type, setType] = useState(BlueprintType.ON_CHAIN);
   // If is loading data
   const [loading, setLoading] = useState(true);
   // error {boolean} If there was an error when loading data
@@ -73,23 +65,13 @@ function BlueprintList() {
       setLoading(true);
       setError(false);
       try {
-        let dataResponse;
-        if (typeSelected === BlueprintType.BUILT_IN) {
-          dataResponse = await nanoApi.getBuiltInBlueprintList(
-            BLUEPRINT_LIST_COUNT,
-            after,
-            before,
-            search
-          );
-        } else {
-          dataResponse = await nanoApi.getOnChainBlueprintList(
-            BLUEPRINT_LIST_COUNT,
-            after,
-            before,
-            search,
-            sortOrder
-          );
-        }
+        const dataResponse = await nanoApi.getOnChainBlueprintList(
+          BLUEPRINT_LIST_COUNT,
+          after,
+          before,
+          search,
+          sortOrder
+        );
         if (before) {
           // When we are querying the previous set of blueprints
           // the API return the oldest first, so we need to revert the list
@@ -143,13 +125,7 @@ function BlueprintList() {
     let after = null;
     let before = null;
     // We need to set data here because the user might change the URL directly
-    setType(queryParams.type);
-    if (type === BlueprintType.BUILT_IN) {
-      setSort(null);
-    }
-    if (queryParams.sort && queryParams.type === BlueprintType.ON_CHAIN) {
-      setSort(queryParams.sort);
-    }
+    setSort(queryParams.sort);
     if (queryParams.id) {
       if (queryParams.page === 'previous') {
         before = queryParams.id;
@@ -168,7 +144,7 @@ function BlueprintList() {
     }
 
     loadData(queryParams.type, after, before, queryParams.search, queryParams.sort);
-  }, [loadData, pagination, type]);
+  }, [loadData, pagination]);
 
   useEffect(() => {
     // Get data when the URL changes
@@ -324,22 +300,6 @@ function BlueprintList() {
       return renderNoResult();
     }
 
-    if (type === BlueprintType.BUILT_IN) {
-      return (
-        <BuiltInBlueprintsTable
-          tableClass="blueprints-table"
-          handleClickRow={handleClickRow}
-          data={data}
-          loading={false}
-          hasBefore={hasBefore}
-          hasAfter={hasAfter}
-          onNextPageClicked={onNextPageClicked}
-          onPreviousPageClicked={onPreviousPageClicked}
-          isMobile={isMobile}
-        />
-      );
-    }
-
     return (
       <OnChainBlueprintsTable
         tableClass="blueprints-table"
@@ -363,20 +323,6 @@ function BlueprintList() {
       <h3 className="nano-list-title">Blueprints List</h3>
       <div className="filter-container d-flex flex-row justify-content-between">
         {isMobile && renderSearch()}
-        <div className="tabs-container d-flex flex-row">
-          <div
-            className={`tab ${type === BlueprintType.ON_CHAIN && 'active'}`}
-            onClick={() => onTabClicked(BlueprintType.ON_CHAIN)}
-          >
-            On Chain
-          </div>
-          <div
-            className={`tab ${type === BlueprintType.BUILT_IN && 'active'}`}
-            onClick={() => onTabClicked(BlueprintType.BUILT_IN)}
-          >
-            Built In
-          </div>
-        </div>
         {!isMobile && renderSearch()}
       </div>
       {renderBody()}
