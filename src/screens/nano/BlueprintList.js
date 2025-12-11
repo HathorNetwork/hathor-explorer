@@ -236,7 +236,6 @@ function BlueprintList() {
           ref={searchRef}
           onKeyUp={handleKeyUp}
           onChange={handleSearchChange}
-          style={{ padding: '0.75rem 40px 0.75rem 40px' }}
         />
       </div>
     );
