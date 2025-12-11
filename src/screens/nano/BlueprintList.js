@@ -21,7 +21,6 @@ function BlueprintList() {
   const pagination = useMemo(
     () =>
       new PaginationURL({
-        type: { required: true }, // blueprint type: 'built-in' or 'on-chain'
         id: { required: false }, // blueprint id from the pagination
         page: { required: false }, // if user clicked 'Next' or 'Previous' in the pagination
         search: { required: false }, // search box text
@@ -54,14 +53,13 @@ function BlueprintList() {
    * Call the API to get the blueprint list
    * useCallback is needed here because this method is used as a dependency in the useEffect
    *
-   * @param {string} typeSelected Blueprint type selected
    * @param {string | null} after Blueprint id to use for pagination when user clicks to fetch the next page
    * @param {string | null} before Blueprint id to use for pagination when user clicks to fetch the previous page
    * @param {string | null} search Search text to filter the list
    * @param {string | null} sortOder Order of the list sorting
    */
   const loadData = useCallback(
-    async (typeSelected, after, before, search, sortOrder) => {
+    async (after, before, search, sortOrder) => {
       setLoading(true);
       setError(false);
       try {
@@ -143,7 +141,7 @@ function BlueprintList() {
       setIsSearching(true);
     }
 
-    loadData(queryParams.type, after, before, queryParams.search, queryParams.sort);
+    loadData(after, before, queryParams.search, queryParams.sort);
   }, [loadData, pagination]);
 
   useEffect(() => {
