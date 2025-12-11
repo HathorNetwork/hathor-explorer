@@ -13,5 +13,6 @@ export const useTheme = () => {
 
   useEffect(() => {
     document.body.className = theme;
+    document.documentElement.setAttribute('data-bs-theme', theme); // Bootstrap 5.3+ theme tag
   }, [theme]);
 };
