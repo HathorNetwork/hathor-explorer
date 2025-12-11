@@ -193,19 +193,6 @@ function BlueprintList() {
   };
 
   /**
-   * When the user clicks the tab to change the blueprint list type
-   * We need to clear the URL parameters. We keep only the search.
-   *
-   * @param {string} typeClicked The tab that was clicked
-   */
-  const onTabClicked = typeClicked => {
-    // We reset all parameters
-    const paramsToDelete = ['id', 'page', 'sort'];
-    const newURL = pagination.setURLParameters({ type: typeClicked }, paramsToDelete);
-    navigate(newURL);
-  };
-
-  /**
    * Method to handle click to sort the blueprint list.
    * We clear the pagination parameters but keep the search.
    */
@@ -240,15 +227,16 @@ function BlueprintList() {
 
   const renderSearch = () => {
     return (
-      <div className="d-flex flex-row align-items-center search">
+      <div className="d-flex flex-row align-items-center search w-100">
         <input
-          className="form-control bg-dark text-light search-input"
+          className="form-control search-input"
           type="search"
           placeholder={`Search for Blueprint ID`}
           aria-label="Search"
           ref={searchRef}
           onKeyUp={handleKeyUp}
           onChange={handleSearchChange}
+          style={{ padding: '0.75rem 40px 0.75rem 40px' }}
         />
       </div>
     );
@@ -322,8 +310,7 @@ function BlueprintList() {
     <div className="section-tables-stylized nano-list-container">
       <h3 className="nano-list-title">Blueprints List</h3>
       <div className="filter-container d-flex flex-row justify-content-between">
-        {isMobile && renderSearch()}
-        {!isMobile && renderSearch()}
+        {renderSearch()}
       </div>
       {renderBody()}
     </div>
