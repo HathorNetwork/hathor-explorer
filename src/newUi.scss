@@ -94,6 +94,9 @@ $secondary-color-dark: #191c21;
     color: #A7C9FF;
     background-color: #0D1A2B;
     border-color: #3A72B8;
+    button {
+      filter: var(--bs-btn-close-white-filter);
+    }
   }
 }
 
