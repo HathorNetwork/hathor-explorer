@@ -89,6 +89,15 @@ $secondary-color-dark: #191c21;
   --network-data-connected-border: #44a32e;
   --tools-input-background: #0d1117;
   --background-network-select: #0d1117;
+
+  .alert.alert-info {
+    color: #A7C9FF;
+    background-color: #0D1A2B;
+    border-color: #3A72B8;
+    button {
+      filter: var(--bs-btn-close-white-filter);
+    }
+  }
 }
 
 @font-face {
@@ -371,6 +380,10 @@ nav {
 .navigation-search-input::placeholder, .nano-list-container .search .search-input::placeholder {
   color: var(--normal-text-color);
   opacity: 1;
+}
+
+.nano-list-container .search .search-input {
+  padding: 0.75rem 35px;
 }
 
 nav {
