@@ -206,8 +206,8 @@ class TokenAutoCompleteField extends React.Component {
 
     return (
       <div className="search-bar-container -relative">
-        <textarea
-          className="form-control bg-dark text-light token-list-search-input token-text-area"
+        <input
+          className="form-control bg-dark text-light token-list-search-input navigation-search-input"
           type="search"
           placeholder={`${nativeToken.name} (${nativeToken.symbol}) - Type to search for other tokens by UID, name or symbol`}
           aria-label="Search"
