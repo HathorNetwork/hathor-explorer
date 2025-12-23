@@ -36,36 +36,6 @@ case $site in
     REACT_APP_TIMESERIES_DASHBOARD_ID=35379840-e8c5-11ec-a7f2-0fee9be0d8ee
     REACT_APP_NETWORK=testnet
     ;;
-  nano-testnet)
-    FULLNODE_HOST=hathorplay.nano-testnet.hathor.network
-    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
-    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
-    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.nano-testnet.hathor.network/
-    REACT_APP_TIMESERIES_DASHBOARD_ID=59683ac0-237a-11ef-8f75-578bca86e218
-    REACT_APP_NETWORK=nano-testnet-alpha
-    S3_BUCKET=hathor-nano-testnet-public-explorer-2
-    CLOUDFRONT_ID=EN58551BWE3XZ
-    ;;
-  nano-testnet-bravo)
-    FULLNODE_HOST=node1.bravo.nano-testnet.hathor.network
-    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
-    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
-    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.bravo.nano-testnet.hathor.network/
-    REACT_APP_TIMESERIES_DASHBOARD_ID=00c45139-8e79-4ed1-8558-00c8ebf3c326
-    REACT_APP_NETWORK=nano-testnet-bravo
-    S3_BUCKET=hathor-nano-testnet-bravo-public-explorer
-    CLOUDFRONT_ID=ERBB1LFGS2AMQ
-    ;;
-  nano-testnet-hackaton)
-    FULLNODE_HOST=node1.hackaton.hathor.network
-    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
-    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
-    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.hackaton.hathor.network/
-    REACT_APP_TIMESERIES_DASHBOARD_ID=7e29e360-16ed-11f0-b1d4-99e4bfb760b1
-    REACT_APP_NETWORK=nano-testnet-alpha
-    S3_BUCKET=hathor-nano-testnet-hackaton-public-explorer
-    CLOUDFRONT_ID=E1DJWV2MDJCYPE 
-    ;;
   ekvilibro-testnet)
     FULLNODE_HOST=node-side-dag.ekvilibro-testnet.hathor.network
     REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
