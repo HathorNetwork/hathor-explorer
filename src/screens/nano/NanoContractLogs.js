@@ -68,7 +68,7 @@ function NanoContractLogs() {
     <div className="blueprint-content-wrapper">
       <h3>Nano Contract Execution Logs</h3>
       <p className="blueprint-id-name-info">
-        <strong>NANO CONTRACT ID: </strong>
+        <strong>TRANSACTION ID: </strong>
         <span>{nc_id}</span>
       </p>
       <p className="blueprint-id-name-info">
