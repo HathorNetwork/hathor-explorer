@@ -166,7 +166,7 @@ function Root() {
             element={<NavigationRoute internalScreen={NanoContractDetail} />}
           />
           <Route
-            path="/nano_contract/logs/:nc_id"
+            path="/nano_contract/logs/:tx_id"
             element={<NavigationRoute internalScreen={NanoContractLogs} />}
           />
           <Route
