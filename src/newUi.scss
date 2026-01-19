@@ -1045,6 +1045,50 @@ nav {
   }
 }
 
+.table-header-tooltip-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  .table-header-tooltip-icon {
+    position: relative;
+    display: inline-flex;
+    cursor: pointer;
+
+    svg {
+      width: 14px;
+      height: 14px;
+      color: var(--purple-text);
+    }
+  }
+
+  .table-header-tooltip {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    background-color: var(--tooltip-bg, #2d2d3d);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 4px 12px;
+    width: max-content;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--bold-text-color);
+    white-space: normal;
+    text-align: center;
+    z-index: 1000;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  .table-header-tooltip-icon:hover .table-header-tooltip {
+    display: block;
+  }
+}
+
 .new-hathor-alert-container {
   display: none;
   position: fixed;
