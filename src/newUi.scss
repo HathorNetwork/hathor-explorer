@@ -1890,11 +1890,16 @@ nav {
 
   .table-stylized {
     min-width: 500px;
-    width: max-content;
+    width: 100%;
 
     th,
     td {
       white-space: nowrap;
+    }
+
+    td:first-child {
+      white-space: normal;
+      word-break: break-all;
     }
   }
 }
@@ -1904,7 +1909,7 @@ nav {
 
   .table-stylized {
     min-width: 600px;
-    width: max-content;
+    width: 100%;
 
     th,
     td {
