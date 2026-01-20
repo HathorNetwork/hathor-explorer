@@ -177,7 +177,7 @@ function BlueprintDetail() {
           {renderNewUiBlueprintMethods('public_methods', 'Public Methods')}
         </div>
         <div className="blueprint-methods">
-          {renderNewUiBlueprintMethods('private_methods', 'Private Methods')}
+          {renderNewUiBlueprintMethods('view_methods', 'View Methods')}
         </div>
       </div>
       <div className="blueprint-source-code">
