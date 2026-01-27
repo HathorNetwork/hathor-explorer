@@ -589,6 +589,31 @@ class TxData extends React.Component {
         return null;
       }
 
+      // Check if this is a nano contract execution failure
+      const isNcExecutionFail = this.props.meta.voided_by.includes(NANO_CONTRACT_EXECUTION_FAIL);
+
+      if (isNcExecutionFail) {
+        // For nano contract execution failure, show simplified message
+        return (
+          <div className="alert alert-double-spending alert-invalid">
+            <div>
+              <span>
+                This {renderBlockOrTransaction()} is <strong>NOT</strong> valid.
+              </span>
+            </div>
+            <div>
+              <span>
+                The nano contract execution failed (
+                <Link to={`/nano_contract/logs/${this.props.transaction.hash}`}>
+                  See execution logs
+                </Link>
+                )
+              </span>
+            </div>
+          </div>
+        );
+      }
+
       if (!this.props.meta.conflict_with.length) {
         // it is voided, but there is no conflict
         return (
