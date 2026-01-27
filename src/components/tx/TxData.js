@@ -779,6 +779,15 @@ class TxData extends React.Component {
       );
     };
 
+    const renderFeeDiv = () => {
+      return (
+        <div className="summary-balance-info-container">
+          <label className="address-container-title">Fee Paid</label>
+          {this.props.transaction.fee} HTR
+        </div>
+      );
+    };
+
     const renderConfirmationLevel = () => {
       function getConfirmationMessage(data) {
         if (!data) {
@@ -1060,6 +1069,7 @@ class TxData extends React.Component {
             {hathorLib.transactionUtils.isBlock(this.props.transaction) && renderHeight()}
             {hathorLib.transactionUtils.isBlock(this.props.transaction) && renderScore()}
             {!hathorLib.transactionUtils.isBlock(this.props.transaction) && renderAccWeightDiv()}
+            {!hathorLib.transactionUtils.isBlock(this.props.transaction) && renderFeeDiv()}
             {!hathorLib.transactionUtils.isBlock(this.props.transaction) &&
               renderConfirmationLevel()}
           </div>
