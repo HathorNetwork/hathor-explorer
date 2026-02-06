@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
 import { useSelector } from 'react-redux';
 import Version from './Version';
 import { ReactComponent as NewLogo } from '../assets/images/new-logo.svg';

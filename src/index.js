@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
 import { createRoot } from 'react-dom/client';
 import FlagProvider from '@unleash/proxy-client-react';
 import { Provider } from 'react-redux';

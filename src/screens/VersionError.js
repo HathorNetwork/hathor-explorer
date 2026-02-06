@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
 import { useDispatch } from 'react-redux';
 import { MIN_API_VERSION } from '../constants';
 import versionApi from '../api/version';

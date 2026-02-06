@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import TagManager from 'react-gtm-module';
 import helpers from '../../utils/helpers';
 import {

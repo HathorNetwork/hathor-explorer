@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleTheme } from '../store/rootSlice';
 

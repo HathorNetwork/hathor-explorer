@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { numberUtils } from '@hathor/wallet-lib';
 import featureActivation from '../../utils/featureActivation';
 import { ReactComponent as RowDown } from '../../assets/images/chevron-up.svg';

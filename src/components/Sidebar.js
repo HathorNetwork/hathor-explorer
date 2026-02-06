@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useFlag } from '@unleash/proxy-client-react';
 import { useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
