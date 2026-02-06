@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
 import { useFlag } from '@unleash/proxy-client-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import AddressDetailExplorer from '../components/AddressDetailExplorer';

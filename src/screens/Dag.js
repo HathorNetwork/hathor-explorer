@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import txApi from '../api/txApi';
 import DagComponent from '../components/DagComponent';
 import WebSocketHandler from '../WebSocketHandler';

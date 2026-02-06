@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { tokenBannedMessage } from '../../messages';
 import { ReactComponent as AlertIcon } from '../../assets/images/alert-warning-icon.svg';
 

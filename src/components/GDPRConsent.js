@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
 import CookieConsent from 'react-cookie-consent';
 import TagManager from 'react-gtm-module';

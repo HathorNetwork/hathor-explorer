@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import hathorLib from '@hathor/wallet-lib';
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';

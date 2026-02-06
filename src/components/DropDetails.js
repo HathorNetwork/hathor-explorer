@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ReactComponent as RowDown } from '../assets/images/chevron-up.svg';
 
 /**
