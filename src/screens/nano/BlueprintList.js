@@ -9,17 +9,11 @@ import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom';
 import { reverse } from 'lodash';
 import OnChainBlueprintsTable from '../../components/nano/OnChainBlueprintsTable';
-import BuiltInBlueprintsTable from '../../components/nano/BuiltInBlueprintsTable';
 import Loading from '../../components/Loading';
 import { useIsMobile } from '../../hooks';
 import PaginationURL from '../../utils/pagination';
 import { BLUEPRINT_LIST_COUNT } from '../../constants';
 import nanoApi from '../../api/nanoApi';
-
-const BlueprintType = Object.freeze({
-  BUILT_IN: 'built-in',
-  ON_CHAIN: 'on-chain',
-});
 
 function BlueprintList() {
   // We must use memo here because we were creating a new pagination
@@ -27,7 +21,6 @@ function BlueprintList() {
   const pagination = useMemo(
     () =>
       new PaginationURL({
-        type: { required: true }, // blueprint type: 'built-in' or 'on-chain'
         id: { required: false }, // blueprint id from the pagination
         page: { required: false }, // if user clicked 'Next' or 'Previous' in the pagination
         search: { required: false }, // search box text
@@ -41,8 +34,6 @@ function BlueprintList() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Tab selected
-  const [type, setType] = useState(BlueprintType.ON_CHAIN);
   // If is loading data
   const [loading, setLoading] = useState(true);
   // error {boolean} If there was an error when loading data
@@ -62,34 +53,23 @@ function BlueprintList() {
    * Call the API to get the blueprint list
    * useCallback is needed here because this method is used as a dependency in the useEffect
    *
-   * @param {string} typeSelected Blueprint type selected
    * @param {string | null} after Blueprint id to use for pagination when user clicks to fetch the next page
    * @param {string | null} before Blueprint id to use for pagination when user clicks to fetch the previous page
    * @param {string | null} search Search text to filter the list
    * @param {string | null} sortOder Order of the list sorting
    */
   const loadData = useCallback(
-    async (typeSelected, after, before, search, sortOrder) => {
+    async (after, before, search, sortOrder) => {
       setLoading(true);
       setError(false);
       try {
-        let dataResponse;
-        if (typeSelected === BlueprintType.BUILT_IN) {
-          dataResponse = await nanoApi.getBuiltInBlueprintList(
-            BLUEPRINT_LIST_COUNT,
-            after,
-            before,
-            search
-          );
-        } else {
-          dataResponse = await nanoApi.getOnChainBlueprintList(
-            BLUEPRINT_LIST_COUNT,
-            after,
-            before,
-            search,
-            sortOrder
-          );
-        }
+        const dataResponse = await nanoApi.getOnChainBlueprintList(
+          BLUEPRINT_LIST_COUNT,
+          after,
+          before,
+          search,
+          sortOrder
+        );
         if (before) {
           // When we are querying the previous set of blueprints
           // the API return the oldest first, so we need to revert the list
@@ -143,13 +123,7 @@ function BlueprintList() {
     let after = null;
     let before = null;
     // We need to set data here because the user might change the URL directly
-    setType(queryParams.type);
-    if (type === BlueprintType.BUILT_IN) {
-      setSort(null);
-    }
-    if (queryParams.sort && queryParams.type === BlueprintType.ON_CHAIN) {
-      setSort(queryParams.sort);
-    }
+    setSort(queryParams.sort);
     if (queryParams.id) {
       if (queryParams.page === 'previous') {
         before = queryParams.id;
@@ -167,8 +141,8 @@ function BlueprintList() {
       setIsSearching(true);
     }
 
-    loadData(queryParams.type, after, before, queryParams.search, queryParams.sort);
-  }, [loadData, pagination, type]);
+    loadData(after, before, queryParams.search, queryParams.sort);
+  }, [loadData, pagination]);
 
   useEffect(() => {
     // Get data when the URL changes
@@ -217,19 +191,6 @@ function BlueprintList() {
   };
 
   /**
-   * When the user clicks the tab to change the blueprint list type
-   * We need to clear the URL parameters. We keep only the search.
-   *
-   * @param {string} typeClicked The tab that was clicked
-   */
-  const onTabClicked = typeClicked => {
-    // We reset all parameters
-    const paramsToDelete = ['id', 'page', 'sort'];
-    const newURL = pagination.setURLParameters({ type: typeClicked }, paramsToDelete);
-    navigate(newURL);
-  };
-
-  /**
    * Method to handle click to sort the blueprint list.
    * We clear the pagination parameters but keep the search.
    */
@@ -264,9 +225,9 @@ function BlueprintList() {
 
   const renderSearch = () => {
     return (
-      <div className="d-flex flex-row align-items-center search">
+      <div className="d-flex flex-row align-items-center search w-100">
         <input
-          className="form-control bg-dark text-light search-input"
+          className="form-control search-input"
           type="search"
           placeholder={`Search for Blueprint ID`}
           aria-label="Search"
@@ -324,22 +285,6 @@ function BlueprintList() {
       return renderNoResult();
     }
 
-    if (type === BlueprintType.BUILT_IN) {
-      return (
-        <BuiltInBlueprintsTable
-          tableClass="blueprints-table"
-          handleClickRow={handleClickRow}
-          data={data}
-          loading={false}
-          hasBefore={hasBefore}
-          hasAfter={hasAfter}
-          onNextPageClicked={onNextPageClicked}
-          onPreviousPageClicked={onPreviousPageClicked}
-          isMobile={isMobile}
-        />
-      );
-    }
-
     return (
       <OnChainBlueprintsTable
         tableClass="blueprints-table"
@@ -362,22 +307,7 @@ function BlueprintList() {
     <div className="section-tables-stylized nano-list-container">
       <h3 className="nano-list-title">Blueprints List</h3>
       <div className="filter-container d-flex flex-row justify-content-between">
-        {isMobile && renderSearch()}
-        <div className="tabs-container d-flex flex-row">
-          <div
-            className={`tab ${type === BlueprintType.ON_CHAIN && 'active'}`}
-            onClick={() => onTabClicked(BlueprintType.ON_CHAIN)}
-          >
-            On Chain
-          </div>
-          <div
-            className={`tab ${type === BlueprintType.BUILT_IN && 'active'}`}
-            onClick={() => onTabClicked(BlueprintType.BUILT_IN)}
-          >
-            Built In
-          </div>
-        </div>
-        {!isMobile && renderSearch()}
+        {renderSearch()}
       </div>
       {renderBody()}
     </div>

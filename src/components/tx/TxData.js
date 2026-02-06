@@ -470,7 +470,15 @@ class TxData extends React.Component {
       const ncFailedExecution = 'Nano contract failed execution';
       const renderSingleElement = h => {
         if (h === NANO_CONTRACT_EXECUTION_FAIL) {
-          return <span>{ncFailedExecution}</span>;
+          return (
+            <span>
+              {ncFailedExecution} (
+              <Link to={`/nano_contract/logs/${this.props.transaction.hash}`}>
+                See execution logs
+              </Link>
+              )
+            </span>
+          );
         }
 
         return (
@@ -579,6 +587,31 @@ class TxData extends React.Component {
           );
         }
         return null;
+      }
+
+      // Check if this is a nano contract execution failure
+      const isNcExecutionFail = this.props.meta.voided_by.includes(NANO_CONTRACT_EXECUTION_FAIL);
+
+      if (isNcExecutionFail) {
+        // For nano contract execution failure, show simplified message
+        return (
+          <div className="alert alert-double-spending alert-invalid">
+            <div>
+              <span>
+                This {renderBlockOrTransaction()} is <strong>NOT</strong> valid.
+              </span>
+            </div>
+            <div>
+              <span>
+                The nano contract execution failed (
+                <Link to={`/nano_contract/logs/${this.props.transaction.hash}`}>
+                  See execution logs
+                </Link>
+                )
+              </span>
+            </div>
+          </div>
+        );
       }
 
       if (!this.props.meta.conflict_with.length) {
@@ -864,6 +897,10 @@ class TxData extends React.Component {
           <h2 className="details-title">Arguments</h2>
 
           {renderNCArguments(ncParser.parsedArgs)}
+
+          <div className="mt-3">
+            <Link to={`/nano_contract/logs/${this.props.transaction.hash}`}>Execution Logs</Link>
+          </div>
         </div>
       );
     };

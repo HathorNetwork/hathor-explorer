@@ -76,21 +76,20 @@ const TokenConfig = props => {
           </span>
           <span className="token-code">{getShortConfigurationString()}</span>
           <span className="actions-token-code">
-            <button className="actions-token-code-btn">
-              <CopyToClipboard text={configurationString} onCopy={copied}>
+            <CopyToClipboard text={configurationString} onCopy={copied}>
+              <button className="actions-token-code-btn">
                 <CopyIcon style={{ color: 'white' }} />
-              </CopyToClipboard>
-            </button>
-            <button className="actions-token-code-btn">
-              <a
-                className="mt-2"
-                onClick={e => downloadQrCode(e)}
-                download={`${token.name} (${token.symbol}) - ${configurationString}`}
-                href="true"
-              >
+              </button>
+            </CopyToClipboard>
+            <a
+              onClick={e => downloadQrCode(e)}
+              download={`${token.name} (${token.symbol}) - ${configurationString}`}
+              href="true"
+            >
+              <button className="actions-token-code-btn">
                 <DownloadIcon />
-              </a>
-            </button>
+              </button>
+            </a>
           </span>
           <NewHathorAlert ref={alertSuccess} text={successMessage} type="success" />
         </div>
