@@ -3637,6 +3637,32 @@ th.sortable {
   align-items: baseline;
 }
 
+.fee-paid-section {
+  width: 100%;
+}
+
+.fee-table {
+  width: 100%;
+}
+
+.fee-label-cell {
+  width: 136px;
+  min-width: 136px;
+  vertical-align: top;
+}
+
+.show-more-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 14px;
+  color: #8c46ff;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 .container-big-links {
   word-break: break-all;
 
