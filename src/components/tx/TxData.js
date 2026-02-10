@@ -81,12 +81,18 @@ class TxData extends React.Component {
     ],
     ncParser: null,
     ncLoading: false,
+    feeEntries: [],
+    showAllFees: false,
   };
 
   // Array of token uid that was already found to show the symbol
   tokensFound = [];
 
   snackbarRef = React.createRef();
+
+  toggleShowAllFees = () => {
+    this.setState(prevState => ({ showAllFees: !prevState.showAllFees }));
+  };
 
   componentDidMount = async () => {
     await this.handleDataFetch();
@@ -100,6 +106,7 @@ class TxData extends React.Component {
 
   handleDataFetch = async () => {
     this.calculateTokens();
+    this.parseFeeHeader();
     await this.handleNanoContractFetch();
   };
 
@@ -128,6 +135,51 @@ class TxData extends React.Component {
       console.error(e);
       this.setState({ ncLoading: false });
     }
+  };
+
+  /**
+   * Parse fee header from raw transaction bytes to get fee entries
+   */
+  parseFeeHeader = () => {
+    try {
+      const { raw } = this.props.transaction;
+      if (!raw) return;
+
+      const network = hathorLib.config.getNetwork();
+      const txBytes = Buffer.from(raw, 'hex');
+      const parsedTx = hathorLib.Transaction.createFromBytes(txBytes, network);
+      const feeHeader = parsedTx.getFeeHeader();
+
+      if (!feeHeader || !feeHeader.entries || feeHeader.entries.length === 0) {
+        this.setState({ feeEntries: [] });
+        return;
+      }
+
+      const feeEntries = feeHeader.entries.map(entry => ({
+        tokenSymbol: this.getTokenSymbolForFeeIndex(entry.tokenIndex),
+        amount: entry.amount,
+        tokenIndex: entry.tokenIndex,
+      }));
+
+      this.setState({ feeEntries });
+    } catch (e) {
+      console.error('Error parsing fee header:', e);
+      this.setState({ feeEntries: [] });
+    }
+  };
+
+  /**
+   * Get token symbol for a given fee token index
+   *
+   * @param {number} tokenIndex Token index from fee entry
+   * @return {string} Token symbol
+   */
+  getTokenSymbolForFeeIndex = tokenIndex => {
+    if (tokenIndex === hathorLib.constants.HATHOR_TOKEN_INDEX) {
+      return this.getNativeToken().symbol;
+    }
+    const tokenConfig = this.props.transaction.tokens[tokenIndex - 1];
+    return tokenConfig?.symbol || 'Unknown';
   };
 
   /**
@@ -773,6 +825,52 @@ class TxData extends React.Component {
       );
     };
 
+    const renderFeeDiv = () => {
+      if (this.state.feeEntries.length === 0) return null;
+
+      const INITIAL_DISPLAY_COUNT = 5;
+      const showToggle = this.state.feeEntries.length > INITIAL_DISPLAY_COUNT;
+      const entriesToShow = this.state.showAllFees
+        ? this.state.feeEntries
+        : this.state.feeEntries.slice(0, INITIAL_DISPLAY_COUNT);
+
+      return (
+        <div className="fee-paid-section">
+          <table className="table-details fee-table">
+            <tbody>
+              {entriesToShow.map((entry, idx) => (
+                <tr key={idx} className="tr-details">
+                  <td className="fee-label-cell">
+                    {idx === 0 && <span className="address-container-title">Fee paid</span>}
+                  </td>
+                  <td
+                    className={
+                      idx === entriesToShow.length - 1 && !showToggle ? 'tr-details-last-cell' : ''
+                    }
+                  >
+                    {hathorLib.numberUtils.prettyValue(entry.amount, this.props.decimalPlaces)}{' '}
+                    {entry.tokenSymbol}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {showToggle && (
+            <a
+              href="#"
+              className="show-more-link"
+              onClick={e => {
+                e.preventDefault();
+                this.toggleShowAllFees();
+              }}
+            >
+              {this.state.showAllFees ? 'Show less' : 'Show more'}
+            </a>
+          )}
+        </div>
+      );
+    };
+
     const renderNCActionsTableBody = () => {
       return this.props.transaction.nc_context.actions.map((action, index) => (
         <tr key={index}>
@@ -1037,6 +1135,7 @@ class TxData extends React.Component {
             {!hathorLib.transactionUtils.isBlock(this.props.transaction) && renderAccWeightDiv()}
             {!hathorLib.transactionUtils.isBlock(this.props.transaction) &&
               renderConfirmationLevel()}
+            {!hathorLib.transactionUtils.isBlock(this.props.transaction) && renderFeeDiv()}
           </div>
           <div className="details-container-gap">
             {this.props.transaction.nc_id !== undefined && (
