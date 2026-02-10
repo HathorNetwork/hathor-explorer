@@ -1,0 +1,378 @@
+# Hathor Explorer - Local Development Environment
+# This docker-compose brings up all services needed for local explorer development
+#
+# Usage:
+#   docker compose -f docker/docker-compose.localnet.yml up -d
+#   docker compose -f docker/docker-compose.localnet.yml down -v
+#
+# After services are up, start the explorer frontend with:
+#   PORT=3002 \
+#   REACT_APP_BASE_URL=http://localhost:8083/v1a/ \
+#   REACT_APP_WS_URL=ws://localhost:8083/v1a/ws/ \
+#   REACT_APP_NETWORK=privatenet \
+#   REACT_APP_EXPLORER_SERVICE_BASE_URL=http://localhost:3003/dev/ \
+#   REACT_APP_LOCAL_FEATURES_ENABLED=true \
+#   npm start
+
+services:
+
+  # =============================================================================
+  # CORE NETWORK SERVICES
+  # =============================================================================
+
+  fullnode:
+    image: hathornetwork/hathor-core:experimental-push_fee_header
+    command: [
+      "run_node",
+      "--listen", "tcp:40404",
+      "--status", "8080",
+      "--test-mode-tx-weight",
+      "--wallet-index",
+      "--allow-mining-without-peers",
+      "--unsafe-mode", "privatenet",
+      "--data", "./tmp",
+      "--nc-indexes",
+      "--enable-event-queue",
+    ]
+    environment:
+      HATHOR_CONFIG_YAML: /privnet/privnet.yml
+    ports:
+      - "8083:8080"
+      - "40404:40404"
+    volumes:
+      - ./privnet.yml:/privnet/privnet.yml:ro
+    networks:
+      - explorer-localnet
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; import json; r = urllib.request.urlopen('http://localhost:8080/v1a/status'); body = json.loads(r.read()); assert body['server']['state'] == 'READY'"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  tx-mining-service:
+    platform: linux/amd64
+    image: hathornetwork/tx-mining-service
+    depends_on:
+      fullnode:
+        condition: service_healthy
+    ports:
+      - "8034:8034"
+      - "8035:8035"
+    command: [
+      "http://fullnode:8080",
+      "--stratum-port=8034",
+      "--api-port=8035"
+    ]
+    networks:
+      - explorer-localnet
+
+  cpuminer:
+    image: hathornetwork/cpuminer
+    depends_on:
+      - tx-mining-service
+    command: [
+      "-a", "sha256d",
+      "--coinbase-addr", "WTjhJXzQJETVx7BVXdyZmvk396DRRsubdw",
+      "-o", "stratum+tcp://tx-mining-service:8034",
+      "--retry-pause", "5",
+      "-t", "1"
+    ]
+    networks:
+      - explorer-localnet
+
+  # =============================================================================
+  # WALLET SERVICE (for wallet-service integration)
+  # =============================================================================
+
+  mysql:
+    image: mysql:8.0
+    networks:
+      - explorer-localnet
+    environment:
+      MYSQL_ROOT_PASSWORD: hathor
+      MYSQL_DATABASE: wallet_service
+      MYSQL_USER: wallet_service_user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3380:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "wallet_service_user", "-ppassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:6.2
+    networks:
+      - explorer-localnet
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  ws-migrator:
+    image: hathornetwork/hathor-wallet-service-migrator:dev
+    restart: "no"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_ENDPOINT: "mysql"
+      DB_NAME: "wallet_service"
+      DB_USER: "wallet_service_user"
+      DB_PASS: "password"
+      DB_PORT: 3306
+    networks:
+      - explorer-localnet
+
+  ws-daemon:
+    image: hathornetwork/hathor-wallet-service-sync-daemon:dev
+    depends_on:
+      ws-migrator:
+        condition: service_completed_successfully
+      fullnode:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    environment:
+      FETCH_FULLNODE_IDS: true
+      FULLNODE_HOST: "fullnode:8080"
+      FULLNODE_NETWORK: "privatenet"
+      REDIS_URL: redis://redis:6379
+      DB_ENDPOINT: "mysql"
+      DB_NAME: "wallet_service"
+      DB_USER: "wallet_service_user"
+      DB_PASS: "password"
+      DB_PORT: 3306
+      USE_SSL: "false"
+      NEW_TX_SQS: ""
+      PUSH_NOTIFICATION_ENABLED: "false"
+      WALLET_SERVICE_LAMBDA_ENDPOINT: ""
+      ACCOUNT_ID: 1234
+      ALERT_MANAGER_TOPIC: "alert-topic"
+      ALERT_MANAGER_REGION: "us-east-1"
+      APPLICATION_NAME: "hathor-wallet-service"
+      NODE_ENV: "test-privnet"
+      STAGE: "local"
+      MAX_ADDRESS_GAP: 10
+      NETWORK: "privatenet"
+    ports:
+      - "8081:8081"
+      - "8082:8082"
+    networks:
+      - explorer-localnet
+
+  ws-serverless:
+    image: hathornetwork/hathor-wallet-service-lambdas:dev
+    depends_on:
+      fullnode:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+      ws-daemon:
+        condition: service_started
+    environment:
+      DEFAULT_SERVER: http://fullnode:8080/v1a/
+      IS_OFFLINE: true
+      MOCK_AWS: true
+      NODE_ENV: test
+      LOG_LEVEL: "debug"
+      DEV_DB: mysql
+      DB_ENDPOINT: mysql
+      DB_NAME: wallet_service
+      DB_USER: wallet_service_user
+      DB_PASS: password
+      DB_PORT: 3306
+      REDIS_URL: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+      STAGE: local
+      NETWORK: "privatenet"
+      SERVICE_NAME: hathor-wallet-service
+      APPLICATION_NAME: "hathor-wallet-service"
+      MAX_ADDRESS_GAP: 10
+      VOIDED_TX_OFFSET: 5
+      BLOCK_REWARD_LOCK: 300
+      CONFIRM_FIRST_ADDRESS: false
+      WS_DOMAIN: http://fakehost:3002
+      AUTH_SECRET: foobar
+      EXPLORER_SERVICE_LAMBDA_ENDPOINT: http://fakehost:3001
+      WALLET_SERVICE_LAMBDA_ENDPOINT: http://fakehost:3000
+      NFT_AUTO_REVIEW_ENABLED: "false"
+      TX_HISTORY_MAX_COUNT: ""
+      PUSH_NOTIFICATION: false
+      PUSH_NOTIFICATION_ENABLED: "false"
+      FIREBASE_PROJECT_ID: "fake_project_id"
+      FIREBASE_PRIVATE_KEY_ID: "fake_private_key_id"
+      FIREBASE_PRIVATE_KEY: "fake_private_key"
+      FIREBASE_CLIENT_EMAIL: "fake@client_email.com"
+      FIREBASE_CLIENT_ID: "fake_client_id"
+      FIREBASE_AUTH_URI: "fake_auth_uri"
+      FIREBASE_TOKEN_URI: "fake_token_uri"
+      FIREBASE_AUTH_PROVIDER_X509_CERT_URL: "fake_auth_provider_x509_cert_url"
+      FIREBASE_CLIENT_X509_CERT_URL: "fake_client_x509_cert_url"
+      PUSH_ALLOWED_PROVIDERS: "fake_provider"
+      ACCOUNT_ID: 1234
+      ALERT_MANAGER_REGION: us-east-1
+      ALERT_MANAGER_TOPIC: alert-topic
+      ALERT_MANAGER_ACCOUNT_ID: "fake_account_id"
+      AWS_VPC_DEFAULT_SG_ID: "1"
+      AWS_SUBNET_ID_1: "2"
+      AWS_SUBNET_ID_2: "3"
+      AWS_SUBNET_ID_3: "4"
+      AWS_ACCESS_KEY_ID: fake-access-key-id
+      AWS_SECRET_ACCESS_KEY: fake-secret-access-key
+      AWS_REGION: us-east-1
+      AWS_SHARED_CREDENTIALS_FILE: ".aws/credentials"
+      AWS_CONFIG_FILE: ".aws/config"
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    networks:
+      - explorer-localnet
+
+  # =============================================================================
+  # ELASTICSEARCH + LOGSTASH (for token/tx indexing)
+  # =============================================================================
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    networks:
+      - explorer-localnet
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
+      - ./logstash/tokens.conf:/usr/share/logstash/pipeline/tokens.conf:ro
+      - ./logstash/token-balances.conf:/usr/share/logstash/pipeline/token-balances.conf:ro
+      - ./logstash/transactions.conf:/usr/share/logstash/pipeline/transactions.conf:ro
+    environment:
+      - "LS_JAVA_OPTS=-Xms256m -Xmx256m"
+      - XPACK_MONITORING_ENABLED=false
+    command: >
+      bash -c '
+        curl -L -o /usr/share/logstash/mysql-connector-j-8.0.33.jar https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.0.33/mysql-connector-j-8.0.33.jar &&
+        /usr/share/logstash/bin/logstash
+      '
+    networks:
+      - explorer-localnet
+
+  # =============================================================================
+  # EXPLORER SERVICE
+  # =============================================================================
+
+  explorer-service:
+    image: hathor-explorer-service-explorer-service:latest
+    depends_on:
+      fullnode:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      # AWS (mock values for local development)
+      AWS_ACCOUNT_ID: aws_account_id
+      AWS_ACCESS_KEY_ID: aws_access_key_id
+      AWS_SECRET_ACCESS_KEY: secret_access_key
+      AWS_DEFAULT_REGION: eu-central-1
+      AWS_VPC_DEFAULT_SG_ID: vpc_default
+      AWS_SUBNET_ID_1: subnet1
+      AWS_SUBNET_ID_2: subnet2
+      AWS_SUBNET_ID_3: subnet3
+      # Fullnode connection
+      HATHOR_CORE_URL: http://fullnode:8080/v1a
+      HATHOR_NODES: http://fullnode:8080/v1a
+      # API config
+      API_PORT: 3003
+      LAMBDA_INVOKE_URL: http://explorer-service:3002/
+      DATA_AGGREGATOR_LAMBDA_NAME: hathor-explorer-service-dev-node_data_aggregator_handler
+      # Redis
+      REDIS_KEY_PREFIX: hathor-explorer-service-dev
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      # S3 Mock
+      S3_ENDPOINT: http://explorer-service:4569/
+      METADATA_BUCKET: metadata-testnet
+      # CORS - allows requests from localhost
+      CORS_ALLOWED_REGEX: "https?"
+      # Cache
+      NODE_CACHE_TTL: 30
+      # Elasticsearch (local)
+      ELASTIC_NODE: http://elasticsearch:9200
+      ELASTIC_CLOUD_ID: ""
+      ELASTIC_USER: ""
+      ELASTIC_PASSWORD: ""
+      ELASTIC_INDEX: local-token
+      ELASTIC_TX_INDEX: local-tx
+      ELASTIC_TOKEN_BALANCES_INDEX: local-token-balance
+      ELASTIC_RESULTS_PER_PAGE: 10
+      ELASTIC_SEARCH_TIMEOUT: 25
+      # Wallet Service DB (mock values)
+      WALLET_SERVICE_DB_USERNAME: wallet_service_user
+      WALLET_SERVICE_DB_PASSWORD: password
+      WALLET_SERVICE_DB_HOST: mysql
+      WALLET_SERVICE_DB_NAME: wallet_service
+      # Healthchecks
+      HEALTHCHECK_HATHOR_CORE_ENABLED: "True"
+      HEALTHCHECK_WALLET_SERVICE_DB_ENABLED: "False"
+      HEALTHCHECK_ELASTICSEARCH_ENABLED: "False"
+      HEALTHCHECK_REDIS_ENABLED: "False"
+    ports:
+      - "3003:3003"
+    networks:
+      - explorer-localnet
+
+  # =============================================================================
+  # WALLET HEADLESS (for creating tokens and transactions)
+  # =============================================================================
+
+  headless:
+    image: hathor-wallet-headless:local
+    depends_on:
+      fullnode:
+        condition: service_healthy
+      tx-mining-service:
+        condition: service_started
+    # Bypass LavaMoat for local development (allows using newer wallet-lib)
+    entrypoint: ["dumb-init", "node", "dist/index.js"]
+    environment:
+      HEADLESS_NETWORK: privatenet
+      HEADLESS_SERVER: http://fullnode:8080/v1a/
+      HEADLESS_TX_MINING_URL: http://tx-mining-service:8035/
+      # Genesis wallet seed - has initial funds
+      HEADLESS_SEED_DEFAULT: "avocado spot town typical traffic vault danger century property shallow divorce festival spend attack anchor afford rotate green audit adjust fade wagon depart level"
+      HEADLESS_ALLOW_PASSPHRASE: "true"
+    ports:
+      - "8000:8000"
+    networks:
+      - explorer-localnet
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8000/"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+networks:
+  explorer-localnet:

@@ -44,6 +44,7 @@
     "watch-css": "npm run build-css && sass --watch src:src",
     "start-js": "react-app-rewired --openssl-legacy-provider start",
     "start": "npm-run-all -p watch-css start-js",
+    "start:local": "PORT=3002 REACT_APP_BASE_URL=http://localhost:8083/v1a/ REACT_APP_WS_URL=ws://localhost:8083/v1a/ws/ REACT_APP_NETWORK=privatenet REACT_APP_EXPLORER_SERVICE_BASE_URL=http://localhost:3003/dev/ REACT_APP_LOCAL_FEATURES_ENABLED=true npm start",
     "build-js": "react-app-rewired --openssl-legacy-provider build",
     "build": "npm-run-all build-css build-js",
     "test": "react-app-rewired test --env=jsdom",
@@ -54,7 +55,11 @@
     "format": "prettier --write 'src/**/*.js'",
     "format:check": "prettier --check 'src/**/*.js'",
     "eject": "react-scripts eject",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "localnet:up": "docker compose -f docker/docker-compose.localnet.yml up -d",
+    "localnet:down": "docker compose -f docker/docker-compose.localnet.yml down -v",
+    "localnet:logs": "docker compose -f docker/docker-compose.localnet.yml logs -f",
+    "localnet:seed": "./docker/seed.sh"
   },
   "browserslist": [
     ">0.2%",
