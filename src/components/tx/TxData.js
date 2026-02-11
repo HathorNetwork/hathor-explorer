@@ -21,6 +21,8 @@ import dateFormatter from '../../utils/date';
 import { NANO_CONTRACT_EXECUTION_FAIL } from '../../constants';
 import helpers from '../../utils/helpers';
 import metadataApi from '../../api/metadataApi';
+import tokenApi from '../../api/tokenApi';
+import { ReactComponent as InfoIcon } from '../../assets/images/icon-info.svg';
 import graphvizApi from '../../api/graphvizApi';
 import Loading from '../Loading';
 import FeatureDataRow from '../feature_activation/FeatureDataRow';
@@ -81,6 +83,7 @@ class TxData extends React.Component {
     ],
     ncParser: null,
     ncLoading: false,
+    tokenCreationInfo: null,
   };
 
   // Array of token uid that was already found to show the symbol
@@ -101,6 +104,25 @@ class TxData extends React.Component {
   handleDataFetch = async () => {
     this.calculateTokens();
     await this.handleNanoContractFetch();
+    await this.fetchTokenCreationInfo();
+  };
+
+  isTokenCreation = () => {
+    return this.props.transaction.version === hathorLib.constants.CREATE_TOKEN_TX_VERSION;
+  };
+
+  fetchTokenCreationInfo = async () => {
+    if (!this.isTokenCreation()) return;
+
+    const createdToken = this.props.transaction.tokens[0];
+    if (!createdToken) return;
+
+    try {
+      const tokenInfo = await tokenApi.get(createdToken.uid);
+      this.setState({ tokenCreationInfo: tokenInfo });
+    } catch (e) {
+      console.error('Error fetching token creation info:', e);
+    }
   };
 
   handleNanoContractFetch = async () => {
@@ -991,6 +1013,44 @@ class TxData extends React.Component {
       });
     };
 
+    const renderTokenInformation = () => {
+      if (!this.isTokenCreation()) return null;
+
+      const createdToken = this.props.transaction.tokens[0];
+      if (!createdToken) return null;
+
+      const isFeeBased = this.state.tokenCreationInfo?.version === hathorLib.TokenVersion.FEE;
+
+      return (
+        <DropDetails startOpen title="Token Information">
+          <div className="token-creation-info">
+            <div className="summary-balance-info-container">
+              <div className="address-container-title">NAME</div>
+              <span>{createdToken.name}</span>
+            </div>
+            <div className="summary-balance-info-container">
+              <div className="address-container-title">SYMBOL</div>
+              <span>{createdToken.symbol}</span>
+            </div>
+            <div className="summary-balance-info-container">
+              <div className="address-container-title">FEE MODEL</div>
+              <span className="info-tooltip-container">
+                <div>{isFeeBased ? 'Fee based' : 'Deposit based'}</div>
+                <div className="tooltip-info-icon">
+                  <InfoIcon />
+                  <span className="info-tooltip">
+                    {isFeeBased
+                      ? 'This token was created without a deposit — each transfer has a small fee.'
+                      : "This token was created with a deposit — transfers don't have fees."}
+                  </span>
+                </div>
+              </span>
+            </div>
+          </div>
+        </DropDetails>
+      );
+    };
+
     const loadNewUiTxData = () => {
       return (
         <div className="tx-data-wrapper">
@@ -1064,6 +1124,7 @@ class TxData extends React.Component {
               renderConfirmationLevel()}
           </div>
           <div className="details-container-gap">
+            {renderTokenInformation()}
             {this.props.transaction.nc_id !== undefined && (
               <div className="d-flex flex-row align-items-start mb-3">{renderNCData()}</div>
             )}
