@@ -21,9 +21,12 @@ class TokensTable extends SortableTable {
           Symbol {this.getArrow('symbol')}
         </th>
         <th className="d-lg-table-cell th-table-token-mobile">Type</th>
-        <th className="d-lg-table-cell th-table-token-mobile">
+        <th
+          className="d-lg-table-cell sortable th-table-token-mobile"
+          onClick={e => this.props.tableHeaderClicked(e, 'version')}
+        >
           <span className="table-header-tooltip-container">
-            Fee Model
+            Fee Model {this.getArrow('version')}
             <span className="table-header-tooltip-icon">
               <InfoIcon />
               <span className="table-header-tooltip">

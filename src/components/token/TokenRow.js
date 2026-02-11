@@ -8,6 +8,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
+import hathorLib from '@hathor/wallet-lib';
 import dateFormatter from '../../utils/date';
 import { useIsMobile } from '../../hooks';
 import EllipsiCell from '../EllipsiCell';
@@ -31,17 +32,14 @@ function TokenRow({ token }) {
 
   /**
    * Returns the fee model label based on token version
-   * version 0 = Native token (HTR)
-   * version 1 = Deposit-based
-   * version 2 = Fee-based
    */
   const getFeeModelLabel = version => {
     switch (version) {
-      case 0:
+      case hathorLib.TokenVersion.NATIVE:
         return 'Native';
-      case 1:
+      case hathorLib.TokenVersion.DEPOSIT:
         return 'Deposit';
-      case 2:
+      case hathorLib.TokenVersion.FEE:
         return 'Fee';
       default:
         return '-';
