@@ -17,7 +17,7 @@ const TokenSearchField = ({
       <input
         className="form-control bg-dark text-light token-list-search-input tokens-input"
         type="search"
-        placeholder="Search for UID, name, symbol or fee model"
+        placeholder="Search for UID, name, symbol or type"
         aria-label="Search"
         ref={txSearchRef}
         value={searchText}
