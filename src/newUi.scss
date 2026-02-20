@@ -2070,6 +2070,18 @@ nav {
   }
 }
 
+@media ((width <= 650px)) {
+  .info-tooltip-container {
+    .info-tooltip {
+      left: auto;
+      right: 0;
+      width: 60vw !important;
+      max-width: 250px;
+      white-space: normal;
+    }
+  }
+}
+
 @media ((width <= 900px)) {
   .token-details-container {
     .token-new-general-info {
