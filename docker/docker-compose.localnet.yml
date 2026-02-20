@@ -21,7 +21,7 @@ services:
   # =============================================================================
 
   fullnode:
-    image: hathornetwork/hathor-core:experimental-push_fee_header
+    image: hathornetwork/hathor-core:0.69.0
     command: [
       "run_node",
       "--listen", "tcp:40404",
