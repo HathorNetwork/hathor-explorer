@@ -35,7 +35,7 @@ export const DropDetails = ({ title, startOpen, onToggle, children }) => {
           <RowDown
             width="24px"
             height="24px"
-            style={{ transform: `${!open ? 'rotate(180deg)' : ''}` }}
+            style={{ color: 'white', transform: `${!open ? 'rotate(180deg)' : ''}` }}
           />
         </div>
       </div>
