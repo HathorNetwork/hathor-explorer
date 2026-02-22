@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ReactComponent as RowDown } from '../assets/images/arrow-down-nav-dropdown.svg';
 
 /**

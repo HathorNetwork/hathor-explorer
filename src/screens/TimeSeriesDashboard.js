@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
 import { useFlag } from '@unleash/proxy-client-react';
 import TimeSeries from '../components/timeseries/TimeSeries';
 import { UNLEASH_TIME_SERIES_FEATURE_FLAG } from '../constants';

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import TxTextInput from '../components/tx/TxTextInput';
 import txApi from '../api/txApi';
 import { ReactComponent as InfoIcon } from '../assets/images/icon-info.svg';

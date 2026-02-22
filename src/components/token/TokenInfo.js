@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { numberUtils } from '@hathor/wallet-lib';
 import { connect } from 'react-redux';
 import { ReactComponent as InfoIcon } from '../../assets/images/icon-info.svg';
