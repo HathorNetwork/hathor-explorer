@@ -2070,6 +2070,18 @@ nav {
   }
 }
 
+@media ((width <= 650px)) {
+  .info-tooltip-container {
+    .info-tooltip {
+      left: auto;
+      right: 0;
+      width: 60vw !important;
+      max-width: 250px;
+      white-space: normal;
+    }
+  }
+}
+
 @media ((width <= 900px)) {
   .token-details-container {
     .token-new-general-info {
@@ -3635,6 +3647,32 @@ th.sortable {
   display: flex;
   flex-direction: row;
   align-items: baseline;
+}
+
+.fee-paid-section {
+  width: 100%;
+}
+
+.fee-table {
+  width: 100%;
+}
+
+.fee-label-cell {
+  width: 136px;
+  min-width: 136px;
+  vertical-align: top;
+}
+
+.show-more-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 14px;
+  color: #8c46ff;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .container-big-links {
