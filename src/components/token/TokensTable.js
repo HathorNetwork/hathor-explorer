@@ -1,6 +1,7 @@
 import React from 'react';
 import TokenRow from './TokenRow';
 import SortableTable from '../SortableTable';
+import { ReactComponent as InfoIcon } from '../../assets/images/icon-info.svg';
 
 class TokensTable extends SortableTable {
   renderTableHead() {
@@ -20,6 +21,20 @@ class TokensTable extends SortableTable {
           Symbol {this.getArrow('symbol')}
         </th>
         <th className="d-lg-table-cell th-table-token-mobile">Type</th>
+        <th
+          className="d-lg-table-cell sortable th-table-token-mobile"
+          onClick={e => this.props.tableHeaderClicked(e, 'version')}
+        >
+          <span className="table-header-tooltip-container">
+            Fee Model {this.getArrow('version')}
+            <span className="table-header-tooltip-icon">
+              <InfoIcon />
+              <span className="table-header-tooltip">
+                Deposit-based tokens are feeless, while Fee-based tokens require a small fee in HTR.
+              </span>
+            </span>
+          </span>
+        </th>
         <th
           className="d-lg-table-cell sortable th-table-token-mobile"
           onClick={e => this.props.tableHeaderClicked(e, 'transaction_timestamp')}

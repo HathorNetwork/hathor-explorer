@@ -8,6 +8,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
+import hathorLib from '@hathor/wallet-lib';
 import dateFormatter from '../../utils/date';
 import { useIsMobile } from '../../hooks';
 import EllipsiCell from '../EllipsiCell';
@@ -29,6 +30,22 @@ function TokenRow({ token }) {
     return <div className="table-tokens-symbol">{children}</div>;
   };
 
+  /**
+   * Returns the fee model label based on token version
+   */
+  const getFeeModelLabel = version => {
+    switch (version) {
+      case hathorLib.TokenVersion.NATIVE:
+        return 'Native';
+      case hathorLib.TokenVersion.DEPOSIT:
+        return 'Deposit';
+      case hathorLib.TokenVersion.FEE:
+        return 'Fee';
+      default:
+        return '-';
+    }
+  };
+
   const renderNewUi = () =>
     isMobile ? (
       <tr onClick={_e => onRowClicked(token.uid)}>
@@ -47,6 +64,7 @@ function TokenRow({ token }) {
           <Symbol>{token.symbol}</Symbol>
         </td>
         <td className="d-lg-table-cell pe-3">{token.nft ? 'NFT' : 'Custom Token'}</td>
+        <td className="d-lg-table-cell pe-3">{getFeeModelLabel(token.version)}</td>
         <td className="d-lg-table-cell pe-3 date-cell">
           {dateFormatter.parseTimestampNewUi(token.transaction_timestamp)}
         </td>
@@ -62,6 +80,7 @@ function TokenRow({ token }) {
  * symbol: Token symbol
  * nft: If token is NFT or a Custom Token
  * transaction_timestamp: Timestamp of the transaction that created the token
+ * version: Token version (0=native, 1=deposit-based, 2=fee-based)
  */
 TokenRow.propTypes = {
   token: PropTypes.shape({
@@ -70,6 +89,7 @@ TokenRow.propTypes = {
     symbol: PropTypes.string.isRequired,
     nft: PropTypes.bool.isRequired,
     transaction_timestamp: PropTypes.number.isRequired,
+    version: PropTypes.number,
   }),
 };
 
