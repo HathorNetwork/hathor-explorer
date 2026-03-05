@@ -90,15 +90,19 @@ const TokenNFTPreview = props => {
     );
   } else if (nftType === NFT_MEDIA_TYPES.pdf) {
     // Toolbar to prevent showing download/print icons
+    // Using iframe instead of <object> to prevent script execution from
+    // malicious content (e.g. an SVG disguised as PDF). Cross-origin iframes
+    // isolate scripts from the parent page via same-origin policy.
+    // Note: sandbox attribute is not used because Chrome's PDF viewer plugin
+    // does not work inside sandboxed iframes.
     const data = `${token.meta.nft_media.file}#toolbar=0`;
     media = (
-      <object
-        data={data}
+      <iframe
+        title="NFT Preview"
+        src={data}
         width="100%"
         height="100%"
-        type="application/pdf"
-        alt="NFT Preview"
-        aria-label="NFT Preview"
+        style={{ border: 'none' }}
       />
     );
   } else {
