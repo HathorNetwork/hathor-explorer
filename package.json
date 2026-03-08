@@ -57,7 +57,7 @@
     "not op_mini all"
   ],
   "overrides": {
-    "immutable": ">=4.3.8"
+    "immutable": "5.1.5"
   },
   "devDependencies": {
     "eslint-config-airbnb-base": "14.2.1",
