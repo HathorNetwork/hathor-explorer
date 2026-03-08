@@ -5,24 +5,26 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import Transactions from '../components/tx/Transactions';
 import metadataApi from '../api/metadataApi';
 import tokenApi from '../api/tokenApi';
 import TokenDetailsTop from '../components/token/TokenDetailsTop';
-import TokenAlerts from '../components/token/TokenAlerts';
+import helpers from '../utils/helpers';
 
 /**
  * Screen to manage a token. See total amount, if can mint/melt and the history of transaction
  *
  * @memberof Screens
  */
-class TokenDetail extends React.Component {
+function TokenDetail() {
   /**
    * token {Object} selected token data
    *    - uid {string} UID of token
    *    - name {string} Token Name
    *    - symbol {string} Token symbol
+   *    - version {number} Token version (0=NATIVE, 1=DEPOSIT, 2=FEE)
    *    - totalSupply {number} Token total supply
    *    - canMint {boolean} If this token can still be minted
    *    - canMelt {boolean} If this token can still be melted
@@ -37,66 +39,58 @@ class TokenDetail extends React.Component {
    * transactions {Array} Array of transactions for the token
    * metadataLoaded {boolean} If token metadata was loaded
    */
-  state = {
-    token: null,
-    errorMessage: '',
-    transactions: [],
-    metadataLoaded: false,
-  };
+  const [token, setToken] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [tokenInfoLoaded, setTokenInfoLoaded] = useState(false);
+  const [metadataLoaded, setMetadataLoaded] = useState(false);
 
-  componentDidMount() {
-    const {
-      match: { params },
-    } = this.props;
+  const { tokenUID } = useParams();
 
-    this.setTokenId(params.tokenUID);
-  }
-
-  setTokenId(id) {
-    this.updateTokenInfo(id);
-    this.updateTokenMetadata(id);
-  }
+  useEffect(() => {
+    updateTokenInfo(tokenUID).catch(e => console.error(e));
+    updateTokenMetadata(tokenUID).catch(e => console.error(e));
+  }, [tokenUID]);
 
   /**
    * Upadte token info getting data from the full node (can mint, can melt, total supply)
    */
-  updateTokenInfo = id => {
-    tokenApi.get(id).then(response => {
-      if (response.success) {
-        this.setState(oldState => {
-          return {
-            token: {
-              ...oldState.token,
-              uid: id,
-              name: response.name,
-              symbol: response.symbol,
-              totalSupply: response.total,
-              canMint: response.mint.length > 0,
-              canMelt: response.melt.length > 0,
-              transactionsCount: response.transactions_count,
-            },
-          };
-        });
-      } else {
-        this.setState({ errorMessage: response.message });
-      }
-    });
+  const updateTokenInfo = async id => {
+    const response = await tokenApi.get(id);
+    if (!response.success) {
+      setErrorMessage(response.message);
+      return;
+    }
+
+    setToken(oldToken => ({
+      ...oldToken,
+      uid: id,
+      name: response.name,
+      symbol: response.symbol,
+      version: response.version,
+      totalSupply: response.total,
+      canMint: response.mint.length > 0,
+      canMelt: response.melt.length > 0,
+      transactionsCount: response.transactions_count,
+    }));
+    setTokenInfoLoaded(true);
   };
 
-  updateTokenMetadata = id => {
-    metadataApi.getDagMetadata(id).then(data => {
-      if (data) {
-        this.setState(oldState => {
-          return {
-            token: {
-              ...oldState.token,
-              uid: id,
-              meta: data,
-            },
-          };
-        });
-      }
-      this.setState({ metadataLoaded: true });
+  const updateTokenMetadata = async id => {
+    if (!helpers.isExplorerModeFull()) {
+      setMetadataLoaded(true);
+      return;
+    }
+    const data = await metadataApi.getDagMetadata(id);
+    setMetadataLoaded(true);
+    if (!data) {
+      return;
+    }
+    setToken(oldToken => {
+      return {
+        ...oldToken,
+        uid: id,
+        meta: data,
+      };
     });
   };
 
@@ -108,15 +102,15 @@ class TokenDetail extends React.Component {
    *
    * @return {boolean} True if should update the list, false otherwise
    */
-  shouldUpdateList = tx => {
+  const shouldUpdateList = tx => {
     for (const input of tx.inputs) {
-      if (input.token === this.state.token.uid) {
+      if (input.token === token.uid) {
         return true;
       }
     }
 
     for (const output of tx.outputs) {
-      if (output.token === this.state.token.uid) {
+      if (output.token === token.uid) {
         return true;
       }
     }
@@ -134,40 +128,34 @@ class TokenDetail extends React.Component {
    *
    * @return {Promise} Promise to be resolved when new data arrives
    */
-  updateListData = (timestamp, hash, page) => {
-    const promise = new Promise((resolve, reject) => {
-      tokenApi.getHistory(this.state.token.uid, timestamp, hash, page).then(response => {
-        resolve(response);
-      });
-    });
-    return promise;
+  const updateListData = (timestamp, hash, page) => {
+    return tokenApi.getHistory(token.uid, timestamp, hash, page);
   };
 
-  render() {
-    if (this.state.errorMessage) {
-      return (
-        <div className="content-wrapper flex align-items-start">
-          <p className="text-danger">{this.state.errorMessage}</p>
-        </div>
-      );
-    }
-
-    if (!this.state.token) return null;
-
+  if (errorMessage) {
     return (
-      <div className="content-wrapper flex align-items-center">
-        <TokenAlerts token={this.state.token} />
-        <TokenDetailsTop token={this.state.token} metadataLoaded={this.state.metadataLoaded} />
-        <div className="d-flex flex-column align-items-start justify-content-center mt-5">
-          <Transactions
-            title={<h2>Transaction History</h2>}
-            shouldUpdateList={this.shouldUpdateList}
-            updateData={this.updateListData}
-          />
-        </div>
+      <div className="content-wrapper flex align-items-start">
+        <p className="text-danger">{errorMessage}</p>
       </div>
     );
   }
+
+  if (!token || !tokenInfoLoaded) return null;
+
+  const renderNewUi = () => (
+    <div className="flex align-items-center token-details-container">
+      <TokenDetailsTop token={token} metadataLoaded={metadataLoaded} />
+      <div className="tx-container">
+        <Transactions
+          title={<h1 className="title-tx-page">Transactions</h1>}
+          shouldUpdateList={shouldUpdateList}
+          updateData={updateListData}
+        />
+      </div>
+    </div>
+  );
+
+  return renderNewUi();
 }
 
 export default TokenDetail;

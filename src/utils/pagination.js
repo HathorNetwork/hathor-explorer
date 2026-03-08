@@ -43,17 +43,45 @@ class PaginationURL {
   }
 
   /**
+   * Clear parameters from the URL without refreshing the window
+   *
+   * paramsToClear {string[]} Array of strings with keys to clear the URL parameters
+   */
+  clearParametersWithoutRefresh(paramsToClear) {
+    const url = new URL(window.location.href);
+    for (const param in this.parameters) {
+      if (paramsToClear.indexOf(param) !== -1) {
+        // Remove from search param
+        url.searchParams.delete(param);
+      }
+    }
+    window.history.replaceState({}, '', url.href);
+  }
+
+  /**
    * Set URL parameters
    *
    * data {Object} with key as param name and value as it's value to be set
+   * paramsToClear {string[]=[]} Array of strings with keys to clear the URL parameters
    */
-  setURLParameters(data) {
+  setURLParameters(data, paramsToDelete = []) {
     const url = new URL(window.location.href);
     for (const param in data) {
       if (param in this.parameters) {
         url.searchParams.set(param, data[param]);
       }
     }
+
+    for (const param of paramsToDelete) {
+      if (!url.searchParams.has(param)) {
+        // Param does not exist in URL
+        continue;
+      }
+
+      // Remove from search param
+      url.searchParams.delete(param);
+    }
+
     return url.pathname + url.search + url.hash;
   }
 }

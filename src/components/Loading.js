@@ -7,7 +7,7 @@
 
 import React, { useEffect, useState } from 'react';
 
-import ReactLoading from 'react-loading';
+import Spinner from './Spinner';
 import colors from '../index.scss';
 
 const Loading = props => {
@@ -24,12 +24,17 @@ const Loading = props => {
   });
 
   const { showSlowLoadMessage, useLoadingWrapper, ...reactLoadProps } = props;
-  return (
-    <div className={useLoadingWrapper ? 'loading-wrapper' : ''}>
-      <ReactLoading {...reactLoadProps} />
-      {slowLoad && showSlowLoadMessage ? <span>Still loading... Please, be patient.</span> : null}
-    </div>
-  );
+
+  const renderNewUi = () => {
+    return (
+      <div className={useLoadingWrapper ? 'loading-wrapper' : ''}>
+        <Spinner {...reactLoadProps} />
+        {slowLoad && showSlowLoadMessage ? <span>Still loading... Please, be patient.</span> : null}
+      </div>
+    );
+  };
+
+  return renderNewUi();
 };
 
 Loading.defaultProps = {

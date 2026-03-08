@@ -17,8 +17,8 @@ const addressApi = {
         }
         return undefined;
       })
-      .catch(_error => {
-        // something wrong with request
+      .catch(error => {
+        console.error(`Failure obtaining address ${address} balance`, error);
       });
   },
 
@@ -49,8 +49,8 @@ const addressApi = {
         }
         return undefined;
       })
-      .catch(_error => {
-        // something wrong with request
+      .catch(error => {
+        console.error('Failure searching for addresses', error);
       });
   },
 };

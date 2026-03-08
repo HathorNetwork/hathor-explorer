@@ -9,11 +9,15 @@ import React from 'react';
 import Features from '../components/feature_activation/Features';
 
 function FeatureList() {
-  return (
-    <div className="content-wrapper">
-      <Features title={<h1>Feature Activation</h1>} />
-    </div>
-  );
+  const renderNewUi = () => {
+    return (
+      <div className="section-tables-stylized">
+        <Features title="Feature Activation" />
+      </div>
+    );
+  };
+
+  return renderNewUi();
 }
 
 export default FeatureList;

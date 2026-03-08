@@ -8,8 +8,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import hljs from 'highlight.js/lib/core';
 import python from 'highlight.js/lib/languages/python';
+import { useParams } from 'react-router-dom';
 import Loading from '../../components/Loading';
 import nanoApi from '../../api/nanoApi';
+import { DropDetails } from '../../components/DropDetails';
 
 hljs.registerLanguage('python', python);
 
@@ -18,8 +20,8 @@ hljs.registerLanguage('python', python);
  *
  * @memberof Screens
  */
-function BlueprintDetail(props) {
-  const blueprintId = props.match.params.blueprint_id;
+function BlueprintDetail() {
+  const { blueprint_id: blueprintId } = useParams();
 
   // blueprintInformation {Object | null} Blueprint information
   const [blueprintInformation, setBlueprintInformation] = useState(null);
@@ -72,6 +74,12 @@ function BlueprintDetail(props) {
     }
   }, [blueprintSourceCode]);
 
+  useEffect(() => {
+    if (showCode && codeRef.current) {
+      hljs.highlightBlock(codeRef.current);
+    }
+  }, [blueprintSourceCode, showCode]);
+
   if (errorMessage) {
     return <p className="text-danger mb-4">{errorMessage}</p>;
   }
@@ -80,14 +88,14 @@ function BlueprintDetail(props) {
     return <Loading />;
   }
 
-  const renderBlueprintAttributes = () => {
+  const renderNewUiBlueprintAttributes = () => {
     return (
-      <div className="table-responsive">
-        <table className="table table-striped table-bordered" id="attributes-table">
+      <div className="table-responsive blueprint-attributes-table">
+        <table className="table-stylized" id="attributes-table">
           <thead>
             <tr>
-              <th className="d-lg-table-cell">Name</th>
-              <th className="d-lg-table-cell">Type</th>
+              <th>Name</th>
+              <th>Type</th>
             </tr>
           </thead>
           <tbody>{renderAttributes()}</tbody>
@@ -107,13 +115,13 @@ function BlueprintDetail(props) {
     });
   };
 
-  const renderBlueprintMethods = (key, header) => {
+  const renderNewUiBlueprintMethods = (key, header) => {
     return (
-      <div className="table-responsive mt-5">
-        <table className="table table-striped table-bordered" id={`methods-table-${key}`}>
+      <div className="table-responsive blueprint-methods-table">
+        <table className="table-stylized" id={`methods-table-${key}`}>
           <thead>
             <tr>
-              <th className="d-lg-table-cell">{header}</th>
+              <th className="blueprint-table-methods-header">{header}</th>
             </tr>
           </thead>
           <tbody>{renderMethods(key)}</tbody>
@@ -143,42 +151,52 @@ function BlueprintDetail(props) {
    * @param {Event} e Click event
    */
   const onToggleShowCode = e => {
-    e.preventDefault();
+    if (e) {
+      e.preventDefault();
+    }
     setShowCode(!showCode);
   };
 
-  return (
-    <div className="content-wrapper">
-      <h3 className="mt-4">Blueprint Information</h3>
-      <div className="mt-5">
-        <p>
-          <strong>ID: </strong>
-          {blueprintId}
-        </p>
-        <p>
-          <strong>Name: </strong>
-          {blueprintInformation.name}
-        </p>
-        <h4 className="mt-5 mb-4">Attributes</h4>
-        {renderBlueprintAttributes()}
-        {renderBlueprintMethods('public_methods', 'Public Methods')}
-        {renderBlueprintMethods('private_methods', 'Private Methods')}
-        <div className="d-flex flex-row align-items-center mb-4 mt-4">
-          <h4 className="mb-0 me-3">Source Code</h4>
-          <a href="true" onClick={e => onToggleShowCode(e)}>
-            {showCode ? 'Hide' : 'Show'}
-          </a>
+  const renderNewUi = () => (
+    <div className="blueprint-content-wrapper">
+      <h3>Blueprint Information</h3>
+      <p className="blueprint-id-name-info">
+        <strong>ID: </strong>
+        <span>{blueprintId}</span>
+      </p>
+      <p className="blueprint-id-name-info">
+        <strong>NAME: </strong>
+        <span>{blueprintInformation.name}</span>
+      </p>
+      <div className="blueprint-attributes">
+        <h4>Attributes</h4>
+        {renderNewUiBlueprintAttributes()}
+      </div>
+      <div className="blueprint-methods-container">
+        <div className="blueprint-methods">
+          {renderNewUiBlueprintMethods('public_methods', 'Public Methods')}
         </div>
-        <div className={`source-code ${showCode ? 'show' : ''}`}>
-          <pre>
-            <code ref={codeRef} className="language-python">
-              {blueprintSourceCode}
-            </code>
-          </pre>
+        <div className="blueprint-methods">
+          {renderNewUiBlueprintMethods('view_methods', 'View Methods')}
+        </div>
+      </div>
+      <div className="blueprint-source-code">
+        <div style={{ display: 'flex' }}>
+          <DropDetails title="Source Code" onToggle={e => onToggleShowCode(e)}>
+            <div className={`source-code ${showCode ? 'show' : ''}`}>
+              <pre>
+                <code ref={codeRef} className="language-python">
+                  {blueprintSourceCode}
+                </code>
+              </pre>
+            </div>
+          </DropDetails>
         </div>
       </div>
     </div>
   );
+
+  return renderNewUi();
 }
 
 export default BlueprintDetail;

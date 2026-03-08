@@ -8,8 +8,10 @@
 import React from 'react';
 import networkApi from '../api/networkApi';
 import Loading from './Loading';
+import HathorSelect from './HathorSelect';
 import dateFormatter from '../utils/date';
 import colors from '../index.scss';
+import { ReactComponent as InfoIcon } from '../assets/images/icon-info.svg';
 
 const SyncStates = {
   IN_SYNC: 'in-sync',
@@ -52,9 +54,7 @@ class Network extends React.Component {
   }
 
   loadPeers() {
-    const {
-      match: { params },
-    } = this.props;
+    const { match: params } = this.props;
 
     networkApi
       .getPeerList()
@@ -77,7 +77,7 @@ class Network extends React.Component {
   }
 
   onPeerChange(peerId) {
-    this.props.history.push(`/network/${peerId}`);
+    this.props.navigate(`/network/${peerId}`);
     clearInterval(this.loadTimer);
     this.setState({ peerId, loaded: false }, () => {
       this.loadData();
@@ -104,14 +104,6 @@ class Network extends React.Component {
         }
       );
     });
-  }
-
-  isPeerConnected(id) {
-    return (
-      this.state.connected_peers.filter(peer => {
-        return peer.id === id;
-      }).length > 0
-    );
   }
 
   getConnection(id) {
@@ -186,26 +178,39 @@ class Network extends React.Component {
     return `${peerId.substr(0, 8)}...${peerId.substr(-8, 8)}`;
   }
 
-  render() {
+  renderNewUi() {
     const loadTable = () => {
       return (
         <div style={{ width: '100%' }}>
-          <div className="card text-white bg-dark" style={{ marginBottom: '30px' }}>
-            <div className="card-body">
-              Id: {this.state.id}
-              <br />
-              Uptime: {dateFormatter.uptimeFormat(this.state.uptime)}
-              <br />
-              Version: {this.state.app_version}
-              <br />
-              Latest timestamp: {dateFormatter.timestampToString(this.state.latest_timestamp)}
-              <br />
-              {this.state.best_block ? (
-                <>
-                  Best block: {this.state.best_block.height} ({this.state.best_block.id})<br />
-                </>
-              ) : null}
+          <div className="network-data-top" style={{ marginBottom: '30px' }}>
+            <div>
+              <span>ID</span>
+              <span>{this.state.id}</span>
             </div>
+            <div>
+              <span>UPTIME</span>
+              <span>{dateFormatter.uptimeFormat(this.state.uptime)}</span>
+            </div>
+            <div>
+              <span>VERSION</span>
+              <span>{this.state.app_version}</span>
+            </div>
+            <div>
+              <span>
+                LATEST
+                <br />
+                TIMESTAMP
+              </span>
+              <span>{dateFormatter.timestampToString(this.state.latest_timestamp)}</span>
+            </div>
+            {this.state.best_block ? (
+              <div>
+                <span>BEST BLOCK</span>
+                <span>
+                  {this.state.best_block.height} ({this.state.best_block.id})
+                </span>
+              </div>
+            ) : null}
           </div>
           {loadTableBody()}
         </div>
@@ -225,65 +230,84 @@ class Network extends React.Component {
       const entrypoints = conn.entrypoints || [];
 
       return (
-        <div key={peer} style={{ marginBottom: '30px' }} className={'card bg-light border-success'}>
-          <h6 className="card-header">
-            {peer}
+        <div key={peer} style={{ marginBottom: '30px' }} className="network-card">
+          <h6 className="network-card-header">
+            <span className="token-peer">{peer}</span>
             <span className="float-right">
               <span className="badge badge-success">Connected</span>
             </span>
           </h6>
-          <div className="card-body">
-            Uptime: {dateFormatter.uptimeFormat(conn.uptime)}
-            <br />
-            Version: {conn.app_version}
-            <br />
-            Protocol: {conn.protocol_version}
-            <br />
-            Address: {conn.address}
-            <br />
-            Entrypoints: {entrypoints.join(', ')}
-            <br />
-            State: {sync_state_description}
+          <hr />
+          <div className="network-card-body">
+            <div>
+              <span>UPTIME</span>
+              <span>{dateFormatter.uptimeFormat(conn.uptime)}</span>
+            </div>
+            <div>
+              <span>VERSION</span>
+              <span>{conn.app_version}</span>
+            </div>
+            <div>
+              <span>PROTOCOL</span>
+              <span>{conn.protocol_version}</span>
+            </div>
+            <div>
+              <span>ADDRESS</span>
+              <span>{conn.address}</span>
+            </div>
+            <div>
+              <span>ENTRYPOINTS</span>
+              <span>{entrypoints.join(', ')}</span>
+            </div>
+            <div>
+              <span>STATE</span>
+              <span>{sync_state_description}</span>
+            </div>
           </div>
-          <ul className="list-group list-group-flush">
-            <li className="list-group-item">
+          <hr />
+          <div className="network-card-body-bottom">
+            {sync_data.sync_timestamp ? (
               <div>
-                {sync_data.sync_timestamp ? (
-                  <>
-                    Synced timestamp: {dateFormatter.timestampToString(sync_data.sync_timestamp)}
-                    <br />
-                  </>
-                ) : null}
-                {sync_data.latest_timestamp ? (
-                  <>
-                    Latest timestamp: {dateFormatter.timestampToString(sync_data.latest_timestamp)}
-                  </>
-                ) : null}
-                {sync_data.synced_block ? (
-                  <>
-                    Synced block: {sync_data.synced_block.height} ({sync_data.synced_block.id})
-                    <br />
-                  </>
-                ) : null}
-                {sync_data.peer_best_block ? (
-                  <>
-                    Best block: {sync_data.peer_best_block.height} ({sync_data.peer_best_block.id})
-                    <br />
-                  </>
-                ) : null}
+                <span>SYNCED TIMESTAMP</span>
+                <span>{dateFormatter.timestampToString(sync_data.sync_timestamp)}</span>
               </div>
-              <div className="progress">
-                <div
-                  className="progress-bar bg-success"
-                  style={{ width: `${synced_percent}%` }}
-                ></div>
-                <div
-                  className="progress-bar bg-warning"
-                  style={{ width: `${general_percent}%` }}
-                ></div>
+            ) : null}
+            {sync_data.latest_timestamp ? (
+              <div>
+                <span>LATEST TIMESTAMP</span>
+                <span>{dateFormatter.timestampToString(sync_data.latest_timestamp)}</span>
               </div>
-            </li>
-          </ul>
+            ) : null}
+            {sync_data.synced_block ? (
+              <div>
+                <span>SYNCED BLOCK</span>
+                <span>
+                  {sync_data.synced_block.height} ({sync_data.synced_block.id})
+                </span>
+              </div>
+            ) : null}
+            {sync_data.peer_best_block ? (
+              <div>
+                <span>BEST BLOCK</span>
+                <span>
+                  {sync_data.peer_best_block.height} ({sync_data.peer_best_block.id})
+                </span>
+              </div>
+            ) : null}
+            <div className="progress">
+              <div
+                className="progress-bar bg-success"
+                style={{
+                  width: `${synced_percent}%`,
+                  borderRadius: `${synced_percent}% 0px 0px ${synced_percent}%}`,
+                }}
+              ></div>
+              <div
+                className="progress-bar bg-warning"
+                style={{ width: `${general_percent}%`, borderRadius: '0px 5px 5px 0px' }}
+              ></div>
+            </div>
+          </div>
         </div>
       );
     };
@@ -304,34 +328,50 @@ class Network extends React.Component {
         return null;
       }
 
+      const selectPeer = () => {
+        const selectP = this.state.peers.find(peer => peer === this.state.peerId);
+        if (selectP) {
+          return {
+            key: selectP,
+            name: `${this.getPeerIdAbbrev(selectP)}`,
+          };
+        }
+
+        return null;
+      };
+
+      const renderPeerOptions = () => {
+        return this.state.peers.map(peer => {
+          return {
+            key: peer,
+            name: `${this.getPeerIdAbbrev(peer)}`,
+          };
+        });
+      };
+
       return (
-        <div className="form-inline mb-3">
-          <label>
-            Peer:
-            <select
-              name="peers"
-              className="form-control mx-2"
-              value={this.state.peerId}
-              onChange={event => this.onPeerChange(event.target.value)}
-            >
-              {this.state.peers.map(peer => {
-                return (
-                  <option value={peer} key={peer}>
-                    {this.getPeerIdAbbrev(peer)}
-                  </option>
-                );
-              })}
-            </select>
-          </label>
-          <button className="info-hover-wrapper float-right btn btn-link">
-            <i className="fa fa-info-circle" title="Select a peer"></i>
-            <span className="subtitle subtitle info-hover-popover">
-              Select a peer to check its network status.
-            </span>
-          </button>
-          <button className="btn btn-hathor ms-auto" onClick={this.loadData}>
-            Reload data
-          </button>
+        <div className="network-top">
+          <div className="peer-info">
+            <span>PEER</span>
+            <div className="peer-info-icon">
+              <InfoIcon />
+              <span className="new-info-hover-popover">
+                Select a peer to check its network status.
+              </span>
+            </div>
+          </div>
+          <div className="network-select-reload">
+            <HathorSelect
+              value={selectPeer()}
+              options={renderPeerOptions()}
+              onSelect={e => this.onPeerChange(e)}
+              style={{ width: '500px' }}
+              background="var(--background-network-select)"
+            />
+            <button className="network-reload-btn" onClick={() => this.loadData()}>
+              Reload Data
+            </button>
+          </div>
         </div>
       );
     };
@@ -346,6 +386,10 @@ class Network extends React.Component {
         )}
       </>
     );
+  }
+
+  render() {
+    return this.renderNewUi();
   }
 }
 

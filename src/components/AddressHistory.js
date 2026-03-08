@@ -6,12 +6,16 @@
  */
 
 import React from 'react';
-import dateFormatter from '../utils/date';
+import { connect } from 'react-redux';
 import hathorLib from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
+import dateFormatter from '../utils/date';
 import PaginationURL from '../utils/pagination';
 import SortableTable from './SortableTable';
-import { connect } from 'react-redux';
+import EllipsiCell from './EllipsiCell';
+import { ReactComponent as RowBottomIcon } from '../assets/images/leading-icon.svg';
+import { ReactComponent as RowTopIcon } from '../assets/images/leading-top-icon.svg';
+import { COLORS } from '../constants';
 
 const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
@@ -26,7 +30,7 @@ class AddressHistory extends SortableTable {
    * @return {boolean} If the tx has only authority in the search address
    */
   isAllAuthority = tx => {
-    for (let txin of tx.inputs) {
+    for (const txin of tx.inputs) {
       if (
         !hathorLib.transactionUtils.isAuthorityOutput(txin) &&
         txin.decoded.address === this.props.address
@@ -35,7 +39,7 @@ class AddressHistory extends SortableTable {
       }
     }
 
-    for (let txout of tx.outputs) {
+    for (const txout of tx.outputs) {
       if (
         !hathorLib.transactionUtils.isAuthorityOutput(txout) &&
         txout.decoded.address === this.props.address
@@ -48,28 +52,17 @@ class AddressHistory extends SortableTable {
   };
 
   renderTable(content) {
-    return (
-      <table className="table table-striped address-history" id="tx-table">
-        {content}
-      </table>
-    );
+    return <table className=" table-stylized table-address">{content}</table>;
   }
 
   renderTableHead() {
     return (
       <tr>
-        <th className="d-none d-lg-table-cell">Type</th>
-        <th className="d-none d-lg-table-cell">Hash</th>
-        <th className="d-none d-lg-table-cell">Timestamp</th>
-        <th className="d-none d-lg-table-cell"></th>
-        <th className="d-none d-lg-table-cell">Value</th>
-        <th className="d-table-cell d-lg-none" colSpan="3">
-          Type
-          <br />
-          Hash
-          <br />
-          Timestamp
-        </th>
+        <th>Type</th>
+        <th>Hash</th>
+        <th className="th-table-token-mobile">Timestamp</th>
+        <th className="th-table-token-mobile"></th>
+        <th className="th-table-token-mobile">Value</th>
       </tr>
     );
   }
@@ -85,7 +78,8 @@ class AddressHistory extends SortableTable {
     );
   }
 
-  renderTableBody() {
+  renderNewTableBodyUi(isMobile) {
+    const ellipsisCount = isMobile ? 4 : 12;
     return this.props.data.map(tx => {
       let statusElement = '';
       let trClass = '';
@@ -94,14 +88,14 @@ class AddressHistory extends SortableTable {
       if (tx.balance > 0) {
         if (tx.version === hathorLib.constants.CREATE_TOKEN_TX_VERSION) {
           statusElement = (
-            <span>
-              Token creation <i className={`fa ms-3 fa-long-arrow-down`}></i>
+            <span className="type-span span-green-tag">
+              <RowBottomIcon /> Token creation
             </span>
           );
         } else {
           statusElement = (
-            <span>
-              Received <i className={`fa ms-3 fa-long-arrow-down`}></i>
+            <span className="type-span span-green-tag">
+              <RowBottomIcon /> Received
             </span>
           );
         }
@@ -109,24 +103,22 @@ class AddressHistory extends SortableTable {
       } else if (tx.balance < 0) {
         if (tx.version === hathorLib.constants.CREATE_TOKEN_TX_VERSION) {
           statusElement = (
-            <span>
-              Token deposit <i className={`fa ms-3 fa-long-arrow-up`}></i>
+            <span className="type-span span-red-tag">
+              <RowTopIcon /> Token deposit
             </span>
           );
         } else {
           statusElement = (
-            <span>
-              Sent <i className={`fa ms-3 fa-long-arrow-up`}></i>
+            <span className="type-span span-red-tag">
+              <RowTopIcon /> Sent
             </span>
           );
         }
         trClass = 'input-tr';
-      } else {
-        if (this.props.txCache[tx.tx_id]) {
-          if (this.isAllAuthority(this.props.txCache[tx.tx_id])) {
-            statusElement = <span>Authority</span>;
-            prettyValue = '--';
-          }
+      } else if (this.props.txCache[tx.tx_id]) {
+        if (this.isAllAuthority(this.props.txCache[tx.tx_id])) {
+          statusElement = <span>Authority</span>;
+          prettyValue = '--';
         }
       }
 
@@ -135,30 +127,27 @@ class AddressHistory extends SortableTable {
         trClass = '';
       }
       return (
-        <tr key={tx.tx_id} className={trClass} onClick={e => this.props.onRowClicked(tx.tx_id)}>
-          <td className="d-none d-lg-table-cell pe-3">
-            {hathorLib.transactionUtils.getTxType(tx)}
+        <tr key={tx.tx_id} className={trClass} onClick={_e => this.props.onRowClicked(tx.tx_id)}>
+          <td className="pe-3">{hathorLib.transactionUtils.getTxType(tx)}</td>
+          <td className="pe-3">
+            <EllipsiCell id={tx.tx_id} countBefore={ellipsisCount} countAfter={ellipsisCount} />
           </td>
-          <td className="d-none d-lg-table-cell pe-3">
-            {hathorLib.helpersUtils.getShortHash(tx.tx_id)}
+          <td className="pe-3 td-mobile date-cell">
+            {dateFormatter.parseTimestampNewUi(tx.timestamp)}
           </td>
-          <td className="d-none d-lg-table-cell pe-3">
-            {dateFormatter.parseTimestamp(tx.timestamp)}
-          </td>
-          <td className="state">{statusElement}</td>
-          <td className="value">
-            <span className="">{prettyValue}</span>
-          </td>
-          <td className="d-lg-none d-table-cell pe-3" colSpan="3">
-            {hathorLib.transactionUtils.getTxType(tx)}
-            <br />
-            {hathorLib.helpersUtils.getShortHash(tx.tx_id)}
-            <br />
-            {dateFormatter.parseTimestamp(tx.timestamp)}
+          <td className="state td-mobile">{statusElement}</td>
+          <td className="value td-mobile">
+            <span style={{ color: tx.balance < 0 ? COLORS.danger : COLORS.success }}>
+              {prettyValue}
+            </span>
           </td>
         </tr>
       );
     });
+  }
+
+  renderTableBody() {
+    return this.renderNewTableBodyUi(this.props.isMobile);
   }
 }
 
@@ -179,6 +168,7 @@ AddressHistory.propTypes = {
   selectedToken: PropTypes.string.isRequired,
   numTransactions: PropTypes.number.isRequired,
   txCache: PropTypes.object.isRequired,
+  isMobile: PropTypes.bool.isRequired,
 };
 
 export default connect(mapStateToProps)(AddressHistory);

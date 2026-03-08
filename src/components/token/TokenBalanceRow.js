@@ -6,41 +6,43 @@
  */
 
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { numberUtils } from '@hathor/wallet-lib';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { useIsMobile } from '../../hooks';
+import EllipsiCell from '../EllipsiCell';
 
-const mapStateToProps = state => ({
-  decimalPlaces: state.serverInfo.decimal_places,
-});
+function TokenBalanceRow({ tokenId, address, total, unlocked, locked }) {
+  const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const decimalPlaces = useSelector(state => state.serverInfo.decimal_places);
 
-class TokenBalanceRow extends React.Component {
   /**
    * Redirects to token detail screen after clicking on a table row
    *
    * @param {String} uid UID of token clicked
    */
-  onRowClicked = () => {
-    this.props.history.push(`/address/${this.props.address}?token=${this.props.tokenId}`);
+  const onRowClicked = () => {
+    navigate(`/address/${address}?token=${tokenId}`);
   };
 
-  render() {
-    return (
-      <tr onClick={e => this.onRowClicked(this.props.address)}>
-        <td className="d-lg-table-cell pe-3">{this.props.address}</td>
-        <td className="d-lg-table-cell pe-3">
-          {numberUtils.prettyValue(this.props.total, this.props.decimalPlaces)}
-        </td>
-        <td className="d-lg-table-cell pe-3">
-          {numberUtils.prettyValue(this.props.unlocked, this.props.decimalPlaces)}
-        </td>
-        <td className="d-lg-table-cell pe-3">
-          {numberUtils.prettyValue(this.props.locked, this.props.decimalPlaces)}
-        </td>
-      </tr>
-    );
-  }
+  const renderNewUi = () => (
+    <tr onClick={onRowClicked}>
+      <td className="d-lg-table-cell pe-3">
+        {isMobile ? <EllipsiCell id={address} countBefore={4} countAfter={4} /> : address}
+      </td>
+      <td className="d-lg-table-cell pe-3">{numberUtils.prettyValue(total, decimalPlaces)}</td>
+      <td className="d-lg-table-cell pe-3 td-mobile">
+        {numberUtils.prettyValue(unlocked, decimalPlaces)}
+      </td>
+      <td className="d-lg-table-cell pe-3 td-mobile">
+        {numberUtils.prettyValue(locked, decimalPlaces)}
+      </td>
+    </tr>
+  );
+
+  return renderNewUi();
 }
 
 /**
@@ -58,4 +60,4 @@ TokenBalanceRow.propTypes = {
   tokenId: PropTypes.string.isRequired,
 };
 
-export default connect(mapStateToProps)(withRouter(TokenBalanceRow));
+export default TokenBalanceRow;

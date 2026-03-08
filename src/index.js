@@ -16,12 +16,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'font-awesome/css/font-awesome.min.css';
 import 'highlight.js/styles/github.css';
 import './index.css';
+import './newUi.css';
 
 import store from './store/index';
 import { UNLEASH_CONFIG } from './constants';
 
 const container = document.getElementById('root');
 const root = createRoot(container);
+
 root.render(
   <FlagProvider config={UNLEASH_CONFIG}>
     <Provider store={store}>

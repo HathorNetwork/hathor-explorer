@@ -7,14 +7,17 @@
 
 import React from 'react';
 import { useFlag } from '@unleash/proxy-client-react';
+import { useNavigate, useParams } from 'react-router-dom';
 import AddressDetailExplorer from '../components/AddressDetailExplorer';
 import AddressDetailLegacy from '../components/AddressDetailLegacy';
 import { UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG } from '../constants';
 import ErrorMessageWithIcon from '../components/error/ErrorMessageWithIcon';
 
-const AddressDetail = props => {
+const AddressDetail = () => {
   const maintenanceMode = useFlag(`${UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG}.maintenance`);
   const latestMode = useFlag(`${UNLEASH_ADDRESS_DETAIL_BASE_FEATURE_FLAG}.latest`);
+  const navigate = useNavigate();
+  const params = useParams();
 
   if (maintenanceMode) {
     return (
@@ -23,10 +26,10 @@ const AddressDetail = props => {
   }
 
   if (latestMode) {
-    return <AddressDetailExplorer {...props} />;
+    return <AddressDetailExplorer />;
   }
 
-  return <AddressDetailLegacy {...props} />;
+  return <AddressDetailLegacy navigate={navigate} match={{ params }} />;
 };
 
 export default AddressDetail;

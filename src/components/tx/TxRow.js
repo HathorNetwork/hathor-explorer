@@ -6,29 +6,36 @@
  */
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import dateFormatter from '../../utils/date';
-import { withRouter } from 'react-router-dom';
-import hathorLib from '@hathor/wallet-lib';
+import { useIsMobile } from '../../hooks';
+import EllipsiCell from '../EllipsiCell';
 
-class TxRow extends React.Component {
-  handleClickTr = hash => {
-    this.props.history.push(`/transaction/${hash}`);
+const TxRow = ({ tx, ellipsis }) => {
+  const isMobile = useIsMobile();
+  const ellipsisCount = isMobile ? 4 : 12;
+  const navigate = useNavigate();
+
+  const handleClickTr = hash => {
+    navigate(`/transaction/${hash}`);
   };
 
-  render() {
-    return (
-      <tr onClick={e => this.handleClickTr(this.props.tx.tx_id)}>
-        <td className="d-none d-lg-table-cell pe-3">{this.props.tx.tx_id}</td>
-        <td className="d-none d-lg-table-cell pe-3">
-          {dateFormatter.parseTimestamp(this.props.tx.timestamp)}
-        </td>
-        <td className="d-lg-none d-table-cell pe-3" colSpan="2">
-          {hathorLib.helpersUtils.getShortHash(this.props.tx.tx_id)}{' '}
-          {dateFormatter.parseTimestamp(this.props.tx.timestamp)}
-        </td>
-      </tr>
-    );
-  }
-}
+  const renderNewUi = () => (
+    <tr onClick={_e => handleClickTr(tx.tx_id)}>
+      <td className=" d-lg-table-cell pe-3">
+        {ellipsis ? (
+          <EllipsiCell id={tx.tx_id} countBefore={ellipsisCount} countAfter={ellipsisCount} />
+        ) : (
+          tx.tx_id
+        )}
+      </td>
+      <td className=" d-lg-table-cell pe-3 date-cell">
+        {dateFormatter.parseTimestampNewUi(tx.timestamp)}
+      </td>
+    </tr>
+  );
 
-export default withRouter(TxRow);
+  return renderNewUi();
+};
+
+export default TxRow;

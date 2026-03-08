@@ -5,12 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 
-import { Switch, BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { axios as hathorLibAxios, config as hathorLibConfig } from '@hathor/wallet-lib';
+import { useTheme } from './hooks';
 import GDPRConsent from './components/GDPRConsent';
 import Loading from './components/Loading';
 import Navigation from './components/Navigation';
+import Footer from './components/Footer';
 import PeerAdmin from './screens/PeerAdmin';
 import DashboardTx from './screens/DashboardTx';
 import TransactionDetail from './screens/TransactionDetail';
@@ -26,145 +30,160 @@ import TokenDetail from './screens/TokenDetail';
 import Dag from './screens/Dag';
 import Dashboard from './screens/Dashboard';
 import VersionError from './screens/VersionError';
+import ErrorMessage from './components/error/ErrorMessage';
 import WebSocketHandler from './WebSocketHandler';
 import NanoContractDetail from './screens/nano/NanoContractDetail';
 import BlueprintDetail from './screens/nano/BlueprintDetail';
+import BlueprintList from './screens/nano/BlueprintList';
+import NanoContractsList from './screens/nano/NanoContractsList';
+import NanoContractLogs from './screens/nano/NanoContractLogs';
 import {
   apiLoadErrorUpdate,
   dashboardUpdate,
   isVersionAllowedUpdate,
   updateServerInfo,
-} from './actions/index';
-import { connect } from 'react-redux';
+} from './store/rootSlice';
 import versionApi from './api/version';
 import helpers from './utils/helpers';
-import { axios as hathorLibAxios, config as hathorLibConfig } from '@hathor/wallet-lib';
 import { BASE_URL } from './constants';
 import createRequestInstance from './api/customAxiosInstance';
 
 hathorLibConfig.setServerUrl(BASE_URL);
 
-const mapDispatchToProps = dispatch => {
-  return {
-    dashboardUpdate: data => dispatch(dashboardUpdate(data)),
-    isVersionAllowedUpdate: data => dispatch(isVersionAllowedUpdate(data)),
-    apiLoadErrorUpdate: data => dispatch(apiLoadErrorUpdate(data)),
-    updateServerInfo: data => dispatch(updateServerInfo(data)),
-  };
+const NavigationRoute = ({ internalScreen: InternalScreen }) => {
+  return (
+    <div className="limit-section">
+      <Navigation />
+      <div style={{ flex: 1 }}>
+        <InternalScreen />
+      </div>
+      <Footer />
+    </div>
+  );
 };
 
-const mapStateToProps = state => {
-  return { isVersionAllowed: state.isVersionAllowed, apiLoadError: state.apiLoadError };
-};
+function Root() {
+  useTheme();
+  const dispatch = useDispatch();
+  const isVersionAllowed = useSelector(state => state.isVersionAllowed);
+  const apiLoadError = useSelector(state => state.apiLoadError);
 
-class Root extends React.Component {
-  componentDidMount() {
-    WebSocketHandler.on('dashboard', this.handleWebsocket);
+  // Define routes that are only available in full explorer mode
+  const fullModeRoutes = [
+    { path: '/push-tx', component: PushTx },
+    { path: '/decode-tx', component: DecodeTx },
+    { path: '/tokens', component: TokenList },
+    { path: '/token_balances', component: TokenBalancesList },
+    { path: '/dag', component: Dag },
+    { path: '/features', component: FeatureList },
+    { path: '/network/:peerId?', component: PeerAdmin },
+    { path: '/statistics', component: Dashboard },
+    { path: '/address/:address', component: AddressDetail },
+  ];
+
+  const handleWebsocket = useCallback(
+    wsData => {
+      if (wsData.type === 'dashboard:metrics') {
+        dispatch(dashboardUpdate({ ...wsData }));
+      }
+    },
+    [dispatch]
+  );
+
+  // Screen initialization
+  useEffect(() => {
+    WebSocketHandler.on('dashboard', handleWebsocket);
 
     hathorLibAxios.registerNewCreateRequestInstance(createRequestInstance);
-    this.props.apiLoadErrorUpdate({ apiLoadError: false });
+    dispatch(apiLoadErrorUpdate({ apiLoadError: false }));
 
-    versionApi.getVersion().then(
-      data => {
-        let network = data.network;
-        if (data.network.includes('testnet')) {
-          network = 'testnet';
-        }
+    versionApi
+      .getVersion()
+      .then(data => {
+        const network = data.network.includes('testnet') ? 'testnet' : data.network;
         hathorLibConfig.setNetwork(network);
-        this.props.updateServerInfo(data);
-        this.props.isVersionAllowedUpdate({ allowed: helpers.isVersionAllowed(data.version) });
-      },
-      e => {
+        dispatch(updateServerInfo(data));
+        dispatch(isVersionAllowedUpdate({ allowed: helpers.isVersionAllowed(data.version) }));
+      })
+      .catch(e => {
         // Error in request
         console.log(e);
-        this.props.apiLoadErrorUpdate({ apiLoadError: true });
-      }
+        dispatch(apiLoadErrorUpdate({ apiLoadError: true }));
+      });
+
+    return () => {
+      WebSocketHandler.removeListener('dashboard', handleWebsocket);
+    };
+  }, [dispatch, handleWebsocket]);
+
+  if (isVersionAllowed === undefined) {
+    // Waiting for version
+    return (
+      <BrowserRouter>
+        <>
+          <Navigation />
+          {apiLoadError ? <ErrorMessage /> : <Loading />}
+        </>
+      </BrowserRouter>
     );
   }
 
-  componentWillUnmount() {
-    WebSocketHandler.removeListener('dashboard', this.handleWebsocket);
+  if (!isVersionAllowed) {
+    return <VersionError />;
   }
 
-  handleWebsocket = wsData => {
-    if (wsData.type === 'dashboard:metrics') {
-      this.updateWithWs(wsData);
-    }
-  };
+  return (
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/transaction/:id"
+            element={<NavigationRoute internalScreen={TransactionDetail} />}
+          />
 
-  updateWithWs = data => {
-    this.props.dashboardUpdate({ ...data });
-  };
+          {/* Full mode only routes */}
+          {helpers.isExplorerModeFull() &&
+            fullModeRoutes.map(({ path, component }) => (
+              <Route
+                key={path}
+                path={path}
+                element={<NavigationRoute internalScreen={component} />}
+              />
+            ))}
 
-  render() {
-    if (this.props.isVersionAllowed === undefined) {
-      // Waiting for version
-      return (
-        <Router>
-          <>
-            <Navigation />
-            {this.props.apiLoadError ? (
-              <div className="content-wrapper">
-                <h3 className="text-danger">
-                  Error loading the explorer. Please reload the page to try again.
-                </h3>
-              </div>
-            ) : (
-              <Loading />
-            )}
-          </>
-        </Router>
-      );
-    } else if (!this.props.isVersionAllowed) {
-      return <VersionError />;
-    } else {
-      return (
-        <>
-          <Router>
-            <Switch>
-              <NavigationRoute exact path="/transaction/:id" component={TransactionDetail} />
-              <NavigationRoute exact path="/push-tx" component={PushTx} />
-              <NavigationRoute exact path="/decode-tx" component={DecodeTx} />
-              <NavigationRoute exact path="/transactions" component={TransactionList} />
-              <NavigationRoute exact path="/tokens" component={TokenList} />
-              <NavigationRoute exact path="/token_balances" component={TokenBalancesList} />
-              <NavigationRoute exact path="/blocks" component={BlockList} />
-              <NavigationRoute exact path="/dag" component={Dag} />
-              <NavigationRoute exact path="/features" component={FeatureList} />
-              <NavigationRoute exact path="/network/:peerId?" component={PeerAdmin} />
-              <NavigationRoute exact path="/statistics" component={Dashboard} />
-              <NavigationRoute exact path="/token_detail/:tokenUID" component={TokenDetail} />
-              <NavigationRoute exact path="/address/:address" component={AddressDetail} />
-              <NavigationRoute
-                exact
-                path="/nano_contract/detail/:nc_id"
-                component={NanoContractDetail}
-              />
-              <NavigationRoute
-                exact
-                path="/blueprint/detail/:blueprint_id"
-                component={BlueprintDetail}
-              />
-              <NavigationRoute exact path="" component={DashboardTx} />
-            </Switch>
-          </Router>
-          <GDPRConsent />
-        </>
-      );
-    }
-  }
+          <Route
+            path="/transactions"
+            element={<NavigationRoute internalScreen={TransactionList} />}
+          />
+          <Route path="/blocks" element={<NavigationRoute internalScreen={BlockList} />} />
+          <Route
+            path="/token_detail/:tokenUID"
+            element={<NavigationRoute internalScreen={TokenDetail} />}
+          />
+          <Route
+            path="/nano_contract/detail/:nc_id"
+            component={NanoContractDetail}
+            element={<NavigationRoute internalScreen={NanoContractDetail} />}
+          />
+          <Route
+            path="/nano_contract/logs/:tx_id"
+            element={<NavigationRoute internalScreen={NanoContractLogs} />}
+          />
+          <Route
+            path="/blueprint/detail/:blueprint_id"
+            element={<NavigationRoute internalScreen={BlueprintDetail} />}
+          />
+          <Route path="/blueprints/" element={<NavigationRoute internalScreen={BlueprintList} />} />
+          <Route
+            path="/nano_contracts/"
+            element={<NavigationRoute internalScreen={NanoContractsList} />}
+          />
+          <Route path="" element={<NavigationRoute internalScreen={DashboardTx} />} />
+        </Routes>
+      </BrowserRouter>
+      <GDPRConsent />
+    </>
+  );
 }
 
-const NavigationRoute = ({ component: Component, ...rest }) => (
-  <Route
-    {...rest}
-    render={props => (
-      <div>
-        <Navigation {...props} />
-        <Component {...props} />
-      </div>
-    )}
-  />
-);
-
-export default connect(mapStateToProps, mapDispatchToProps)(Root);
+export default Root;

@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { createStore } from 'redux';
-import rootReducer from '../reducers/index';
+import { configureStore } from '@reduxjs/toolkit';
+import rootReducer from './rootSlice';
 
-const store = createStore(rootReducer);
+const store = configureStore({ reducer: rootReducer });
 
 export default store;

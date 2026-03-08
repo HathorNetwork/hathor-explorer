@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) Hathor Labs and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -16,7 +23,7 @@ class TimeSeries extends React.Component {
     };
   }
 
-  render() {
+  renderNewUi() {
     if (!this.state.featureFlag) {
       return null;
     }
@@ -33,7 +40,7 @@ class TimeSeries extends React.Component {
           <iframe
             title="Time Series Data"
             id="timeseries-iframe"
-            className="timeseries-iframe"
+            className="new-timeseries-iframe"
             src={TIMESERIES_DASHBOARD_URL}
           ></iframe>
         </div>
@@ -42,10 +49,14 @@ class TimeSeries extends React.Component {
 
     return (
       <div>
-        <h2 className="statistics-title">Historical Data</h2>
+        <h2 className="statistics-data-title">Historical Data</h2>
         {renderDashboard()}
       </div>
     );
+  }
+
+  render() {
+    return this.renderNewUi();
   }
 }
 

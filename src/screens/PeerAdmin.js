@@ -6,16 +6,23 @@
  */
 
 import React from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Network from '../components/Network';
 
-class PeerAdmin extends React.Component {
-  render() {
-    return (
-      <div className="content-wrapper">
-        <Network {...this.props} />
+function PeerAdmin() {
+  const navigate = useNavigate();
+  const params = useParams();
+
+  const renderNewUi = () => (
+    <div className="network-wrapper">
+      <h2 className="network-title">Network</h2>
+      <div>
+        <Network navigate={navigate} match={params} />
       </div>
-    );
-  }
+    </div>
+  );
+
+  return renderNewUi();
 }
 
 export default PeerAdmin;

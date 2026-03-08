@@ -13,11 +13,13 @@ import { UNLEASH_TOKEN_BALANCES_FEATURE_FLAG } from '../constants';
 const TokenBalancesList = () => {
   const maintenanceMode = useFlag(`${UNLEASH_TOKEN_BALANCES_FEATURE_FLAG}.maintenance`);
 
-  return (
-    <div className="content-wrapper">
+  const renderNewUi = () => (
+    <div className="section-tables-stylized">
       <TokenBalances maintenanceMode={maintenanceMode} />
     </div>
   );
+
+  return renderNewUi();
 };
 
 export default TokenBalancesList;

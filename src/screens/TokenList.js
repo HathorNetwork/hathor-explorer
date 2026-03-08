@@ -7,17 +7,27 @@
 
 import React from 'react';
 import { useFlag } from '@unleash/proxy-client-react';
+import { useNavigate } from 'react-router-dom';
 import Tokens from '../components/token/Tokens';
 import { UNLEASH_TOKENS_BASE_FEATURE_FLAG } from '../constants';
 
 const TokenList = () => {
   const maintenanceMode = useFlag(`${UNLEASH_TOKENS_BASE_FEATURE_FLAG}.maintenance`);
+  const navigate = useNavigate();
 
-  return (
-    <div className="content-wrapper">
-      <Tokens title={'Tokens'} maintenanceMode={maintenanceMode} />
-    </div>
-  );
+  const renderNewUi = () => {
+    return (
+      <div className="section-tables-stylized">
+        <br />
+        <div className="container-title-page">
+          <p className="title-page">Tokens</p>
+          <Tokens maintenanceMode={maintenanceMode} navigate={navigate} />
+        </div>
+      </div>
+    );
+  };
+
+  return renderNewUi();
 };
 
 export default TokenList;

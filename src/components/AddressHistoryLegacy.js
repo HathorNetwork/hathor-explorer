@@ -7,11 +7,11 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import dateFormatter from '../utils/date';
 import hathorLib, { numberUtils } from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
-import PaginationURL from '../utils/pagination';
 import { connect } from 'react-redux';
+import PaginationURL from '../utils/pagination';
+import dateFormatter from '../utils/date';
 
 const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
@@ -29,7 +29,7 @@ class AddressHistory extends React.Component {
     const token = this.props.selectedToken;
     let value = 0;
 
-    for (let txin of tx.inputs) {
+    for (const txin of tx.inputs) {
       if (txin.token === token && txin.decoded.address === this.props.address) {
         if (!hathorLib.transactionUtils.isAuthorityOutput(txin)) {
           value -= txin.value;
@@ -37,7 +37,7 @@ class AddressHistory extends React.Component {
       }
     }
 
-    for (let txout of tx.outputs) {
+    for (const txout of tx.outputs) {
       if (txout.token === token && txout.decoded.address === this.props.address) {
         if (!hathorLib.transactionUtils.isAuthorityOutput(txout)) {
           value += txout.value;
@@ -56,7 +56,7 @@ class AddressHistory extends React.Component {
    * @return {boolean} If the tx has only authority in the search address
    */
   isAllAuthority = tx => {
-    for (let txin of tx.inputs) {
+    for (const txin of tx.inputs) {
       if (
         !hathorLib.transactionUtils.isAuthorityOutput(txin) &&
         txin.decoded.address === this.props.address
@@ -65,7 +65,7 @@ class AddressHistory extends React.Component {
       }
     }
 
-    for (let txout of tx.outputs) {
+    for (const txout of tx.outputs) {
       if (
         !hathorLib.transactionUtils.isAuthorityOutput(txout) &&
         txout.decoded.address === this.props.address
@@ -93,39 +93,35 @@ class AddressHistory extends React.Component {
     const loadPagination = () => {
       if (this.props.transactions.length === 0) {
         return null;
-      } else {
-        return (
-          <nav aria-label="Tx pagination" className="d-flex justify-content-center">
-            <ul className="pagination">
-              <li
-                ref="txPrevious"
-                className={!this.props.hasBefore ? 'page-item me-3 disabled' : 'page-item me-3'}
-              >
-                <Link
-                  className="page-link"
-                  to={this.props.pagination.setURLParameters({
-                    hash: getFirstHash(),
-                    page: 'previous',
-                  })}
-                >
-                  Previous
-                </Link>
-              </li>
-              <li
-                ref="txNext"
-                className={!this.props.hasAfter ? 'page-item disabled' : 'page-item'}
-              >
-                <Link
-                  className="page-link"
-                  to={this.props.pagination.setURLParameters({ hash: getLastHash(), page: 'next' })}
-                >
-                  Next
-                </Link>
-              </li>
-            </ul>
-          </nav>
-        );
       }
+      return (
+        <nav aria-label="Tx pagination" className="d-flex justify-content-center">
+          <ul className="pagination">
+            <li
+              ref="txPrevious"
+              className={!this.props.hasBefore ? 'page-item me-3 disabled' : 'page-item me-3'}
+            >
+              <Link
+                className="page-link"
+                to={this.props.pagination.setURLParameters({
+                  hash: getFirstHash(),
+                  page: 'previous',
+                })}
+              >
+                Previous
+              </Link>
+            </li>
+            <li ref="txNext" className={!this.props.hasAfter ? 'page-item disabled' : 'page-item'}>
+              <Link
+                className="page-link"
+                to={this.props.pagination.setURLParameters({ hash: getLastHash(), page: 'next' })}
+              >
+                Next
+              </Link>
+            </li>
+          </ul>
+        </nav>
+      );
     };
 
     const loadTable = () => {
@@ -164,7 +160,7 @@ class AddressHistory extends React.Component {
     };
 
     const loadTableBody = () => {
-      return this.props.transactions.map((tx, idx) => {
+      return this.props.transactions.map((tx, _idx) => {
         const value = this.calculateAddressBalance(tx);
         let statusElement = '';
         let trClass = '';
@@ -199,11 +195,9 @@ class AddressHistory extends React.Component {
             );
           }
           trClass = 'input-tr';
-        } else {
-          if (this.isAllAuthority(tx)) {
-            statusElement = <span>Authority</span>;
-            prettyValue = '--';
-          }
+        } else if (this.isAllAuthority(tx)) {
+          statusElement = <span>Authority</span>;
+          prettyValue = '--';
         }
 
         if (!this.props.metadataLoaded) {
@@ -212,7 +206,7 @@ class AddressHistory extends React.Component {
         }
 
         return (
-          <tr key={tx.tx_id} className={trClass} onClick={e => this.props.onRowClicked(tx.tx_id)}>
+          <tr key={tx.tx_id} className={trClass} onClick={_e => this.props.onRowClicked(tx.tx_id)}>
             <td className="d-none d-lg-table-cell pe-3">
               {hathorLib.transactionUtils.getTxType(tx)}
             </td>

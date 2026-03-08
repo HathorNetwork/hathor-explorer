@@ -1,10 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import { numberUtils } from '@hathor/wallet-lib';
+import { numberUtils, TokenVersion } from '@hathor/wallet-lib';
 import { connect } from 'react-redux';
+import { ReactComponent as InfoIcon } from '../../assets/images/icon-info.svg';
 
 const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
 });
+
+const FeeModel = ({ token }) => {
+  const modelMap = {
+    [TokenVersion.DEPOSIT]: {
+      label: 'Deposit-based',
+      tooltip: 'Deposit-based tokens are feeless',
+    },
+    [TokenVersion.FEE]: {
+      label: 'Fee-based',
+      tooltip: 'Fee-based tokens require a small fee in HTR',
+    },
+  };
+
+  const model = modelMap[token.version];
+  if (!model) {
+    return null;
+  }
+
+  return (
+    <div>
+      <span>FEE MODEL</span>
+      <span className="info-tooltip-container">
+        <div style={{ whiteSpace: 'nowrap' }}>{model.label}</div>
+        <div className="tooltip-info-icon">
+          <InfoIcon />
+          <span className="info-tooltip">{model.tooltip}</span>
+        </div>
+      </span>
+    </div>
+  );
+};
 
 const TokenInfo = props => {
   const [token, setToken] = useState(props.token);
@@ -44,55 +76,77 @@ const TokenInfo = props => {
     return `${amount} ${token.symbol}`;
   };
 
-  return (
-    <div className="token-general-info">
-      <p className="token-general-info__uid">
-        <strong>UID: </strong>
-        <br />
-        {token.uid}
-      </p>
-      <p>
-        <strong>Type: </strong>
-        {getType()}
-      </p>
-      <p>
-        <strong>Name: </strong>
-        {token.name}
-      </p>
-      <p>
-        <strong>Symbol: </strong>
-        {token.symbol}
-      </p>
-      <p>
-        <strong>Total supply: </strong>
-        {getTotalSupplyPretty()}
-      </p>
-      <p>
-        <strong>Can mint new tokens: </strong>
-        {token.canMint ? 'Yes' : 'No'}
-        <button className="info-hover-wrapper float-right btn btn-link">
-          <i className="fa fa-info-circle" title="Mint info"></i>
-          <span className="subtitle subtitle info-hover-popover">
-            Indicates whether the token owner can create new tokens, increasing the total supply
+  const renderNewUi = () => {
+    return (
+      <div className="token-new-general-info">
+        <h2>Overview</h2>
+        <div>
+          <span>UID</span>
+          <span>{token.uid}</span>
+        </div>
+        <div>
+          <span>TYPE</span>
+          <span>{getType()}</span>
+        </div>
+        <div>
+          <span>NAME</span>
+          <span>{token.name}</span>
+        </div>
+        <div>
+          <span>SYMBOL</span>
+          <span>{token.symbol}</span>
+        </div>
+        <FeeModel token={token} />
+        <div>
+          <span>TOTAL SUPPLY</span>
+          <span>{getTotalSupplyPretty()}</span>
+        </div>
+        <div>
+          <span>
+            CAN MINT NEW
+            <br />
+            TOKENS
           </span>
-        </button>
-      </p>
-      <p>
-        <strong>Can melt tokens: </strong>
-        {token.canMelt ? 'Yes' : 'No'}
-        <button className="info-hover-wrapper float-right btn btn-link">
-          <i className="fa fa-info-circle" title="Melt info"></i>
-          <span className="subtitle info-hover-popover">
-            Indicates whether the token owner can destroy tokens, decreasing the total supply
+          <span className="info-tooltip-container">
+            <div style={{ whiteSpace: 'nowrap' }}>{token.canMint ? 'Yes' : 'No'}</div>
+            <div className="tooltip-info-icon">
+              <InfoIcon />
+              <span className="info-tooltip">
+                Indicates whether the token owner can create new tokens, increasing the total
+                supply.
+              </span>
+            </div>
           </span>
-        </button>
-      </p>
-      <p>
-        <strong>Total number of transactions: </strong>
-        {token.transactionsCount}
-      </p>
-    </div>
-  );
+        </div>
+        <div>
+          <span>
+            CAN MELT
+            <br />
+            TOKENS
+          </span>
+          <span className="info-tooltip-container">
+            <div style={{ whiteSpace: 'nowrap' }}>{token.canMelt ? 'Yes' : 'No'}</div>
+            <div className="tooltip-info-icon">
+              <InfoIcon />
+              <span className="info-tooltip">
+                Indicates whether the token owner can destroy tokens, decreasing the total supply.
+              </span>
+            </div>
+          </span>
+        </div>
+        <div>
+          <span>
+            TOTAL NUMBER
+            <br />
+            OF TX
+          </span>
+          <span>{token.transactionsCount}</span>
+        </div>
+      </div>
+    );
+  };
+
+  return renderNewUi();
 };
 
 export default connect(mapStateToProps)(TokenInfo);

@@ -6,36 +6,72 @@
  */
 
 import React from 'react';
-import { withRouter } from 'react-router-dom';
-import hathorLib from '@hathor/wallet-lib';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
+import hathorLib from '@hathor/wallet-lib';
 import dateFormatter from '../../utils/date';
+import { useIsMobile } from '../../hooks';
+import EllipsiCell from '../EllipsiCell';
 
-class TokenRow extends React.Component {
+function TokenRow({ token }) {
+  const navigate = useNavigate();
+  const isMobile = useIsMobile();
+
   /**
    * Redirects to token detail screen after clicking on a table row
    *
    * @param {String} uid UID of token clicked
    */
-  onRowClicked = uid => {
-    this.props.history.push(`/token_detail/${uid}`);
+  const onRowClicked = uid => {
+    navigate(`/token_detail/${uid}`);
   };
 
-  render() {
-    return (
-      <tr onClick={e => this.onRowClicked(this.props.token.uid)}>
+  const Symbol = ({ children }) => {
+    return <div className="table-tokens-symbol">{children}</div>;
+  };
+
+  /**
+   * Returns the fee model label based on token version
+   */
+  const getFeeModelLabel = version => {
+    switch (version) {
+      case hathorLib.TokenVersion.NATIVE:
+        return 'Native';
+      case hathorLib.TokenVersion.DEPOSIT:
+        return 'Deposit';
+      case hathorLib.TokenVersion.FEE:
+        return 'Fee';
+      default:
+        return '-';
+    }
+  };
+
+  const renderNewUi = () =>
+    isMobile ? (
+      <tr onClick={_e => onRowClicked(token.uid)}>
         <td className="d-lg-table-cell pe-3">
-          {hathorLib.helpersUtils.getShortHash(this.props.token.uid)}
+          <EllipsiCell id={token.uid} countBefore={4} countAfter={4} />
         </td>
-        <td className="d-lg-table-cell pe-3">{this.props.token.name}</td>
-        <td className="d-lg-table-cell pe-3">{this.props.token.symbol}</td>
-        <td className="d-lg-table-cell pe-3">{this.props.token.nft ? 'NFT' : 'Custom Token'}</td>
+        <td className="d-lg-table-cell pe-3">{token.name}</td>
+      </tr>
+    ) : (
+      <tr onClick={_e => onRowClicked(token.uid)}>
         <td className="d-lg-table-cell pe-3">
-          {dateFormatter.parseTimestamp(this.props.token.transaction_timestamp)}
+          <EllipsiCell id={token.uid} countBefore={12} countAfter={12} />
+        </td>
+        <td className="d-lg-table-cell pe-3">{token.name}</td>
+        <td className="d-lg-table-cell pe-3">
+          <Symbol>{token.symbol}</Symbol>
+        </td>
+        <td className="d-lg-table-cell pe-3">{token.nft ? 'NFT' : 'Custom Token'}</td>
+        <td className="d-lg-table-cell pe-3">{getFeeModelLabel(token.version)}</td>
+        <td className="d-lg-table-cell pe-3 date-cell">
+          {dateFormatter.parseTimestampNewUi(token.transaction_timestamp)}
         </td>
       </tr>
     );
-  }
+
+  return renderNewUi();
 }
 
 /**
@@ -44,6 +80,7 @@ class TokenRow extends React.Component {
  * symbol: Token symbol
  * nft: If token is NFT or a Custom Token
  * transaction_timestamp: Timestamp of the transaction that created the token
+ * version: Token version (0=native, 1=deposit-based, 2=fee-based)
  */
 TokenRow.propTypes = {
   token: PropTypes.shape({
@@ -52,7 +89,8 @@ TokenRow.propTypes = {
     symbol: PropTypes.string.isRequired,
     nft: PropTypes.bool.isRequired,
     transaction_timestamp: PropTypes.number.isRequired,
+    version: PropTypes.number,
   }),
 };
 
-export default withRouter(TokenRow);
+export default TokenRow;

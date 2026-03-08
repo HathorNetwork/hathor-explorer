@@ -50,9 +50,8 @@ class AddressSummary extends React.Component {
 
       if (this.props.isNFT) {
         return 'NFT';
-      } else {
-        return 'Custom token';
       }
+      return 'Custom token';
     };
 
     const renderValue = value => {
@@ -93,13 +92,12 @@ class AddressSummary extends React.Component {
             {balance.name} ({balance.symbol})
           </span>
         );
-      } else {
-        return (
-          <select value={this.props.selectedToken} onChange={this.selectChanged}>
-            {renderTokenOptions()}
-          </select>
-        );
       }
+      return (
+        <select value={this.props.selectedToken} onChange={this.selectChanged}>
+          {renderTokenOptions()}
+        </select>
+      );
     };
 
     const renderTokenOptions = () => {

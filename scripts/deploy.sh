@@ -2,15 +2,24 @@
 
 # Check if site and command parameters are provided
 if [ -z "$1" ] || [ -z "$2" ]; then
-  echo "Usage: $0 <site> <command>"
+  echo "Usage: $0 <site> <command> [aws_profile]"
   exit 1
 fi
 
 site=$1
 command=$2
+aws_profile=$3
 
 # Define environment variables for each site
 case $site in
+  localnet)
+    # This is meant to be used with the guide in https://docs.hathor.network/how-to-guides/networks/set-up-localnet
+    FULLNODE_HOST=localhost:8080
+    REACT_APP_BASE_URL=http://$FULLNODE_HOST/v1a/
+    REACT_APP_WS_URL=ws://$FULLNODE_HOST/v1a/ws/
+    REACT_APP_NETWORK=local-privatenet
+    REACT_APP_EXPLORER_MODE=basic
+    ;;
   mainnet-local)
     FULLNODE_HOST=node.explorer.hathor.network
     REACT_APP_BASE_URL=http://$FULLNODE_HOST/v1a/
@@ -26,16 +35,6 @@ case $site in
     REACT_APP_EXPLORER_SERVICE_BASE_URL=http://localhost:3001/dev/
     REACT_APP_TIMESERIES_DASHBOARD_ID=35379840-e8c5-11ec-a7f2-0fee9be0d8ee
     REACT_APP_NETWORK=testnet
-    ;;
-  nano-testnet)
-    FULLNODE_HOST=node1.nano-testnet.hathor.network
-    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
-    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
-    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.nano-testnet.hathor.network/
-    REACT_APP_TIMESERIES_DASHBOARD_ID=59683ac0-237a-11ef-8f75-578bca86e218
-    REACT_APP_NETWORK=nano-testnet-alpha
-    S3_BUCKET=hathor-nano-testnet-public-explorer-2
-    CLOUDFRONT_ID=EN58551BWE3XZ
     ;;
   ekvilibro-testnet)
     FULLNODE_HOST=node-side-dag.ekvilibro-testnet.hathor.network
@@ -58,19 +57,56 @@ case $site in
     CLOUDFRONT_ID=E1NI147Y237J4M
     ;;
   testnet)
-    FULLNODE_HOST=node.explorer.testnet.hathor.network
+    FULLNODE_HOST=node.explorer.golf.testnet.hathor.network
     REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
     REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
-    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.testnet.hathor.network/
+    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.golf.testnet.hathor.network/
     REACT_APP_TIMESERIES_DASHBOARD_ID=35379840-e8c5-11ec-a7f2-0fee9be0d8ee
     REACT_APP_NETWORK=testnet
     S3_BUCKET=hathor-testnet-golf-public-explorer
     CLOUDFRONT_ID=E2TGO5SVP34CC3
     ;;
+  testnet-hotel)
+    FULLNODE_HOST=node.explorer.hotel.testnet.hathor.network
+    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
+    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
+    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.hotel.testnet.hathor.network/
+    REACT_APP_TIMESERIES_DASHBOARD_ID=1c601ee9-899e-4b42-8a9c-fa5d4adb1390
+    # This one is currently only used to form the names of feature flags,
+    # so it made sense to keep it as testnet
+    REACT_APP_NETWORK=testnet
+    S3_BUCKET=hathor-testnet-hotel-public-explorer
+    CLOUDFRONT_ID=E2G33O3YIT0NZ8
+    ;;
+  testnet-india)
+    FULLNODE_HOST=node.explorer.india.testnet.hathor.network
+    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
+    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
+    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.india.testnet.hathor.network/
+    REACT_APP_TIMESERIES_DASHBOARD_ID=00ac14e2-8b61-49dd-ad4e-1d1656dd0736
+    # This one is currently only used to form the names of feature flags,
+    # so it made sense to keep it as testnet
+    REACT_APP_NETWORK=testnet
+    S3_BUCKET=hathor-testnet-india-public-explorer
+    CLOUDFRONT_ID=E1X9TV08O1DPS6
+    ;;
+  testnet-playground)
+    FULLNODE_HOST=node1.playground.testnet.hathor.network
+    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
+    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
+    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.playground.testnet.hathor.network/
+    REACT_APP_TIMESERIES_DASHBOARD_ID=b43188d6-4d17-4167-9080-5181b6ce1346
+    # This one is currently only used to form the names of feature flags,
+    # so it made sense to keep it as testnet
+    REACT_APP_NETWORK=testnet
+    S3_BUCKET=hathor-testnet-playground-public-explorer
+    CLOUDFRONT_ID=E23KE3LYRLVKOQ
+    ;;
   mainnet)
     FULLNODE_HOST=node.explorer.hathor.network
     REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
     REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
+    REACT_APP_GTM_ID=GTM-MJVX6BG
     REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.mainnet.hathor.network/
     REACT_APP_TIMESERIES_DASHBOARD_ID=674ebc10-e8c4-11ec-a7f2-0fee9be0d8ee
     REACT_APP_NETWORK=mainnet
@@ -86,9 +122,11 @@ esac
 export FULLNODE_HOST
 export REACT_APP_BASE_URL
 export REACT_APP_WS_URL
+export REACT_APP_GTM_ID
 export REACT_APP_EXPLORER_SERVICE_BASE_URL
 export REACT_APP_TIMESERIES_DASHBOARD_ID
 export REACT_APP_NETWORK
+export REACT_APP_EXPLORER_MODE
 export S3_BUCKET
 export CLOUDFRONT_ID
 
@@ -98,19 +136,29 @@ case $command in
     echo "FULLNODE_HOST: $FULLNODE_HOST"
     echo "REACT_APP_BASE_URL: $REACT_APP_BASE_URL"
     echo "REACT_APP_WS_URL: $REACT_APP_WS_URL"
+    echo "REACT_APP_GTM_ID: $REACT_APP_GTM_ID"
     echo "REACT_APP_EXPLORER_SERVICE_BASE_URL: $REACT_APP_EXPLORER_SERVICE_BASE_URL"
     echo "REACT_APP_TIMESERIES_DASHBOARD_ID: $REACT_APP_TIMESERIES_DASHBOARD_ID"
     echo "REACT_APP_NETWORK: $REACT_APP_NETWORK"
+    echo "REACT_APP_EXPLORER_MODE: $REACT_APP_EXPLORER_MODE"
     # Run the build command
     npm run build
     ;;
   sync)
     echo "Syncing for site: $site"
-    aws s3 sync --delete ./build/ s3://$S3_BUCKET
+    if [ -n "$aws_profile" ]; then
+      aws s3 sync --delete ./build/ s3://$S3_BUCKET --profile $aws_profile
+    else
+      aws s3 sync --delete ./build/ s3://$S3_BUCKET
+    fi
     ;;
   clear_cache)
     echo "Clearing CloudFront cache for site: $site"
-    aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/index.html"
+    if [ -n "$aws_profile" ]; then
+      aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/index.html" --profile $aws_profile
+    else
+      aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/index.html"
+    fi
     ;;
   start)
     echo "Starting for site: $site"
