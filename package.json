@@ -32,7 +32,7 @@
     "react-router-dom": "5.3.4",
     "react-scripts": "3.4.4",
     "redux": "4.2.1",
-    "sass": "1.77.8",
+    "sass": "1.97.3",
     "unleash-proxy-client": "1.11.0",
     "viz.js": "2.1.2"
   },
@@ -56,9 +56,6 @@
     "not ie <= 11",
     "not op_mini all"
   ],
-  "overrides": {
-    "immutable": "5.1.5"
-  },
   "devDependencies": {
     "eslint-config-airbnb-base": "14.2.1",
     "eslint-config-prettier": "6.15.0",
