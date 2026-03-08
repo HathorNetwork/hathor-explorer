@@ -56,6 +56,9 @@
     "not ie <= 11",
     "not op_mini all"
   ],
+  "overrides": {
+    "immutable": ">=4.3.8"
+  },
   "devDependencies": {
     "eslint-config-airbnb-base": "14.2.1",
     "eslint-config-prettier": "6.15.0",
