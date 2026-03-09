@@ -1045,6 +1045,50 @@ nav {
   }
 }
 
+.table-header-tooltip-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  .table-header-tooltip-icon {
+    position: relative;
+    display: inline-flex;
+    cursor: pointer;
+
+    svg {
+      width: 14px;
+      height: 14px;
+      color: var(--purple-text);
+    }
+  }
+
+  .table-header-tooltip {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    background-color: var(--tooltip-bg, #2d2d3d);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 4px 12px;
+    width: max-content;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--bold-text-color);
+    white-space: normal;
+    text-align: center;
+    z-index: 1000;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  .table-header-tooltip-icon:hover .table-header-tooltip {
+    display: block;
+  }
+}
+
 .new-hathor-alert-container {
   display: none;
   position: fixed;
@@ -1093,8 +1137,8 @@ nav {
   background-color: var(--span-green-background);
   width: 100%;
   display: flex;
-  align-items: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-start;
   color: var(--bold-text-color);
   padding: 4px 12px;
   gap: 4px;
@@ -1108,10 +1152,6 @@ nav {
   border: 1px solid var(--span-red-border);
   color: var(--bold-text-color);
   margin-top: 20px;
-}
-
-.alert-success-container-big p {
-  max-width: 300px;
 }
 
 .alert-success {
@@ -1138,9 +1178,13 @@ nav {
 
 .alert-success-text {
   font-family: 'San Francisco Pro' Text;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 500;
-  line-height: 20px;
+  line-height: 24px;
+}
+
+.alert-success-container-big > div:first-child {
+  margin-bottom: 12px;
 }
 
 .new-hathor-alert {
@@ -1886,97 +1930,34 @@ nav {
 }
 
 .blueprint-balance-table {
+  overflow-x: auto;
+
   .table-stylized {
-    thead {
-      tr {
-        th:nth-child(1) {
-          width: 20%;
-        }
+    min-width: 500px;
+    width: 100%;
 
-        th:nth-child(2) {
-          width: 20%;
-        }
-
-        th:nth-child(3) {
-          width: 20%;
-        }
-
-        th:nth-child(4) {
-          width: 40%;
-        }
-      }
+    th,
+    td {
+      white-space: nowrap;
     }
 
-    tbody {
-      tr {
-        th:nth-child(1) {
-          width: 20%;
-        }
-
-        th:nth-child(2) {
-          width: 20%;
-        }
-
-        th:nth-child(3) {
-          width: 20%;
-        }
-
-        th:nth-child(4) {
-          width: 40%;
-        }
-      }
+    td:first-child {
+      white-space: normal;
+      word-break: break-all;
     }
   }
 }
 
 .nanocontract-actions-table {
+  overflow-x: auto;
+
   .table-stylized {
-    thead {
-      tr {
-        th:nth-child(1) {
-          width: 20%;
-        }
+    min-width: 600px;
+    width: 100%;
 
-        th:nth-child(2) {
-          width: 20%;
-        }
-
-        th:nth-child(3) {
-          width: 20%;
-        }
-
-        th:nth-child(4) {
-          width: 20%;
-        }
-
-        th:nth-child(5) {
-          width: 20%;
-        }
-      }
-    }
-
-    tbody {
-      tr {
-        th:nth-child(1) {
-          width: 20%;
-        }
-
-        th:nth-child(2) {
-          width: 20%;
-        }
-
-        th:nth-child(3) {
-          width: 20%;
-        }
-
-        th:nth-child(4) {
-          width: 20%;
-        }
-
-        th:nth-child(5) {
-          width: 20%;
-        }
-      }
+    th,
+    td {
+      white-space: nowrap;
     }
   }
 }
@@ -2129,6 +2110,18 @@ nav {
       white-space: wrap;
       width: 30vw !important;
       text-align: left;
+    }
+  }
+}
+
+@media ((width <= 650px)) {
+  .info-tooltip-container {
+    .info-tooltip {
+      left: auto;
+      right: 0;
+      width: 60vw !important;
+      max-width: 250px;
+      white-space: normal;
     }
   }
 }
@@ -2376,102 +2369,6 @@ nav {
 
           td:nth-child(2) {
             width: 60%;
-          }
-        }
-      }
-    }
-  }
-
-  .blueprint-balance-table {
-    .table-stylized {
-      thead {
-        tr {
-          th:nth-child(1) {
-            width: 40%;
-          }
-
-          th:nth-child(2) {
-            width: 20%;
-          }
-
-          th:nth-child(3) {
-            width: 20%;
-          }
-
-          th:nth-child(4) {
-            width: 20%;
-          }
-        }
-      }
-
-      tbody {
-        tr {
-          td:nth-child(1) {
-            width: 40%;
-          }
-
-          td:nth-child(2) {
-            width: 20%;
-          }
-
-          td:nth-child(3) {
-            width: 20%;
-          }
-
-          td:nth-child(4) {
-            width: 20%;
-          }
-        }
-      }
-    }
-  }
-
-  .nanocontract-actions-table {
-    .table-stylized {
-      thead {
-        tr {
-          th:nth-child(1) {
-            width: 20%;
-          }
-
-          th:nth-child(2) {
-            width: 20%;
-          }
-
-          th:nth-child(3) {
-            width: 20%;
-          }
-
-          th:nth-child(4) {
-            width: 20%;
-          }
-
-          th:nth-child(5) {
-            width: 20%;
-          }
-        }
-      }
-
-      tbody {
-        tr {
-          td:nth-child(1) {
-            width: 20%;
-          }
-
-          td:nth-child(2) {
-            width: 20%;
-          }
-
-          td:nth-child(3) {
-            width: 20%;
-          }
-
-          td:nth-child(4) {
-            width: 20%;
-          }
-
-          td:nth-child(5) {
-            width: 20%;
           }
         }
       }
@@ -3796,6 +3693,32 @@ th.sortable {
   align-items: baseline;
 }
 
+.fee-paid-section {
+  width: 100%;
+}
+
+.fee-table {
+  width: 100%;
+}
+
+.fee-label-cell {
+  width: 136px;
+  min-width: 136px;
+  vertical-align: top;
+}
+
+.show-more-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 14px;
+  color: #8c46ff;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 .container-big-links {
   word-break: break-all;
 
@@ -3871,10 +3794,6 @@ th.sortable {
     }
   }
 
-  .alert-success-container-big {
-    flex-direction: column;
-    text-align: center;
-  }
 }
 
 @media screen and (width <= 900px) {
@@ -4045,18 +3964,6 @@ th.sortable {
     word-break: break-all;
   }
 
-  .alert-success-container-big {
-    gap: 20px;
-    justify-content: space-around;
-  }
-
-  .alert-success-container-big p {
-    max-width: 100%;
-  }
-
-  .container-big-links span {
-  }
-
   .nano-list-container {
 
     .filter-container {
@@ -4102,4 +4009,11 @@ th.sortable {
     color: var(--bold-text-color);
     justify-content: center;
   }
+}
+
+.token-creation-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
 }

@@ -20,7 +20,7 @@ hljs.registerLanguage('json', json);
  * @memberof Screens
  */
 function NanoContractLogs() {
-  const { nc_id } = useParams();
+  const { tx_id } = useParams();
   const [logsResponse, setLogsResponse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -29,7 +29,7 @@ function NanoContractLogs() {
 
   useEffect(() => {
     loadLogs();
-  }, [nc_id]);
+  }, [tx_id]);
 
   useEffect(() => {
     if (logsRef.current && logsResponse) {
@@ -40,7 +40,7 @@ function NanoContractLogs() {
   const loadLogs = async () => {
     try {
       setLoading(true);
-      const response = await nanoApi.getLogs(nc_id);
+      const response = await nanoApi.getLogs(tx_id);
 
       if (!response.success) {
         setErrorMessage(response.error || 'Failed to load nano contract logs');
@@ -68,8 +68,8 @@ function NanoContractLogs() {
     <div className="blueprint-content-wrapper">
       <h3>Nano Contract Execution Logs</h3>
       <p className="blueprint-id-name-info">
-        <strong>NANO CONTRACT ID: </strong>
-        <span>{nc_id}</span>
+        <strong>TRANSACTION ID: </strong>
+        <span>{tx_id}</span>
       </p>
       <p className="blueprint-id-name-info">
         <strong>EXECUTION STATUS: </strong>
