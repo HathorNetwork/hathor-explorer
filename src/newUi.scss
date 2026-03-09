@@ -4010,3 +4010,10 @@ th.sortable {
     justify-content: center;
   }
 }
+
+.token-creation-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
