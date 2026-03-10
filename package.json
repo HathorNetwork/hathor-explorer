@@ -35,7 +35,7 @@
     "react-redux": "9.2.0",
     "react-router-dom": "6.29.0",
     "react-scripts": "5.0.1",
-    "sass": "1.77.8",
+    "sass": "1.97.3",
     "unleash-proxy-client": "1.11.0",
     "viz.js": "2.1.2"
   },
