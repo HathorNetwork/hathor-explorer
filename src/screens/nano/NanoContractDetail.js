@@ -220,6 +220,10 @@ function NanoContractDetail() {
       return hathorLib.numberUtils.prettyValue(data.value, decimalPlaces);
     }
 
+    if (typeof data.value === 'boolean') {
+      return String(data.value);
+    }
+
     return data.value;
   };
 

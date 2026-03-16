@@ -1,11 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import { numberUtils } from '@hathor/wallet-lib';
+import { numberUtils, TokenVersion } from '@hathor/wallet-lib';
 import { connect } from 'react-redux';
 import { ReactComponent as InfoIcon } from '../../assets/images/icon-info.svg';
 
 const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
 });
+
+const FeeModel = ({ token }) => {
+  const modelMap = {
+    [TokenVersion.DEPOSIT]: {
+      label: 'Deposit-based',
+      tooltip: 'Deposit-based tokens are feeless',
+    },
+    [TokenVersion.FEE]: {
+      label: 'Fee-based',
+      tooltip: 'Fee-based tokens require a small fee in HTR',
+    },
+  };
+
+  const model = modelMap[token.version];
+  if (!model) {
+    return null;
+  }
+
+  return (
+    <div>
+      <span>FEE MODEL</span>
+      <span className="info-tooltip-container">
+        <div style={{ whiteSpace: 'nowrap' }}>{model.label}</div>
+        <div className="tooltip-info-icon">
+          <InfoIcon />
+          <span className="info-tooltip">{model.tooltip}</span>
+        </div>
+      </span>
+    </div>
+  );
+};
 
 const TokenInfo = props => {
   const [token, setToken] = useState(props.token);
@@ -65,6 +96,7 @@ const TokenInfo = props => {
           <span>SYMBOL</span>
           <span>{token.symbol}</span>
         </div>
+        <FeeModel token={token} />
         <div>
           <span>TOTAL SUPPLY</span>
           <span>{getTotalSupplyPretty()}</span>
