@@ -13,6 +13,7 @@ Some useful links and strings to use on the QAs:
 - A [block](https://explorer.testnet.hathor.network/transaction/000000000737bc54cbad0d29eda40754ea5dd4325f2938cd6640801acfc393ac) - `000000000737bc54cbad0d29eda40754ea5dd4325f2938cd6640801acfc393ac`
 - A [simple transaction](https://explorer.testnet.hathor.network/transaction/0000227fd2310cb6de2644445b6d650a275a7910b5492e87d4aa019de89f2762) - `0000227fd2310cb6de2644445b6d650a275a7910b5492e87d4aa019de89f2762`
 - A [token creation transaction](https://explorer.testnet.hathor.network/token_detail/000029a879e0430b2c1bd335787a2f79bc373590053be220472bc620e640df77) - `000029a879e0430b2c1bd335787a2f79bc373590053be220472bc620e640df77`
+- A [fee-based token creation transaction](https://explorer.testnet.hathor.network/transaction/000004975986b5c3eca339d7e0bfcd763b3b4be95c973507f6ca86b3e1f4808f) - `000004975986b5c3eca339d7e0bfcd763b3b4be95c973507f6ca86b3e1f4808f`
 - A [nft creation transaction](https://explorer.testnet.hathor.network/token_detail/000035ee44954f0b896c18d63e4f30cd87ccac7220bd94e1878b0fb01e964be8) - `000035ee44954f0b896c18d63e4f30cd87ccac7220bd94e1878b0fb01e964be8`
 - An [address](https://explorer.testnet.hathor.network/address/WmeByhYxt2F8As6Hon6mnpFUqbLpJh2pjE?token=00) - `WmeByhYxt2F8As6Hon6mnpFUqbLpJh2pjE`
 
@@ -53,7 +54,7 @@ Some useful links and strings to use on the QAs:
 1. The url now is `/tokens`
 1. Confirm there are 10 rows and a search box in the main page
 1. There is no realtime update expectation here
-1. Verify that some columns allow ordering by clicking on their header: Name, Symbol and Created At. 
+1. Verify that some columns allow ordering by clicking on their header: Name, Symbol, Fee model, and Created At. 
 1. Click on one of those and validate that the list is updated correctly, even with elements that were not visible and not even loaded before ( for example, "Created at" descending/ascending )
 1. Click on the "Next" button and confirm that the tokens list has changed
 1. Confirm also that the url has not changed, and will not replicate this exact state if shared to another window
@@ -112,10 +113,12 @@ Some useful links and strings to use on the QAs:
 1. If this is an NFT, validate that:
    1. The first output is of type `Data` 
    2. There is a section named "Tokens" containing the token name, symbol and link to `/token_detail/{uid}`
+1. If this is a Create Token transaction, check for the token information section.
+1. If this is a transaction that uses a fee-based token, check for the paid fee row which should contain all the tokens and amounts used to pay fees in this tx.
 
 ### 8. Token details
 1. Verify that the screen contains all information about the token on a single section
-1. Check that there are (ℹ) icons explaining the _mint_ and _melt_ fields
+1. Check that there are (ℹ) icons explaining the _mint_, _melt_, and _fee model_ fields
 1. Verify that there is another section containing the configuration string in the following forms:
    - A QR Code
    - A component that allows copying to clipboard
