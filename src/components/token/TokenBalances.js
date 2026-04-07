@@ -7,10 +7,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import get from 'lodash/get';
-import last from 'lodash/last';
-import find from 'lodash/find';
-import isEmpty from 'lodash/isEmpty';
+import { get, last, find, isEmpty } from 'lodash';
 import { useNavigate } from 'react-router-dom';
 import { numberUtils, constants as hathorLibConstants } from '@hathor/wallet-lib';
 import { useSelector } from 'react-redux';

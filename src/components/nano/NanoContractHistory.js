@@ -7,7 +7,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import reverse from 'lodash/reverse';
+import { reverse } from 'lodash';
 import Loading from '../Loading';
 import { NANO_CONTRACT_TX_HISTORY_COUNT } from '../../constants';
 import helpers from '../../utils/helpers';

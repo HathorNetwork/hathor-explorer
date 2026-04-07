@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import debounce from 'lodash/debounce';
-import get from 'lodash/get';
+import { debounce, get } from 'lodash';
 import { constants as hathorLibConstants } from '@hathor/wallet-lib';
 import { connect } from 'react-redux';
 import tokensApi from '../../api/tokensApi';

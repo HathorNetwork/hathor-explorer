@@ -7,7 +7,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import reverse from 'lodash/reverse';
+import { reverse } from 'lodash';
 import { TX_COUNT } from '../../constants';
 import TxRow from './TxRow';
 import helpers from '../../utils/helpers';

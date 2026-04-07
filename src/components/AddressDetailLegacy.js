@@ -8,7 +8,7 @@
 import React from 'react';
 import hathorLib from '@hathor/wallet-lib';
 import ReactLoading from 'react-loading';
-import isEqual from 'lodash/isEqual';
+import { isEqual } from 'lodash';
 import AddressSummaryLegacy from './AddressSummaryLegacy';
 import AddressHistoryLegacy from './AddressHistoryLegacy';
 import PaginationURL from '../utils/pagination';

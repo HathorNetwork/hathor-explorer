@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import get from 'lodash/get';
+import { get } from 'lodash';
 
 import { numberUtils } from '@hathor/wallet-lib';
 import blockApi from '../../api/blockApi';

@@ -7,7 +7,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import hathorLib from '@hathor/wallet-lib';
-import find from 'lodash/find';
+import { find } from 'lodash';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useIsMobile } from '../hooks';
 import AddressSummary from './AddressSummary';
