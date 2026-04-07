@@ -14,32 +14,57 @@ jobs:
   cleanup-preview:
     runs-on: ubuntu-latest
     steps:
-      # https://github.com/actions/checkout/releases/tag/v4.2.2
-      - name: Checkout gh-pages branch
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with:
-          ref: gh-pages
-
-      - name: Remove PR preview directory
+      - name: Remove PR preview directory from gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          PR_DIR="pr-${{ github.event.pull_request.number }}"
-          if [ -d "$PR_DIR" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git rm -rf "$PR_DIR"
-            git commit -m "chore: remove preview for PR #${{ github.event.pull_request.number }}"
-            git push
-          else
-            echo "No preview directory found for PR #${{ github.event.pull_request.number }}, nothing to clean up."
+          REPO_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+          if ! git clone --single-branch --branch gh-pages --depth 1 "$REPO_URL" gh-pages-out 2>/dev/null; then
+            echo "No gh-pages branch found, nothing to clean up."
+            exit 0
           fi
 
-      - name: Update PR comment
-        # https://github.com/thollander/actions-comment-pull-request/releases/tag/v3.0.1
-        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b
-        with:
-          comment-tag: pr-preview-url
-          mode: upsert
-          message: |
-            ## Preview deployment
+          PR_DIR="gh-pages-out/pr-${PR_NUMBER}"
+          if [ ! -d "$PR_DIR" ]; then
+            echo "No preview directory found for PR #${PR_NUMBER}, nothing to clean up."
+            exit 0
+          fi
 
-            Preview has been removed as this PR is now closed.
+          cd gh-pages-out
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git rm -rf "pr-${PR_NUMBER}"
+          git commit -m "chore: remove preview for PR #${PR_NUMBER}"
+          git push origin gh-pages
+
+      - name: Update PR comment
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          MARKER="<!-- pr-preview-url -->"
+
+          # Find the existing preview comment
+          COMMENT_ID=$(curl -sf \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" \
+            | jq -r ".[] | select(.body | startswith(\"${MARKER}\")) | .id" | head -1)
+
+          if [ -z "$COMMENT_ID" ]; then
+            echo "No preview comment found, nothing to update."
+            exit 0
+          fi
+
+          BODY="${MARKER}
+          ## Preview deployment
+
+          Preview has been removed as this PR is now closed."
+
+          curl -sf -X PATCH \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/comments/${COMMENT_ID}" \
+            -d "$(jq -n --arg body "$BODY" '{"body": $body}')"
