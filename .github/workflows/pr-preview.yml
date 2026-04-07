@@ -1,0 +1,66 @@
+name: PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - master
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/actions/checkout/releases/tag/v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Set up Node.js 22.x
+        # https://github.com/actions/setup-node/releases/tag/v4.4.0
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.x
+
+      - name: Cache node modules
+        # https://github.com/actions/cache/releases/tag/v4.2.2
+        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build (testnet config)
+        run: make build site=testnet
+        env:
+          PUBLIC_URL: /hathor-explorer/pr-${{ github.event.pull_request.number }}
+
+      - name: Deploy to gh-pages
+        # https://github.com/peaceiris/actions-gh-pages/releases/tag/v4.0.0
+        uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d231e62369c1b2c85
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+          destination_dir: pr-${{ github.event.pull_request.number }}
+          keep_files: true
+
+      - name: Post preview URL comment
+        # https://github.com/thollander/actions-comment-pull-request/releases/tag/v3.0.1
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b
+        with:
+          comment-tag: pr-preview-url
+          message: |
+            ## Preview deployment
+
+            | | |
+            |---|---|
+            | **URL** | https://HathorNetwork.github.io/hathor-explorer/pr-${{ github.event.pull_request.number }}/ |
+            | **Commit** | ${{ github.event.pull_request.head.sha }} |
+            | **Updated** | ${{ github.event.pull_request.updated_at }} |
+
+            > This preview is automatically updated on every push to this PR and removed when the PR is closed.
