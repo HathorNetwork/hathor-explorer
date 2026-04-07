@@ -82,7 +82,13 @@ class PaginationURL {
       url.searchParams.delete(param);
     }
 
-    return url.pathname + url.search + url.hash;
+    // Strip PUBLIC_URL basename so React Router doesn't prepend it a second time
+    const basename = process.env.PUBLIC_URL || '';
+    const pathname =
+      basename && url.pathname.startsWith(basename)
+        ? url.pathname.slice(basename.length) || '/'
+        : url.pathname;
+    return pathname + url.search + url.hash;
   }
 }
 
