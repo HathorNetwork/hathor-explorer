@@ -56,6 +56,14 @@ case $site in
     S3_BUCKET=hathor-ekvilibro-mainnet-public-explorer
     CLOUDFRONT_ID=E1NI147Y237J4M
     ;;
+  testnet-dev)
+    FULLNODE_HOST=node.explorer.testnet.hathor.network
+    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
+    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
+    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://dev.explorer-service.testnet.hathor.network/
+    REACT_APP_TIMESERIES_DASHBOARD_ID=00ac14e2-8b61-49dd-ad4e-1d1656dd0736
+    REACT_APP_NETWORK=testnet
+    ;;
   testnet-india)
     FULLNODE_HOST=node.explorer.india.testnet.hathor.network
     REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/

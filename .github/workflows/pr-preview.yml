@@ -35,8 +35,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build (testnet-india config)
-        run: make build site=testnet-india
+      - name: Build (testnet-dev config)
+        run: make build site=testnet-dev
         env:
           PUBLIC_URL: /hathor-explorer/pr-${{ github.event.pull_request.number }}
 
