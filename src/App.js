@@ -119,7 +119,7 @@ function Root() {
   if (isVersionAllowed === undefined) {
     // Waiting for version
     return (
-      <BrowserRouter>
+      <BrowserRouter basename={process.env.PUBLIC_URL}>
         <>
           <Navigation />
           {apiLoadError ? <ErrorMessage /> : <Loading />}
@@ -134,7 +134,7 @@ function Root() {
 
   return (
     <>
-      <BrowserRouter>
+      <BrowserRouter basename={process.env.PUBLIC_URL}>
         <Routes>
           <Route
             path="/transaction/:id"
