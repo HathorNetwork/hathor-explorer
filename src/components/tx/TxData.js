@@ -5,15 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import $ from 'jquery';
 import React from 'react';
-import Viz from 'viz.js';
 import hathorLib from '@hathor/wallet-lib';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Link } from 'react-router-dom';
-import { Module, render } from 'viz.js/full.render';
 import { connect } from 'react-redux';
-import { get, upperFirst } from 'lodash';
+import get from 'lodash/get';
+import upperFirst from 'lodash/upperFirst';
 import TokenMarkers from '../token/TokenMarkers';
 import TxAlerts from './TxAlerts';
 import TxMarkers from './TxMarkers';
@@ -246,14 +244,7 @@ class TxData extends React.Component {
     if (e) {
       e.preventDefault();
     }
-
-    this.setState({ raw: !this.state.raw }, () => {
-      if (this.state.raw) {
-        $(this.refs.rawTx).show(300);
-      } else {
-        $(this.refs.rawTx).hide(300);
-      }
-    });
+    this.setState({ raw: !this.state.raw });
   };
 
   /**
@@ -289,6 +280,8 @@ class TxData extends React.Component {
    * @param {string} graphType
    */
   calculateNeighborsGraph = async graphType => {
+    const Viz = (await import('viz.js')).default;
+    const { Module, render } = await import('viz.js/full.render');
     const viz = new Viz({ Module, render });
 
     const graphvizResponse = await graphvizApi.dotNeighbors(this.props.transaction.hash, graphType);
@@ -1278,7 +1271,11 @@ class TxData extends React.Component {
               }
               onToggle={e => this.toggleRaw(e)}
             >
-              <p className="mt-3" ref="rawTx" style={{ display: 'none' }}>
+              <p
+                className="mt-3"
+                ref="rawTx"
+                style={{ display: this.state.raw ? 'block' : 'none' }}
+              >
                 {this.props.transaction.raw}
               </p>
             </DropDetails>

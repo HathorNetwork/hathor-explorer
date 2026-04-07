@@ -6,7 +6,7 @@
  */
 
 import hathorLib from '@hathor/wallet-lib';
-import { get } from 'lodash';
+import get from 'lodash/get';
 import {
   MAINNET_GENESIS_BLOCK,
   TESTNET_GENESIS_BLOCK,

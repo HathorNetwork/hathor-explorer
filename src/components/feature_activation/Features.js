@@ -8,7 +8,8 @@
 import React from 'react';
 import ReactLoading from 'react-loading';
 import { Link } from 'react-router-dom';
-import { chunk, orderBy } from 'lodash';
+import chunk from 'lodash/chunk';
+import orderBy from 'lodash/orderBy';
 import { numberUtils } from '@hathor/wallet-lib';
 import { FEATURE_COUNT } from '../../constants';
 import FeatureRow from './FeatureRow';

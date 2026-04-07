@@ -7,7 +7,10 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { get, last, find, isEmpty } from 'lodash';
+import get from 'lodash/get';
+import last from 'lodash/last';
+import find from 'lodash/find';
+import isEmpty from 'lodash/isEmpty';
 import TokensTable from './TokensTable';
 import TokenSearchField from './TokenSearchField';
 import tokensApi from '../../api/tokensApi';

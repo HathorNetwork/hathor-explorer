@@ -7,7 +7,7 @@
 
 import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { reverse } from 'lodash';
+import reverse from 'lodash/reverse';
 import Loading from '../../components/Loading';
 import { useIsMobile } from '../../hooks';
 import PaginationURL from '../../utils/pagination';
