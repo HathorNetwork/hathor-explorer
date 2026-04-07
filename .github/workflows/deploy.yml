@@ -50,32 +50,6 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  deploy-testnet-explorer:
-    if: github.ref == 'refs/heads/release'
-    needs: dependencies
-    runs-on: ubuntu-latest
-    steps:
-      # https://github.com/actions/checkout/releases/tag/v4.2.2
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - uses: ./.github/actions/deploy-explorer
-        with:
-          site: testnet
-          aws-region: us-east-1
-          aws-role: arn:aws:iam::769498303037:role/ExplorerGitHubActionsRoleTestnet
-
-  deploy-testnet-hotel-explorer:
-    if: github.ref == 'refs/heads/release'
-    needs: dependencies
-    runs-on: ubuntu-latest
-    steps:
-      # https://github.com/actions/checkout/releases/tag/v4.2.2
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - uses: ./.github/actions/deploy-explorer
-        with:
-          site: testnet-hotel
-          aws-region: us-east-1
-          aws-role: arn:aws:iam::769498303037:role/ExplorerGitHubActionsRoleTestnetHotel
-
   deploy-testnet-india-explorer:
     if: github.ref == 'refs/heads/release'
     needs: dependencies
