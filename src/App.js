@@ -51,14 +51,42 @@ const NanoContractLogs = React.lazy(() => import('./screens/nano/NanoContractLog
 
 hathorLibConfig.setServerUrl(BASE_URL);
 
+class ChunkErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, info) {
+    console.error('Chunk failed to load:', error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="text-center mt-5">
+          <p>Failed to load this page. Please refresh and try again.</p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const NavigationRoute = ({ internalScreen: InternalScreen }) => {
   return (
     <div className="limit-section">
       <Navigation />
       <div style={{ flex: 1 }}>
-        <Suspense fallback={<Loading />}>
-          <InternalScreen />
-        </Suspense>
+        <ChunkErrorBoundary>
+          <Suspense fallback={<Loading />}>
+            <InternalScreen />
+          </Suspense>
+        </ChunkErrorBoundary>
       </div>
       <Footer />
     </div>

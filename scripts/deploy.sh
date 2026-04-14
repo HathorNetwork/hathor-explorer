@@ -63,6 +63,8 @@ case $site in
     REACT_APP_EXPLORER_SERVICE_BASE_URL=https://dev.explorer-service.testnet.hathor.network/
     REACT_APP_TIMESERIES_DASHBOARD_ID=00ac14e2-8b61-49dd-ad4e-1d1656dd0736
     REACT_APP_NETWORK=testnet
+    S3_BUCKET=
+    CLOUDFRONT_ID=
     ;;
   testnet-india)
     FULLNODE_HOST=node.explorer.india.testnet.hathor.network
