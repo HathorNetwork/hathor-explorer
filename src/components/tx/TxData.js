@@ -243,7 +243,7 @@ class TxData extends React.Component {
     if (e) {
       e.preventDefault();
     }
-    this.setState({ raw: !this.state.raw });
+    this.setState(prevState => ({ raw: !prevState.raw }));
   };
 
   /**
