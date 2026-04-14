@@ -279,8 +279,14 @@ class TxData extends React.Component {
    * @param {string} graphType
    */
   calculateNeighborsGraph = async graphType => {
-    const Viz = (await import('viz.js')).default;
-    const { Module, render } = await import('viz.js/full.render');
+    if (!this._vizModules) {
+      const [vizModule, renderModule] = await Promise.all([
+        import('viz.js'),
+        import('viz.js/full.render'),
+      ]);
+      this._vizModules = { Viz: vizModule.default, ...renderModule };
+    }
+    const { Viz, Module, render } = this._vizModules;
     const viz = new Viz({ Module, render });
 
     const graphvizResponse = await graphvizApi.dotNeighbors(this.props.transaction.hash, graphType);
