@@ -21,10 +21,12 @@ jobs:
         run: |
           REPO_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
-          if ! git clone --single-branch --branch gh-pages --depth 1 "$REPO_URL" gh-pages-out 2>/dev/null; then
+          if ! git ls-remote --exit-code --heads "$REPO_URL" gh-pages >/dev/null; then
             echo "No gh-pages branch found, nothing to clean up."
             exit 0
           fi
+
+          git clone --single-branch --branch gh-pages --depth 1 "$REPO_URL" gh-pages-out
 
           PR_DIR="gh-pages-out/pr-${PR_NUMBER}"
           if [ ! -d "$PR_DIR" ]; then
