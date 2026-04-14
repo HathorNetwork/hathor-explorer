@@ -39,7 +39,7 @@ jobs:
       - name: Build (testnet-dev config)
         run: make build site=testnet-dev
         env:
-          PUBLIC_URL: /hathor-explorer/pr-${{ github.event.pull_request.number }}
+          PUBLIC_URL: /${{ github.event.repository.name }}/pr-${{ github.event.pull_request.number }}
 
       - name: Deploy to gh-pages branch
         env:
