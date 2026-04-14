@@ -132,6 +132,10 @@ case $command in
     ;;
   sync)
     echo "Syncing for site: $site"
+    if [ -z "$S3_BUCKET" ]; then
+      echo "Error: S3_BUCKET is not set for site '$site'. This site is build-only."
+      exit 1
+    fi
     if [ -n "$aws_profile" ]; then
       aws s3 sync --delete ./build/ s3://$S3_BUCKET --profile $aws_profile
     else
@@ -140,6 +144,10 @@ case $command in
     ;;
   clear_cache)
     echo "Clearing CloudFront cache for site: $site"
+    if [ -z "$CLOUDFRONT_ID" ]; then
+      echo "Error: CLOUDFRONT_ID is not set for site '$site'. This site is build-only."
+      exit 1
+    fi
     if [ -n "$aws_profile" ]; then
       aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/index.html" --profile $aws_profile
     else
