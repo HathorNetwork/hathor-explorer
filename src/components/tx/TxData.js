@@ -1275,7 +1275,6 @@ class TxData extends React.Component {
             >
               <p
                 className="mt-3"
-                ref="rawTx"
                 style={{ display: this.state.raw ? 'block' : 'none' }}
               >
                 {this.props.transaction.raw}
