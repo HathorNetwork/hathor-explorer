@@ -1,0 +1,118 @@
+name: PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - master
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  deploy-preview:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/actions/checkout/releases/tag/v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Set up Node.js 22.x
+        # https://github.com/actions/setup-node/releases/tag/v4.4.0
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.x
+
+      - name: Cache node modules
+        # https://github.com/actions/cache/releases/tag/v4.2.2
+        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build (testnet-dev config)
+        run: make build site=testnet-dev
+        env:
+          PUBLIC_URL: /${{ github.event.repository.name }}/pr-${{ github.event.pull_request.number }}
+
+      - name: Deploy to gh-pages branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          REPO_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+          # Clone the gh-pages branch if it exists, otherwise create a fresh orphan
+          if git clone --single-branch --branch gh-pages --depth 1 "$REPO_URL" gh-pages-out 2>/dev/null; then
+            echo "Cloned existing gh-pages branch"
+          else
+            echo "Creating new gh-pages branch"
+            mkdir gh-pages-out
+            cd gh-pages-out
+            git init
+            git remote add origin "$REPO_URL"
+            git checkout --orphan gh-pages
+            cd ..
+          fi
+
+          # Replace the PR subfolder with the fresh build
+          rm -rf "gh-pages-out/pr-${PR_NUMBER}"
+          cp -r build/ "gh-pages-out/pr-${PR_NUMBER}/"
+
+          cd gh-pages-out
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "pr-${PR_NUMBER}/"
+          # Only commit when there are actual changes
+          git diff --cached --quiet || git commit -m "deploy: preview for PR #${PR_NUMBER} @ ${HEAD_SHA}"
+          git push origin gh-pages
+
+      - name: Post or update PR comment
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          MARKER="<!-- pr-preview-url -->"
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          PREVIEW_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io/${REPO_NAME}/pr-${PR_NUMBER}/"
+
+          BODY="${MARKER}
+          ## Preview deployment
+
+          | | |
+          |---|---|
+          | **URL** | ${PREVIEW_URL} |
+          | **Commit** | \`${HEAD_SHA}\` |
+
+          > This preview is automatically updated on every push and removed when the PR is closed."
+
+          # Find an existing comment that starts with our marker
+          COMMENT_ID=$(curl -sf \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" \
+            | jq -r ".[] | select(.body | startswith(\"${MARKER}\")) | .id" | head -1)
+
+          PAYLOAD=$(jq -n --arg body "$BODY" '{"body": $body}')
+
+          if [ -n "$COMMENT_ID" ]; then
+            curl -sf -X PATCH \
+              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/comments/${COMMENT_ID}" \
+              -d "$PAYLOAD"
+          else
+            curl -sf -X POST \
+              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              -d "$PAYLOAD"
+          fi

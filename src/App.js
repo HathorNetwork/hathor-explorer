@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useCallback, useEffect } from 'react';
+import React, { Suspense, useCallback, useEffect } from 'react';
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,28 +15,9 @@ import GDPRConsent from './components/GDPRConsent';
 import Loading from './components/Loading';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
-import PeerAdmin from './screens/PeerAdmin';
-import DashboardTx from './screens/DashboardTx';
-import TransactionDetail from './screens/TransactionDetail';
-import AddressDetail from './screens/AddressDetail';
-import DecodeTx from './screens/DecodeTx';
-import PushTx from './screens/PushTx';
-import TransactionList from './screens/TransactionList';
-import FeatureList from './screens/FeatureList';
-import TokenList from './screens/TokenList';
-import TokenBalancesList from './screens/TokenBalances';
-import BlockList from './screens/BlockList';
-import TokenDetail from './screens/TokenDetail';
-import Dag from './screens/Dag';
-import Dashboard from './screens/Dashboard';
 import VersionError from './screens/VersionError';
 import ErrorMessage from './components/error/ErrorMessage';
 import WebSocketHandler from './WebSocketHandler';
-import NanoContractDetail from './screens/nano/NanoContractDetail';
-import BlueprintDetail from './screens/nano/BlueprintDetail';
-import BlueprintList from './screens/nano/BlueprintList';
-import NanoContractsList from './screens/nano/NanoContractsList';
-import NanoContractLogs from './screens/nano/NanoContractLogs';
 import {
   apiLoadErrorUpdate,
   dashboardUpdate,
@@ -48,14 +29,64 @@ import helpers from './utils/helpers';
 import { BASE_URL } from './constants';
 import createRequestInstance from './api/customAxiosInstance';
 
+const PeerAdmin = React.lazy(() => import('./screens/PeerAdmin'));
+const DashboardTx = React.lazy(() => import('./screens/DashboardTx'));
+const TransactionDetail = React.lazy(() => import('./screens/TransactionDetail'));
+const AddressDetail = React.lazy(() => import('./screens/AddressDetail'));
+const DecodeTx = React.lazy(() => import('./screens/DecodeTx'));
+const PushTx = React.lazy(() => import('./screens/PushTx'));
+const TransactionList = React.lazy(() => import('./screens/TransactionList'));
+const FeatureList = React.lazy(() => import('./screens/FeatureList'));
+const TokenList = React.lazy(() => import('./screens/TokenList'));
+const TokenBalancesList = React.lazy(() => import('./screens/TokenBalances'));
+const BlockList = React.lazy(() => import('./screens/BlockList'));
+const TokenDetail = React.lazy(() => import('./screens/TokenDetail'));
+const Dag = React.lazy(() => import('./screens/Dag'));
+const Dashboard = React.lazy(() => import('./screens/Dashboard'));
+const NanoContractDetail = React.lazy(() => import('./screens/nano/NanoContractDetail'));
+const BlueprintDetail = React.lazy(() => import('./screens/nano/BlueprintDetail'));
+const BlueprintList = React.lazy(() => import('./screens/nano/BlueprintList'));
+const NanoContractsList = React.lazy(() => import('./screens/nano/NanoContractsList'));
+const NanoContractLogs = React.lazy(() => import('./screens/nano/NanoContractLogs'));
+
 hathorLibConfig.setServerUrl(BASE_URL);
+
+class ChunkErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, info) {
+    console.error('Chunk failed to load:', error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="text-center mt-5">
+          <p>Failed to load this page. Please refresh and try again.</p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const NavigationRoute = ({ internalScreen: InternalScreen }) => {
   return (
     <div className="limit-section">
       <Navigation />
       <div style={{ flex: 1 }}>
-        <InternalScreen />
+        <ChunkErrorBoundary>
+          <Suspense fallback={<Loading />}>
+            <InternalScreen />
+          </Suspense>
+        </ChunkErrorBoundary>
       </div>
       <Footer />
     </div>
@@ -119,7 +150,7 @@ function Root() {
   if (isVersionAllowed === undefined) {
     // Waiting for version
     return (
-      <BrowserRouter>
+      <BrowserRouter basename={process.env.PUBLIC_URL}>
         <>
           <Navigation />
           {apiLoadError ? <ErrorMessage /> : <Loading />}
@@ -134,7 +165,7 @@ function Root() {
 
   return (
     <>
-      <BrowserRouter>
+      <BrowserRouter basename={process.env.PUBLIC_URL}>
         <Routes>
           <Route
             path="/transaction/:id"
@@ -162,7 +193,6 @@ function Root() {
           />
           <Route
             path="/nano_contract/detail/:nc_id"
-            component={NanoContractDetail}
             element={<NavigationRoute internalScreen={NanoContractDetail} />}
           />
           <Route
