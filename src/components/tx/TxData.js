@@ -1279,10 +1279,7 @@ class TxData extends React.Component {
               }
               onToggle={e => this.toggleRaw(e)}
             >
-              <p
-                className="mt-3"
-                style={{ display: this.state.raw ? 'block' : 'none' }}
-              >
+              <p className="mt-3" style={{ display: this.state.raw ? 'block' : 'none' }}>
                 {this.props.transaction.raw}
               </p>
             </DropDetails>
