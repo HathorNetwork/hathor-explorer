@@ -84,9 +84,13 @@ class PaginationURL {
 
     // Strip PUBLIC_URL basename so React Router doesn't prepend it a second time
     const basename = process.env.PUBLIC_URL || '';
+    const normalizedBasename =
+      basename === '/' ? '' : basename.replace(/\/+$/, '');
     const pathname =
-      basename && url.pathname.startsWith(basename)
-        ? url.pathname.slice(basename.length) || '/'
+      normalizedBasename &&
+      (url.pathname === normalizedBasename ||
+        url.pathname.startsWith(`${normalizedBasename}/`))
+        ? url.pathname.slice(normalizedBasename.length) || '/'
         : url.pathname;
     return pathname + url.search + url.hash;
   }
