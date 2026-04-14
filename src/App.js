@@ -56,7 +56,9 @@ const NavigationRoute = ({ internalScreen: InternalScreen }) => {
     <div className="limit-section">
       <Navigation />
       <div style={{ flex: 1 }}>
-        <InternalScreen />
+        <Suspense fallback={<Loading />}>
+          <InternalScreen />
+        </Suspense>
       </div>
       <Footer />
     </div>
@@ -136,7 +138,6 @@ function Root() {
   return (
     <>
       <BrowserRouter basename={process.env.PUBLIC_URL}>
-        <Suspense fallback={<Loading />}>
           <Routes>
             <Route
               path="/transaction/:id"
@@ -164,7 +165,6 @@ function Root() {
             />
             <Route
               path="/nano_contract/detail/:nc_id"
-              component={NanoContractDetail}
               element={<NavigationRoute internalScreen={NanoContractDetail} />}
             />
             <Route
@@ -185,7 +185,6 @@ function Root() {
             />
             <Route path="" element={<NavigationRoute internalScreen={DashboardTx} />} />
           </Routes>
-        </Suspense>
       </BrowserRouter>
       <GDPRConsent />
     </>
