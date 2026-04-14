@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/hathor-explorer/pr-512/static/css/main.96143a23.css",
-    "main.js": "/hathor-explorer/pr-512/static/js/main.6e19e15c.js",
+    "main.js": "/hathor-explorer/pr-512/static/js/main.586ce1cf.js",
     "static/js/87.197e869b.chunk.js": "/hathor-explorer/pr-512/static/js/87.197e869b.chunk.js",
     "static/js/684.07eeca7a.chunk.js": "/hathor-explorer/pr-512/static/js/684.07eeca7a.chunk.js",
     "static/js/925.f065abc8.chunk.js": "/hathor-explorer/pr-512/static/js/925.f065abc8.chunk.js",
@@ -59,7 +59,7 @@
     "static/media/chevron-up.svg": "/hathor-explorer/pr-512/static/media/chevron-up.08a108f8f533ec783579ea6b98337be7.svg",
     "static/media/arrow-down-nav-dropdown.svg": "/hathor-explorer/pr-512/static/media/arrow-down-nav-dropdown.a779cf11873f46c378f5f6df7f8ba091.svg",
     "main.96143a23.css.map": "/hathor-explorer/pr-512/static/css/main.96143a23.css.map",
-    "main.6e19e15c.js.map": "/hathor-explorer/pr-512/static/js/main.6e19e15c.js.map",
+    "main.586ce1cf.js.map": "/hathor-explorer/pr-512/static/js/main.586ce1cf.js.map",
     "87.197e869b.chunk.js.map": "/hathor-explorer/pr-512/static/js/87.197e869b.chunk.js.map",
     "684.07eeca7a.chunk.js.map": "/hathor-explorer/pr-512/static/js/684.07eeca7a.chunk.js.map",
     "925.f065abc8.chunk.js.map": "/hathor-explorer/pr-512/static/js/925.f065abc8.chunk.js.map",
@@ -89,6 +89,6 @@
   },
   "entrypoints": [
     "static/css/main.96143a23.css",
-    "static/js/main.6e19e15c.js"
+    "static/js/main.586ce1cf.js"
   ]
 }
