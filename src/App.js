@@ -138,53 +138,50 @@ function Root() {
   return (
     <>
       <BrowserRouter basename={process.env.PUBLIC_URL}>
-          <Routes>
-            <Route
-              path="/transaction/:id"
-              element={<NavigationRoute internalScreen={TransactionDetail} />}
-            />
+        <Routes>
+          <Route
+            path="/transaction/:id"
+            element={<NavigationRoute internalScreen={TransactionDetail} />}
+          />
 
-            {/* Full mode only routes */}
-            {helpers.isExplorerModeFull() &&
-              fullModeRoutes.map(({ path, component }) => (
-                <Route
-                  key={path}
-                  path={path}
-                  element={<NavigationRoute internalScreen={component} />}
-                />
-              ))}
+          {/* Full mode only routes */}
+          {helpers.isExplorerModeFull() &&
+            fullModeRoutes.map(({ path, component }) => (
+              <Route
+                key={path}
+                path={path}
+                element={<NavigationRoute internalScreen={component} />}
+              />
+            ))}
 
-            <Route
-              path="/transactions"
-              element={<NavigationRoute internalScreen={TransactionList} />}
-            />
-            <Route path="/blocks" element={<NavigationRoute internalScreen={BlockList} />} />
-            <Route
-              path="/token_detail/:tokenUID"
-              element={<NavigationRoute internalScreen={TokenDetail} />}
-            />
-            <Route
-              path="/nano_contract/detail/:nc_id"
-              element={<NavigationRoute internalScreen={NanoContractDetail} />}
-            />
-            <Route
-              path="/nano_contract/logs/:tx_id"
-              element={<NavigationRoute internalScreen={NanoContractLogs} />}
-            />
-            <Route
-              path="/blueprint/detail/:blueprint_id"
-              element={<NavigationRoute internalScreen={BlueprintDetail} />}
-            />
-            <Route
-              path="/blueprints/"
-              element={<NavigationRoute internalScreen={BlueprintList} />}
-            />
-            <Route
-              path="/nano_contracts/"
-              element={<NavigationRoute internalScreen={NanoContractsList} />}
-            />
-            <Route path="" element={<NavigationRoute internalScreen={DashboardTx} />} />
-          </Routes>
+          <Route
+            path="/transactions"
+            element={<NavigationRoute internalScreen={TransactionList} />}
+          />
+          <Route path="/blocks" element={<NavigationRoute internalScreen={BlockList} />} />
+          <Route
+            path="/token_detail/:tokenUID"
+            element={<NavigationRoute internalScreen={TokenDetail} />}
+          />
+          <Route
+            path="/nano_contract/detail/:nc_id"
+            element={<NavigationRoute internalScreen={NanoContractDetail} />}
+          />
+          <Route
+            path="/nano_contract/logs/:tx_id"
+            element={<NavigationRoute internalScreen={NanoContractLogs} />}
+          />
+          <Route
+            path="/blueprint/detail/:blueprint_id"
+            element={<NavigationRoute internalScreen={BlueprintDetail} />}
+          />
+          <Route path="/blueprints/" element={<NavigationRoute internalScreen={BlueprintList} />} />
+          <Route
+            path="/nano_contracts/"
+            element={<NavigationRoute internalScreen={NanoContractsList} />}
+          />
+          <Route path="" element={<NavigationRoute internalScreen={DashboardTx} />} />
+        </Routes>
       </BrowserRouter>
       <GDPRConsent />
     </>
