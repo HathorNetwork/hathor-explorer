@@ -309,13 +309,16 @@ class TxData extends React.Component {
       graphs[index].graphLoading = true;
       this.setState({ graphs });
 
-      // Make the necessary requests to calculate the graph
-      await this.calculateNeighborsGraph(graphs[index].name);
-
-      // Update graph status
-      graphs[index].calculatedNeighbors = true;
-      graphs[index].graphLoading = false;
-      this.setState({ graphs });
+      try {
+        // Make the necessary requests to calculate the graph
+        await this.calculateNeighborsGraph(graphs[index].name);
+        graphs[index].calculatedNeighbors = true;
+      } catch (e) {
+        console.error('Error calculating neighbors graph:', e);
+      } finally {
+        graphs[index].graphLoading = false;
+        this.setState({ graphs });
+      }
     }
   };
 
