@@ -56,28 +56,6 @@ case $site in
     S3_BUCKET=hathor-ekvilibro-mainnet-public-explorer
     CLOUDFRONT_ID=E1NI147Y237J4M
     ;;
-  testnet)
-    FULLNODE_HOST=node.explorer.golf.testnet.hathor.network
-    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
-    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
-    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.golf.testnet.hathor.network/
-    REACT_APP_TIMESERIES_DASHBOARD_ID=35379840-e8c5-11ec-a7f2-0fee9be0d8ee
-    REACT_APP_NETWORK=testnet
-    S3_BUCKET=hathor-testnet-golf-public-explorer
-    CLOUDFRONT_ID=E2TGO5SVP34CC3
-    ;;
-  testnet-hotel)
-    FULLNODE_HOST=node.explorer.hotel.testnet.hathor.network
-    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
-    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
-    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.hotel.testnet.hathor.network/
-    REACT_APP_TIMESERIES_DASHBOARD_ID=1c601ee9-899e-4b42-8a9c-fa5d4adb1390
-    # This one is currently only used to form the names of feature flags,
-    # so it made sense to keep it as testnet
-    REACT_APP_NETWORK=testnet
-    S3_BUCKET=hathor-testnet-hotel-public-explorer
-    CLOUDFRONT_ID=E2G33O3YIT0NZ8
-    ;;
   testnet-india)
     FULLNODE_HOST=node.explorer.india.testnet.hathor.network
     REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
@@ -112,6 +90,16 @@ case $site in
     REACT_APP_NETWORK=mainnet
     S3_BUCKET=hathor-mainnet-public-explorer
     CLOUDFRONT_ID=ETOC9JKCK86OG
+    ;;
+  testnet-shielded-outputs)
+    FULLNODE_HOST=node1.shielded-outputs.testnet.hathor.network
+    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
+    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
+    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.shielded-outputs.testnet.hathor.network/
+    REACT_APP_TIMESERIES_DASHBOARD_ID=afd8c89e-10c6-4fd2-b061-80e6f720dddb
+    REACT_APP_NETWORK=testnet
+    S3_BUCKET=hathor-testnet-shielded-outputs-public-explorer
+    CLOUDFRONT_ID=E2F7GDQQ66DWBW
     ;;
   *)
     echo "Unknown site: $site"
