@@ -10,7 +10,7 @@
     "@hathor/wallet-lib": "2.12.0",
     "@reduxjs/toolkit": "2.5.1",
     "@unleash/proxy-client-react": "1.0.4",
-    "axios": "1.8.2",
+    "axios": "1.13.5",
     "bootstrap": "5.3.3",
     "buffer": "6.0.3",
     "d3-selection": "3.0.0",
