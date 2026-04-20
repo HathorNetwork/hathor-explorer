@@ -1,0 +1,73 @@
+name: PR Preview Cleanup
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - master
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  cleanup-preview:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove PR preview directory from gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          REPO_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+          if ! git ls-remote --exit-code --heads "$REPO_URL" gh-pages >/dev/null; then
+            echo "No gh-pages branch found, nothing to clean up."
+            exit 0
+          fi
+
+          git clone --single-branch --branch gh-pages --depth 1 "$REPO_URL" gh-pages-out
+
+          PR_DIR="gh-pages-out/pr-${PR_NUMBER}"
+          if [ ! -d "$PR_DIR" ]; then
+            echo "No preview directory found for PR #${PR_NUMBER}, nothing to clean up."
+            exit 0
+          fi
+
+          cd gh-pages-out
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git rm -rf "pr-${PR_NUMBER}"
+          git commit -m "chore: remove preview for PR #${PR_NUMBER}"
+          git push origin gh-pages
+
+      - name: Update PR comment
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          MARKER="<!-- pr-preview-url -->"
+
+          # Find the existing preview comment
+          COMMENT_ID=$(curl -sf \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" \
+            | jq -r ".[] | select(.body | startswith(\"${MARKER}\")) | .id" | head -1)
+
+          if [ -z "$COMMENT_ID" ]; then
+            echo "No preview comment found, nothing to update."
+            exit 0
+          fi
+
+          BODY="${MARKER}
+          ## Preview deployment
+
+          Preview has been removed as this PR is now closed."
+
+          curl -sf -X PATCH \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/comments/${COMMENT_ID}" \
+            -d "$(jq -n --arg body "$BODY" '{"body": $body}')"

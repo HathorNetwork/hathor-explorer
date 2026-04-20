@@ -5,13 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import $ from 'jquery';
 import React from 'react';
-import Viz from 'viz.js';
 import hathorLib from '@hathor/wallet-lib';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Link } from 'react-router-dom';
-import { Module, render } from 'viz.js/full.render';
 import { connect } from 'react-redux';
 import { get, upperFirst } from 'lodash';
 import TokenMarkers from '../token/TokenMarkers';
@@ -246,14 +243,7 @@ class TxData extends React.Component {
     if (e) {
       e.preventDefault();
     }
-
-    this.setState({ raw: !this.state.raw }, () => {
-      if (this.state.raw) {
-        $(this.refs.rawTx).show(300);
-      } else {
-        $(this.refs.rawTx).hide(300);
-      }
-    });
+    this.setState(prevState => ({ raw: !prevState.raw }));
   };
 
   /**
@@ -289,6 +279,14 @@ class TxData extends React.Component {
    * @param {string} graphType
    */
   calculateNeighborsGraph = async graphType => {
+    if (!this._vizModules) {
+      const [vizModule, renderModule] = await Promise.all([
+        import('viz.js'),
+        import('viz.js/full.render'),
+      ]);
+      this._vizModules = { Viz: vizModule.default, ...renderModule };
+    }
+    const { Viz, Module, render } = this._vizModules;
     const viz = new Viz({ Module, render });
 
     const graphvizResponse = await graphvizApi.dotNeighbors(this.props.transaction.hash, graphType);
@@ -317,13 +315,16 @@ class TxData extends React.Component {
       graphs[index].graphLoading = true;
       this.setState({ graphs });
 
-      // Make the necessary requests to calculate the graph
-      await this.calculateNeighborsGraph(graphs[index].name);
-
-      // Update graph status
-      graphs[index].calculatedNeighbors = true;
-      graphs[index].graphLoading = false;
-      this.setState({ graphs });
+      try {
+        // Make the necessary requests to calculate the graph
+        await this.calculateNeighborsGraph(graphs[index].name);
+        graphs[index].calculatedNeighbors = true;
+      } catch (err) {
+        console.error('Error calculating neighbors graph:', err);
+      } finally {
+        graphs[index].graphLoading = false;
+        this.setState({ graphs });
+      }
     }
   };
 
@@ -1278,7 +1279,7 @@ class TxData extends React.Component {
               }
               onToggle={e => this.toggleRaw(e)}
             >
-              <p className="mt-3" ref="rawTx" style={{ display: 'none' }}>
+              <p className="mt-3" style={{ display: this.state.raw ? 'block' : 'none' }}>
                 {this.props.transaction.raw}
               </p>
             </DropDetails>

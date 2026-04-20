@@ -56,27 +56,15 @@ case $site in
     S3_BUCKET=hathor-ekvilibro-mainnet-public-explorer
     CLOUDFRONT_ID=E1NI147Y237J4M
     ;;
-  testnet)
-    FULLNODE_HOST=node.explorer.golf.testnet.hathor.network
+  testnet-dev)
+    FULLNODE_HOST=node.explorer.testnet.hathor.network
     REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
     REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
-    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.golf.testnet.hathor.network/
-    REACT_APP_TIMESERIES_DASHBOARD_ID=35379840-e8c5-11ec-a7f2-0fee9be0d8ee
+    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://dev.explorer-service.testnet.hathor.network/
+    REACT_APP_TIMESERIES_DASHBOARD_ID=00ac14e2-8b61-49dd-ad4e-1d1656dd0736
     REACT_APP_NETWORK=testnet
-    S3_BUCKET=hathor-testnet-golf-public-explorer
-    CLOUDFRONT_ID=E2TGO5SVP34CC3
-    ;;
-  testnet-hotel)
-    FULLNODE_HOST=node.explorer.hotel.testnet.hathor.network
-    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
-    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
-    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.hotel.testnet.hathor.network/
-    REACT_APP_TIMESERIES_DASHBOARD_ID=1c601ee9-899e-4b42-8a9c-fa5d4adb1390
-    # This one is currently only used to form the names of feature flags,
-    # so it made sense to keep it as testnet
-    REACT_APP_NETWORK=testnet
-    S3_BUCKET=hathor-testnet-hotel-public-explorer
-    CLOUDFRONT_ID=E2G33O3YIT0NZ8
+    S3_BUCKET=
+    CLOUDFRONT_ID=
     ;;
   testnet-india)
     FULLNODE_HOST=node.explorer.india.testnet.hathor.network
@@ -146,6 +134,10 @@ case $command in
     ;;
   sync)
     echo "Syncing for site: $site"
+    if [ -z "$S3_BUCKET" ]; then
+      echo "Error: S3_BUCKET is not set for site '$site'. This site is build-only."
+      exit 1
+    fi
     if [ -n "$aws_profile" ]; then
       aws s3 sync --delete ./build/ s3://$S3_BUCKET --profile $aws_profile
     else
@@ -154,6 +146,10 @@ case $command in
     ;;
   clear_cache)
     echo "Clearing CloudFront cache for site: $site"
+    if [ -z "$CLOUDFRONT_ID" ]; then
+      echo "Error: CLOUDFRONT_ID is not set for site '$site'. This site is build-only."
+      exit 1
+    fi
     if [ -n "$aws_profile" ]; then
       aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/index.html" --profile $aws_profile
     else
