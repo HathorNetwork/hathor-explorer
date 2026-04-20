@@ -6,6 +6,10 @@ on:
     branches:
       - master
 
+concurrency:
+  group: pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
   issues: write
@@ -34,7 +38,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build (testnet-dev config)
         run: make build site=testnet-dev
