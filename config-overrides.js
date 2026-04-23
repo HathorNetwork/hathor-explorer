@@ -20,11 +20,17 @@ module.exports = function override(config) {
     assert: stdLib.assert,
     process: stdLib.process,
     zlib: stdLib.zlib,
+    os: false,
   };
 
   config.resolve.alias = {
     // Add an alias for our buffer shim
     'buffer-shim': path.resolve(__dirname, 'src/buffer-shim.js'),
+    // @hathor/ct-crypto-node is a Node-only NAPI addon used by wallet-lib's
+    // shielded crypto provider. The explorer never calls that code path, so
+    // stub it to an empty module to avoid pulling Node core modules into the
+    // browser bundle.
+    '@hathor/ct-crypto-node': false,
   };
 
   // Relaxing js/mjs extension resolve

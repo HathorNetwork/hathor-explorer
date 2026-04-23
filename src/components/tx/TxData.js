@@ -413,12 +413,24 @@ class TxData extends React.Component {
     };
 
     const renderInputs = inputs => {
-      const obj = inputs.map(input => (
-        <div key={`${input.tx_id}${input.index}`}>
-          <Link to={`/transaction/${input.tx_id}`}>{helpers.getShortHash(input.tx_id)}</Link> (
-          {input.index}){renderInputOrOutput(input, 0, false)}
-        </div>
-      ));
+      const obj = inputs.map((input, idx) => {
+        if (input.type === 'shielded') {
+          return (
+            <div key={`shielded-input-${idx}`}>
+              <div className="fw-bold">
+                <i className="fa fa-lock me-1" />
+                <span className="fst-italic">Confidential</span>
+              </div>
+            </div>
+          );
+        }
+        return (
+          <div key={`${input.tx_id}${input.index}`}>
+            <Link to={`/transaction/${input.tx_id}`}>{helpers.getShortHash(input.tx_id)}</Link> (
+            {input.index}){renderInputOrOutput(input, 0, false)}
+          </div>
+        );
+      });
       return renderListWithSpacer(obj);
     };
 
@@ -481,6 +493,35 @@ class TxData extends React.Component {
     const renderOutputs = outputs => {
       const mappedOutputs = outputs.map(o => ({ ...o, value: BigInt(o.value) }));
       const obj = mappedOutputs.map((output, idx) => renderInputOrOutput(output, idx, true));
+      return renderListWithSpacer(obj);
+    };
+
+    const renderShieldedOutputs = shieldedOutputs => {
+      const obj = shieldedOutputs.map((output, idx) => {
+        const decoded = output.decoded || {};
+        // Amount-shielded outputs expose the recipient address in plaintext
+        // via decoded.address (only the amount is hidden). The fullnode does
+        // not populate decoded.type for shielded outputs, so we can't reuse
+        // renderP2PKHorMultiSig as-is — and the raw `script` field is opaque
+        // binary that would render as gibberish if piped through the
+        // transparent-output path. Fully-shielded outputs omit address too.
+        return (
+          <div key={`shielded-${idx}`}>
+            <div className="fw-bold">
+              <i className="fa fa-lock me-1" />
+              <span className="fst-italic">Confidential</span>
+            </div>
+            {decoded.address && (
+              <div>
+                {decoded.address}
+                {decoded.timelock
+                  ? ` | Locked until ${dateFormatter.parseTimestamp(decoded.timelock)}`
+                  : ''}
+              </div>
+            )}
+          </div>
+        );
+      });
       return renderListWithSpacer(obj);
     };
 
@@ -1237,8 +1278,14 @@ class TxData extends React.Component {
               <DropDetails startOpen title={`Inputs (${this.props.transaction.inputs.length})`}>
                 {renderInputs(this.props.transaction.inputs)}
               </DropDetails>
-              <DropDetails startOpen title={`Outputs (${this.props.transaction.outputs.length})`}>
+              <DropDetails
+                startOpen
+                title={`Outputs (${this.props.transaction.outputs.length +
+                  (this.props.transaction.shielded_outputs?.length || 0)})`}
+              >
                 {renderOutputs(this.props.transaction.outputs)}
+                {this.props.transaction.shielded_outputs?.length > 0 &&
+                  renderShieldedOutputs(this.props.transaction.shielded_outputs)}
               </DropDetails>
             </div>
             {this.state.tokens.length > 0 && renderTokenList()}
