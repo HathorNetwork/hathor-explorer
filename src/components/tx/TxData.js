@@ -411,15 +411,97 @@ class TxData extends React.Component {
       return 'transaction';
     };
 
+    // Shield-with-padlock badge shown for any confidential (shielded) input
+    // or output. Replaces the older `fa fa-lock` icon. The label varies by
+    // privacy mode:
+    //   AmountShielded (mode=1): "Confidential amount · <TOKEN>" — only the
+    //     amount is hidden; the token itself is still visible (token_data).
+    //   FullShielded (mode=2):   "Confidential" — both amount AND token are
+    //     hidden behind the asset_commitment.
+    // Caller passes a tokenSymbol when known (AS only); otherwise the badge
+    // falls back to the bare "Confidential" label.
+    const ConfidentialBadge = ({ tokenSymbol }) => (
+      <span className="fw-bold d-inline-flex align-items-center">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="me-1"
+          aria-hidden="true"
+        >
+          <path
+            d="M6.6795 10.5514H9.3205C9.49128 10.5514 9.63439 10.4936 9.74983 10.378C9.86528 10.2626 9.923 10.1195 9.923 9.94871V7.97437C9.923 7.80371 9.86528 7.6606 9.74983 7.54504C9.63439 7.4296 9.49128 7.37187 9.3205 7.37187H9.26283V6.70521C9.26283 6.35565 9.14083 6.05887 8.89683 5.81487C8.65283 5.57076 8.356 5.44871 8.00633 5.44871C7.65678 5.44871 7.36 5.57076 7.116 5.81487C6.872 6.05887 6.75 6.35565 6.75 6.70521V7.37187H6.6795C6.50872 7.37187 6.36561 7.4296 6.25017 7.54504C6.13472 7.6606 6.077 7.80371 6.077 7.97437V9.94871C6.077 10.1195 6.13472 10.2626 6.25017 10.378C6.36561 10.4936 6.50872 10.5514 6.6795 10.5514ZM7.33967 7.37187V6.70521C7.33967 6.51632 7.40356 6.35799 7.53133 6.23021C7.65911 6.10243 7.81744 6.03854 8.00633 6.03854C8.19522 6.03854 8.35356 6.10243 8.48133 6.23021C8.60911 6.35799 8.673 6.51632 8.673 6.70521V7.37187H7.33967ZM7.79617 14.2307C7.7295 14.2196 7.66494 14.2029 7.6025 14.1807C6.19661 13.6807 5.07806 12.7942 4.24683 11.5212C3.41561 10.2481 3 8.87437 3 7.40004V4.39754C3 4.14432 3.07283 3.91637 3.2185 3.71371C3.36406 3.51115 3.55233 3.36432 3.78333 3.27321L7.57817 1.85654C7.72094 1.80521 7.86156 1.77954 8 1.77954C8.13844 1.77954 8.27906 1.80521 8.42183 1.85654L12.2167 3.27321C12.4477 3.36432 12.6359 3.51115 12.7815 3.71371C12.9272 3.91637 13 4.14432 13 4.39754V7.40004C13 8.87437 12.5844 10.2481 11.7532 11.5212C10.9219 12.7942 9.80339 13.6807 8.3975 14.1807C8.33506 14.2029 8.2705 14.2196 8.20383 14.2307C8.13717 14.2418 8.06922 14.2474 8 14.2474C7.93078 14.2474 7.86283 14.2418 7.79617 14.2307ZM8 13.2667C9.15556 12.9 10.1111 12.1667 10.8667 11.0667C11.6222 9.96671 12 8.74449 12 7.40004V4.39104C12 4.34837 11.9882 4.30993 11.9647 4.27571C11.9412 4.24148 11.9081 4.21582 11.8653 4.19871L8.0705 2.78204C8.04917 2.77348 8.02567 2.76921 8 2.76921C7.97433 2.76921 7.95083 2.77348 7.9295 2.78204L4.13467 4.19871C4.09189 4.21582 4.05878 4.24148 4.03533 4.27571C4.01178 4.30993 4 4.34837 4 4.39104V7.40004C4 8.74449 4.37778 9.96671 5.13333 11.0667C5.88889 12.1667 6.84444 12.9 8 13.2667Z"
+            fill="#B7BFC7"
+          />
+        </svg>
+        {tokenSymbol ? (
+          <>
+            <span className="fst-italic">Confidential amount</span>
+            <span className="mx-2">·</span>
+            <span>{tokenSymbol}</span>
+          </>
+        ) : (
+          <span className="fst-italic">Confidential</span>
+        )}
+      </span>
+    );
+
+    // Distinguish AmountShielded (mode 1) from FullShielded (mode 2). Older
+    // payloads may not carry `mode` explicitly — fall back to the presence
+    // of `asset_commitment`, which is only set for FullShielded outputs.
+    const isFullShielded = entry =>
+      entry?.mode === 2 ||
+      (typeof entry?.asset_commitment === 'string' && entry.asset_commitment.length > 0);
+
+    // Resolve the token symbol for an AmountShielded entry from its
+    // token_data index. Returns undefined if the index falls outside the
+    // tx's tokens[] array (then the caller renders bare "Confidential").
+    const shieldedTokenSymbol = entry => {
+      const tokenIdx = hathorLib.tokensUtils.getTokenIndexFromData(entry?.token_data ?? 0);
+      if (tokenIdx === 0) return hathorLib.constants.DEFAULT_NATIVE_TOKEN_CONFIG?.symbol || 'HTR';
+      const token = this.props.transaction.tokens?.[tokenIdx - 1];
+      return token?.symbol;
+    };
+
+    const renderShieldedAddress = (entry, trailing = null) => {
+      const decoded = entry?.decoded || {};
+      if (!decoded.address) return trailing ? <div>{trailing}</div> : null;
+      const suffix = decoded.type ? ` [${decoded.type}]` : ' [P2PKH]';
+      const lockTail = decoded.timelock
+        ? ` | Locked until ${dateFormatter.parseTimestamp(decoded.timelock)}`
+        : '';
+      return (
+        <div>
+          {decoded.address}
+          {lockTail}
+          {suffix}
+          {trailing}
+        </div>
+      );
+    };
+
     const renderInputs = inputs => {
       const obj = inputs.map((input, idx) => {
         if (input.type === 'shielded') {
+          // Shielded inputs reference the parent tx + index of the shielded
+          // UTXO they spend; some fullnode payloads also include the same
+          // mode / token_data the spent shielded output had so the explorer
+          // can label AS vs FS without fetching the parent tx.
+          const tokenSymbol = isFullShielded(input) ? undefined : shieldedTokenSymbol(input);
+          const refLink =
+            input.tx_id !== undefined ? (
+              <div>
+                <Link to={`/transaction/${input.tx_id}`}>{helpers.getShortHash(input.tx_id)}</Link>{' '}
+                ({input.index})
+              </div>
+            ) : null;
           return (
             <div key={`shielded-input-${idx}`}>
-              <div className="fw-bold">
-                <i className="fa fa-lock me-1" />
-                <span className="fst-italic">Confidential</span>
-              </div>
+              {refLink}
+              <ConfidentialBadge tokenSymbol={tokenSymbol} />
+              {renderShieldedAddress(input)}
             </div>
           );
         }
@@ -496,28 +578,22 @@ class TxData extends React.Component {
     };
 
     const renderShieldedOutputs = shieldedOutputs => {
+      // Spent-link lookup uses the on-chain absolute output index. The
+      // fullnode keys spent_by entries by `transparent_count + shielded_idx`
+      // (matching the wallet-lib's `onChainIndex` for shielded UTXOs), so
+      // map the shielded-array position into that absolute slot before
+      // looking up in `spentOutputs`.
+      const transparentCount = this.props.transaction.outputs?.length || 0;
       const obj = shieldedOutputs.map((output, idx) => {
-        const decoded = output.decoded || {};
-        // Amount-shielded outputs expose the recipient address in plaintext
-        // via decoded.address (only the amount is hidden). The fullnode does
-        // not populate decoded.type for shielded outputs, so we can't reuse
-        // renderP2PKHorMultiSig as-is — and the raw `script` field is opaque
-        // binary that would render as gibberish if piped through the
-        // transparent-output path. Fully-shielded outputs omit address too.
+        const tokenSymbol = isFullShielded(output) ? undefined : shieldedTokenSymbol(output);
+        // Spent-link key: the fullnode indexes spent_by by absolute output
+        // position (`transparent_count + shielded_idx`), matching the
+        // wallet-lib's `onChainIndex` for shielded UTXOs.
+        const onChainIndex = transparentCount + idx;
         return (
           <div key={`shielded-${idx}`}>
-            <div className="fw-bold">
-              <i className="fa fa-lock me-1" />
-              <span className="fst-italic">Confidential</span>
-            </div>
-            {decoded.address && (
-              <div>
-                {decoded.address}
-                {decoded.timelock
-                  ? ` | Locked until ${dateFormatter.parseTimestamp(decoded.timelock)}`
-                  : ''}
-              </div>
-            )}
+            <ConfidentialBadge tokenSymbol={tokenSymbol} />
+            {renderShieldedAddress(output, renderOutputLink(onChainIndex))}
           </div>
         );
       });
@@ -841,6 +917,15 @@ class TxData extends React.Component {
       );
     };
 
+    // The "Tokens" panel lists every token referenced by the tx. When at
+    // least one output is FullShielded, an extra confidential-tokens row
+    // is appended (FS hides the token UID itself, so it can't show up as a
+    // regular row). AmountShielded keeps the token visible and is already
+    // covered by the regular rows via `transaction.tokens`.
+    const hasConfidentialToken = (this.props.transaction.shielded_outputs || []).some(
+      isFullShielded
+    );
+
     const renderTokenList = () => {
       const renderTokenUID = token => {
         if (token.uid === hathorLib.constants.NATIVE_TOKEN_UID) {
@@ -860,6 +945,14 @@ class TxData extends React.Component {
           <div>{renderTokenUID(token)}</div>
         </div>
       ));
+      if (hasConfidentialToken) {
+        obj.push(
+          <div key="confidential-token-row">
+            <ConfidentialBadge />
+            <div className="text-secondary">This transaction includes confidential tokens</div>
+          </div>
+        );
+      }
       return (
         <DropDetails startOpen title="Tokens">
           {renderListWithSpacer(obj)}
@@ -1287,7 +1380,7 @@ class TxData extends React.Component {
                   renderShieldedOutputs(this.props.transaction.shielded_outputs)}
               </DropDetails>
             </div>
-            {this.state.tokens.length > 0 && renderTokenList()}
+            {(this.state.tokens.length > 0 || hasConfidentialToken) && renderTokenList()}
             <div className="tx-drop-container-div">
               <DropDetails title="Parents:">
                 {renderTxListWithSpacer(this.props.transaction.parents)}
