@@ -20,9 +20,16 @@ import './newUi.css';
 
 import store from './store/index';
 import { UNLEASH_CONFIG } from './constants';
+import { setupShieldedCrypto } from './setupShieldedCrypto';
 
 const container = document.getElementById('root');
 const root = createRoot(container);
+
+// Fire-and-forget: the verifier is only needed on tx detail pages with
+// an `#unblind=…` payload, and the App tree handles its absence
+// gracefully ("verification unavailable"). Awaiting it here would just
+// delay first paint of the home page for no benefit.
+setupShieldedCrypto();
 
 root.render(
   <FlagProvider config={UNLEASH_CONFIG}>

@@ -4017,3 +4017,227 @@ th.sortable {
   gap: 16px;
   margin-top: 20px;
 }
+
+/*
+ * Inline trigger for the "Apply unblinding factors" modal. Sits above
+ * the Inputs/Outputs row inside `details-container-gap`, so it picks
+ * up the same vertical rhythm as the cards around it without a card
+ * border of its own (the trigger is a single line of text, not a card).
+ *
+ * Self-contained: every selector below ties to its own theme variable
+ * so the modal works under both `theme-light` and `theme-dark` without
+ * any Bootstrap modal classes (their defaults fight the explorer's
+ * surfaces).
+ */
+/*
+ * Right-aligned, purple "Unblind transaction" CTA. Sits above the
+ * Inputs/Outputs row inside `details-container-gap`. No card chrome —
+ * the link itself is the affordance, and right-alignment keeps the
+ * page-level visual hierarchy (cards on the left/centered, trigger as
+ * a secondary action) consistent with the dashboard's "See all
+ * transactions" placement.
+ */
+.unblinding-trigger-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.unblinding-trigger-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--purple-text);
+  font-weight: 500;
+  cursor: pointer;
+  /* No underline by default — the eye glyph + brand-purple color is
+   * sufficient signal that this is interactive, and an underline
+   * fights with the icon visually. Add it on hover for an explicit
+   * pointer feedback. */
+  text-decoration: none;
+}
+.unblinding-trigger-link:hover {
+  color: var(--purple-text);
+  text-decoration: underline;
+}
+
+.unblinding-clear-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--normal-text-color);
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.unblinding-clear-link:hover {
+  color: var(--bold-text-color);
+}
+
+/* ─── Modal ─────────────────────────────────────────────────────── */
+
+.unblinding-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.unblinding-modal {
+  width: 100%;
+  max-width: 640px;
+  background-color: var(--secondary-color);
+  color: var(--normal-text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+}
+
+.unblinding-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.unblinding-modal__title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--bold-text-color);
+}
+
+.unblinding-modal__close {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--normal-text-color);
+  cursor: pointer;
+}
+.unblinding-modal__close:hover {
+  color: var(--bold-text-color);
+}
+
+.unblinding-modal__body {
+  padding: 16px 20px;
+}
+
+.unblinding-modal__hint {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.875rem;
+  color: var(--normal-text-color);
+
+  code {
+    color: var(--purple-text);
+    background: none;
+    padding: 0;
+  }
+}
+
+.unblinding-modal__textarea {
+  width: 100%;
+  background-color: var(--input-background);
+  color: var(--bold-text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.875rem;
+  resize: vertical;
+}
+.unblinding-modal__textarea:focus {
+  outline: none;
+  border-color: var(--purple-text);
+  box-shadow: 0 0 0 0.2rem rgba(140, 70, 255, 0.15);
+}
+
+.unblinding-modal__error {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--span-red-border);
+}
+
+.unblinding-modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 12px 20px 16px 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.unblinding-modal__secondary {
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.875rem;
+  color: var(--bold-text-color);
+  cursor: pointer;
+}
+.unblinding-modal__secondary:hover {
+  background-color: var(--input-background);
+}
+.unblinding-modal__secondary--left {
+  margin-right: auto;
+}
+
+/*
+ * Mirrors `.table-home-button` (the "See all transactions" / "See all
+ * blocks" CTA on the dashboard) so the Apply action reads as the
+ * canonical primary button across the explorer. Colors come from the
+ * same `$purpleHathorButton` / `$purpleHathorButtonHover` SCSS vars
+ * declared at the top of this file.
+ */
+.unblinding-modal__primary {
+  font-family: 'Mona Sans', sans-serif;
+  background-color: $purpleHathorButton;
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.unblinding-modal__primary:hover:not(:disabled) {
+  background-color: $purpleHathorButtonHover;
+}
+.unblinding-modal__primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/*
+ * "Revert unblind" affordance in the modal footer. Rendered as an
+ * inline link rather than a button so it reads as a destructive
+ * secondary action — visually subordinate to the primary Apply
+ * button while still pinned to the left of the footer via the
+ * existing margin-right:auto trick on its sibling group.
+ */
+.unblinding-modal__revert {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-right: auto;
+  color: var(--purple-text);
+  font-size: 0.875rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.unblinding-modal__revert:hover {
+  color: var(--purple-text);
+  filter: brightness(1.1);
+}

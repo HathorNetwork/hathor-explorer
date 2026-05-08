@@ -7,13 +7,14 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import hathorLib from '@hathor/wallet-lib';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import TxData from '../components/tx/TxData';
 import txApi from '../api/txApi';
 import metadataApi from '../api/metadataApi';
 import Spinner from '../components/Spinner';
 import { useIsMobile } from '../hooks';
 import helpers from '../utils/helpers';
+import { parseUnblindingPayload } from '../utils/unblinding';
 import WebSocketHandler from '../WebSocketHandler';
 
 /**
@@ -24,6 +25,16 @@ import WebSocketHandler from '../WebSocketHandler';
 function TransactionDetail() {
   const { id: txUid } = useParams();
   const isMobile = useIsMobile();
+  const location = useLocation();
+
+  /**
+   * unblinding {Map<onChainIndex, entry> | null}
+   *   When set, TxData renders shielded outputs in cleartext (verified
+   *   against the on-chain commitments — see `utils/unblinding.js`).
+   *   Sourced from the URL fragment (`#unblind=…`) on first mount, or
+   *   from manual paste via UnblindingPanel.
+   */
+  const [unblinding, setUnblinding] = useState(null);
 
   /**
    * transaction {Object} Loaded transaction
@@ -120,6 +131,28 @@ function TransactionDetail() {
     updateTxInfo(txUid).catch(e => console.error(e));
   }, [txUid, updateTxInfo]);
 
+  // Hydrate `unblinding` from the URL fragment on mount + whenever the
+  // route id changes. Fragments are not sent to any server, so the
+  // payload only ever exists on this client. A malformed fragment is
+  // ignored silently — we don't want to slap an error on the page just
+  // because someone landed via a stale link.
+  useEffect(() => {
+    const hash = location.hash || '';
+    if (!hash.includes('unblind=')) {
+      setUnblinding(null);
+      return;
+    }
+    const fragment = hash.startsWith('#') ? hash.slice(1) : hash;
+    const params = new URLSearchParams(fragment);
+    const raw = params.get('unblind');
+    if (!raw) {
+      setUnblinding(null);
+      return;
+    }
+    const result = parseUnblindingPayload(raw, txUid);
+    setUnblinding(result.error ? null : { outputs: result.outputs, inputs: result.inputs });
+  }, [location.hash, txUid]);
+
   // WebSocket listener effect - only listen if transaction has no first block
   useEffect(() => {
     // Only start listening if we have loaded the transaction and it has no first block
@@ -164,6 +197,13 @@ function TransactionDetail() {
     return null;
   };
 
+  // The unblinding paste panel is rendered inside TxData itself —
+  // right above the Inputs/Outputs row — so it sits next to the
+  // confidential-output rows it would unblind. We just thread the
+  // callbacks through; gating on `shielded_outputs.length` happens
+  // there.
+  const onClearUnblinding = useCallback(() => setUnblinding(null), []);
+
   const renderNewUiTx = () => {
     return (
       <>
@@ -177,6 +217,9 @@ function TransactionDetail() {
             showRaw={true}
             showConflicts={true}
             isMobile={isMobile}
+            unblinding={unblinding}
+            onApplyUnblinding={setUnblinding}
+            onClearUnblinding={onClearUnblinding}
           />
         ) : (
           <p className="text-danger">Transaction with hash {txUid} not found</p>

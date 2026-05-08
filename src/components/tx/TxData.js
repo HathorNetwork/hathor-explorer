@@ -33,6 +33,8 @@ import { ReactComponent as Copy } from '../../assets/images/copy-icon.svg';
 import { ReactComponent as ValidIcon } from '../../assets/images/success-icon.svg';
 import { ReactComponent as RowDown } from '../../assets/images/chevron-down.svg';
 import EllipsiCell from '../EllipsiCell';
+import UnblindingPanel from '../UnblindingPanel';
+import { verifyUnblindingEntry } from '../../utils/unblinding';
 
 const mapStateToProps = state => ({
   nativeToken: state.serverInfo.native_token,
@@ -86,6 +88,16 @@ class TxData extends React.Component {
     tokenCreationInfo: null,
     feeEntries: [],
     showAllFees: false,
+    // Verification results for the optional `unblinding` prop, keyed
+    // by either on-chain absolute output index (outputs map) or
+    // input-position-in-this-tx (inputs map). Each entry is one of:
+    //   { state: 'verified', value, tokenUid }
+    //   { state: 'unverified', value, tokenUid }   // WASM provider not loaded
+    //   { state: 'mismatch', reason }              // commitment didn't match
+    //   { state: 'error', reason }                 // schema/crypto error
+    // Slots without an entry render unchanged (opaque
+    // ConfidentialBadge). See utils/unblinding.js.
+    unblindingResults: { outputs: new Map(), inputs: new Map() },
   };
 
   // Array of token uid that was already found to show the symbol
@@ -99,11 +111,21 @@ class TxData extends React.Component {
 
   componentDidMount = async () => {
     await this.handleDataFetch();
+    await this.recomputeUnblindingResults();
   };
 
   componentDidUpdate = async prevProps => {
     if (prevProps.transaction !== this.props.transaction) {
       await this.handleDataFetch();
+    }
+    // Recompute when either the unblinding payload changes (user pasted
+    // a different one, or cleared) or the underlying tx data changes
+    // (the on-chain commitments are inputs to the verification).
+    if (
+      prevProps.unblinding !== this.props.unblinding ||
+      prevProps.transaction !== this.props.transaction
+    ) {
+      await this.recomputeUnblindingResults();
     }
   };
 
@@ -112,6 +134,91 @@ class TxData extends React.Component {
     this.parseFeeHeader();
     await this.handleNanoContractFetch();
     await this.fetchTokenCreationInfo();
+  };
+
+  /**
+   * For each entry in `props.unblinding.outputs` / `.inputs`, look up
+   * the corresponding on-chain slot and verify the commitment. Stores
+   * two maps in state so the per-row renderers can pick the result up
+   * synchronously.
+   *
+   * Outputs are keyed by on-chain absolute index
+   * (`transparentCount + s_index`, the same scheme hathor-core uses).
+   * Inputs are keyed by their position in the current tx's `inputs[]`
+   * array (the wallet emits the same key when assembling the payload).
+   *
+   * Entries pointing at a slot the tx doesn't have, or at a transparent
+   * input/output, are recorded as `{state: 'error'}` rather than
+   * ignored — silently dropping an entry would let a malformed share
+   * masquerade as "no unblinding data" rather than as the schema bug
+   * it actually is.
+   */
+  recomputeUnblindingResults = async () => {
+    const { unblinding, transaction } = this.props;
+    if (!unblinding) {
+      this.setState({ unblindingResults: { outputs: new Map(), inputs: new Map() } });
+      return;
+    }
+    const transparentCount = transaction.outputs?.length || 0;
+    const shielded = transaction.shielded_outputs ?? [];
+
+    // Resolve every entry concurrently — WASM verify is <1ms per
+    // commitment but this future-proofs slower providers and keeps
+    // React commit boundaries clean.
+    const verifyOutputs = async () => {
+      if (!unblinding.outputs || unblinding.outputs.size === 0 || shielded.length === 0) {
+        return new Map();
+      }
+      const pairs = await Promise.all(
+        Array.from(unblinding.outputs.entries()).map(async ([onChainIndex, entry]) => {
+          const sIndex = onChainIndex - transparentCount;
+          const slot = sIndex >= 0 && sIndex < shielded.length ? shielded[sIndex] : null;
+          if (!slot) {
+            return [
+              onChainIndex,
+              {
+                state: 'error',
+                reason: `payload references output ${onChainIndex} but the tx has no shielded output at that index`,
+              },
+            ];
+          }
+          const result = await verifyUnblindingEntry(entry, slot);
+          return [onChainIndex, result];
+        })
+      );
+      return new Map(pairs);
+    };
+
+    const verifyInputs = async () => {
+      if (!unblinding.inputs || unblinding.inputs.size === 0) {
+        return new Map();
+      }
+      const inputs = transaction.inputs ?? [];
+      const pairs = await Promise.all(
+        Array.from(unblinding.inputs.entries()).map(async ([inputIndex, entry]) => {
+          const slot = inputs[inputIndex];
+          // Verifier signature accepts {commitment, asset_commitment?}
+          // — same shape used for outputs. Shielded inputs carry
+          // `commitment` directly on the wire; FullShielded inputs
+          // also carry `asset_commitment` (passthrough field).
+          if (!slot || slot.type !== 'shielded') {
+            return [
+              inputIndex,
+              {
+                state: 'error',
+                reason: `payload references input ${inputIndex} but the tx has no shielded input at that position`,
+              },
+            ];
+          }
+          const result = await verifyUnblindingEntry(entry, slot);
+          return [inputIndex, result];
+        })
+      );
+      return new Map(pairs);
+    };
+
+    const [outputsMap, inputsMap] = await Promise.all([verifyOutputs(), verifyInputs()]);
+    this.setState({ unblindingResults: { outputs: outputsMap, inputs: inputsMap } });
   };
 
   isTokenCreation = () => {
@@ -483,13 +590,13 @@ class TxData extends React.Component {
     };
 
     const renderInputs = inputs => {
+      const inputResults = this.state.unblindingResults.inputs;
       const obj = inputs.map((input, idx) => {
         if (input.type === 'shielded') {
           // Shielded inputs reference the parent tx + index of the shielded
           // UTXO they spend; some fullnode payloads also include the same
           // mode / token_data the spent shielded output had so the explorer
           // can label AS vs FS without fetching the parent tx.
-          const tokenSymbol = isFullShielded(input) ? undefined : shieldedTokenSymbol(input);
           const refLink =
             input.tx_id !== undefined ? (
               <div>
@@ -497,6 +604,45 @@ class TxData extends React.Component {
                 ({input.index})
               </div>
             ) : null;
+          const verifyResult = inputResults.get(idx);
+
+          // Verified / unverified-but-claimed: show the cleartext
+          // value + token in place of the opaque badge. Same
+          // verified/unverified split as outputs — see
+          // renderShieldedOutputs for the rationale on each state.
+          if (
+            verifyResult &&
+            (verifyResult.state === 'verified' || verifyResult.state === 'unverified')
+          ) {
+            const tokenLabel = resolveUnblindedTokenLabel(verifyResult.tokenUid, input);
+            return (
+              <div key={`shielded-input-${idx}`}>
+                {refLink}
+                {renderUnblindedAmountRow(verifyResult.value, tokenLabel, verifyResult.state)}
+                {renderShieldedAddress(input)}
+              </div>
+            );
+          }
+
+          // Mismatch / schema error: refuse to display claimed values.
+          if (
+            verifyResult &&
+            (verifyResult.state === 'mismatch' || verifyResult.state === 'error')
+          ) {
+            const tokenSymbol = isFullShielded(input) ? undefined : shieldedTokenSymbol(input);
+            return (
+              <div key={`shielded-input-${idx}`}>
+                {refLink}
+                <span className="badge bg-danger me-2">unblinding rejected</span>
+                <small className="text-danger">{verifyResult.reason}</small>
+                <ConfidentialBadge tokenSymbol={tokenSymbol} />
+                {renderShieldedAddress(input)}
+              </div>
+            );
+          }
+
+          // No payload entry → unchanged "Confidential" badge.
+          const tokenSymbol = isFullShielded(input) ? undefined : shieldedTokenSymbol(input);
           return (
             <div key={`shielded-input-${idx}`}>
               {refLink}
@@ -584,12 +730,46 @@ class TxData extends React.Component {
       // map the shielded-array position into that absolute slot before
       // looking up in `spentOutputs`.
       const transparentCount = this.props.transaction.outputs?.length || 0;
+      const outputResults = this.state.unblindingResults.outputs;
       const obj = shieldedOutputs.map((output, idx) => {
-        const tokenSymbol = isFullShielded(output) ? undefined : shieldedTokenSymbol(output);
-        // Spent-link key: the fullnode indexes spent_by by absolute output
-        // position (`transparent_count + shielded_idx`), matching the
-        // wallet-lib's `onChainIndex` for shielded UTXOs.
         const onChainIndex = transparentCount + idx;
+        const verifyResult = outputResults.get(onChainIndex);
+
+        // Verified or unverified-but-claimed: render the cleartext value
+        // + token in place of the opaque badge. The two states differ
+        // only in the trailing tag — one says "unblinded by viewer" (we
+        // checked the commitment), the other says "unverified" (the
+        // browser lacks the WASM provider, so we're trusting the share).
+        if (
+          verifyResult &&
+          (verifyResult.state === 'verified' || verifyResult.state === 'unverified')
+        ) {
+          const tokenLabel = resolveUnblindedTokenLabel(verifyResult.tokenUid, output);
+          return (
+            <div key={`shielded-${idx}`}>
+              {renderUnblindedAmountRow(verifyResult.value, tokenLabel, verifyResult.state)}
+              {renderShieldedAddress(output, renderOutputLink(onChainIndex))}
+            </div>
+          );
+        }
+
+        // Mismatch / schema error: refuse to display the claimed values
+        // and surface the reason. Leaks-by-fallback would be a worse
+        // outcome than "this share is broken, here's why".
+        if (verifyResult && (verifyResult.state === 'mismatch' || verifyResult.state === 'error')) {
+          const tokenSymbol = isFullShielded(output) ? undefined : shieldedTokenSymbol(output);
+          return (
+            <div key={`shielded-${idx}`}>
+              <span className="badge bg-danger me-2">unblinding rejected</span>
+              <small className="text-danger">{verifyResult.reason}</small>
+              <ConfidentialBadge tokenSymbol={tokenSymbol} />
+              {renderShieldedAddress(output, renderOutputLink(onChainIndex))}
+            </div>
+          );
+        }
+
+        // No payload entry for this slot — render unchanged.
+        const tokenSymbol = isFullShielded(output) ? undefined : shieldedTokenSymbol(output);
         return (
           <div key={`shielded-${idx}`}>
             <ConfidentialBadge tokenSymbol={tokenSymbol} />
@@ -598,6 +778,61 @@ class TxData extends React.Component {
         );
       });
       return renderListWithSpacer(obj);
+    };
+
+    /**
+     * Resolve a display label for an unblinded token. Prefers the tx's
+     * `tokens[]` registry (so we show the symbol the explorer normally
+     * renders), falling back to a short hash + the bare hex uid for
+     * tokens not on this tx (rare — the unblinding payload's token uid
+     * is recovered from the same range proof that produced the visible
+     * commitment, so the token IS one of the tx's tokens in practice).
+     */
+    const resolveUnblindedTokenLabel = (tokenUidHex, output) => {
+      const native = hathorLib.constants.DEFAULT_NATIVE_TOKEN_CONFIG?.symbol || 'HTR';
+      // 32 zero bytes encoded as 64-char hex, or the legacy "00" form.
+      if (tokenUidHex === '00' || /^0+$/.test(tokenUidHex)) return native;
+      const fromTx = this.props.transaction.tokens?.find(
+        t => (t?.uid || '').toLowerCase() === tokenUidHex.toLowerCase()
+      );
+      if (fromTx?.symbol) return fromTx.symbol;
+      // Fall back to whatever the AmountShielded badge would have shown
+      // (when token_data is set) before resorting to a hash prefix.
+      const tdSymbol = isFullShielded(output) ? undefined : shieldedTokenSymbol(output);
+      return tdSymbol || `${tokenUidHex.slice(0, 8)}…`;
+    };
+
+    /**
+     * Single source of truth for the "value + token" row rendered in
+     * place of the ConfidentialBadge when an unblinding entry applies.
+     * Uses helpers.renderValue to honor the explorer's existing
+     * decimal-places + native-token formatting.
+     */
+    const renderUnblindedAmountRow = (value, tokenLabel, state) => {
+      // Same formatter the rest of TxData uses for transparent outputs
+      // (see e.g. line ~612). `prettyValue` accepts bigint and applies
+      // the user-configured decimal places; no NFT special-case needed
+      // for the unblinded view.
+      const formatted = hathorLib.numberUtils.prettyValue(value, this.props.decimalPlaces);
+      const badgeClass = state === 'verified' ? 'bg-success' : 'bg-warning text-dark';
+      const badgeLabel = state === 'verified' ? '✓ unblinded by viewer' : '⚠ unverified';
+      return (
+        <span className="fw-bold d-inline-flex align-items-center">
+          <span className="me-2">
+            {formatted} {tokenLabel}
+          </span>
+          <span
+            className={`badge ${badgeClass}`}
+            title={
+              state === 'verified'
+                ? 'Pedersen commitment recomputed locally and matched on-chain bytes.'
+                : 'Browser-side verifier not loaded — values are shown as claimed by the share.'
+            }
+          >
+            {badgeLabel}
+          </span>
+        </span>
+      );
     };
 
     const renderDecodedScript = output => {
@@ -1019,21 +1254,25 @@ class TxData extends React.Component {
         <div className="fee-paid-section">
           <table className="table-details fee-table">
             <tbody>
-              {entriesToShow.map((entry, idx) => (
-                <tr key={idx} className="tr-details">
-                  <td className="fee-label-cell">
-                    {idx === 0 && <span className="address-container-title">Fee paid</span>}
-                  </td>
-                  <td
-                    className={
-                      idx === entriesToShow.length - 1 && !showToggle ? 'tr-details-last-cell' : ''
-                    }
-                  >
-                    {hathorLib.numberUtils.prettyValue(entry.amount, this.props.decimalPlaces)}{' '}
-                    {entry.tokenSymbol}
-                  </td>
-                </tr>
-              ))}
+              {entriesToShow.map((entry, idx) => {
+                // The last row's border-bottom must be stripped on
+                // BOTH cells, not just the value cell — otherwise the
+                // label cell keeps its `1px solid var(--border-color)`
+                // bottom border and renders a short stray line below
+                // "FEE PAID" at the label-cell width.
+                const isLastRow = idx === entriesToShow.length - 1 && !showToggle;
+                return (
+                  <tr key={idx} className="tr-details">
+                    <td className={`fee-label-cell${isLastRow ? ' tr-details-last-cell' : ''}`}>
+                      {idx === 0 && <span className="address-container-title">Fee paid</span>}
+                    </td>
+                    <td className={isLastRow ? 'tr-details-last-cell' : ''}>
+                      {hathorLib.numberUtils.prettyValue(entry.amount, this.props.decimalPlaces)}{' '}
+                      {entry.tokenSymbol}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
           {showToggle && (
@@ -1366,6 +1605,29 @@ class TxData extends React.Component {
               <div className="d-flex flex-row align-items-start mb-3"> {renderNCActions()}</div>
             )}
 
+            {/* Unblinding panel sits above Inputs/Outputs so the user
+                can paste a payload before being asked to read opaque
+                Confidential rows. Inside `details-container-gap` so the
+                vertical spacing matches every other card without manual
+                margins. Gated by the same `shielded_outputs.length`
+                check as the Outputs renderer below — no shielded
+                slots → no point in showing a paste UI. */}
+            {this.props.transaction.shielded_outputs?.length > 0 && (
+              <UnblindingPanel
+                // Remount on tx change so the textarea draft, error
+                // state, and DropDetails open/closed flag all reset.
+                // Otherwise navigating from tx A → tx B (search box,
+                // URL edit, clicking an input/output link) would
+                // carry over the previous tx's pasted payload, which
+                // is a UX trap when the user expects each tx page to
+                // start fresh.
+                key={this.props.transaction.tx_id || this.props.transaction.hash}
+                txId={this.props.transaction.tx_id || this.props.transaction.hash}
+                onApply={this.props.onApplyUnblinding}
+                onClear={this.props.onClearUnblinding}
+                hasActivePayload={!!this.props.unblinding}
+              />
+            )}
             <div className="tx-drop-container-div">
               <DropDetails startOpen title={`Inputs (${this.props.transaction.inputs.length})`}>
                 {renderInputs(this.props.transaction.inputs)}
