@@ -4065,6 +4065,23 @@ th.sortable {
   text-decoration: underline;
 }
 
+/* Eye glyph appended to each unblinded input/output row. Replaces the
+ * earlier "✓ unblinded by viewer" Bootstrap pill — the icon-only form
+ * keeps every row's leading "<value> <token>" alignment consistent
+ * regardless of how long the token symbol is, and matches the
+ * `Unblind transaction` trigger's brand-purple visual language.
+ * Unverified state (no WASM verifier in the page) keeps the same eye
+ * but switches to the warning color so an unconfirmed claim never
+ * borrows the verified palette. */
+.unblinded-row-eye {
+  display: inline-flex;
+  align-items: center;
+  color: var(--purple-text);
+}
+.unblinded-row-eye--unverified {
+  color: var(--bs-warning, #f0ad4e);
+}
+
 .unblinding-clear-link {
   background: none;
   border: 0;

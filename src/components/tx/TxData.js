@@ -98,6 +98,15 @@ class TxData extends React.Component {
     // Slots without an entry render unchanged (opaque
     // ConfidentialBadge). See utils/unblinding.js.
     unblindingResults: { outputs: new Map(), inputs: new Map() },
+    // Token name/symbol cache for unblinded UIDs that aren't in
+    // `tx.tokens[]`. Populated by `fetchUnblindedTokenInfo` after the
+    // verification step finds a tokenUid we can't resolve locally —
+    // typically FullShielded outputs (the token UID is hidden on-chain
+    // and only recovered via rewind, so the tx's `tokens[]` registry
+    // doesn't list it). Keyed by lowercase hex uid; value is either
+    // `{ symbol, name }` (success) or `{ error: true }` (fetch failed,
+    // we keep the hash-prefix fallback).
+    unblindedTokenInfo: new Map(),
   };
 
   // Array of token uid that was already found to show the symbol
@@ -219,6 +228,86 @@ class TxData extends React.Component {
 
     const [outputsMap, inputsMap] = await Promise.all([verifyOutputs(), verifyInputs()]);
     this.setState({ unblindingResults: { outputs: outputsMap, inputs: inputsMap } });
+    // Side-effect: fire off token-info fetches for any UIDs we can't
+    // resolve locally. Intentionally not awaited — the unblinded rows
+    // render immediately with the hash-prefix fallback; once a fetch
+    // resolves it triggers a setState and the row swaps in the symbol.
+    this.fetchUnblindedTokenInfo(outputsMap, inputsMap);
+  };
+
+  /**
+   * Fetch name/symbol for unblinded token UIDs that aren't in
+   * `tx.tokens[]`. Common for FullShielded outputs — the on-chain
+   * `asset_commitment` hides the token UID, so the tx's tokens
+   * registry can't list it; we only learn the UID from the rewind
+   * payload. AmountShielded outputs are handled implicitly because
+   * their `token_data` already points into `tx.tokens[]`.
+   *
+   * Caches results in `state.unblindedTokenInfo` keyed by lowercase
+   * hex uid. Skips uids that are already cached, already in
+   * `tx.tokens[]`, or are the native token. Failures cache `{error:
+   * true}` so we don't retry on every re-render.
+   */
+  fetchUnblindedTokenInfo = async (outputsMap, inputsMap) => {
+    const txTokens = this.props.transaction.tokens ?? [];
+    const knownUids = new Set(txTokens.map(t => (t?.uid || '').toLowerCase()).filter(Boolean));
+    const cache = this.state.unblindedTokenInfo;
+
+    const uidsToFetch = new Set();
+    const collect = entry => {
+      if (!entry || (entry.state !== 'verified' && entry.state !== 'unverified')) return;
+      if (!entry.tokenUid) return;
+      const uid = entry.tokenUid.toLowerCase();
+      // Native (32 zero bytes / legacy "00") never needs a fetch.
+      if (uid === '00' || /^0+$/.test(uid)) return;
+      if (knownUids.has(uid)) return;
+      if (cache.has(uid)) return;
+      uidsToFetch.add(uid);
+    };
+    outputsMap.forEach(collect);
+    inputsMap.forEach(collect);
+    if (uidsToFetch.size === 0) return;
+
+    await Promise.all(
+      Array.from(uidsToFetch).map(async uid => {
+        try {
+          const info = await tokenApi.get(uid);
+          if (info?.success === false) {
+            this.setState(prev => {
+              const next = new Map(prev.unblindedTokenInfo);
+              next.set(uid, { error: true });
+              return { unblindedTokenInfo: next };
+            });
+            return;
+          }
+          // Both backends (basic-mode wallet-lib and full-mode
+          // explorer-service) return `{name, symbol, ...}` on success
+          // — see `generalTokenInfoSchema` in wallet-lib and the
+          // explorer-service shape in `explorerTokenApi.get`.
+          const symbol = info?.symbol;
+          const name = info?.name;
+          if (!symbol && !name) {
+            this.setState(prev => {
+              const next = new Map(prev.unblindedTokenInfo);
+              next.set(uid, { error: true });
+              return { unblindedTokenInfo: next };
+            });
+            return;
+          }
+          this.setState(prev => {
+            const next = new Map(prev.unblindedTokenInfo);
+            next.set(uid, { symbol, name });
+            return { unblindedTokenInfo: next };
+          });
+        } catch (e) {
+          this.setState(prev => {
+            const next = new Map(prev.unblindedTokenInfo);
+            next.set(uid, { error: true });
+            return { unblindedTokenInfo: next };
+          });
+        }
+      })
+    );
   };
 
   isTokenCreation = () => {
@@ -796,6 +885,12 @@ class TxData extends React.Component {
         t => (t?.uid || '').toLowerCase() === tokenUidHex.toLowerCase()
       );
       if (fromTx?.symbol) return fromTx.symbol;
+      // Fetched lazily by `fetchUnblindedTokenInfo` for UIDs not in
+      // `tx.tokens[]` — typically FullShielded recoveries. Cache hit
+      // here means the network round-trip already returned a symbol;
+      // misses (and error sentinels) fall through to the hash prefix.
+      const fetched = this.state.unblindedTokenInfo.get(tokenUidHex.toLowerCase());
+      if (fetched && !fetched.error && fetched.symbol) return fetched.symbol;
       // Fall back to whatever the AmountShielded badge would have shown
       // (when token_data is set) before resorting to a hash prefix.
       const tdSymbol = isFullShielded(output) ? undefined : shieldedTokenSymbol(output);
@@ -807,29 +902,48 @@ class TxData extends React.Component {
      * place of the ConfidentialBadge when an unblinding entry applies.
      * Uses helpers.renderValue to honor the explorer's existing
      * decimal-places + native-token formatting.
+     *
+     * Trailing eye glyph signals "this row was unblinded by the viewer."
+     * Verified state uses brand-purple (matching the `Unblind transaction`
+     * trigger and the explorer's overall accent); unverified state uses
+     * the warning palette so a missing verifier doesn't masquerade as
+     * a confirmed match. The text label that lived here previously
+     * ("✓ unblinded by viewer" pill) was redundant once the icon was
+     * present on every unblinded row — moved into the icon's `title`
+     * for hover-affordance.
      */
     const renderUnblindedAmountRow = (value, tokenLabel, state) => {
-      // Same formatter the rest of TxData uses for transparent outputs
-      // (see e.g. line ~612). `prettyValue` accepts bigint and applies
-      // the user-configured decimal places; no NFT special-case needed
-      // for the unblinded view.
       const formatted = hathorLib.numberUtils.prettyValue(value, this.props.decimalPlaces);
-      const badgeClass = state === 'verified' ? 'bg-success' : 'bg-warning text-dark';
-      const badgeLabel = state === 'verified' ? '✓ unblinded by viewer' : '⚠ unverified';
+      const isVerified = state === 'verified';
+      const title = isVerified
+        ? 'Unblinded by viewer · Pedersen commitment recomputed locally and matched on-chain bytes.'
+        : 'Unblinded by viewer · browser-side verifier not loaded — values are shown as claimed by the share.';
       return (
         <span className="fw-bold d-inline-flex align-items-center">
           <span className="me-2">
             {formatted} {tokenLabel}
           </span>
           <span
-            className={`badge ${badgeClass}`}
-            title={
-              state === 'verified'
-                ? 'Pedersen commitment recomputed locally and matched on-chain bytes.'
-                : 'Browser-side verifier not loaded — values are shown as claimed by the share.'
-            }
+            className={`unblinded-row-eye ${isVerified ? '' : 'unblinded-row-eye--unverified'}`}
+            title={title}
+            aria-label={title}
+            role="img"
           >
-            {badgeLabel}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
           </span>
         </span>
       );
@@ -1152,21 +1266,82 @@ class TxData extends React.Component {
       );
     };
 
-    // The "Tokens" panel lists every token referenced by the tx. When at
-    // least one output is FullShielded, an extra confidential-tokens row
-    // is appended (FS hides the token UID itself, so it can't show up as a
-    // regular row). AmountShielded keeps the token visible and is already
-    // covered by the regular rows via `transaction.tokens`.
-    const hasConfidentialToken = (this.props.transaction.shielded_outputs || []).some(
-      isFullShielded
+    // The "Tokens" panel lists every token referenced by the tx.
+    //
+    // Three sources contribute rows:
+    //   1. `this.state.tokens` — the canonical `transaction.tokens[]`
+    //      registry (transparent + AmountShielded refer here by index).
+    //   2. Token UIDs recovered from a FullShielded rewind via the
+    //      unblinding payload. FS hides the token UID inside the
+    //      asset_commitment, so it never appears in `transaction.tokens`
+    //      — once the viewer unblinds an FS output/input, we know which
+    //      token it carried and surface it here with the eye glyph so
+    //      it reads as "discovered via unblinding, not on-chain".
+    //   3. A residual "Confidential tokens" fallback row, but only if
+    //      at least one FullShielded output is STILL un-unblinded after
+    //      step 2 (i.e. the viewer's share didn't cover every FS slot).
+    //      With a complete payload, the panel becomes clean and the
+    //      fallback row disappears entirely.
+
+    // Step 2 prep: collect FullShielded output indices and the subset
+    // whose unblinding entry is verified/unverified (both states carry
+    // a recovered tokenUid; mismatch/error don't).
+    const transparentOutputCount = this.props.transaction.outputs?.length || 0;
+    const fullShieldedOutputIndices = new Set();
+    (this.props.transaction.shielded_outputs || []).forEach((output, sIdx) => {
+      if (isFullShielded(output)) {
+        fullShieldedOutputIndices.add(transparentOutputCount + sIdx);
+      }
+    });
+    const unblindedOutputIndices = new Set();
+    this.state.unblindingResults.outputs.forEach((entry, onChainIdx) => {
+      if (entry.state === 'verified' || entry.state === 'unverified') {
+        unblindedOutputIndices.add(onChainIdx);
+      }
+    });
+    const hasUnblindedAllFullShielded = Array.from(fullShieldedOutputIndices).every(idx =>
+      unblindedOutputIndices.has(idx)
     );
 
+    // Collect unique token UIDs recovered through the unblinding pass
+    // (outputs + inputs). Skip the native uid (32 zero bytes, or the
+    // legacy "00" form) and any UID that's already in `state.tokens`.
+    const knownTokenUids = new Set(this.state.tokens.map(t => (t.uid || '').toLowerCase()));
+    const recoveredTokenUids = new Map(); // uid -> { name, symbol } (or null)
+    const collectFromMap = resultsMap => {
+      resultsMap.forEach(entry => {
+        if (entry.state !== 'verified' && entry.state !== 'unverified') return;
+        if (!entry.tokenUid) return;
+        const uid = entry.tokenUid.toLowerCase();
+        if (uid === '00' || /^0+$/.test(uid)) return;
+        if (knownTokenUids.has(uid)) return;
+        if (recoveredTokenUids.has(uid)) return;
+        const fetched = this.state.unblindedTokenInfo.get(uid);
+        recoveredTokenUids.set(
+          uid,
+          fetched && !fetched.error ? { name: fetched.name, symbol: fetched.symbol } : null
+        );
+      });
+    };
+    collectFromMap(this.state.unblindingResults.outputs);
+    collectFromMap(this.state.unblindingResults.inputs);
+
+    // Panel-visibility predicate, replacing the old `hasConfidentialToken`
+    // single-source check. Show the panel when there's anything to put
+    // in it: a registry token, an unblinding-recovered token, or at
+    // least one FullShielded output (which produces either a recovered
+    // row or the residual "Confidential" fallback row).
+    const hasAnyTokensToShow =
+      this.state.tokens.length > 0 ||
+      recoveredTokenUids.size > 0 ||
+      fullShieldedOutputIndices.size > 0;
+
     const renderTokenList = () => {
-      const renderTokenUID = token => {
-        if (token.uid === hathorLib.constants.NATIVE_TOKEN_UID) {
-          return token.uid;
+      const renderTokenUID = uid => {
+        if (uid === hathorLib.constants.NATIVE_TOKEN_UID) {
+          return uid;
         }
-        return <Link to={`/token_detail/${token.uid}`}>{token.uid}</Link>;
+        return <Link to={`/token_detail/${uid}`}>{uid}</Link>;
       };
       const obj = this.state.tokens.map(token => (
         // TODO I don't think we have a TokenMarker here on Figma. Remove?
@@ -1177,10 +1352,54 @@ class TxData extends React.Component {
               {token.name} ({token.symbol})
             </span>
           </div>
-          <div>{renderTokenUID(token)}</div>
+          <div>{renderTokenUID(token.uid)}</div>
         </div>
       ));
-      if (hasConfidentialToken) {
+
+      // Append a row for each token UID we only learned about via the
+      // unblinding pass. The eye glyph (same purple as the per-row eyes
+      // on inputs/outputs) signals "this token's identity came from the
+      // viewer's share, not from the on-chain registry."
+      const recoveredEyeTitle =
+        'Token UID recovered from the unblinding payload — not visible on-chain.';
+      recoveredTokenUids.forEach((meta, uid) => {
+        const label = meta ? `${meta.name} (${meta.symbol})` : `${uid.slice(0, 8)}…`;
+        obj.push(
+          <div key={`unblinded-token-${uid}`}>
+            <div className="d-inline-flex align-items-center">
+              <span>{label}</span>
+              <span
+                className="unblinded-row-eye ms-2"
+                title={recoveredEyeTitle}
+                aria-label={recoveredEyeTitle}
+                role="img"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </span>
+            </div>
+            <div>{renderTokenUID(uid)}</div>
+          </div>
+        );
+      });
+
+      // Only show the "Confidential tokens" fallback when at least one
+      // FullShielded output remains un-recovered. With a complete
+      // unblinding payload + verified rewinds this row drops out.
+      if (fullShieldedOutputIndices.size > 0 && !hasUnblindedAllFullShielded) {
         obj.push(
           <div key="confidential-token-row">
             <ConfidentialBadge />
@@ -1642,7 +1861,7 @@ class TxData extends React.Component {
                   renderShieldedOutputs(this.props.transaction.shielded_outputs)}
               </DropDetails>
             </div>
-            {(this.state.tokens.length > 0 || hasConfidentialToken) && renderTokenList()}
+            {hasAnyTokensToShow && renderTokenList()}
             <div className="tx-drop-container-div">
               <DropDetails title="Parents:">
                 {renderTxListWithSpacer(this.props.transaction.parents)}
