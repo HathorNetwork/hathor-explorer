@@ -1828,10 +1828,13 @@ class TxData extends React.Component {
                 can paste a payload before being asked to read opaque
                 Confidential rows. Inside `details-container-gap` so the
                 vertical spacing matches every other card without manual
-                margins. Gated by the same `shielded_outputs.length`
-                check as the Outputs renderer below — no shielded
-                slots → no point in showing a paste UI. */}
-            {this.props.transaction.shielded_outputs?.length > 0 && (
+                margins. Shown whenever the tx has shielded slots in
+                EITHER direction — txs that consume shielded inputs but
+                emit only transparent outputs (full-sweep spend of
+                confidential UTXOs into a single transparent payout)
+                still benefit from unblinding the input side. */}
+            {(this.props.transaction.shielded_outputs?.length > 0 ||
+              this.props.transaction.inputs?.some(input => input.type === 'shielded')) && (
               <UnblindingPanel
                 // Remount on tx change so the textarea draft, error
                 // state, and DropDetails open/closed flag all reset.
