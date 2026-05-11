@@ -95,7 +95,17 @@ function UnblindingPanel({ txId, onApply, onClear, hasActivePayload }) {
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
             <circle cx="12" cy="12" r="3" />
           </svg>
-          <span>{hasActivePayload ? 'Update unblinding' : 'Unblind transaction'}</span>
+          {/* Label varies by state:
+              - No active payload: a call-to-action ("Unblind transaction")
+                inviting the user to paste one.
+              - Active payload: a status badge ("Unblinded by viewer")
+                that communicates the current view is augmented with the
+                viewer's share. Still clickable to update / clear via
+                the modal, but reads as a state indicator first — same
+                phrase that used to live in the per-row pills before the
+                eye-glyph redesign moved status into a single top-of-tx
+                indicator. */}
+          <span>{hasActivePayload ? 'Unblinded by viewer' : 'Unblind transaction'}</span>
         </button>
       </div>
 
