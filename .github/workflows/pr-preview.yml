@@ -13,6 +13,7 @@ concurrency:
 permissions:
   contents: write
   issues: write
+  pull-requests: write
 
 jobs:
   deploy-preview:
@@ -84,6 +85,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
+          export GH_TOKEN="$GITHUB_TOKEN"
           MARKER="<!-- pr-preview-url -->"
           REPO_NAME="${GITHUB_REPOSITORY#*/}"
           PREVIEW_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io/${REPO_NAME}/pr-${PR_NUMBER}/"
@@ -99,24 +101,15 @@ jobs:
           > This preview is automatically updated on every push and removed when the PR is closed."
 
           # Find an existing comment that starts with our marker
-          COMMENT_ID=$(curl -sf \
-            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" \
-            | jq -r ".[] | select(.body | startswith(\"${MARKER}\")) | .id" | head -1)
+          COMMENT_ID=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" \
+            --jq ".[] | select(.body | startswith(\"${MARKER}\")) | .id" | head -1)
 
           PAYLOAD=$(jq -n --arg body "$BODY" '{"body": $body}')
 
           if [ -n "$COMMENT_ID" ]; then
-            curl -sf -X PATCH \
-              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/comments/${COMMENT_ID}" \
-              -d "$PAYLOAD"
+            gh api -X PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${COMMENT_ID}" \
+              --input - <<< "$PAYLOAD"
           else
-            curl -sf -X POST \
-              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
-              -d "$PAYLOAD"
+            gh api -X POST "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              --input - <<< "$PAYLOAD"
           fi
