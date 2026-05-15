@@ -1850,7 +1850,7 @@ class TxData extends React.Component {
                 hasActivePayload={!!this.props.unblinding}
               />
             )}
-            <div className="tx-drop-container-div">
+            <div className="tx-drop-container-div" id="unblind-section">
               <DropDetails startOpen title={`Inputs (${this.props.transaction.inputs.length})`}>
                 {renderInputs(this.props.transaction.inputs)}
               </DropDetails>

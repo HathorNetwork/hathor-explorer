@@ -153,6 +153,30 @@ function TransactionDetail() {
     setUnblinding(result.error ? null : { outputs: result.outputs, inputs: result.inputs });
   }, [location.hash, txUid]);
 
+  // Scroll the Inputs/Outputs cluster (with the Unblind trigger row
+  // sitting just above it) into view when the URL fragment carries
+  // `section=unblind`. Kept deliberately independent of the
+  // `unblind=<payload>` apply path so callers can request scroll-only,
+  // apply-only, both, or neither by composing the two keys —
+  // e.g. `#section=unblind&unblind=<payload>`.
+  useEffect(() => {
+    if (!loaded) return;
+    const hash = location.hash || '';
+    if (!hash) return;
+    const fragment = hash.startsWith('#') ? hash.slice(1) : hash;
+    const params = new URLSearchParams(fragment);
+    if (params.get('section') !== 'unblind') return;
+    const el = document.getElementById('unblind-section');
+    if (!el) return;
+    // Manual scroll instead of `scrollIntoView({ block: 'start' })` so
+    // we can leave 80px of headroom — that exposes the "Unblind
+    // transaction" trigger row that sits immediately above this anchor
+    // for shielded txs, which is what the user is most likely coming
+    // to interact with.
+    const targetY = window.scrollY + el.getBoundingClientRect().top - 80;
+    window.scrollTo({ top: targetY, behavior: 'smooth' });
+  }, [location.hash, loaded]);
+
   // WebSocket listener effect - only listen if transaction has no first block
   useEffect(() => {
     // Only start listening if we have loaded the transaction and it has no first block
