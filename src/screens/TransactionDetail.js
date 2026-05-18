@@ -172,13 +172,19 @@ function TransactionDetail() {
     if (!section) return;
     const el = document.getElementById(`${section}-section`);
     if (!el) return;
-    // Manual scroll instead of `scrollIntoView({ block: 'start' })` so
-    // we can leave 20px of headroom — that exposes whatever sits
-    // immediately above the anchor (e.g. the "Unblind transaction"
-    // trigger row that precedes the Inputs/Outputs cluster).
-    const targetY = window.scrollY + el.getBoundingClientRect().top - 20;
+    // 16px headroom so the section's top edge doesn't sit flush
+    // against the viewport top — exposes whatever sits immediately
+    // above (e.g. the "Unblind transaction" trigger for shielded txs).
+    const targetY = window.scrollY + el.getBoundingClientRect().top - 16;
     window.scrollTo({ top: targetY, behavior: 'smooth' });
-  }, [location.hash, loaded]);
+    // `confirmationData` and `meta` land via a second API call that
+    // resolves AFTER `loaded` flips true — they expand the Overview
+    // card with extra rows ("Confirmation level", explorer-service
+    // metadata) which shifts every section below. Re-running the
+    // effect on those state changes re-aligns the scroll once the
+    // page has reached its final height. Without them, the anchor
+    // ends up 80–150px below the viewport top on first load.
+  }, [location.hash, loaded, confirmationData, meta]);
 
   // WebSocket listener effect - only listen if transaction has no first block
   useEffect(() => {
