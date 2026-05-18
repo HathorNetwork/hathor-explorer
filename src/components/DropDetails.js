@@ -14,7 +14,7 @@ import { ReactComponent as RowDown } from '../assets/images/chevron-up.svg';
  *
  * @returns {JSX.Element} The DropDetails component, which includes a title and a collapsible body.
  */
-export const DropDetails = ({ title, startOpen, onToggle, children }) => {
+export const DropDetails = ({ id, title, startOpen, onToggle, children }) => {
   const [open, setOpen] = useState(startOpen ?? false);
 
   /**
@@ -28,7 +28,7 @@ export const DropDetails = ({ title, startOpen, onToggle, children }) => {
   };
 
   return (
-    <div className={`container-drop-div ${open ? 'container-drop-div-open' : ''}`}>
+    <div id={id} className={`container-drop-div ${open ? 'container-drop-div-open' : ''}`}>
       <div className="container-drop-header" onClick={click}>
         <div className="container-drop-header-title">{title}</div>
         <div>

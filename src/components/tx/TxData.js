@@ -1408,7 +1408,7 @@ class TxData extends React.Component {
         );
       }
       return (
-        <DropDetails startOpen title="Tokens">
+        <DropDetails id="tokens-section" startOpen title="Tokens">
           {renderListWithSpacer(obj)}
         </DropDetails>
       );
@@ -1566,7 +1566,7 @@ class TxData extends React.Component {
     const renderNCActions = () => {
       const actionsCount = get(this.props.transaction, 'nc_context.actions.length', 0);
       return (
-        <DropDetails title={`Actions (${actionsCount})`}>
+        <DropDetails id="actions-section" title={`Actions (${actionsCount})`}>
           {actionsCount > 0 && renderNCActionsTable()}
         </DropDetails>
       );
@@ -1712,7 +1712,7 @@ class TxData extends React.Component {
       const isFeeBased = this.state.tokenCreationInfo?.version === hathorLib.TokenVersion.FEE;
 
       return (
-        <DropDetails startOpen title="Token Information">
+        <DropDetails id="token-information-section" startOpen title="Token Information">
           <div className="token-creation-info">
             <div className="summary-balance-info-container">
               <div className="address-container-title">NAME</div>
@@ -1768,7 +1768,7 @@ class TxData extends React.Component {
           </div>
           {this.props.showConflicts ? renderNewUiConflicts() : ''}
 
-          <div className="summary-balance-info">
+          <div className="summary-balance-info" id="overview-section">
             <h2 className="details-title">Overview</h2>
             <div className="summary-balance-info-container">
               <div className="address-container-title">Type</div> {getTxType()}{' '}
@@ -1817,11 +1817,13 @@ class TxData extends React.Component {
           <div className="details-container-gap">
             {renderTokenInformation()}
             {this.props.transaction.nc_id !== undefined && (
-              <div className="d-flex flex-row align-items-start mb-3">{renderNCData()}</div>
+              <div id="nano-contract-section" className="d-flex flex-row align-items-start mb-3">
+                {renderNCData()}
+              </div>
             )}
 
             {this.props.transaction.nc_id !== undefined && (
-              <div className="d-flex flex-row align-items-start mb-3"> {renderNCActions()}</div>
+              <div className="d-flex flex-row align-items-start mb-3">{renderNCActions()}</div>
             )}
 
             {/* Unblinding panel sits above Inputs/Outputs so the user
@@ -1851,10 +1853,15 @@ class TxData extends React.Component {
               />
             )}
             <div className="tx-drop-container-div" id="unblind-section">
-              <DropDetails startOpen title={`Inputs (${this.props.transaction.inputs.length})`}>
+              <DropDetails
+                id="inputs-section"
+                startOpen
+                title={`Inputs (${this.props.transaction.inputs.length})`}
+              >
                 {renderInputs(this.props.transaction.inputs)}
               </DropDetails>
               <DropDetails
+                id="outputs-section"
                 startOpen
                 title={`Outputs (${this.props.transaction.outputs.length +
                   (this.props.transaction.shielded_outputs?.length || 0)})`}
@@ -1866,10 +1873,10 @@ class TxData extends React.Component {
             </div>
             {hasAnyTokensToShow && renderTokenList()}
             <div className="tx-drop-container-div">
-              <DropDetails title="Parents:">
+              <DropDetails id="parents-section" title="Parents:">
                 {renderTxListWithSpacer(this.props.transaction.parents)}
               </DropDetails>
-              <DropDetails title="Children:">
+              <DropDetails id="children-section" title="Children:">
                 {renderTxListWithSpacer(this.props.meta.children)}
               </DropDetails>
             </div>
@@ -1877,6 +1884,7 @@ class TxData extends React.Component {
 
             {hathorLib.transactionUtils.isBlock(this.props.transaction) && (
               <DropDetails
+                id="feature-activation-section"
                 title="Feature Activation:"
                 onToggle={e => this.toggleFeatureActivation(e)}
               >
@@ -1888,6 +1896,7 @@ class TxData extends React.Component {
             )}
 
             <DropDetails
+              id="raw-transaction-section"
               title={
                 <>
                   <span>Raw Transaction</span>
