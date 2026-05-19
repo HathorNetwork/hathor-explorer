@@ -1,0 +1,6 @@
+- pipeline.id: tokens-pipeline
+  path.config: "/usr/share/logstash/pipeline/tokens.conf"
+- pipeline.id: token-balances-pipeline
+  path.config: "/usr/share/logstash/pipeline/token-balances.conf"
+- pipeline.id: transactions-pipeline
+  path.config: "/usr/share/logstash/pipeline/transactions.conf"
