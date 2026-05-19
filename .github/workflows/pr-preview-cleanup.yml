@@ -9,6 +9,7 @@ on:
 permissions:
   contents: write
   issues: write
+  pull-requests: write
 
 jobs:
   cleanup-preview:
@@ -47,14 +48,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
+          export GH_TOKEN="$GITHUB_TOKEN"
           MARKER="<!-- pr-preview-url -->"
 
           # Find the existing preview comment
-          COMMENT_ID=$(curl -sf \
-            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" \
-            | jq -r ".[] | select(.body | startswith(\"${MARKER}\")) | .id" | head -1)
+          COMMENT_ID=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" \
+            --jq ".[] | select(.body | startswith(\"${MARKER}\")) | .id" | head -1)
 
           if [ -z "$COMMENT_ID" ]; then
             echo "No preview comment found, nothing to update."
@@ -66,8 +65,5 @@ jobs:
 
           Preview has been removed as this PR is now closed."
 
-          curl -sf -X PATCH \
-            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/comments/${COMMENT_ID}" \
-            -d "$(jq -n --arg body "$BODY" '{"body": $body}')"
+          gh api -X PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${COMMENT_ID}" \
+            --input - <<< "$(jq -n --arg body "$BODY" '{"body": $body}')"
