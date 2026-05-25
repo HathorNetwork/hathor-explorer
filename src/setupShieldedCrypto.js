@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import hathorLib from '@hathor/wallet-lib';
-
 /**
  * Boot-time wiring for the browser-side shielded crypto provider.
  *
@@ -14,8 +12,9 @@ import hathorLib from '@hathor/wallet-lib';
  * unblinding payloads against on-chain commitments (in the "view tx
  * unblinded" flow). For that it needs a verifier-only
  * `IShieldedCryptoProvider` that runs in the browser — provided by
- * `@hathor/ct-crypto-wasm` via wallet-lib's
- * `createBrowserShieldedCryptoProvider` factory.
+ * `@hathor/ct-crypto-wasm/provider` (the adapter ships in the same
+ * package as the WASM bindings, since the migration to the
+ * hathor-ct-crypto monorepo).
  *
  * If the WASM package isn't installed yet the call resolves silently and
  * any code path that tries to verify renders an "unverifiable" state
@@ -26,11 +25,15 @@ import hathorLib from '@hathor/wallet-lib';
 export async function setupShieldedCrypto() {
   let provider;
   try {
-    provider = await hathorLib.shielded.createBrowserShieldedCryptoProvider();
+    // Dynamic import keeps the optional dependency truly optional: if
+    // @hathor/ct-crypto-wasm isn't installed, the import rejects and we
+    // gracefully degrade below.
+    const { createBrowserShieldedCryptoProvider } = await import('@hathor/ct-crypto-wasm/provider');
+    provider = await createBrowserShieldedCryptoProvider();
   } catch (err) {
     // Package not installed (`Cannot find module …`) or WASM init failed
     // (e.g. browser refused fetch of the .wasm). Either way, leave the
-    // wallet-lib provider unset — verification paths gracefully degrade.
+    // provider unset — verification paths gracefully degrade.
     /* eslint-disable-next-line no-console */
     console.warn(
       '[setupShieldedCrypto] browser shielded provider unavailable — ' +
@@ -41,11 +44,10 @@ export async function setupShieldedCrypto() {
     return null;
   }
 
-  // wallet-lib's provider registry lives on the storage instance, not
-  // on a global. The explorer doesn't keep its own wallet-lib storage —
-  // exposing the provider as a module export so the verify utility can
-  // reach it directly is the simplest path that doesn't require
-  // explorer code to spin up a fake `Storage`.
+  // The explorer doesn't keep its own wallet-lib storage — exposing the
+  // provider as a module export so the verify utility can reach it
+  // directly is the simplest path that doesn't require explorer code
+  // to spin up a fake `Storage`.
   // eslint-disable-next-line no-use-before-define
   cachedProvider = provider;
   return provider;
