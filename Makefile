@@ -1,5 +1,9 @@
+.PHONY: install
+install:
+	npm install
+
 .PHONY: build
-build:
+build: install
 	./scripts/deploy.sh $(site) build $(aws_profile)
 
 .PHONY: sync

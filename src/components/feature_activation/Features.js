@@ -221,6 +221,7 @@ class Features extends React.Component {
           )}
 
           <DropDetails
+            id="column-descriptions-section"
             title="Column descriptions:"
             onToggle={e => this.toggleColumnDescriptions(e)}
           >

@@ -101,6 +101,16 @@ case $site in
     S3_BUCKET=hathor-mainnet-public-explorer
     CLOUDFRONT_ID=ETOC9JKCK86OG
     ;;
+  testnet-shielded-outputs)
+    FULLNODE_HOST=node1.shielded-outputs.testnet.hathor.network
+    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
+    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
+    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.shielded-outputs.testnet.hathor.network/
+    REACT_APP_TIMESERIES_DASHBOARD_ID=afd8c89e-10c6-4fd2-b061-80e6f720dddb
+    REACT_APP_NETWORK=testnet
+    S3_BUCKET=hathor-testnet-shielded-outputs-public-explorer
+    CLOUDFRONT_ID=E2F7GDQQ66DWBW
+    ;;
   *)
     echo "Unknown site: $site"
     exit 1
