@@ -16,6 +16,8 @@ import EllipsiCell from './EllipsiCell';
 import { ReactComponent as RowBottomIcon } from '../assets/images/leading-icon.svg';
 import { ReactComponent as RowTopIcon } from '../assets/images/leading-top-icon.svg';
 import { COLORS } from '../constants';
+import ConfidentialBadge from './ConfidentialBadge';
+import { txHasConfidentialForAddress, describeAddressValue } from '../utils/shieldedOutputs';
 
 const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
@@ -78,6 +80,47 @@ class AddressHistory extends SortableTable {
     );
   }
 
+  /**
+   * Render the Value column for a row. When the tx carries confidential
+   * (shielded) outputs/inputs for this address, append a "Confidential" badge
+   * (or show it alone when there is no public value for the selected token).
+   */
+  renderValueContent(tx, prettyValue) {
+    const hasConfidential = txHasConfidentialForAddress(
+      this.props.txCache[tx.tx_id],
+      this.props.address
+    );
+    const descriptor = describeAddressValue({
+      balance: tx.balance,
+      hasConfidential,
+    });
+
+    const valueSpan = (
+      <span style={{ color: tx.balance < 0 ? COLORS.danger : COLORS.success }}>{prettyValue}</span>
+    );
+
+    if (descriptor === 'confidential-only') {
+      return (
+        <span className="confidential-value">
+          <ConfidentialBadge />
+        </span>
+      );
+    }
+
+    if (descriptor === 'value-and-confidential') {
+      return (
+        <>
+          {valueSpan}
+          <div className="confidential-value">
+            + <ConfidentialBadge />
+          </div>
+        </>
+      );
+    }
+
+    return valueSpan;
+  }
+
   renderNewTableBodyUi(isMobile) {
     const ellipsisCount = isMobile ? 4 : 12;
     return this.props.data.map(tx => {
@@ -136,11 +179,7 @@ class AddressHistory extends SortableTable {
             {dateFormatter.parseTimestampNewUi(tx.timestamp)}
           </td>
           <td className="state td-mobile">{statusElement}</td>
-          <td className="value td-mobile">
-            <span style={{ color: tx.balance < 0 ? COLORS.danger : COLORS.success }}>
-              {prettyValue}
-            </span>
-          </td>
+          <td className="value td-mobile">{this.renderValueContent(tx, prettyValue)}</td>
         </tr>
       );
     });

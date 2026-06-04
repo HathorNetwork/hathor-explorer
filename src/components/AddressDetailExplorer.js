@@ -12,6 +12,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useIsMobile } from '../hooks';
 import AddressSummary from './AddressSummary';
 import AddressHistory from './AddressHistory';
+import AddressConfidentialBanner from './AddressConfidentialBanner';
 import Loading from './Loading';
 import ErrorMessageWithIcon from './error/ErrorMessageWithIcon';
 import PaginationURL from '../utils/pagination';
@@ -35,7 +36,7 @@ import helpers from '../utils/helpers';
  * @return {boolean} True if should update the list, false otherwise
  */
 function shouldUpdate(tx, checkToken, queryToken, updateAddress) {
-  const arr = [...tx.outputs, ...tx.inputs];
+  const arr = [...tx.outputs, ...(tx.shielded_outputs || []), ...tx.inputs];
 
   for (const element of arr) {
     if (element?.decoded?.address === updateAddress) {
@@ -96,6 +97,7 @@ function AddressDetailExplorer() {
   const [errorMessage, setErrorMessage] = useState('');
   const [warningRefreshPage, setWarningRefreshPage] = useState(false);
   const [warnMissingTokens, setWarnMissingTokens] = useState(0);
+  const [hasConfidentialActivity, setHasConfidentialActivity] = useState(false);
   const [selectedTokenMetadata, setSelectedTokenMetadata] = useState(null);
   const [metadataLoaded, setMetadataLoaded] = useState(false);
   const [addressTokens, setAddressTokens] = useState({});
@@ -283,6 +285,7 @@ function AddressDetailExplorer() {
 
         const tokens = tokensResponse.tokens || {};
         const total = tokensResponse.total || 0;
+        setHasConfidentialActivity(Boolean(tokensResponse.has_confidential_activity));
 
         if (total > Object.keys(tokens).length) {
           // There were unfetched tokens
@@ -342,6 +345,7 @@ function AddressDetailExplorer() {
     setTransactions([]);
     setBalance({});
     setErrorMessage('');
+    setHasConfidentialActivity(false);
 
     // User may already have a token selected on the URL
     const refQueryParams = pagination.current.obtainQueryParams();
@@ -569,6 +573,7 @@ function AddressDetailExplorer() {
       <div>
         {renderWarningAlert()}
         {renderMissingTokensAlert()}
+        {hasConfidentialActivity && <AddressConfidentialBanner />}
         <AddressSummary
           address={address}
           tokens={addressTokens}
@@ -577,6 +582,7 @@ function AddressDetailExplorer() {
           tokenSelectChanged={onTokenSelectChanged}
           isNFT={isNFT()}
           metadataLoaded={metadataLoaded}
+          hasConfidentialActivity={hasConfidentialActivity}
         />
         <AddressHistory
           address={address}
