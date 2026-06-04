@@ -30,6 +30,10 @@ class AddressSummary extends React.Component {
       return null;
     }
 
+    // Confidential activity means the indexer only sees public values; label
+    // the public-only fields so the number isn't mistaken for the full amount.
+    const publicLabel = name => (this.props.hasConfidentialActivity ? `${name} (public)` : name);
+
     const newLoadMainInfo = () => {
       return (
         <div className="summary-main-info alter-background">
@@ -39,7 +43,7 @@ class AddressSummary extends React.Component {
           </div>
           <div className="summary-main-info-container">
             <div className="address-container-title summary-container-title-purple">
-              Number of tokens
+              {publicLabel('Number of tokens')}
             </div>
             <div>{Object.keys(this.props.tokens).length}</div>
           </div>
@@ -85,15 +89,15 @@ class AddressSummary extends React.Component {
             <div>{renderType()}</div>
           </div>
           <div className="summary-balance-info-container">
-            <div className="address-container-title">Number of transactions</div>
+            <div className="address-container-title">{publicLabel('Number of transactions')}</div>
             <div>{this.props.balance.transactions}</div>
           </div>
           <div className="summary-balance-info-container">
-            <div className="address-container-title">Total received</div>
+            <div className="address-container-title">{publicLabel('Total received')}</div>
             <div>{renderValue(this.props.balance.total_received)}</div>
           </div>
           <div className="summary-balance-info-container">
-            <div className="address-container-title">Total spent</div>
+            <div className="address-container-title">{publicLabel('Total spent')}</div>
             <div>
               {renderValue(
                 this.props.balance.total_received -
@@ -103,7 +107,7 @@ class AddressSummary extends React.Component {
             </div>
           </div>
           <div className="summary-balance-info-container">
-            <div className="address-container-title">Unlocked balance</div>
+            <div className="address-container-title">{publicLabel('Unlocked balance')}</div>
             <div>{renderValue(this.props.balance.unlocked_balance)}</div>
           </div>
           <div className="summary-balance-info-container">
@@ -183,6 +187,11 @@ AddressSummary.propTypes = {
   balance: PropTypes.object.isRequired,
   selectedToken: PropTypes.string.isRequired,
   tokenSelectChanged: PropTypes.func.isRequired,
+  hasConfidentialActivity: PropTypes.bool,
+};
+
+AddressSummary.defaultProps = {
+  hasConfidentialActivity: false,
 };
 
 export default connect(mapStateToProps)(AddressSummary);

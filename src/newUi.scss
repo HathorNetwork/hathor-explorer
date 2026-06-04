@@ -4258,3 +4258,34 @@ th.sortable {
   color: var(--purple-text);
   filter: brightness(1.1);
 }
+
+.address-confidential-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 24px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  background-color: var(--background-focus);
+
+  &__icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  &__title {
+    font-weight: 700;
+    color: var(--text-focus);
+  }
+
+  &__subtitle {
+    font-size: 14px;
+    opacity: 0.8;
+  }
+}
+
+.confidential-value {
+  font-size: 14px;
+  color: var(--text-focus);
+  opacity: 0.7;
+}
