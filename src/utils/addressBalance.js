@@ -23,13 +23,13 @@ export function calculateAddressBalance(tx, token, address, isAuthorityOutput) {
   let value = 0n;
 
   for (const txin of tx.inputs) {
-    if (txin.token === token && txin.decoded.address === address && !isAuthorityOutput(txin)) {
+    if (txin.token === token && txin.decoded?.address === address && !isAuthorityOutput(txin)) {
       value -= BigInt(txin.value);
     }
   }
 
   for (const txout of tx.outputs) {
-    if (txout.token === token && txout.decoded.address === address && !isAuthorityOutput(txout)) {
+    if (txout.token === token && txout.decoded?.address === address && !isAuthorityOutput(txout)) {
       value += BigInt(txout.value);
     }
   }

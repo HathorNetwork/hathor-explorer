@@ -44,4 +44,12 @@ describe('calculateAddressBalance', () => {
     };
     expect(calculateAddressBalance(tx, token, addr, notAuthority)).toBe(400n);
   });
+
+  it('skips inputs/outputs without a decoded script instead of throwing', () => {
+    const tx = {
+      inputs: [{ value: 100, token, decoded: undefined }],
+      outputs: [{ value: 300, token, decoded: null }, io(600)],
+    };
+    expect(calculateAddressBalance(tx, token, addr, notAuthority)).toBe(600n);
+  });
 });
