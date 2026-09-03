@@ -1,0 +1,17 @@
+# robots.txt for explorer.hathor.network
+#
+# The Hathor block explorer is a client-side single-page application. Every
+# transaction, block, address, and token has its own URL, so the crawlable URL
+# space grows with the chain and is effectively unbounded. Each page load also
+# fetches the full JavaScript bundle, so crawling that space transfers a large
+# volume of data while producing very little indexable content.
+
+# ExaSearchBot crawls the unbounded transaction and token URL space and
+# re-fetches the JavaScript bundle on every page. It is disallowed entirely.
+# Opt-out mechanism documented at https://crawler.exa.ai/
+User-agent: ExaSearchBot
+Disallow: /
+
+# All other crawlers are allowed.
+User-agent: *
+Disallow:
