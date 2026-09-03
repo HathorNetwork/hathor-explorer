@@ -151,9 +151,9 @@ case $command in
       exit 1
     fi
     if [ -n "$aws_profile" ]; then
-      aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/index.html" --profile $aws_profile
+      aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_ID" --paths "/index.html" "/robots.txt" --profile "$aws_profile"
     else
-      aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/index.html"
+      aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_ID" --paths "/index.html" "/robots.txt"
     fi
     ;;
   start)
