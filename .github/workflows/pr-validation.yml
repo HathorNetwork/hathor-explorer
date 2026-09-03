@@ -30,7 +30,7 @@ jobs:
 
       - name: Build
         run: |
-          make build site=testnet
+          make build site=testnet-india
 
       - name: Format
         run: |
