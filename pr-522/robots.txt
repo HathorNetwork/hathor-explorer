@@ -1,0 +1,3 @@
+# robots.txt for explorer.hathor.network
+User-agent: *
+Disallow:
