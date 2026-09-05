@@ -35,6 +35,7 @@ const themeUtils = {
   applyTheme(theme) {
     const html = document.querySelector('html');
     html.dataset.theme = `theme-${theme}`;
+    html.dataset.bsTheme = theme; // Bootstrap 5.3+ theme tag
     localStorage.setItem('theme', theme);
   },
 
