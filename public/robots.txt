@@ -1,3 +1,13 @@
 # robots.txt for explorer.hathor.network
+
+# The explorer has one page per transaction, token and address, so the URL
+# space has no end. These two crawlers fetch it at a sustained rate and load
+# the full page, including API calls to the fullnode, for every URL.
+User-agent: ExaSearchBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
 User-agent: *
 Disallow:
