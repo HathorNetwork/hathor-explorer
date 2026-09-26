@@ -25,3 +25,8 @@ yarn-error.log*
 
 *.swp
 *.swo
+
+# e2e (Playwright)
+/playwright-report
+/test-results
+/reports/screenshots
