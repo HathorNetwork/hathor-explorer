@@ -7,6 +7,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import hathorLib from '@hathor/wallet-lib';
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
 import nanoApi from '../../api/nanoApi';
@@ -80,7 +81,7 @@ function NanoContractLogs() {
         <div className="blueprint-source-code">
           <pre>
             <code ref={logsRef} className="language-json">
-              {JSON.stringify(logsResponse.logs, null, 2)}
+              {hathorLib.bigIntUtils.JSONBigInt.stringify(logsResponse.logs, 2)}
             </code>
           </pre>
         </div>

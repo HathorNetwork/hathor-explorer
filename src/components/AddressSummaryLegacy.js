@@ -9,6 +9,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { numberUtils } from '@hathor/wallet-lib';
+import { subtractValues } from '../utils/valueMath';
 
 const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
@@ -78,7 +79,7 @@ class AddressSummary extends React.Component {
             Total spent: {renderValue(balance.spent)}
             <br />
             <strong>Final balance: </strong>
-            {renderValue(balance.received - balance.spent)}
+            {renderValue(subtractValues(balance.received, balance.spent))}
           </div>
         </div>
       );

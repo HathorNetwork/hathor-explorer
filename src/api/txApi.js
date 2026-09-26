@@ -7,6 +7,7 @@
 
 import { txApi as libTxApi } from '@hathor/wallet-lib';
 import requestExplorerServiceV1 from './axiosInstance';
+import { parseJsonBigInt } from './jsonBigIntResponse';
 import helpers from '../utils/helpers';
 
 /**
@@ -127,8 +128,8 @@ const txApi = {
     return new Promise((resolve, reject) => {
       libTxApi
         .getTransactions(type, count, timestamp, hash, page, data => {
-          // Parse response if it's a string
-          const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+          // Parse response preserving full integer precision (BigInt for large amounts)
+          const parsedData = parseJsonBigInt(data);
           resolve(parsedData);
         })
         .catch(err => reject(err));

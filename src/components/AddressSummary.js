@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 import { numberUtils } from '@hathor/wallet-lib';
 import { connect } from 'react-redux';
 import HathorSelect from './HathorSelect';
+import { subtractValues } from '../utils/valueMath';
 
 const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
@@ -96,9 +97,11 @@ class AddressSummary extends React.Component {
             <div className="address-container-title">Total spent</div>
             <div>
               {renderValue(
-                this.props.balance.total_received -
-                  this.props.balance.unlocked_balance -
+                subtractValues(
+                  this.props.balance.total_received,
+                  this.props.balance.unlocked_balance,
                   this.props.balance.locked_balance
+                )
               )}
             </div>
           </div>

@@ -12,6 +12,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import PaginationURL from '../utils/pagination';
 import dateFormatter from '../utils/date';
+import { calculateAddressBalance } from '../utils/addressBalance';
 
 const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
@@ -23,30 +24,15 @@ class AddressHistory extends React.Component {
    *
    * @param {Object} tx Transaction data
    *
-   * @return {Number} Final tx balance value (can be negative value, in case we spent more than received for the search address)
+   * @return {bigint} Final tx balance value (can be negative value, in case we spent more than received for the search address)
    */
-  calculateAddressBalance = tx => {
-    const token = this.props.selectedToken;
-    let value = 0;
-
-    for (const txin of tx.inputs) {
-      if (txin.token === token && txin.decoded.address === this.props.address) {
-        if (!hathorLib.transactionUtils.isAuthorityOutput(txin)) {
-          value -= txin.value;
-        }
-      }
-    }
-
-    for (const txout of tx.outputs) {
-      if (txout.token === token && txout.decoded.address === this.props.address) {
-        if (!hathorLib.transactionUtils.isAuthorityOutput(txout)) {
-          value += txout.value;
-        }
-      }
-    }
-
-    return value;
-  };
+  calculateAddressBalance = tx =>
+    calculateAddressBalance(
+      tx,
+      this.props.selectedToken,
+      this.props.address,
+      hathorLib.transactionUtils.isAuthorityOutput.bind(hathorLib.transactionUtils)
+    );
 
   /**
    * Check if the tx has only inputs and outputs that are authorities in the search address
