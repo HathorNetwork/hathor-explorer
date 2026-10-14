@@ -17,33 +17,25 @@
  */
 
 /**
- * True when the transaction carries any shielded output or shielded input
- * whose decoded address matches `address`.
+ * How `address` takes part in the transaction through shielded data:
+ * `received` when a shielded output pays it, `sent` when an input spends a
+ * shielded output it owned.
  *
  * @param {Object} [tx] Full-node transaction (from txCache)
  * @param {string} address Address being viewed
- * @returns {boolean}
+ * @returns {{ received: boolean, sent: boolean }}
  */
-export function txHasConfidentialForAddress(tx, address) {
+export function getConfidentialInvolvement(tx, address) {
   if (!tx) {
-    return false;
+    return { received: false, sent: false };
   }
 
-  const shieldedOutputs = tx.shielded_outputs || [];
-  for (const output of shieldedOutputs) {
-    if (output?.decoded?.address === address) {
-      return true;
-    }
-  }
+  const received = (tx.shielded_outputs || []).some(output => output?.decoded?.address === address);
+  const sent = (tx.inputs || []).some(
+    input => input?.type === 'shielded' && input?.decoded?.address === address
+  );
 
-  const inputs = tx.inputs || [];
-  for (const input of inputs) {
-    if (input?.type === 'shielded' && input?.decoded?.address === address) {
-      return true;
-    }
-  }
-
-  return false;
+  return { received, sent };
 }
 
 /**

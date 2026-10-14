@@ -5,38 +5,60 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { txHasConfidentialForAddress, describeAddressValue } from './shieldedOutputs';
+import { getConfidentialInvolvement, describeAddressValue } from './shieldedOutputs';
 
 const ADDR = 'HR7JvXSbg8mdvXopKtc97C64NR4TZmQE3T';
+const NONE = { received: false, sent: false };
 
-describe('txHasConfidentialForAddress', () => {
-  it('returns false for an undefined tx', () => {
-    expect(txHasConfidentialForAddress(undefined, ADDR)).toBe(false);
+describe('getConfidentialInvolvement', () => {
+  it('returns no involvement for an undefined tx', () => {
+    expect(getConfidentialInvolvement(undefined, ADDR)).toEqual(NONE);
   });
 
-  it('returns false when there are no shielded outputs or inputs', () => {
+  it('returns no involvement when there are no shielded outputs or inputs', () => {
     const tx = { outputs: [{ decoded: { address: ADDR } }], inputs: [] };
-    expect(txHasConfidentialForAddress(tx, ADDR)).toBe(false);
+    expect(getConfidentialInvolvement(tx, ADDR)).toEqual(NONE);
   });
 
-  it('detects a shielded output for the address', () => {
+  it('detects a shielded output for the address as received', () => {
     const tx = { shielded_outputs: [{ commitment: 'aa', decoded: { address: ADDR } }] };
-    expect(txHasConfidentialForAddress(tx, ADDR)).toBe(true);
+    expect(getConfidentialInvolvement(tx, ADDR)).toEqual({ received: true, sent: false });
   });
 
   it('ignores a shielded output for a different address', () => {
     const tx = { shielded_outputs: [{ commitment: 'aa', decoded: { address: 'OTHER' } }] };
-    expect(txHasConfidentialForAddress(tx, ADDR)).toBe(false);
+    expect(getConfidentialInvolvement(tx, ADDR)).toEqual(NONE);
   });
 
-  it('detects a shielded input for the address', () => {
+  it('ignores a shielded output without a decoded address', () => {
+    const tx = { shielded_outputs: [{ commitment: 'aa' }] };
+    expect(getConfidentialInvolvement(tx, ADDR)).toEqual(NONE);
+  });
+
+  it('detects a shielded input for the address as sent', () => {
     const tx = { inputs: [{ type: 'shielded', decoded: { address: ADDR } }] };
-    expect(txHasConfidentialForAddress(tx, ADDR)).toBe(true);
+    expect(getConfidentialInvolvement(tx, ADDR)).toEqual({ received: false, sent: true });
+  });
+
+  it('detects a full unshield (shielded inputs, no shielded outputs) as sent', () => {
+    const tx = {
+      inputs: [{ type: 'shielded', decoded: { address: ADDR } }],
+      outputs: [{ decoded: { address: 'OTHER' } }],
+    };
+    expect(getConfidentialInvolvement(tx, ADDR)).toEqual({ received: false, sent: true });
+  });
+
+  it('reports both directions for a shielded spend with shielded change', () => {
+    const tx = {
+      inputs: [{ type: 'shielded', decoded: { address: ADDR } }],
+      shielded_outputs: [{ commitment: 'aa', decoded: { address: ADDR } }],
+    };
+    expect(getConfidentialInvolvement(tx, ADDR)).toEqual({ received: true, sent: true });
   });
 
   it('ignores a transparent input for the address', () => {
     const tx = { inputs: [{ type: 'p2pkh', decoded: { address: ADDR } }] };
-    expect(txHasConfidentialForAddress(tx, ADDR)).toBe(false);
+    expect(getConfidentialInvolvement(tx, ADDR)).toEqual(NONE);
   });
 });
 

@@ -17,7 +17,7 @@ import { ReactComponent as RowBottomIcon } from '../assets/images/leading-icon.s
 import { ReactComponent as RowTopIcon } from '../assets/images/leading-top-icon.svg';
 import { COLORS } from '../constants';
 import ConfidentialBadge from './ConfidentialBadge';
-import { txHasConfidentialForAddress, describeAddressValue } from '../utils/shieldedOutputs';
+import { getConfidentialInvolvement, describeAddressValue } from '../utils/shieldedOutputs';
 
 const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
@@ -85,11 +85,7 @@ class AddressHistory extends SortableTable {
    * (shielded) outputs/inputs for this address, append a "Confidential" badge
    * (or show it alone when there is no public value for the selected token).
    */
-  renderValueContent(tx, prettyValue) {
-    const hasConfidential = txHasConfidentialForAddress(
-      this.props.txCache[tx.tx_id],
-      this.props.address
-    );
+  renderValueContent(tx, prettyValue, hasConfidential) {
     const descriptor = describeAddressValue({
       balance: tx.balance,
       hasConfidential,
@@ -127,6 +123,11 @@ class AddressHistory extends SortableTable {
       let statusElement = '';
       let trClass = '';
       let prettyValue = this.renderValue(tx.balance);
+      const confidential = getConfidentialInvolvement(
+        this.props.txCache[tx.tx_id],
+        this.props.address
+      );
+      const hasConfidential = confidential.received || confidential.sent;
 
       if (tx.balance > 0) {
         if (tx.version === hathorLib.constants.CREATE_TOKEN_TX_VERSION) {
@@ -158,6 +159,25 @@ class AddressHistory extends SortableTable {
           );
         }
         trClass = 'input-tr';
+      } else if (hasConfidential) {
+        // No public value moved, so the direction comes from the shielded
+        // data. Spending a shielded output wins over a shielded change output
+        // back to the same address.
+        if (confidential.sent) {
+          statusElement = (
+            <span className="type-span span-red-tag">
+              <RowTopIcon /> Sent
+            </span>
+          );
+          trClass = 'input-tr';
+        } else {
+          statusElement = (
+            <span className="type-span span-green-tag">
+              <RowBottomIcon /> Received
+            </span>
+          );
+          trClass = 'output-tr';
+        }
       } else if (this.props.txCache[tx.tx_id]) {
         if (this.isAllAuthority(this.props.txCache[tx.tx_id])) {
           statusElement = <span>Authority</span>;
@@ -179,7 +199,9 @@ class AddressHistory extends SortableTable {
             {dateFormatter.parseTimestampNewUi(tx.timestamp)}
           </td>
           <td className="state td-mobile">{statusElement}</td>
-          <td className="value td-mobile">{this.renderValueContent(tx, prettyValue)}</td>
+          <td className="value td-mobile">
+            {this.renderValueContent(tx, prettyValue, hasConfidential)}
+          </td>
         </tr>
       );
     });
