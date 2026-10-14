@@ -572,11 +572,17 @@ function AddressDetailExplorer() {
       return <Loading />;
     }
 
+    // Without public tokens there is no summary or history to show: the
+    // banner says so instead of an empty history.
+    const confidentialOnly = hasConfidentialActivity && Object.keys(addressTokens).length === 0;
+
     return (
       <div>
         {renderWarningAlert()}
         {renderMissingTokensAlert()}
-        {hasConfidentialActivity && <AddressConfidentialBanner />}
+        {hasConfidentialActivity && (
+          <AddressConfidentialBanner confidentialOnly={confidentialOnly} />
+        )}
         <AddressSummary
           address={routeAddress}
           spendAddress={resolvedAddress?.spendAddress}
@@ -588,24 +594,26 @@ function AddressDetailExplorer() {
           metadataLoaded={metadataLoaded}
           hasConfidentialActivity={hasConfidentialActivity}
         />
-        <AddressHistory
-          address={address}
-          onRowClicked={onRowClicked}
-          pagination={pagination.current}
-          selectedToken={selectedToken}
-          onNextPageClicked={onNextPageClicked}
-          onPreviousPageClicked={onPreviousPageClicked}
-          hasAfter={hasAfter}
-          hasBefore={hasBefore}
-          data={transactions}
-          numTransactions={balance.transactions}
-          txCache={txCache}
-          isNFT={isNFT()}
-          metadataLoaded={metadataLoaded}
-          calculatingPage={loadingPagination}
-          loading={loadingHistory}
-          isMobile={isMobile}
-        />
+        {!confidentialOnly && (
+          <AddressHistory
+            address={address}
+            onRowClicked={onRowClicked}
+            pagination={pagination.current}
+            selectedToken={selectedToken}
+            onNextPageClicked={onNextPageClicked}
+            onPreviousPageClicked={onPreviousPageClicked}
+            hasAfter={hasAfter}
+            hasBefore={hasBefore}
+            data={transactions}
+            numTransactions={balance.transactions}
+            txCache={txCache}
+            isNFT={isNFT()}
+            metadataLoaded={metadataLoaded}
+            calculatingPage={loadingPagination}
+            loading={loadingHistory}
+            isMobile={isMobile}
+          />
+        )}
       </div>
     );
   };
