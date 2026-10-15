@@ -1,6 +1,6 @@
 .PHONY: install
 install:
-	npm install
+	npm ci
 
 .PHONY: build
 build: install
