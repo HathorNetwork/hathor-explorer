@@ -12,6 +12,7 @@
     "@reduxjs/toolkit": "2.5.1",
     "@unleash/proxy-client-react": "1.0.4",
     "axios": "1.8.2",
+    "bitcore-lib": "8.25.10",
     "bootstrap": "5.3.3",
     "buffer": "6.0.3",
     "d3-selection": "3.0.0",
