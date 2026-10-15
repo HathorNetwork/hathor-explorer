@@ -54,12 +54,10 @@ $secondary-color-dark: #191c21;
   --network-data-connected-border: #44a32e;
   --tools-input-background: #f2f6fa;
   --background-network-select: #f2f6fa;
-  --warning-text: #9a6700;
 }
 
 :root[data-theme='theme-dark'] {
   --background-color: #0d1117;
-  --warning-text: #d29922;
   --alter-background-color: #24292f;
   --normal-text-color: #b7bfc7;
   --bold-text-color: #fff;
@@ -4021,7 +4019,7 @@ th.sortable {
 }
 
 /*
- * Inline trigger for the "Apply unblinding factors" modal. Sits above
+ * Inline trigger for the "View with your scan key" dialog. Sits above
  * the Inputs/Outputs row inside `details-container-gap`, so it picks
  * up the same vertical rhythm as the cards around it without a card
  * border of its own (the trigger is a single line of text, not a card).
@@ -4032,7 +4030,7 @@ th.sortable {
  * surfaces).
  */
 /*
- * Right-aligned, purple "Unblind transaction" CTA. Sits above the
+ * Right-aligned, purple "View with your scan key" CTA. Sits above the
  * Inputs/Outputs row inside `details-container-gap`. No card chrome —
  * the link itself is the affordance, and right-alignment keeps the
  * page-level visual hierarchy (cards on the left/centered, trigger as
@@ -4067,40 +4065,35 @@ th.sortable {
   text-decoration: underline;
 }
 
-/* Eye glyph appended to each unblinded input/output row. Replaces the
- * earlier "✓ unblinded by viewer" Bootstrap pill — the icon-only form
- * keeps every row's leading "<value> <token>" alignment consistent
- * regardless of how long the token symbol is, and matches the
- * `Unblind transaction` trigger's brand-purple visual language.
- * Unverified state (no WASM verifier in the page) keeps the same eye
- * but switches to the warning color so an unconfirmed claim never
- * borrows the verified palette. */
+/* Eye glyph after each input/output row the user's scan key unblinded,
+ * in the purple of the "View with your scan key" trigger. */
 .unblinded-row-eye {
   display: inline-flex;
   align-items: center;
   color: var(--purple-text);
 }
-.unblinded-row-eye--unverified {
-  color: var(--bs-warning, #f0ad4e);
-}
-
 /* Shield glyph of the confidential badge. */
 .confidential-badge-icon {
   color: var(--alter-border-color);
 }
 
-/* Notices under the "Unblind transaction" trigger: a link that couldn't be
- * applied, or values shown without verification. */
+/* Status under the "View with your scan key" trigger: the search progress,
+ * what it found, or why nothing could be unblinded. */
 .unblinding-status {
   font-size: 14px;
   margin-top: -8px;
   text-align: right;
 }
+.unblinding-inline-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--purple-text);
+  text-decoration: underline;
+  cursor: pointer;
+}
 .unblinding-status--error {
   color: var(--span-red-border);
-}
-.unblinding-status--warning {
-  color: var(--warning-text);
 }
 
 /* ─── Modal ─────────────────────────────────────────────────────── */

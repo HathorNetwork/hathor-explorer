@@ -32,7 +32,12 @@ import { ReactComponent as ValidIcon } from '../../assets/images/success-icon.sv
 import { ReactComponent as RowDown } from '../../assets/images/chevron-down.svg';
 import EllipsiCell from '../EllipsiCell';
 import UnblindingPanel from '../UnblindingPanel';
-import { FULL_SHIELDED_MODE, verifyUnblindingEntry } from '../../utils/unblinding';
+import {
+  ADDRESS_BATCH_SIZE,
+  FULL_SHIELDED_MODE,
+  parseScanXPrivKey,
+  rewindSlots,
+} from '../../utils/shieldedRewind';
 import { loadShieldedCryptoProvider } from '../../shieldedCrypto';
 
 const mapStateToProps = state => ({
@@ -87,11 +92,14 @@ class TxData extends React.Component {
     tokenCreationInfo: null,
     feeEntries: [],
     showAllFees: false,
-    // Verification results for the `unblinding` prop, keyed by on-chain
-    // output index (outputs) or by position in `inputs` (inputs). See
-    // `verifyUnblindingEntry` for the possible results. Slots without an
-    // entry keep their confidential badge.
-    unblindingResults: { outputs: new Map(), inputs: new Map() },
+    // Shielded values the user rewound in this browser with their scan key.
+    //   results: entries found, by slot id (see `getShieldedSlots`), as
+    //     `{ value, tokenUid, addressIndex }`, or `{ error }`
+    //   searchedUpTo: the addresses 0 to searchedUpTo - 1 were searched
+    //   progress: `{ from, to, done }` while a search runs
+    //   error: why nothing could be rewound
+    // Entries not found keep their confidential badge.
+    rewind: { results: new Map(), searchedUpTo: 0, progress: null, error: null },
     // Token of each AmountShielded input, keyed by input position. The
     // node sends a shielded input as the spent output, so its token_data
     // indexes the parent transaction's token list, fetched here.
@@ -109,28 +117,28 @@ class TxData extends React.Component {
 
   componentDidMount = async () => {
     await this.handleDataFetch();
-    await this.recomputeUnblindingResults();
   };
 
   componentDidUpdate = async prevProps => {
     if (prevProps.transaction !== this.props.transaction) {
+      // The scan key and what it revealed belong to the tx on screen. The
+      // same tx is set again when its explorer-service metadata arrives.
+      if (prevProps.transaction.hash !== this.props.transaction.hash) {
+        this.hideUnblinded();
+      }
       await this.handleDataFetch();
     }
-    // Recompute when either the unblinding payload changes (user pasted
-    // a different one, or cleared) or the underlying tx data changes
-    // (the on-chain commitments are inputs to the verification).
-    if (
-      prevProps.unblinding !== this.props.unblinding ||
-      prevProps.transaction !== this.props.transaction
-    ) {
-      await this.recomputeUnblindingResults();
-    }
+  };
+
+  componentWillUnmount = () => {
+    this.scanKey = null;
+    this.rewindRun = (this.rewindRun || 0) + 1;
   };
 
   handleDataFetch = async () => {
     this.calculateTokens();
     this.parseFeeHeader();
-    this.resolveShieldedInputTokens();
+    this.inputTokensRequest = this.resolveShieldedInputTokens();
     await this.handleNanoContractFetch();
     await this.fetchTokenCreationInfo();
   };
@@ -178,58 +186,123 @@ class TxData extends React.Component {
   };
 
   /**
-   * Verify every entry of `props.unblinding` against the shielded output
-   * or input it points to. Outputs are keyed by on-chain index (the number
-   * of transparent outputs plus the position in `shielded_outputs`), inputs
-   * by their position in `inputs`, the way the wallet builds the payload.
-   *
-   * An entry that points to a slot the tx doesn't have is recorded as an
-   * error instead of being dropped, so a broken payload doesn't look like
-   * an empty one.
+   * Shielded entries of the tx that a scan key can rewind, identified by
+   * `output:<on-chain index>` or `input:<position>`. An AmountShielded entry
+   * comes with its token, needed to rewind it.
    */
-  recomputeUnblindingResults = async () => {
-    const { unblinding, transaction } = this.props;
-    // A later call (new payload or new tx data) supersedes this one.
-    this.unblindingRequestId = (this.unblindingRequestId || 0) + 1;
-    const requestId = this.unblindingRequestId;
+  getShieldedSlots = () => {
+    const { transaction } = this.props;
+    const transparentCount = transaction.outputs?.length || 0;
+    const slots = [];
+    const addSlot = (id, entry, token) => {
+      if (!entry.ephemeral_pubkey) return;
+      if (entry.mode === FULL_SHIELDED_MODE) {
+        slots.push({ id, entry });
+      } else if (token) {
+        slots.push({ id, entry, tokenUid: token.uid });
+      }
+    };
+    (transaction.shielded_outputs || []).forEach((output, idx) => {
+      const tokenIndex = hathorLib.tokensUtils.getTokenIndexFromData(output.token_data ?? 0);
+      const token =
+        tokenIndex === hathorLib.constants.HATHOR_TOKEN_INDEX
+          ? this.getNativeToken()
+          : transaction.tokens?.[tokenIndex - 1];
+      addSlot(`output:${transparentCount + idx}`, output, token);
+    });
+    (transaction.inputs || []).forEach((input, idx) => {
+      if (input.type !== 'shielded') return;
+      addSlot(`input:${idx}`, input, this.state.shieldedInputTokens.get(idx));
+    });
+    return slots;
+  };
 
-    if (!unblinding) {
-      this.setState({ unblindingResults: { outputs: new Map(), inputs: new Map() } });
+  /**
+   * Start showing the shielded values paid to the user's addresses, from
+   * the scan key they pasted. The key only lives in this component, in
+   * memory, until `hideUnblinded`.
+   *
+   * @param {string} input The scan xpriv
+   * @return {string|null} Why the key can't be used, or null
+   */
+  applyScanKey = input => {
+    const network = hathorLib.config.getNetwork();
+    const parsed = parseScanXPrivKey(input, network.bitcoreNetwork.xprivkey);
+    if (parsed.error) {
+      return parsed.error;
+    }
+    this.hideUnblinded();
+    this.scanKey = parsed.key;
+    this.searchAddresses(0, ADDRESS_BATCH_SIZE);
+    return null;
+  };
+
+  /**
+   * Rewind the entries not found yet with the scan keys of the addresses
+   * `from` to `to - 1`.
+   */
+  searchAddresses = async (from, to) => {
+    this.rewindRun = (this.rewindRun || 0) + 1;
+    const run = this.rewindRun;
+    const isCancelled = () => run !== this.rewindRun;
+    this.setState(prev => ({
+      rewind: { ...prev.rewind, progress: { from, to, done: 0 }, error: null },
+    }));
+
+    // The input tokens come from the parent transactions.
+    await this.inputTokensRequest;
+    const provider = await loadShieldedCryptoProvider();
+    if (isCancelled()) return;
+    if (!provider) {
+      this.setState(prev => ({
+        rewind: {
+          ...prev.rewind,
+          progress: null,
+          error: 'The crypto module could not load, so nothing can be unblinded.',
+        },
+      }));
       return;
     }
 
-    const provider = await loadShieldedCryptoProvider();
-    const transparentCount = transaction.outputs?.length || 0;
-    const shielded = transaction.shielded_outputs ?? [];
-    const inputs = transaction.inputs ?? [];
+    const slots = this.getShieldedSlots().filter(slot => !this.state.rewind.results.has(slot.id));
+    const found = await rewindSlots({
+      provider,
+      key: this.scanKey,
+      slots,
+      fromIndex: from,
+      toIndex: to,
+      isCancelled,
+      onProgress: done => {
+        if (isCancelled()) return;
+        this.setState(prev => ({
+          rewind: { ...prev.rewind, progress: { from, to, done } },
+        }));
+      },
+    });
+    if (!found) return;
+    this.setState(prev => ({
+      rewind: {
+        results: new Map([...prev.rewind.results, ...found]),
+        searchedUpTo: to,
+        progress: null,
+        error: null,
+      },
+    }));
+  };
 
-    const verifyAll = (entries, findSlot, describe) =>
-      Promise.all(
-        Array.from(entries).map(async ([index, entry]) => {
-          const slot = findSlot(index);
-          if (!slot) {
-            return [index, { state: 'error', reason: `the tx has no shielded ${describe(index)}` }];
-          }
-          return [index, await verifyUnblindingEntry(entry, slot, provider)];
-        })
-      );
+  searchMoreAddresses = () => {
+    const from = this.state.rewind.searchedUpTo;
+    this.searchAddresses(from, from + ADDRESS_BATCH_SIZE);
+  };
 
-    const [outputPairs, inputPairs] = await Promise.all([
-      verifyAll(
-        unblinding.outputs,
-        index => shielded[index - transparentCount],
-        index => `output at index ${index}`
-      ),
-      verifyAll(
-        unblinding.inputs,
-        index => (inputs[index]?.type === 'shielded' ? inputs[index] : null),
-        index => `input at position ${index}`
-      ),
-    ]);
-
-    if (requestId !== this.unblindingRequestId) return;
+  /**
+   * Forget the scan key and the values it revealed.
+   */
+  hideUnblinded = () => {
+    this.scanKey = null;
+    this.rewindRun = (this.rewindRun || 0) + 1;
     this.setState({
-      unblindingResults: { outputs: new Map(outputPairs), inputs: new Map(inputPairs) },
+      rewind: { results: new Map(), searchedUpTo: 0, progress: null, error: null },
     });
   };
 
@@ -610,29 +683,17 @@ class TxData extends React.Component {
       );
     };
 
-    // Row of an unblinding entry the payload got wrong: keep the badge.
-    const renderRejectedUnblinding = (entry, token, verifyResult) => (
-      <>
-        <div>
-          <span className="badge bg-danger me-2">unblinding rejected</span>
-          <small className="text-danger">{verifyResult.reason}</small>
-        </div>
-        {renderConfidentialBadge(entry, token)}
-      </>
-    );
-
-    const renderShieldedEntry = (entry, token, verifyResult) => {
-      if (verifyResult?.state === 'verified' || verifyResult?.state === 'unverified') {
-        return renderUnblindedAmountRow(verifyResult, token);
-      }
-      if (verifyResult) {
-        return renderRejectedUnblinding(entry, token, verifyResult);
+    // A shielded entry shows its amount and token only once the user's scan
+    // key rewound it in this browser.
+    const renderShieldedEntry = (entry, token, slotId) => {
+      const rewound = this.state.rewind.results.get(slotId);
+      if (rewound && !rewound.error) {
+        return renderUnblindedAmountRow(rewound, token);
       }
       return renderConfidentialBadge(entry, token);
     };
 
     const renderInputs = inputs => {
-      const inputResults = this.state.unblindingResults.inputs;
       const obj = inputs.map((input, idx) => {
         if (input.type === 'shielded') {
           const token = isFullShielded(input) ? undefined : this.state.shieldedInputTokens.get(idx);
@@ -642,7 +703,7 @@ class TxData extends React.Component {
                 <Link to={`/transaction/${input.tx_id}`}>{helpers.getShortHash(input.tx_id)}</Link>{' '}
                 ({input.index})
               </div>
-              {renderShieldedEntry(input, token, inputResults.get(idx))}
+              {renderShieldedEntry(input, token, `input:${idx}`)}
               {renderShieldedAddress(input)}
             </div>
           );
@@ -734,13 +795,12 @@ class TxData extends React.Component {
       // The node keys `spent_outputs` by on-chain index: the number of
       // transparent outputs plus the position in `shielded_outputs`.
       const transparentCount = this.props.transaction.outputs?.length || 0;
-      const outputResults = this.state.unblindingResults.outputs;
       const obj = shieldedOutputs.map((output, idx) => {
         const onChainIndex = transparentCount + idx;
         const token = isFullShielded(output) ? undefined : shieldedOutputToken(output);
         return (
           <div key={`shielded-${idx}`}>
-            {renderShieldedEntry(output, token, outputResults.get(onChainIndex))}
+            {renderShieldedEntry(output, token, `output:${onChainIndex}`)}
             {renderShieldedAddress(output, renderOutputLink(onChainIndex))}
           </div>
         );
@@ -753,29 +813,23 @@ class TxData extends React.Component {
      * transaction show a short uid: looking them up would tell the backend
      * which token a FullShielded output hides.
      *
-     * @param {string} tokenUid Token uid from the payload ('00' for the native token)
+     * @param {string} tokenUid Recovered token uid ('00' for the native token)
      * @param {Object} [onChainToken] Token the chain shows for an AmountShielded entry
      */
     const unblindedTokenSymbol = (tokenUid, onChainToken) => {
-      if (tokenUid === '00' || /^0+$/.test(tokenUid)) return this.getNativeToken().symbol;
+      if (tokenUid === hathorLib.constants.NATIVE_TOKEN_UID) return this.getNativeToken().symbol;
       if (onChainToken?.uid === tokenUid && onChainToken.symbol) return onChainToken.symbol;
       const fromTx = this.props.transaction.tokens?.find(t => t?.uid === tokenUid);
       return fromTx?.symbol || `${tokenUid.slice(0, 8)}…`;
     };
 
-    const unblindedEyeTitle = {
-      verified: 'Unblinded by viewer. The amount and token match the on-chain commitment.',
-      unverified:
-        'Not verified: the verifier could not load. These values are claims from the payload.',
-    };
+    const unblindedEyeTitle = 'Unblinded in this browser with your scan key.';
 
-    const renderUnblindedEye = state => (
+    const renderUnblindedEye = () => (
       <span
-        className={`unblinded-row-eye ${
-          state === 'verified' ? '' : 'unblinded-row-eye--unverified'
-        }`}
-        title={unblindedEyeTitle[state]}
-        aria-label={unblindedEyeTitle[state]}
+        className="unblinded-row-eye"
+        title={unblindedEyeTitle}
+        aria-label={unblindedEyeTitle}
         role="img"
       >
         <svg
@@ -797,14 +851,12 @@ class TxData extends React.Component {
     );
 
     /**
-     * Amount and token of an unblinded entry, in place of its badge. An
-     * unverified entry says so in text, not only with the icon color.
+     * Amount and token of a rewound entry, in place of its badge.
      *
-     * @param {Object} verifyResult Result of `verifyUnblindingEntry`
+     * @param {{ value: bigint, tokenUid: string }} rewound Values the scan key recovered
      * @param {Object} [onChainToken] Token the chain shows for an AmountShielded entry
      */
-    const renderUnblindedAmountRow = (verifyResult, onChainToken) => {
-      const { value, tokenUid, state } = verifyResult;
+    const renderUnblindedAmountRow = ({ value, tokenUid }, onChainToken) => {
       const decimals = isNFT(tokenUid) ? 0 : this.props.decimalPlaces;
       return (
         <div className="fw-bold d-flex align-items-center flex-wrap">
@@ -812,10 +864,7 @@ class TxData extends React.Component {
             {hathorLib.numberUtils.prettyValue(value, decimals)}{' '}
             {unblindedTokenSymbol(tokenUid, onChainToken)}
           </span>
-          {renderUnblindedEye(state)}
-          {state === 'unverified' && (
-            <span className="badge bg-warning text-dark ms-2">unverified</span>
-          )}
+          {renderUnblindedEye()}
         </div>
       );
     };
@@ -1141,16 +1190,19 @@ class TxData extends React.Component {
     //   1. The tx's tokens (`state.tokens`, with their metadata).
     //   2. Tokens of AmountShielded inputs that aren't in that list. The
     //      node only adds the tokens of transparent inputs to it.
-    //   3. Tokens recovered by verified unblinding entries. A FullShielded
-    //      output hides its token, so it is never in the tx's list.
+    //   3. Tokens the user's scan key recovered. A FullShielded output
+    //      hides its token, so it is never in the tx's list.
     //   4. A "confidential tokens" row while a FullShielded output is still
     //      hidden.
     const transparentOutputCount = this.props.transaction.outputs?.length || 0;
+    const rewoundResults = this.state.rewind.results;
+    const isRewound = slotId => {
+      const result = rewoundResults.get(slotId);
+      return Boolean(result && !result.error);
+    };
     const hiddenFullShieldedCount = (this.props.transaction.shielded_outputs || []).filter(
       (output, sIdx) =>
-        isFullShielded(output) &&
-        this.state.unblindingResults.outputs.get(transparentOutputCount + sIdx)?.state !==
-          'verified'
+        isFullShielded(output) && !isRewound(`output:${transparentOutputCount + sIdx}`)
     ).length;
 
     const listedTokenUids = new Set(this.state.tokens.map(t => t.uid));
@@ -1163,19 +1215,15 @@ class TxData extends React.Component {
       }
     });
     const recoveredTokenUids = new Set();
-    [this.state.unblindingResults.outputs, this.state.unblindingResults.inputs].forEach(results =>
-      results.forEach(entry => {
-        if (entry.state !== 'verified' || /^0+$/.test(entry.tokenUid)) return;
-        if (!listedTokenUids.has(entry.tokenUid)) recoveredTokenUids.add(entry.tokenUid);
-      })
-    );
+    rewoundResults.forEach(result => {
+      if (result.error || listedTokenUids.has(result.tokenUid)) return;
+      recoveredTokenUids.add(result.tokenUid);
+    });
 
-    const unblindingStates = new Set(
-      [
-        ...this.state.unblindingResults.outputs.values(),
-        ...this.state.unblindingResults.inputs.values(),
-      ].map(entry => entry.state)
-    );
+    const shieldedSlotCount =
+      (this.props.transaction.shielded_outputs?.length || 0) +
+      (this.props.transaction.inputs || []).filter(input => input.type === 'shielded').length;
+    const rewoundCount = [...rewoundResults.values()].filter(result => !result.error).length;
 
     const hasAnyTokensToShow =
       this.state.tokens.length > 0 ||
@@ -1219,7 +1267,7 @@ class TxData extends React.Component {
           <div key={`unblinded-token-${uid}`}>
             <div className="d-inline-flex align-items-center">
               <span className="me-2">{`${uid.slice(0, 8)}…`}</span>
-              {renderUnblindedEye('verified')}
+              {renderUnblindedEye()}
             </div>
             <div>{renderTokenUID(uid)}</div>
           </div>
@@ -1653,33 +1701,21 @@ class TxData extends React.Component {
               <div className="d-flex flex-row align-items-start mb-3">{renderNCActions()}</div>
             )}
 
-            {/* Unblinding panel sits above Inputs/Outputs so the user
-                can paste a payload before being asked to read opaque
-                Confidential rows. Inside `details-container-gap` so the
-                vertical spacing matches every other card without manual
-                margins. Shown whenever the tx has shielded slots in
-                EITHER direction — txs that consume shielded inputs but
-                emit only transparent outputs (full-sweep spend of
-                confidential UTXOs into a single transparent payout)
-                still benefit from unblinding the input side. */}
-            {(this.props.transaction.shielded_outputs?.length > 0 ||
-              this.props.transaction.inputs?.some(input => input.type === 'shielded')) && (
+            {/* Above Inputs/Outputs, for any tx with a shielded input or
+                output. Remounted per tx, so a draft key never carries over. */}
+            {shieldedSlotCount > 0 && (
               <UnblindingPanel
-                // Remount on tx change so the textarea draft, error
-                // state, and DropDetails open/closed flag all reset.
-                // Otherwise navigating from tx A → tx B (search box,
-                // URL edit, clicking an input/output link) would
-                // carry over the previous tx's pasted payload, which
-                // is a UX trap when the user expects each tx page to
-                // start fresh.
-                key={this.props.transaction.tx_id || this.props.transaction.hash}
-                txId={this.props.transaction.tx_id || this.props.transaction.hash}
-                onApply={this.props.onApplyUnblinding}
-                onClear={this.props.onClearUnblinding}
-                hasActivePayload={!!this.props.unblinding}
-                hasVerifiedEntries={unblindingStates.has('verified')}
-                hasUnverifiedEntries={unblindingStates.has('unverified')}
-                linkError={this.props.unblindingLinkError}
+                key={this.props.transaction.hash}
+                onApplyScanKey={this.applyScanKey}
+                onHide={this.hideUnblinded}
+                onSearchMore={this.searchMoreAddresses}
+                openOnMount={this.props.promptScanKey}
+                active={Boolean(this.scanKey)}
+                progress={this.state.rewind.progress}
+                searchedUpTo={this.state.rewind.searchedUpTo}
+                rewoundCount={rewoundCount}
+                slotCount={shieldedSlotCount}
+                error={this.state.rewind.error}
               />
             )}
             <div className="tx-drop-container-div" id="unblind-section">

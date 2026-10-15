@@ -6,54 +6,71 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { parseUnblindingPayload } from '../utils/unblinding';
+import { ADDRESS_BATCH_SIZE } from '../utils/shieldedRewind';
+
+const EyeIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
 
 /**
- * Compact "Have unblinding factors? Click here" link rendered above the
- * Inputs/Outputs section, plus a modal that opens on click for pasting
- * the payload.
+ * "View with your scan key" link above Inputs/Outputs, and the dialog where
+ * the user pastes the key. TxData rewinds the shielded entries with it, in
+ * the browser.
  *
- * The modal is intentionally NOT built on Bootstrap's `.modal-*`
- * classes. Bootstrap's defaults assume a light surface and fight the
- * explorer's themed surfaces (dark-mode body bleed-through, button
- * variants that don't honor `--bs-*-bg`, etc.). Rolling a small
- * theme-native dialog driven by the same `--secondary-color` /
- * `--border-color` / `--bold-text-color` vars used by the rest of
- * the page is simpler and renders identically across light/dark.
+ * The dialog is not built on Bootstrap's `.modal-*` classes, which assume a
+ * light surface; it uses the theme variables of the rest of the page.
  *
  * Props:
- *   - txId: hash of the displayed tx; used to reject payloads keyed
- *     to a different tx so the user gets a clear error rather than
- *     silently misleading data.
- *   - onApply({outputs, inputs}): called with the parsed payload maps.
- *   - onClear(): called when the user clears the active payload.
- *   - hasActivePayload: whether an unblinding payload is currently
- *     applied (drives the modal's "Revert unblind" action).
- *   - hasVerifiedEntries: whether at least one entry matched the chain.
- *   - hasUnverifiedEntries: whether entries are shown unverified, because
- *     the verifier couldn't load.
- *   - linkError: why the `#unblind=…` link couldn't be applied, if it failed.
+ *   - onApplyScanKey(key): uses the pasted scan key; returns why it can't be
+ *     used, or null.
+ *   - onHide(): forgets the key and the values it revealed.
+ *   - onSearchMore(): searches the next batch of addresses.
+ *   - openOnMount: opens the dialog right away, when the wallet opened the page.
+ *   - active: whether a scan key is in use.
+ *   - progress: `{ from, to, done }` while addresses are searched.
+ *   - searchedUpTo: the addresses 0 to searchedUpTo - 1 were searched.
+ *   - rewoundCount / slotCount: shielded entries rewound, out of all of them.
+ *   - error: why nothing could be rewound.
  */
 function UnblindingPanel({
-  txId,
-  onApply,
-  onClear,
-  hasActivePayload,
-  hasVerifiedEntries,
-  hasUnverifiedEntries,
-  linkError,
+  onApplyScanKey,
+  onHide,
+  onSearchMore,
+  openOnMount,
+  active,
+  progress,
+  searchedUpTo,
+  rewoundCount,
+  slotCount,
+  error,
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(Boolean(openOnMount));
+  const [fromWallet, setFromWallet] = useState(Boolean(openOnMount));
   const [draft, setDraft] = useState('');
-  const [error, setError] = useState(null);
+  const [keyError, setKeyError] = useState(null);
   const triggerRef = useRef(null);
   const dialogRef = useRef(null);
 
-  // Every way of closing the dialog discards the draft and its error.
+  // Every way of closing the dialog discards the pasted key.
   const close = () => {
     setOpen(false);
+    setFromWallet(false);
     setDraft('');
-    setError(null);
+    setKeyError(null);
     triggerRef.current?.focus();
   };
 
@@ -92,62 +109,68 @@ function UnblindingPanel({
 
   const submit = e => {
     e.preventDefault();
-    setError(null);
-    const result = parseUnblindingPayload(draft, txId);
-    if (result.error) {
-      setError(result.error);
+    const failure = onApplyScanKey(draft);
+    if (failure) {
+      setKeyError(failure);
       return;
     }
-    onApply({ outputs: result.outputs, inputs: result.inputs });
     close();
   };
 
-  const clear = () => {
-    onClear();
-    close();
+  const renderStatus = () => {
+    if (error) {
+      return (
+        <div className="unblinding-status unblinding-status--error" role="alert">
+          {error}
+        </div>
+      );
+    }
+    if (progress) {
+      return (
+        <div className="unblinding-status" role="status">
+          Checking your addresses {progress.from}–{progress.to - 1}… ({progress.done}/
+          {progress.to - progress.from})
+        </div>
+      );
+    }
+    if (!active) return null;
+    return (
+      <div className="unblinding-status" role="status">
+        {rewoundCount} of {slotCount} confidential {slotCount === 1 ? 'entry' : 'entries'} belong to
+        your addresses 0–{searchedUpTo - 1}.
+        {rewoundCount < slotCount && (
+          <>
+            {' '}
+            <button type="button" className="unblinding-inline-link" onClick={onSearchMore}>
+              Search addresses {searchedUpTo}–{searchedUpTo + ADDRESS_BATCH_SIZE - 1}
+            </button>
+          </>
+        )}
+      </div>
+    );
   };
 
   return (
     <>
       <div className="unblinding-trigger-row">
-        <button
-          type="button"
-          className="unblinding-trigger-link"
-          ref={triggerRef}
-          onClick={() => setOpen(true)}
-        >
-          {/* Inline SVG eye glyph — keeps the trigger self-contained
-              (no asset import, no font icon) and inherits `color` from
-              the link so it flips with the theme automatically. */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
+        {active ? (
+          <button type="button" className="unblinding-trigger-link" onClick={onHide}>
+            <EyeIcon />
+            <span>Hide unblinded values</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="unblinding-trigger-link"
+            ref={triggerRef}
+            onClick={() => setOpen(true)}
           >
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-            <circle cx="12" cy="12" r="3" />
-          </svg>
-          <span>{hasVerifiedEntries ? 'Unblinded by viewer' : 'Unblind transaction'}</span>
-        </button>
+            <EyeIcon />
+            <span>View with your scan key</span>
+          </button>
+        )}
       </div>
-      {linkError && (
-        <div className="unblinding-status unblinding-status--error" role="alert">
-          The unblinding link could not be applied: {linkError}.
-        </div>
-      )}
-      {hasUnverifiedEntries && (
-        <div className="unblinding-status unblinding-status--warning" role="status">
-          The verifier could not load, so the unblinded values below are unverified claims from the
-          payload.
-        </div>
-      )}
+      {renderStatus()}
 
       {open && (
         <div className="unblinding-modal-backdrop" onClick={close} role="presentation">
@@ -161,7 +184,7 @@ function UnblindingPanel({
           >
             <div className="unblinding-modal__header">
               <h5 className="unblinding-modal__title" id="unblinding-modal-title">
-                Apply unblinding factors
+                View with your scan key
               </h5>
               <button
                 type="button"
@@ -173,30 +196,32 @@ function UnblindingPanel({
               </button>
             </div>
             <div className="unblinding-modal__body">
+              {fromWallet && (
+                <p className="unblinding-modal__hint">
+                  Your wallet opened this transaction to show its confidential values.
+                </p>
+              )}
               <p className="unblinding-modal__hint">
-                Paste the unblinding payload your wallet copied for this transaction (the base64url
-                string, or the full <code>#unblind=…</code> URL). The payload is processed locally;
-                nothing is sent to a server.
+                Paste your wallet&apos;s scan key (an xpriv). The explorer rewinds the confidential
+                inputs and outputs paid to your addresses in this browser. The key is never sent to
+                a server or stored, and is forgotten when you leave the page.
               </p>
               <form onSubmit={submit}>
                 <textarea
                   autoFocus
-                  aria-label="Unblinding payload"
+                  aria-label="Scan key"
                   className="unblinding-modal__textarea"
-                  rows={4}
-                  placeholder="eyJ2IjoxLCJ0eElkIjoi…"
+                  rows={3}
+                  spellCheck={false}
+                  autoComplete="off"
+                  placeholder="Scan key (xpriv)"
                   value={draft}
                   onChange={e => setDraft(e.target.value)}
                 />
-                {error && <div className="unblinding-modal__error">{error}</div>}
+                {keyError && <div className="unblinding-modal__error">{keyError}</div>}
               </form>
             </div>
             <div className="unblinding-modal__footer">
-              {hasActivePayload && (
-                <button type="button" className="unblinding-modal__revert" onClick={clear}>
-                  Revert unblind
-                </button>
-              )}
               <button type="button" className="unblinding-modal__secondary" onClick={close}>
                 Cancel
               </button>
@@ -206,7 +231,7 @@ function UnblindingPanel({
                 disabled={!draft.trim()}
                 onClick={submit}
               >
-                Apply
+                View
               </button>
             </div>
           </div>

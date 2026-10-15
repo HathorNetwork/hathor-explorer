@@ -8,12 +8,12 @@
 let providerPromise = null;
 
 /**
- * Load the browser crypto provider that verifies unblinding payloads.
+ * Load the browser crypto provider that rewinds shielded outputs with the
+ * user's scan key, from `@hathor/ct-crypto-wasm/provider`.
  *
- * The explorer never signs or scans; it only recomputes commitments, which
- * `@hathor/ct-crypto-wasm/provider` does in the browser. The package and its
- * WASM (about 1.25 MB gzipped) are only needed on a transaction page with a
- * payload, so they are imported on the first call instead of at startup.
+ * The package and its WASM (about 1.25 MB gzipped) are only needed when a user
+ * views a transaction with their scan key, so they are imported on the first
+ * call instead of at startup.
  *
  * @return {Promise<Object|null>} The provider, or null if it couldn't load.
  * The result is cached, including a failure.
@@ -24,7 +24,7 @@ export function loadShieldedCryptoProvider() {
       .then(({ createBrowserShieldedCryptoProvider }) => createBrowserShieldedCryptoProvider())
       .catch(err => {
         console.warn(
-          '[shielded] could not load the crypto provider; unblinding payloads cannot be verified.',
+          '[shielded] could not load the crypto provider; shielded outputs cannot be unblinded.',
           err?.message ?? err
         );
         return null;
