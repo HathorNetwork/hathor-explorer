@@ -54,10 +54,12 @@ $secondary-color-dark: #191c21;
   --network-data-connected-border: #44a32e;
   --tools-input-background: #f2f6fa;
   --background-network-select: #f2f6fa;
+  --warning-text: #9a6700;
 }
 
 :root[data-theme='theme-dark'] {
   --background-color: #0d1117;
+  --warning-text: #d29922;
   --alter-background-color: #24292f;
   --normal-text-color: #b7bfc7;
   --bold-text-color: #fff;
@@ -4082,17 +4084,23 @@ th.sortable {
   color: var(--bs-warning, #f0ad4e);
 }
 
-.unblinding-clear-link {
-  background: none;
-  border: 0;
-  padding: 0;
-  color: var(--normal-text-color);
-  font-size: 0.85rem;
-  text-decoration: underline;
-  cursor: pointer;
+/* Shield glyph of the confidential badge. */
+.confidential-badge-icon {
+  color: var(--alter-border-color);
 }
-.unblinding-clear-link:hover {
-  color: var(--bold-text-color);
+
+/* Notices under the "Unblind transaction" trigger: a link that couldn't be
+ * applied, or values shown without verification. */
+.unblinding-status {
+  font-size: 14px;
+  margin-top: -8px;
+  text-align: right;
+}
+.unblinding-status--error {
+  color: var(--span-red-border);
+}
+.unblinding-status--warning {
+  color: var(--warning-text);
 }
 
 /* ─── Modal ─────────────────────────────────────────────────────── */
@@ -4207,9 +4215,6 @@ th.sortable {
 }
 .unblinding-modal__secondary:hover {
   background-color: var(--input-background);
-}
-.unblinding-modal__secondary--left {
-  margin-right: auto;
 }
 
 /*

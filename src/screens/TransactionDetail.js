@@ -7,14 +7,14 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import hathorLib from '@hathor/wallet-lib';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import TxData from '../components/tx/TxData';
 import txApi from '../api/txApi';
 import metadataApi from '../api/metadataApi';
 import Spinner from '../components/Spinner';
 import { useIsMobile } from '../hooks';
 import helpers from '../utils/helpers';
-import { parseUnblindingPayload } from '../utils/unblinding';
+import { parseUnblindingPayload, stripUnblindFromHash } from '../utils/unblinding';
 import WebSocketHandler from '../WebSocketHandler';
 
 /**
@@ -26,15 +26,17 @@ function TransactionDetail() {
   const { id: txUid } = useParams();
   const isMobile = useIsMobile();
   const location = useLocation();
+  const navigate = useNavigate();
 
   /**
-   * unblinding {Map<onChainIndex, entry> | null}
-   *   When set, TxData renders shielded outputs in cleartext (verified
-   *   against the on-chain commitments — see `utils/unblinding.js`).
-   *   Sourced from the URL fragment (`#unblind=…`) on first mount, or
-   *   from manual paste via UnblindingPanel.
+   * unblinding {{ outputs: Map, inputs: Map } | null}
+   *   Parsed unblinding payload, from a `#unblind=…` link or pasted in
+   *   UnblindingPanel. TxData verifies each entry against the chain
+   *   before showing it (see `utils/unblinding.js`).
    */
   const [unblinding, setUnblinding] = useState(null);
+  /* unblindingLinkError {string|null} Why the `#unblind=…` link couldn't be applied */
+  const [unblindingLinkError, setUnblindingLinkError] = useState(null);
 
   /**
    * transaction {Object} Loaded transaction
@@ -131,27 +133,39 @@ function TransactionDetail() {
     updateTxInfo(txUid).catch(e => console.error(e));
   }, [txUid, updateTxInfo]);
 
-  // Hydrate `unblinding` from the URL fragment on mount + whenever the
-  // route id changes. Fragments are not sent to any server, so the
-  // payload only ever exists on this client. A malformed fragment is
-  // ignored silently — we don't want to slap an error on the page just
-  // because someone landed via a stale link.
+  // A payload belongs to one transaction: drop it when the route changes.
   useEffect(() => {
-    const hash = location.hash || '';
-    if (!hash.includes('unblind=')) {
-      setUnblinding(null);
-      return;
-    }
-    const fragment = hash.startsWith('#') ? hash.slice(1) : hash;
-    const params = new URLSearchParams(fragment);
-    const raw = params.get('unblind');
-    if (!raw) {
-      setUnblinding(null);
-      return;
-    }
+    setUnblinding(null);
+    setUnblindingLinkError(null);
+  }, [txUid]);
+
+  // Apply a `#unblind=<payload>` link, then remove the payload from the
+  // URL. The fragment never reaches our servers, but scripts on the page
+  // (e.g. analytics reporting the page URL) could read it, and it would
+  // linger in the history.
+  useEffect(() => {
+    const raw = new URLSearchParams((location.hash || '').replace(/^#/, '')).get('unblind');
+    if (raw === null) return;
+
     const result = parseUnblindingPayload(raw, txUid);
-    setUnblinding(result.error ? null : { outputs: result.outputs, inputs: result.inputs });
-  }, [location.hash, txUid]);
+    if (result.error) {
+      setUnblinding(null);
+      setUnblindingLinkError(result.error);
+    } else {
+      setUnblinding({ outputs: result.outputs, inputs: result.inputs });
+      setUnblindingLinkError(null);
+    }
+
+    const remaining = stripUnblindFromHash(location.hash);
+    navigate(
+      {
+        pathname: location.pathname,
+        search: location.search,
+        hash: remaining ? `#${remaining}` : '',
+      },
+      { replace: true }
+    );
+  }, [location.hash, location.pathname, location.search, txUid, navigate]);
 
   // Scroll a named section into view when the URL fragment carries
   // `section=<name>`. The URL name is mapped to DOM id `<name>-section`
@@ -235,7 +249,14 @@ function TransactionDetail() {
   // confidential-output rows it would unblind. We just thread the
   // callbacks through; gating on `shielded_outputs.length` happens
   // there.
-  const onClearUnblinding = useCallback(() => setUnblinding(null), []);
+  const onApplyUnblinding = useCallback(payload => {
+    setUnblinding(payload);
+    setUnblindingLinkError(null);
+  }, []);
+  const onClearUnblinding = useCallback(() => {
+    setUnblinding(null);
+    setUnblindingLinkError(null);
+  }, []);
 
   const renderNewUiTx = () => {
     return (
@@ -251,7 +272,8 @@ function TransactionDetail() {
             showConflicts={true}
             isMobile={isMobile}
             unblinding={unblinding}
-            onApplyUnblinding={setUnblinding}
+            unblindingLinkError={unblindingLinkError}
+            onApplyUnblinding={onApplyUnblinding}
             onClearUnblinding={onClearUnblinding}
           />
         ) : (

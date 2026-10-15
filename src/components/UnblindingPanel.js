@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { parseUnblindingPayload } from '../utils/unblinding';
 
 /**
@@ -28,24 +28,60 @@ import { parseUnblindingPayload } from '../utils/unblinding';
  *   - onApply({outputs, inputs}): called with the parsed payload maps.
  *   - onClear(): called when the user clears the active payload.
  *   - hasActivePayload: whether an unblinding payload is currently
- *     applied (drives the inline "applied · Clear" affordance and the
- *     modal's secondary action).
+ *     applied (drives the modal's "Revert unblind" action).
+ *   - hasVerifiedEntries: whether at least one entry matched the chain.
+ *   - hasUnverifiedEntries: whether entries are shown unverified, because
+ *     the verifier couldn't load.
+ *   - linkError: why the `#unblind=…` link couldn't be applied, if it failed.
  */
-function UnblindingPanel({ txId, onApply, onClear, hasActivePayload }) {
+function UnblindingPanel({
+  txId,
+  onApply,
+  onClear,
+  hasActivePayload,
+  hasVerifiedEntries,
+  hasUnverifiedEntries,
+  linkError,
+}) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState('');
   const [error, setError] = useState(null);
+  const triggerRef = useRef(null);
+  const dialogRef = useRef(null);
 
-  // Lock body scroll while the modal is open and listen for ESC. Both
-  // are standard dialog UX — without them, the page can scroll under
-  // the modal and keyboard users can't dismiss without reaching the
-  // mouse.
+  // Every way of closing the dialog discards the draft and its error.
+  const close = () => {
+    setOpen(false);
+    setDraft('');
+    setError(null);
+    triggerRef.current?.focus();
+  };
+
+  // While the dialog is open: lock the page scroll, close on ESC, and keep
+  // Tab inside the dialog.
   useEffect(() => {
     if (!open) return undefined;
     const original = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const onKey = e => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') {
+        close();
+        return;
+      }
+      if (e.key !== 'Tab' || !dialogRef.current) return;
+      const focusable = Array.from(
+        dialogRef.current.querySelectorAll('button:not(:disabled), textarea')
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => {
@@ -63,20 +99,23 @@ function UnblindingPanel({ txId, onApply, onClear, hasActivePayload }) {
       return;
     }
     onApply({ outputs: result.outputs, inputs: result.inputs });
-    setDraft('');
-    setOpen(false);
+    close();
   };
 
   const clear = () => {
-    setError(null);
-    setDraft('');
     onClear();
+    close();
   };
 
   return (
     <>
       <div className="unblinding-trigger-row">
-        <button type="button" className="unblinding-trigger-link" onClick={() => setOpen(true)}>
+        <button
+          type="button"
+          className="unblinding-trigger-link"
+          ref={triggerRef}
+          onClick={() => setOpen(true)}
+        >
           {/* Inline SVG eye glyph — keeps the trigger self-contained
               (no asset import, no font icon) and inherits `color` from
               the link so it flips with the theme automatically. */}
@@ -95,27 +134,25 @@ function UnblindingPanel({ txId, onApply, onClear, hasActivePayload }) {
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
             <circle cx="12" cy="12" r="3" />
           </svg>
-          {/* Label varies by state:
-              - No active payload: a call-to-action ("Unblind transaction")
-                inviting the user to paste one.
-              - Active payload: a status badge ("Unblinded by viewer")
-                that communicates the current view is augmented with the
-                viewer's share. Still clickable to update / clear via
-                the modal, but reads as a state indicator first — same
-                phrase that used to live in the per-row pills before the
-                eye-glyph redesign moved status into a single top-of-tx
-                indicator. */}
-          <span>{hasActivePayload ? 'Unblinded by viewer' : 'Unblind transaction'}</span>
+          <span>{hasVerifiedEntries ? 'Unblinded by viewer' : 'Unblind transaction'}</span>
         </button>
       </div>
+      {linkError && (
+        <div className="unblinding-status unblinding-status--error" role="alert">
+          The unblinding link could not be applied: {linkError}.
+        </div>
+      )}
+      {hasUnverifiedEntries && (
+        <div className="unblinding-status unblinding-status--warning" role="status">
+          The verifier could not load, so the unblinded values below are unverified claims from the
+          payload.
+        </div>
+      )}
 
       {open && (
-        <div
-          className="unblinding-modal-backdrop"
-          onClick={() => setOpen(false)}
-          role="presentation"
-        >
+        <div className="unblinding-modal-backdrop" onClick={close} role="presentation">
           <div
+            ref={dialogRef}
             className="unblinding-modal"
             role="dialog"
             aria-modal="true"
@@ -130,7 +167,7 @@ function UnblindingPanel({ txId, onApply, onClear, hasActivePayload }) {
                 type="button"
                 className="unblinding-modal__close"
                 aria-label="Close"
-                onClick={() => setOpen(false)}
+                onClick={close}
               >
                 ×
               </button>
@@ -143,6 +180,8 @@ function UnblindingPanel({ txId, onApply, onClear, hasActivePayload }) {
               </p>
               <form onSubmit={submit}>
                 <textarea
+                  autoFocus
+                  aria-label="Unblinding payload"
                   className="unblinding-modal__textarea"
                   rows={4}
                   placeholder="eyJ2IjoxLCJ0eElkIjoi…"
@@ -154,22 +193,11 @@ function UnblindingPanel({ txId, onApply, onClear, hasActivePayload }) {
             </div>
             <div className="unblinding-modal__footer">
               {hasActivePayload && (
-                <button
-                  type="button"
-                  className="unblinding-modal__revert"
-                  onClick={() => {
-                    clear();
-                    setOpen(false);
-                  }}
-                >
+                <button type="button" className="unblinding-modal__revert" onClick={clear}>
                   Revert unblind
                 </button>
               )}
-              <button
-                type="button"
-                className="unblinding-modal__secondary"
-                onClick={() => setOpen(false)}
-              >
+              <button type="button" className="unblinding-modal__secondary" onClick={close}>
                 Cancel
               </button>
               <button
