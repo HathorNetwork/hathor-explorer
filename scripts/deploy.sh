@@ -36,16 +36,6 @@ case $site in
     REACT_APP_TIMESERIES_DASHBOARD_ID=35379840-e8c5-11ec-a7f2-0fee9be0d8ee
     REACT_APP_NETWORK=testnet
     ;;
-  ekvilibro-testnet)
-    FULLNODE_HOST=node-side-dag.ekvilibro-testnet.hathor.network
-    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
-    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
-    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.ekvilibro-testnet.hathor.network/
-    REACT_APP_TIMESERIES_DASHBOARD_ID=
-    REACT_APP_NETWORK=ekvilibro-testnet
-    S3_BUCKET=hathor-ekvilibro-testnet-public-explorer
-    CLOUDFRONT_ID=E3SRP23QB7K3DQ
-    ;;
   ekvilibro-mainnet)
     FULLNODE_HOST=node-side-dag.ekvilibro-mainnet.hathor.network
     REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
@@ -77,18 +67,6 @@ case $site in
     REACT_APP_NETWORK=testnet
     S3_BUCKET=hathor-testnet-india-public-explorer
     CLOUDFRONT_ID=E1X9TV08O1DPS6
-    ;;
-  testnet-playground)
-    FULLNODE_HOST=node1.playground.testnet.hathor.network
-    REACT_APP_BASE_URL=https://$FULLNODE_HOST/v1a/
-    REACT_APP_WS_URL=wss://$FULLNODE_HOST/v1a/ws/
-    REACT_APP_EXPLORER_SERVICE_BASE_URL=https://explorer-service.playground.testnet.hathor.network/
-    REACT_APP_TIMESERIES_DASHBOARD_ID=b43188d6-4d17-4167-9080-5181b6ce1346
-    # This one is currently only used to form the names of feature flags,
-    # so it made sense to keep it as testnet
-    REACT_APP_NETWORK=testnet
-    S3_BUCKET=hathor-testnet-playground-public-explorer
-    CLOUDFRONT_ID=E23KE3LYRLVKOQ
     ;;
   mainnet)
     FULLNODE_HOST=node.explorer.hathor.network
@@ -161,9 +139,9 @@ case $command in
       exit 1
     fi
     if [ -n "$aws_profile" ]; then
-      aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/index.html" --profile $aws_profile
+      aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_ID" --paths "/index.html" "/robots.txt" --profile "$aws_profile"
     else
-      aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/index.html"
+      aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_ID" --paths "/index.html" "/robots.txt"
     fi
     ;;
   start)
