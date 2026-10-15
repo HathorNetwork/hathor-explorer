@@ -26,17 +26,38 @@ class AddressSummary extends React.Component {
   };
 
   render() {
-    if (Object.keys(this.props.tokens).length === 0) {
-      return null;
+    const hasTokens = Object.keys(this.props.tokens).length > 0;
+
+    const renderAddress = () => (
+      <>
+        <div className="summary-main-info-container">
+          <div className="address-container-title summary-container-title-purple">Address</div>
+          <div className="address-div">{this.props.address}</div>
+        </div>
+        {this.props.spendAddress && (
+          <div className="summary-main-info-container">
+            <div className="address-container-title summary-container-title-purple">
+              Spend address
+            </div>
+            <div className="address-div">{this.props.spendAddress}</div>
+          </div>
+        )}
+      </>
+    );
+
+    if (!hasTokens) {
+      // A shielded address still shows which spend address it was searched under.
+      return this.props.spendAddress ? (
+        <div className="w-100">
+          <div className="summary-main-info alter-background">{renderAddress()}</div>
+        </div>
+      ) : null;
     }
 
     const newLoadMainInfo = () => {
       return (
         <div className="summary-main-info alter-background">
-          <div className="summary-main-info-container ">
-            <div className="address-container-title summary-container-title-purple">Address</div>
-            <div className="address-div">{this.props.address}</div>
-          </div>
+          {renderAddress()}
           <div className="summary-main-info-container">
             <div className="address-container-title summary-container-title-purple">
               Number of tokens
@@ -172,6 +193,7 @@ class AddressSummary extends React.Component {
 
 /*
  * address: Address to show summary
+ * spendAddress: Spend address the data was queried under, when `address` is shielded
  * tokens: Object with tokens the address has a history with.
  * balance: Object with balance data of each token for the selected address {'uid': {name, symbol, received, spent}}
  * selectedToken: UID of the selected token to show history
@@ -179,6 +201,7 @@ class AddressSummary extends React.Component {
  */
 AddressSummary.propTypes = {
   address: PropTypes.string.isRequired,
+  spendAddress: PropTypes.string,
   tokens: PropTypes.object.isRequired,
   balance: PropTypes.object.isRequired,
   selectedToken: PropTypes.string.isRequired,

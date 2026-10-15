@@ -206,6 +206,32 @@ const helpers = {
   },
 
   /**
+   * Validate an address from the URL and get the address its data is
+   * indexed under. Outputs paying a shielded address (97 characters) are
+   * locked to its spend address, a regular P2PKH address, so that is the
+   * address to query.
+   *
+   * @param {string} address Address from the URL
+   *
+   * @return {{ queryAddress: string, spendAddress: string|null }|null} null if invalid.
+   * `spendAddress` is only set for a shielded address.
+   * @memberof Helpers
+   * @inner
+   */
+  resolveAddress(address) {
+    const network = hathorLib.config.getNetwork();
+    const addressObj = new hathorLib.Address(address, { network });
+    if (!addressObj.isValid()) {
+      return null;
+    }
+    if (addressObj.isShielded()) {
+      const spendAddress = addressObj.getSpendAddress().base58;
+      return { queryAddress: spendAddress, spendAddress };
+    }
+    return { queryAddress: address, spendAddress: null };
+  },
+
+  /**
    * Get file extension
    *
    * @param {string} file File name

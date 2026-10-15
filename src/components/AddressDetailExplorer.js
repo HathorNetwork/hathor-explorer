@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import hathorLib from '@hathor/wallet-lib';
 import { find } from 'lodash';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -61,7 +61,11 @@ function AddressDetailExplorer() {
     })
   );
 
-  const { address } = useParams();
+  // A shielded address in the URL is shown as is, and its data is queried
+  // under its spend address. `address` is the address to query.
+  const { address: routeAddress } = useParams();
+  const resolvedAddress = useMemo(() => helpers.resolveAddress(routeAddress), [routeAddress]);
+  const address = resolvedAddress?.queryAddress ?? routeAddress;
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -140,9 +144,7 @@ function AddressDetailExplorer() {
     pagination.current.clearOptionalQueryParams();
 
     // Validate the new address before executing any queries
-    const network = hathorLib.config.getNetwork();
-    const addressObj = new hathorLib.Address(address, { network });
-    if (!addressObj.isValid()) {
+    if (!resolvedAddress) {
       setErrorMessage('Invalid address.');
       // No listener was registered, so no unmount function is necessary
       return undefined;
@@ -157,7 +159,7 @@ function AddressDetailExplorer() {
     return () => {
       WebSocketHandler.removeListener('network', handleWebsocket);
     };
-  }, [handleWebsocket, address]);
+  }, [handleWebsocket, resolvedAddress]);
 
   /**
    * Update transactions data state after requesting data from the server
@@ -570,7 +572,8 @@ function AddressDetailExplorer() {
         {renderWarningAlert()}
         {renderMissingTokensAlert()}
         <AddressSummary
-          address={address}
+          address={routeAddress}
+          spendAddress={resolvedAddress?.spendAddress}
           tokens={addressTokens}
           balance={balance}
           selectedToken={selectedToken}

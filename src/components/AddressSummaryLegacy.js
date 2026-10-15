@@ -35,6 +35,12 @@ class AddressSummary extends React.Component {
           <div className="card-body">
             Address: {this.props.address}
             <br />
+            {this.props.spendAddress && (
+              <>
+                Spend address: {this.props.spendAddress}
+                <br />
+              </>
+            )}
             Number of tokens: {Object.keys(this.props.balance).length}
           </div>
         </div>
@@ -126,6 +132,7 @@ class AddressSummary extends React.Component {
 
 /*
  * address: Address to show summary
+ * spendAddress: Spend address the data was queried under, when `address` is shielded
  * balance: Object with balance data of each token for the selected address {'uid': {name, symbol, received, spent}}
  * selectedToken: UID of the selected token to show history
  * numberOfTransactions: Number of transactions for the selected token and address
@@ -133,6 +140,7 @@ class AddressSummary extends React.Component {
  */
 AddressSummary.propTypes = {
   address: PropTypes.string.isRequired,
+  spendAddress: PropTypes.string,
   balance: PropTypes.object.isRequired,
   selectedToken: PropTypes.string.isRequired,
   numberOfTransactions: PropTypes.number.isRequired,
