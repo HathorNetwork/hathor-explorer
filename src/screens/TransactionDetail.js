@@ -15,6 +15,7 @@ import Spinner from '../components/Spinner';
 import { useIsMobile } from '../hooks';
 import helpers from '../utils/helpers';
 import WebSocketHandler from '../WebSocketHandler';
+import { parseUnblindingPayload, stripUnblindFromHash } from '../utils/unblinding';
 
 /**
  * Shows the detail of a transaction or block
@@ -28,10 +29,13 @@ function TransactionDetail() {
   const navigate = useNavigate();
 
   /**
-   * promptScanKey {boolean} The wallet opened this page to view the tx's
-   * shielded values, so TxData asks for the scan key right away.
+   * unblinding {{ txId: string, outputs: Map, inputs: Map } | null} Payload of the wallet's
+   * "View in Explorer unblinded" link (`#unblind=…`). TxData verifies each
+   * entry against the chain before showing it (see `utils/unblinding.js`).
    */
-  const [promptScanKey, setPromptScanKey] = useState(false);
+  const [unblinding, setUnblinding] = useState(null);
+  /* unblindingLinkError {string|null} Why the `#unblind=…` link couldn't be applied */
+  const [unblindingLinkError, setUnblindingLinkError] = useState(null);
 
   /**
    * transaction {Object} Loaded transaction
@@ -128,20 +132,30 @@ function TransactionDetail() {
     updateTxInfo(txUid).catch(e => console.error(e));
   }, [txUid, updateTxInfo]);
 
+  // A payload belongs to one transaction: drop it when the route changes.
   useEffect(() => {
-    setPromptScanKey(false);
+    setUnblinding(null);
+    setUnblindingLinkError(null);
   }, [txUid]);
 
-  // The wallet's "View in Explorer unblinded" link carries `#unblind=<payload>`.
-  // The payload is never read: shielded values are only shown after the user
-  // rewinds them locally with their scan key. Remove it from the URL, so page
-  // scripts and the history don't keep it, and ask for the scan key instead.
+  // Apply the wallet's `#unblind=<payload>` link, then remove the payload
+  // from the URL. The fragment never reaches our servers, but scripts on the
+  // page (e.g. analytics reporting the page URL) could read it, and it would
+  // linger in the history.
   useEffect(() => {
-    const params = new URLSearchParams((location.hash || '').replace(/^#/, ''));
-    if (!params.has('unblind')) return;
+    const raw = new URLSearchParams((location.hash || '').replace(/^#/, '')).get('unblind');
+    if (raw === null) return;
 
-    params.delete('unblind');
-    const remaining = params.toString();
+    const result = parseUnblindingPayload(raw, txUid);
+    if (result.error) {
+      setUnblinding(null);
+      setUnblindingLinkError(result.error);
+    } else {
+      setUnblinding({ txId: txUid, outputs: result.outputs, inputs: result.inputs });
+      setUnblindingLinkError(null);
+    }
+
+    const remaining = stripUnblindFromHash(location.hash);
     navigate(
       {
         pathname: location.pathname,
@@ -150,15 +164,19 @@ function TransactionDetail() {
       },
       { replace: true }
     );
-    setPromptScanKey(true);
-  }, [location.hash, location.pathname, location.search, navigate]);
+  }, [location.hash, location.pathname, location.search, txUid, navigate]);
+
+  const onClearUnblinding = useCallback(() => {
+    setUnblinding(null);
+    setUnblindingLinkError(null);
+  }, []);
 
   // Scroll a named section into view when the URL fragment carries
   // `section=<name>`. The URL name is mapped to DOM id `<name>-section`
   // (so `section=inputs` scrolls to `id="inputs-section"`, etc.) — a
   // single suffix convention that lets new sections plug in without
   // touching this effect. It composes with the wallet's `unblind=` key,
-  // e.g. `#section=outputs&unblind=…`.
+  // e.g. `#section=outputs&unblind=<payload>`.
   useEffect(() => {
     if (!loaded) return;
     const hash = location.hash || '';
@@ -240,7 +258,9 @@ function TransactionDetail() {
             showRaw={true}
             showConflicts={true}
             isMobile={isMobile}
-            promptScanKey={promptScanKey}
+            unblinding={unblinding}
+            unblindingLinkError={unblindingLinkError}
+            onClearUnblinding={onClearUnblinding}
           />
         ) : (
           <p className="text-danger">Transaction with hash {txUid} not found</p>

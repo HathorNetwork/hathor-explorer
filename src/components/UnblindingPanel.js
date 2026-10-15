@@ -29,7 +29,7 @@ const EyeIcon = () => (
 /**
  * "View with your scan key" link above Inputs/Outputs, and the dialog where
  * the user pastes the key. TxData rewinds the shielded entries with it, in
- * the browser.
+ * the browser. Also reports what the wallet's `#unblind=` link revealed.
  *
  * The dialog is not built on Bootstrap's `.modal-*` classes, which assume a
  * light surface; it uses the theme variables of the rest of the page.
@@ -37,29 +37,30 @@ const EyeIcon = () => (
  * Props:
  *   - onApplyScanKey(key): uses the pasted scan key; returns why it can't be
  *     used, or null.
- *   - onHide(): forgets the key and the values it revealed.
+ *   - onHide(): hides every unblinded value, the key's and the link's.
  *   - onSearchMore(): searches the next batch of addresses.
- *   - openOnMount: opens the dialog right away, when the wallet opened the page.
- *   - active: whether a scan key is in use.
+ *   - scanKeyActive: whether a scan key is in use.
+ *   - linkVerifiedCount: entries of the wallet link that match the chain.
+ *   - linkError: why the wallet link's values can't be shown.
  *   - progress: `{ from, to, done }` while addresses are searched.
  *   - searchedUpTo: the addresses 0 to searchedUpTo - 1 were searched.
  *   - rewoundCount / slotCount: shielded entries rewound, out of all of them.
- *   - error: why nothing could be rewound.
+ *   - error: why nothing could be rewound with the scan key.
  */
 function UnblindingPanel({
   onApplyScanKey,
   onHide,
   onSearchMore,
-  openOnMount,
-  active,
+  scanKeyActive,
+  linkVerifiedCount,
+  linkError,
   progress,
   searchedUpTo,
   rewoundCount,
   slotCount,
   error,
 }) {
-  const [open, setOpen] = useState(Boolean(openOnMount));
-  const [fromWallet, setFromWallet] = useState(Boolean(openOnMount));
+  const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState('');
   const [keyError, setKeyError] = useState(null);
   const triggerRef = useRef(null);
@@ -68,7 +69,6 @@ function UnblindingPanel({
   // Every way of closing the dialog discards the pasted key.
   const close = () => {
     setOpen(false);
-    setFromWallet(false);
     setDraft('');
     setKeyError(null);
     triggerRef.current?.focus();
@@ -117,11 +117,16 @@ function UnblindingPanel({
     close();
   };
 
+  const active = scanKeyActive || linkVerifiedCount > 0;
+  const entries = count =>
+    `${count} of ${slotCount} confidential ${slotCount === 1 ? 'entry' : 'entries'}`;
+
   const renderStatus = () => {
-    if (error) {
+    const failure = error || linkError;
+    if (failure) {
       return (
         <div className="unblinding-status unblinding-status--error" role="alert">
-          {error}
+          {failure}
         </div>
       );
     }
@@ -133,11 +138,16 @@ function UnblindingPanel({
         </div>
       );
     }
-    if (!active) return null;
+    if (!scanKeyActive) {
+      return linkVerifiedCount > 0 ? (
+        <div className="unblinding-status" role="status">
+          {entries(linkVerifiedCount)} unblinded from your wallet&apos;s link.
+        </div>
+      ) : null;
+    }
     return (
       <div className="unblinding-status" role="status">
-        {rewoundCount} of {slotCount} confidential {slotCount === 1 ? 'entry' : 'entries'} belong to
-        your addresses 0–{searchedUpTo - 1}.
+        {entries(rewoundCount)} belong to your addresses 0–{searchedUpTo - 1}.
         {rewoundCount < slotCount && (
           <>
             {' '}
@@ -196,11 +206,6 @@ function UnblindingPanel({
               </button>
             </div>
             <div className="unblinding-modal__body">
-              {fromWallet && (
-                <p className="unblinding-modal__hint">
-                  Your wallet opened this transaction to show its confidential values.
-                </p>
-              )}
               <p className="unblinding-modal__hint">
                 Paste your wallet&apos;s scan key (an xpriv). The explorer rewinds the confidential
                 inputs and outputs paid to your addresses in this browser. The key is never sent to
