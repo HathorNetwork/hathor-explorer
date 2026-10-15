@@ -18,10 +18,12 @@ jest.mock('../setupShieldedCrypto', () => ({
 
 const { parseUnblindingPayload } = require('./unblinding');
 
-const encode = obj => Buffer.from(JSON.stringify(obj)).toString('base64')
-  .replace(/\+/g, '-')
-  .replace(/\//g, '_')
-  .replace(/=+$/, '');
+const encode = obj =>
+  Buffer.from(JSON.stringify(obj))
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
 
 const TX = 'aabbccdd00000000000000000000000000000000000000000000000000000000';
 
