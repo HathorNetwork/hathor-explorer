@@ -4041,7 +4041,7 @@ th.sortable {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.75rem;
+  gap: 1.5rem;
 }
 
 .unblinding-trigger-link {
@@ -4235,24 +4235,3 @@ th.sortable {
   cursor: not-allowed;
 }
 
-/*
- * "Revert unblind" affordance in the modal footer. Rendered as an
- * inline link rather than a button so it reads as a destructive
- * secondary action — visually subordinate to the primary Apply
- * button while still pinned to the left of the footer via the
- * existing margin-right:auto trick on its sibling group.
- */
-.unblinding-modal__revert {
-  background: none;
-  border: 0;
-  padding: 0;
-  margin-right: auto;
-  color: var(--purple-text);
-  font-size: 0.875rem;
-  text-decoration: underline;
-  cursor: pointer;
-}
-.unblinding-modal__revert:hover {
-  color: var(--purple-text);
-  filter: brightness(1.1);
-}

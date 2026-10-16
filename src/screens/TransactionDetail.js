@@ -29,9 +29,10 @@ function TransactionDetail() {
   const navigate = useNavigate();
 
   /**
-   * unblinding {{ txId: string, outputs: Map, inputs: Map } | null} Payload of the wallet's
-   * "View in Explorer unblinded" link (`#unblind=…`). TxData verifies each
-   * entry against the chain before showing it (see `utils/unblinding.js`).
+   * unblinding {{ txId: string, outputs: Map, inputs: Map } | null} Unblinding
+   * values from the wallet's "View in Explorer unblinded" link (`#unblind=…`),
+   * or pasted in UnblindingPanel. TxData verifies each entry against the chain
+   * before showing it (see `utils/unblinding.js`).
    */
   const [unblinding, setUnblinding] = useState(null);
   /* unblindingLinkError {string|null} Why the `#unblind=…` link couldn't be applied */
@@ -146,26 +147,37 @@ function TransactionDetail() {
     const raw = new URLSearchParams((location.hash || '').replace(/^#/, '')).get('unblind');
     if (raw === null) return;
 
-    const result = parseUnblindingPayload(raw, txUid);
-    if (result.error) {
+    try {
+      const result = parseUnblindingPayload(raw, txUid);
+      if (result.error) {
+        setUnblinding(null);
+        setUnblindingLinkError(result.error);
+      } else {
+        setUnblinding({ txId: txUid, outputs: result.outputs, inputs: result.inputs });
+        setUnblindingLinkError(null);
+      }
+    } catch {
       setUnblinding(null);
-      setUnblindingLinkError(result.error);
-    } else {
-      setUnblinding({ txId: txUid, outputs: result.outputs, inputs: result.inputs });
-      setUnblindingLinkError(null);
+      setUnblindingLinkError('payload could not be read');
+    } finally {
+      // Strip the payload even if reading it failed, so a reload can't fail again.
+      const remaining = stripUnblindFromHash(location.hash);
+      navigate(
+        {
+          pathname: location.pathname,
+          search: location.search,
+          hash: remaining ? `#${remaining}` : '',
+        },
+        { replace: true }
+      );
     }
-
-    const remaining = stripUnblindFromHash(location.hash);
-    navigate(
-      {
-        pathname: location.pathname,
-        search: location.search,
-        hash: remaining ? `#${remaining}` : '',
-      },
-      { replace: true }
-    );
   }, [location.hash, location.pathname, location.search, txUid, navigate]);
 
+  // Unblinding values pasted in UnblindingPanel, checked like the link's.
+  const onApplyUnblinding = useCallback(payload => {
+    setUnblinding(payload);
+    setUnblindingLinkError(null);
+  }, []);
   const onClearUnblinding = useCallback(() => {
     setUnblinding(null);
     setUnblindingLinkError(null);
@@ -188,8 +200,7 @@ function TransactionDetail() {
     const el = document.getElementById(`${section}-section`);
     if (!el) return;
     // 16px headroom so the section's top edge doesn't sit flush
-    // against the viewport top — exposes whatever sits immediately
-    // above (e.g. the "Unblind transaction" trigger for shielded txs).
+    // against the viewport top.
     const targetY = window.scrollY + el.getBoundingClientRect().top - 16;
     window.scrollTo({ top: targetY, behavior: 'smooth' });
     // `confirmationData` and `meta` land via a second API call that
@@ -260,6 +271,7 @@ function TransactionDetail() {
             isMobile={isMobile}
             unblinding={unblinding}
             unblindingLinkError={unblindingLinkError}
+            onApplyUnblinding={onApplyUnblinding}
             onClearUnblinding={onClearUnblinding}
           />
         ) : (

@@ -16,7 +16,7 @@ let providerPromise = null;
  * call instead of at startup.
  *
  * @return {Promise<Object|null>} The provider, or null if it couldn't load.
- * The result is cached, including a failure.
+ * A loaded provider is cached; after a failure, the next call tries again.
  */
 export function loadShieldedCryptoProvider() {
   if (!providerPromise) {
@@ -27,6 +27,7 @@ export function loadShieldedCryptoProvider() {
           '[shielded] could not load the crypto provider; shielded outputs cannot be unblinded.',
           err?.message ?? err
         );
+        providerPromise = null;
         return null;
       });
   }

@@ -6,7 +6,7 @@
  */
 
 import { Buffer } from 'buffer';
-import { FULL_SHIELDED_MODE } from './shieldedRewind';
+import { AMOUNT_SHIELDED_MODE, FULL_SHIELDED_MODE } from './shieldedRewind';
 
 /**
  * Upper bound for a payload, in characters. A transaction has at most
@@ -94,8 +94,17 @@ function parseEntries(list) {
  * @param {string} [expectedTxId] Hash of the transaction on screen
  *
  * @return {{ outputs: Map<number, Object>, inputs: Map<number, Object> } | { error: string }}
+ * Never throws: anything unexpected in a crafted payload is an error too.
  */
 export function parseUnblindingPayload(rawInput, expectedTxId) {
+  try {
+    return parsePayload(rawInput, expectedTxId);
+  } catch {
+    return { error: 'payload could not be read' };
+  }
+}
+
+function parsePayload(rawInput, expectedTxId) {
   if (!rawInput || typeof rawInput !== 'string' || !rawInput.trim()) {
     return { error: 'empty payload' };
   }
@@ -126,7 +135,9 @@ export function parseUnblindingPayload(rawInput, expectedTxId) {
   }
 
   if (!parsed || typeof parsed !== 'object' || parsed.v !== 1) {
-    return { error: `unsupported unblinding payload version (got ${parsed?.v})` };
+    // Never echo the payload's own text: it comes from whoever made the link.
+    const got = Number.isInteger(parsed?.v) ? ` (got ${parsed.v})` : '';
+    return { error: `unsupported unblinding payload version${got}` };
   }
   if (typeof parsed.txId !== 'string' || !HEX_32_BYTES.test(parsed.txId.toLowerCase())) {
     return { error: 'payload has no valid txId' };
@@ -165,6 +176,9 @@ export function parseUnblindingPayload(rawInput, expectedTxId) {
  */
 export async function verifyUnblindingEntry(entry, onChainOutput, provider) {
   const { value, token: tokenUid } = entry;
+  if (onChainOutput.mode !== AMOUNT_SHIELDED_MODE && onChainOutput.mode !== FULL_SHIELDED_MODE) {
+    return { state: 'error', reason: `unknown shielded mode ${onChainOutput.mode}` };
+  }
 
   const isFullShielded = onChainOutput.mode === FULL_SHIELDED_MODE;
   if (isFullShielded !== (entry.abf !== undefined)) {

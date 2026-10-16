@@ -32,9 +32,11 @@ import { ReactComponent as ValidIcon } from '../../assets/images/success-icon.sv
 import { ReactComponent as RowDown } from '../../assets/images/chevron-down.svg';
 import EllipsiCell from '../EllipsiCell';
 import UnblindingPanel from '../UnblindingPanel';
+import RecoveredTokenRow from './RecoveredTokenRow';
 import { verifyUnblindingEntry } from '../../utils/unblinding';
 import {
   ADDRESS_BATCH_SIZE,
+  AMOUNT_SHIELDED_MODE,
   FULL_SHIELDED_MODE,
   parseScanXPrivKey,
   rewindSlots,
@@ -101,10 +103,11 @@ class TxData extends React.Component {
     //   error: why nothing could be rewound
     // Entries not found keep their confidential badge.
     rewind: { results: new Map(), searchedUpTo: 0, progress: null, error: null },
-    // Results of checking the wallet link's payload (`unblinding` prop)
-    // against the chain, by slot id: `{ state: 'verified', value, tokenUid }`,
-    // or `{ state: 'mismatch' | 'error', reason }`. Only verified entries are
-    // shown. `linkCheckError` says why the payload couldn't be checked.
+    // Results of checking the unblinding values (`unblinding` prop, from the
+    // wallet's link or pasted) against the chain, by slot id:
+    // `{ state: 'verified', value, tokenUid }`, or
+    // `{ state: 'mismatch' | 'error', reason }`. Only verified entries are
+    // shown. `linkCheckError` says why the values couldn't be checked.
     linkResults: new Map(),
     linkCheckError: null,
     // Token of each AmountShielded input, keyed by input position. The
@@ -133,6 +136,7 @@ class TxData extends React.Component {
     // same tx is set again when its explorer-service metadata arrives.
     if (txChanged && prevProps.transaction.hash !== this.props.transaction.hash) {
       this.forgetScanKey();
+      this.setState({ shieldedInputTokens: new Map() });
     }
     if (txChanged || prevProps.unblinding !== this.props.unblinding) {
       this.verifyLinkEntries();
@@ -164,11 +168,12 @@ class TxData extends React.Component {
     const { transaction } = this.props;
     const pending = (transaction.inputs || [])
       .map((input, idx) => ({ input, idx }))
-      .filter(({ input }) => input.type === 'shielded' && input.mode !== FULL_SHIELDED_MODE);
+      .filter(({ input }) => input.type === 'shielded' && input.mode === AMOUNT_SHIELDED_MODE);
 
     const resolved = new Map();
     // Parent requests, kept across calls: the tx prop changes again once
-    // the explorer-service metadata arrives.
+    // the explorer-service metadata arrives. A failed request is dropped,
+    // so that next call tries again.
     this.parentTxRequests = this.parentTxRequests || new Map();
     const parents = this.parentTxRequests;
     for (const { input, idx } of pending) {
@@ -178,12 +183,20 @@ class TxData extends React.Component {
         continue;
       }
       if (!parents.has(input.tx_id)) {
+        const parentId = input.tx_id;
         parents.set(
-          input.tx_id,
-          txApi.getTransaction(input.tx_id).catch(e => {
-            console.error('Error fetching the parent of a shielded input:', e);
-            return null;
-          })
+          parentId,
+          txApi
+            .getTransaction(parentId)
+            .then(data => {
+              if (!data?.success) throw new Error(data?.message || 'transaction not found');
+              return data;
+            })
+            .catch(e => {
+              console.error('Error fetching the parent of a shielded input:', e);
+              parents.delete(parentId);
+              return null;
+            })
         );
       }
       const parent = await parents.get(input.tx_id);
@@ -201,7 +214,9 @@ class TxData extends React.Component {
   /**
    * Shielded entries of the tx that a scan key can rewind, identified by
    * `output:<on-chain index>` or `input:<position>`. An AmountShielded entry
-   * comes with its token, needed to rewind it.
+   * comes with its token, needed to rewind it; it is left out while its
+   * token is unknown. Entries without an ephemeral pubkey, or of an unknown
+   * mode, can't be rewound.
    */
   getShieldedSlots = () => {
     const { transaction } = this.props;
@@ -211,7 +226,7 @@ class TxData extends React.Component {
       if (!entry.ephemeral_pubkey) return;
       if (entry.mode === FULL_SHIELDED_MODE) {
         slots.push({ id, entry });
-      } else if (token) {
+      } else if (entry.mode === AMOUNT_SHIELDED_MODE && token) {
         slots.push({ id, entry, tokenUid: token.uid });
       }
     };
@@ -239,8 +254,7 @@ class TxData extends React.Component {
    * @return {string|null} Why the key can't be used, or null
    */
   applyScanKey = input => {
-    const network = hathorLib.config.getNetwork();
-    const parsed = parseScanXPrivKey(input, network.bitcoreNetwork.xprivkey);
+    const parsed = parseScanXPrivKey(input);
     if (parsed.error) {
       return parsed.error;
     }
@@ -320,7 +334,7 @@ class TxData extends React.Component {
   };
 
   /**
-   * Hide every unblinded value: the scan key's and the wallet link's.
+   * Hide every unblinded value: the scan key's and the unblinding values'.
    */
   hideUnblinded = () => {
     this.forgetScanKey();
@@ -330,7 +344,7 @@ class TxData extends React.Component {
   };
 
   /**
-   * Check the wallet link's payload (`props.unblinding`) against the
+   * Check the unblinding values (`props.unblinding`) against the
    * shielded outputs and inputs it points to. Outputs are keyed by on-chain
    * index, inputs by their position in `inputs`, the way the wallet builds
    * the payload. An entry that points to a slot the tx doesn't have is an
@@ -354,7 +368,7 @@ class TxData extends React.Component {
       this.setState({
         linkResults: new Map(),
         linkCheckError:
-          "The crypto module could not load, so the link's values can't be checked and are not shown.",
+          "The crypto module could not load, so the unblinding values can't be checked and are not shown.",
       });
       return;
     }
@@ -392,16 +406,31 @@ class TxData extends React.Component {
 
   /**
    * Amount and token of a shielded entry, if the user's scan key or a
-   * verified entry of the wallet link revealed them.
+   * verified unblinding value revealed them.
    *
    * @param {string} slotId `output:<on-chain index>` or `input:<position>`
    * @return {{ value: bigint, tokenUid: string } | null}
    */
   getUnblinded = slotId => {
     const rewound = this.state.rewind.results.get(slotId);
-    if (rewound && !rewound.error) return rewound;
+    if (rewound?.state === 'verified') return rewound;
     const linked = this.state.linkResults.get(slotId);
     if (linked?.state === 'verified') return linked;
+    return null;
+  };
+
+  /**
+   * Why a shielded entry the scan key or the unblinding values pointed to couldn't
+   * be shown, if it couldn't.
+   *
+   * @param {string} slotId `output:<on-chain index>` or `input:<position>`
+   * @return {string | null}
+   */
+  getUnblindingFailure = slotId => {
+    const rewound = this.state.rewind.results.get(slotId);
+    if (rewound && rewound.state !== 'verified') return rewound.reason;
+    const linked = this.state.linkResults.get(slotId);
+    if (linked && linked.state !== 'verified') return linked.reason;
     return null;
   };
 
@@ -706,7 +735,9 @@ class TxData extends React.Component {
       return 'transaction';
     };
 
-    const isFullShielded = entry => entry?.mode === FULL_SHIELDED_MODE;
+    // Only mode 1 shows its token. FullShielded (2) hides it, and a mode this
+    // explorer doesn't know is shown the same way, without claiming a token.
+    const isAmountShielded = entry => entry?.mode === AMOUNT_SHIELDED_MODE;
 
     // Badge for a shielded input or output that wasn't unblinded.
     // FullShielded hides the amount and the token: "Confidential".
@@ -752,7 +783,7 @@ class TxData extends React.Component {
     };
 
     const renderConfidentialBadge = (entry, token) => (
-      <ConfidentialBadge amountOnly={!isFullShielded(entry)} tokenSymbol={token?.symbol} />
+      <ConfidentialBadge amountOnly={isAmountShielded(entry)} tokenSymbol={token?.symbol} />
     );
 
     // The node only sends `decoded.address` for shielded entries, so read
@@ -782,28 +813,29 @@ class TxData extends React.Component {
       );
     };
 
-    // An entry of the wallet link that doesn't match the chain keeps its badge.
-    const renderRejectedUnblinding = (entry, token, linked) => (
+    // An entry that the scan key or the unblinding values pointed to, but that
+    // failed its check, keeps its badge and says why.
+    const renderRejectedUnblinding = (entry, token, reason) => (
       <>
         <div>
           <span className="badge bg-danger me-2">unblinding rejected</span>
-          <small className="text-danger">{linked.reason}</small>
+          <small className="text-danger">{reason}</small>
         </div>
         {renderConfidentialBadge(entry, token)}
       </>
     );
 
     // A shielded entry shows its amount and token only once they were checked
-    // in this browser: rewound with the user's scan key, or a wallet link
-    // entry that opens its commitments.
+    // in this browser: rewound with the user's scan key, or an unblinding value
+    // that opens its commitments.
     const renderShieldedEntry = (entry, token, slotId) => {
       const unblinded = this.getUnblinded(slotId);
       if (unblinded) {
         return renderUnblindedAmountRow(unblinded, token);
       }
-      const linked = this.state.linkResults.get(slotId);
-      if (linked && linked.state !== 'verified') {
-        return renderRejectedUnblinding(entry, token, linked);
+      const failure = this.getUnblindingFailure(slotId);
+      if (failure) {
+        return renderRejectedUnblinding(entry, token, failure);
       }
       return renderConfidentialBadge(entry, token);
     };
@@ -811,7 +843,9 @@ class TxData extends React.Component {
     const renderInputs = inputs => {
       const obj = inputs.map((input, idx) => {
         if (input.type === 'shielded') {
-          const token = isFullShielded(input) ? undefined : this.state.shieldedInputTokens.get(idx);
+          const token = isAmountShielded(input)
+            ? this.state.shieldedInputTokens.get(idx)
+            : undefined;
           return (
             <div key={`shielded-input-${idx}`}>
               <div>
@@ -912,7 +946,7 @@ class TxData extends React.Component {
       const transparentCount = this.props.transaction.outputs?.length || 0;
       const obj = shieldedOutputs.map((output, idx) => {
         const onChainIndex = transparentCount + idx;
-        const token = isFullShielded(output) ? undefined : shieldedOutputToken(output);
+        const token = isAmountShielded(output) ? shieldedOutputToken(output) : undefined;
         return (
           <div key={`shielded-${idx}`}>
             {renderShieldedEntry(output, token, `output:${onChainIndex}`)}
@@ -1308,12 +1342,12 @@ class TxData extends React.Component {
     //      node only adds the tokens of transparent inputs to it.
     //   3. Tokens recovered by unblinding. A FullShielded output hides its
     //      token, so it is never in the tx's list.
-    //   4. A "confidential tokens" row while a FullShielded output is still
-    //      hidden.
+    //   4. A "confidential tokens" row while an output that hides its token
+    //      is still hidden.
     const transparentOutputCount = this.props.transaction.outputs?.length || 0;
     const hiddenFullShieldedCount = (this.props.transaction.shielded_outputs || []).filter(
       (output, sIdx) =>
-        isFullShielded(output) && !this.getUnblinded(`output:${transparentOutputCount + sIdx}`)
+        !isAmountShielded(output) && !this.getUnblinded(`output:${transparentOutputCount + sIdx}`)
     ).length;
 
     const listedTokenUids = new Set(this.state.tokens.map(t => t.uid));
@@ -1342,10 +1376,14 @@ class TxData extends React.Component {
     });
 
     const shieldedSlotCount = slotIds.length;
-    const rewoundCount = [...this.state.rewind.results.values()].filter(r => !r.error).length;
-    const linkVerifiedCount = [...this.state.linkResults.values()].filter(
-      r => r.state === 'verified'
-    ).length;
+    const countStates = (results, verified) =>
+      [...results.values()].filter(r => (r.state === 'verified') === verified).length;
+    const rewoundCount = countStates(this.state.rewind.results, true);
+    const rewindFailedCount = countStates(this.state.rewind.results, false);
+    const linkVerifiedCount = countStates(this.state.linkResults, true);
+    // Entries a scan key can be tried on: not those of an unknown mode, nor
+    // AmountShielded inputs whose token is still unknown.
+    const scannableCount = this.getShieldedSlots().length;
 
     const hasAnyTokensToShow =
       this.state.tokens.length > 0 ||
@@ -1386,13 +1424,12 @@ class TxData extends React.Component {
 
       recoveredTokenUids.forEach(uid => {
         obj.push(
-          <div key={`unblinded-token-${uid}`}>
-            <div className="d-inline-flex align-items-center">
-              <span className="me-2">{`${uid.slice(0, 8)}…`}</span>
-              {renderUnblindedEye()}
-            </div>
-            <div>{renderTokenUID(uid)}</div>
-          </div>
+          <RecoveredTokenRow
+            key={`unblinded-token-${uid}`}
+            uid={uid}
+            marker={renderUnblindedEye()}
+            onCopy={this.copied}
+          />
         );
       });
 
@@ -1828,6 +1865,8 @@ class TxData extends React.Component {
             {shieldedSlotCount > 0 && (
               <UnblindingPanel
                 key={this.props.transaction.hash}
+                txId={this.props.transaction.hash}
+                onApplyUnblinding={this.props.onApplyUnblinding}
                 onApplyScanKey={this.applyScanKey}
                 onHide={this.hideUnblinded}
                 onSearchMore={this.searchMoreAddresses}
@@ -1841,6 +1880,8 @@ class TxData extends React.Component {
                 progress={this.state.rewind.progress}
                 searchedUpTo={this.state.rewind.searchedUpTo}
                 rewoundCount={rewoundCount}
+                rewindFailedCount={rewindFailedCount}
+                scannableCount={scannableCount}
                 slotCount={shieldedSlotCount}
                 error={this.state.rewind.error}
               />

@@ -9,9 +9,25 @@ import { Buffer } from 'buffer';
 import { HDPrivateKey, Networks } from 'bitcore-lib';
 import { parseScanXPrivKey, rewindSlot, rewindSlots } from './shieldedRewind';
 
-const ROOT = HDPrivateKey.fromSeed('00'.repeat(32), Networks.livenet);
+// wallet-lib registers Hathor's networks with bitcore; register their xpriv
+// prefixes here too, so `htpr…` and `tnpr…` keys parse as they do in the app.
+const hathorNetwork = (name, xprivkey, xpubkey) =>
+  Networks.get(xprivkey, 'xprivkey') ||
+  Networks.add({
+    name,
+    alias: name,
+    pubkeyhash: 0x28,
+    privatekey: 0x80,
+    scripthash: 0x64,
+    xpubkey,
+    xprivkey,
+  });
+const HTR_MAINNET = hathorNetwork('test-htr-mainnet', 0x03523b05, 0x03523a9c);
+const HTR_TESTNET = hathorNetwork('test-htr-testnet', 0x0434c8c4, 0x0434c85b);
+
+const SEED = '00'.repeat(32);
+const ROOT = HDPrivateKey.fromSeed(SEED, Networks.livenet);
 const SCAN_KEY = ROOT.deriveChild("m/44'/280'/1'/0");
-const VERSION = Networks.livenet.xprivkey;
 
 const COMMITMENT = '08'.repeat(33);
 const ASSET_COMMITMENT = '0a'.repeat(33);
@@ -68,26 +84,34 @@ const childPrivkey = index => SCAN_KEY.deriveChild(index).privateKey.toBuffer({ 
 
 describe('parseScanXPrivKey', () => {
   it('accepts the scan key', () => {
-    const result = parseScanXPrivKey(` ${SCAN_KEY.xprivkey}\n`, VERSION);
+    const result = parseScanXPrivKey(` ${SCAN_KEY.xprivkey}\n`);
     expect(result.key.xprivkey).toBe(SCAN_KEY.xprivkey);
   });
 
-  it('rejects anything that is not an xpriv', () => {
-    expect(parseScanXPrivKey('', VERSION).error).toMatch(/paste/);
-    expect(parseScanXPrivKey('not a key', VERSION).error).toMatch(/xpriv/);
-    expect(parseScanXPrivKey(SCAN_KEY.xpubkey, VERSION).error).toMatch(/xpriv/);
+  it('accepts the scan key with any network prefix, deriving the same keys', () => {
+    // Seed wallets export `xprv…` on every network, passkey wallets `htpr…`.
+    const forms = [Networks.livenet, HTR_MAINNET, HTR_TESTNET].map(network =>
+      HDPrivateKey.fromSeed(SEED, network).deriveChild("m/44'/280'/1'/0")
+    );
+    expect(forms.map(key => key.xprivkey.slice(0, 4))).toEqual(['xprv', 'htpr', 'tnpr']);
+    const children = forms.map(form => {
+      const { key, error } = parseScanXPrivKey(form.xprivkey);
+      expect(error).toBeUndefined();
+      return key.deriveChild(7).privateKey.toString();
+    });
+    expect(new Set(children).size).toBe(1);
   });
 
-  it('rejects a key of another network', () => {
-    expect(parseScanXPrivKey(SCAN_KEY.xprivkey, Networks.testnet.xprivkey).error).toMatch(
-      /another network/
-    );
+  it('rejects anything that is not an xpriv', () => {
+    expect(parseScanXPrivKey('').error).toMatch(/paste/);
+    expect(parseScanXPrivKey('not a key').error).toMatch(/xpriv/);
+    expect(parseScanXPrivKey(SCAN_KEY.xpubkey).error).toMatch(/xpriv/);
   });
 
   it('rejects a key at another derivation depth', () => {
-    expect(parseScanXPrivKey(ROOT.xprivkey, VERSION).error).toMatch(/scan key/);
+    expect(parseScanXPrivKey(ROOT.xprivkey).error).toMatch(/scan key/);
     const account = ROOT.deriveChild("m/44'/280'/1'");
-    expect(parseScanXPrivKey(account.xprivkey, VERSION).error).toMatch(/scan key/);
+    expect(parseScanXPrivKey(account.xprivkey).error).toMatch(/scan key/);
   });
 });
 
@@ -129,6 +153,20 @@ describe('rewindSlot', () => {
     await expect(
       rewindSlot(fakeProvider({ assetCommitment: OTHER }), childPrivkey(0), { entry: fullEntry() })
     ).rejects.toThrow(/commitment/);
+    await expect(
+      rewindSlot(fakeProvider({ valueCommitment: OTHER }), childPrivkey(0), { entry: fullEntry() })
+    ).rejects.toThrow(/commitment/);
+  });
+
+  it('refuses an entry of an unknown mode', async () => {
+    const provider = fakeProvider();
+    await expect(
+      rewindSlot(provider, childPrivkey(0), { entry: entry({ mode: 3 }), tokenUid: '00' })
+    ).rejects.toThrow(/unknown shielded mode/);
+    await expect(
+      rewindSlot(provider, childPrivkey(0), { entry: entry({ mode: undefined }), tokenUid: '00' })
+    ).rejects.toThrow(/unknown shielded mode/);
+    expect(provider.rewindAmountShieldedOutput).not.toHaveBeenCalled();
   });
 
   it('throws on a non-positive amount', async () => {
@@ -163,8 +201,18 @@ describe('rewindSlots', () => {
       toIndex: 5,
       onProgress: done => progress.push(done),
     });
-    expect(found.get('output:0')).toEqual({ value: 250n, tokenUid: '00', addressIndex: 3 });
-    expect(found.get('output:1')).toEqual({ value: 250n, tokenUid: TOKEN, addressIndex: 3 });
+    expect(found.get('output:0')).toEqual({
+      state: 'verified',
+      value: 250n,
+      tokenUid: '00',
+      addressIndex: 3,
+    });
+    expect(found.get('output:1')).toEqual({
+      state: 'verified',
+      value: 250n,
+      tokenUid: TOKEN,
+      addressIndex: 3,
+    });
     // Stops once every entry is found.
     expect(progress).toEqual([1, 2, 3, 4]);
   });
@@ -182,8 +230,18 @@ describe('rewindSlots', () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
     const found = await rewindSlots({ provider, key: SCAN_KEY, slots, fromIndex: 0, toIndex: 3 });
     warn.mockRestore();
-    expect(found.get('output:0')).toEqual({ error: 'invalid point' });
+    expect(found.get('output:0')).toEqual({ state: 'error', reason: 'invalid point' });
     expect(provider.rewindAmountShieldedOutput).toHaveBeenCalledTimes(1);
+  });
+
+  it('records an error with an empty message as an error', async () => {
+    const provider = fakeProvider();
+    provider.rewindAmountShieldedOutput.mockRejectedValue(new Error());
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const found = await rewindSlots({ provider, key: SCAN_KEY, slots, fromIndex: 0, toIndex: 1 });
+    warn.mockRestore();
+    expect(found.get('output:0').state).toBe('error');
+    expect(found.get('output:0').reason).toBeTruthy();
   });
 
   it('returns null when cancelled', async () => {

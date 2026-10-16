@@ -114,6 +114,29 @@ describe('parseUnblindingPayload', () => {
     );
   });
 
+  it('never throws on a crafted version, and never echoes its text', () => {
+    const objectV = encode({ v: { toString: 1 }, txId: TX, outputs: [] });
+    expect(parseUnblindingPayload(objectV, TX).error).toBe(
+      'unsupported unblinding payload version'
+    );
+
+    // Built by hand: JSON.stringify itself overflows on this depth.
+    const deepJson = `{"v":${'['.repeat(20000)}1${']'.repeat(20000)},"txId":"${TX}","outputs":[]}`;
+    const deepV = Buffer.from(deepJson)
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+    expect(() => parseUnblindingPayload(deepV, TX)).not.toThrow();
+    expect(parseUnblindingPayload(deepV, TX).error).toBeDefined();
+
+    const textV = encode({ v: 'Restore your wallet at evil.example', txId: TX, outputs: [] });
+    expect(parseUnblindingPayload(textV, TX).error).toBe('unsupported unblinding payload version');
+    expect(parseUnblindingPayload(payloadWith([], { v: 2 }), TX).error).toBe(
+      'unsupported unblinding payload version (got 2)'
+    );
+  });
+
   it('rejects an unsupported version', () => {
     expect(parseUnblindingPayload(payloadWith([], { v: 2 }), TX).error).toMatch(/version/);
   });
@@ -206,6 +229,24 @@ describe('verifyUnblindingEntry', () => {
     const opening = parsedEntry({ token: TOKEN, abf: ABF });
     const result = await verifyUnblindingEntry(opening, fullShielded, provider);
     expect(result.state).toBe('mismatch');
+  });
+
+  it('rejects a FullShielded opening whose value commitment does not match', async () => {
+    const provider = fakeProvider({ valueCommitment: OTHER });
+    const opening = parsedEntry({ token: TOKEN, abf: ABF });
+    const result = await verifyUnblindingEntry(opening, fullShielded, provider);
+    expect(result.state).toBe('mismatch');
+  });
+
+  it('reports an output of an unknown mode as an error', async () => {
+    const provider = fakeProvider();
+    const result = await verifyUnblindingEntry(
+      parsedEntry(),
+      { ...amountShielded, mode: 3 },
+      provider
+    );
+    expect(result).toEqual({ state: 'error', reason: 'unknown shielded mode 3' });
+    expect(provider.openAmountShieldedCommitment).not.toHaveBeenCalled();
   });
 
   it('rejects an entry whose mode does not match the output', async () => {

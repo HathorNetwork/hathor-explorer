@@ -9,9 +9,11 @@ import { Buffer } from 'buffer';
 import { HDPrivateKey } from 'bitcore-lib';
 
 /**
- * Wire value of a FullShielded output's `mode` (wallet-lib's
- * `ShieldedOutputMode.FULLY_SHIELDED`). AmountShielded is 1.
+ * Wire values of a shielded entry's `mode` (wallet-lib's
+ * `ShieldedOutputMode`). Any other value is a mode this explorer doesn't
+ * know: such an entry is shown as plain "Confidential" and never rewound.
  */
+export const AMOUNT_SHIELDED_MODE = 1;
 export const FULL_SHIELDED_MODE = 2;
 
 /**
@@ -28,12 +30,15 @@ const NATIVE_TOKEN_UID = '00';
 /**
  * Parse the scan key a user pasted.
  *
+ * Any network prefix is accepted: the prefix doesn't change the derived
+ * keys, and wallets export the scan key as `xprv…` on every network (seed
+ * wallets) or `htpr…` (passkey wallets).
+ *
  * @param {string} input The scan xpriv
- * @param {number} expectedVersion xpriv version bytes of the explorer's network
  *
  * @return {{ key: HDPrivateKey } | { error: string }}
  */
-export function parseScanXPrivKey(input, expectedVersion) {
+export function parseScanXPrivKey(input) {
   const xpriv = typeof input === 'string' ? input.trim() : '';
   if (!xpriv) {
     return { error: 'paste your scan key' };
@@ -47,11 +52,10 @@ export function parseScanXPrivKey(input, expectedVersion) {
   if (key.xprivkey !== xpriv) {
     return { error: 'this is not a valid extended private key (xpriv)' };
   }
-  if (key.network.xprivkey !== expectedVersion) {
-    return { error: 'this key is for another network' };
-  }
+  // Only the depth can be checked: a key at another path of the same depth
+  // is accepted, and simply opens nothing.
   if (key.depth !== SCAN_KEY_DEPTH) {
-    return { error: "this is not a scan key: expected the key at m/44'/280'/1'/0" };
+    return { error: 'this is not a scan key: expected an extended key of depth 4' };
   }
   return { key };
 }
@@ -66,10 +70,14 @@ export function parseScanXPrivKey(input, expectedVersion) {
  * tx API, and the token of an AmountShielded entry ('00' for the native token)
  *
  * @return {Promise<{ value: bigint, tokenUid: string } | null>} null when the
- * entry wasn't paid to this address
+ * entry's range proof wasn't encrypted to this key. Opening an entry doesn't
+ * prove it pays the key's owner: the entry's script is independent of it.
  */
 export async function rewindSlot(provider, privkey, slot) {
   const { entry } = slot;
+  if (entry.mode !== AMOUNT_SHIELDED_MODE && entry.mode !== FULL_SHIELDED_MODE) {
+    throw new Error(`unknown shielded mode ${entry.mode}`);
+  }
   const isFullShielded = entry.mode === FULL_SHIELDED_MODE;
   const ephemeralPubkey = Buffer.from(entry.ephemeral_pubkey, 'hex');
   const commitment = Buffer.from(entry.commitment, 'hex');
@@ -143,8 +151,19 @@ export async function rewindSlot(provider, privkey, slot) {
 }
 
 /**
- * Look for entries paid to the addresses `fromIndex` to `toIndex - 1` of a
- * scan key. Each address's child key is tried on every entry not found yet.
+ * Let the browser paint and handle input. The WASM rewind runs on the main
+ * thread and its promises resolve right away, so without this a batch would
+ * run as one long task: the page would freeze and the progress never paint.
+ */
+const yieldToBrowser = () =>
+  new Promise(resolve => {
+    setTimeout(resolve, 0);
+  });
+
+/**
+ * Look for entries that open with the keys of addresses `fromIndex` to
+ * `toIndex - 1` of a scan key. Each address's child key is tried on every
+ * entry not found yet.
  *
  * @param {Object} params
  * @param {Object} params.provider Crypto provider
@@ -157,8 +176,9 @@ export async function rewindSlot(provider, privkey, slot) {
  * addresses tried so far
  * @param {function(): boolean} [params.isCancelled] Stops the search when true
  *
- * @return {Promise<Map<string, Object> | null>} Found entries by id, as
- * `{ value, tokenUid, addressIndex }` or `{ error }`; null if cancelled
+ * @return {Promise<Map<string, Object> | null>} Results by id, as
+ * `{ state: 'verified', value, tokenUid, addressIndex }` or
+ * `{ state: 'error', reason }`; null if cancelled
  */
 export async function rewindSlots({
   provider,
@@ -176,17 +196,21 @@ export async function rewindSlots({
     try {
       const stillPending = [];
       for (const slot of pending) {
+        await yieldToBrowser();
         if (isCancelled()) return null;
         try {
           const result = await rewindSlot(provider, privkey, slot);
           if (result) {
-            found.set(slot.id, { ...result, addressIndex: index });
+            found.set(slot.id, { state: 'verified', ...result, addressIndex: index });
           } else {
             stillPending.push(slot);
           }
         } catch (e) {
           console.warn(`[shielded] could not rewind ${slot.id}:`, e?.message ?? e);
-          found.set(slot.id, { error: e?.message ?? String(e) });
+          found.set(slot.id, {
+            state: 'error',
+            reason: e?.message || String(e) || 'unknown error',
+          });
         }
       }
       pending = stillPending;
