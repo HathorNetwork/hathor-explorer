@@ -225,7 +225,17 @@ const helpers = {
       return null;
     }
     if (addressObj.isShielded()) {
-      const spendAddress = addressObj.getSpendAddress().base58;
+      let spendAddress;
+      try {
+        spendAddress = addressObj.getSpendAddress().base58;
+      } catch (e) {
+        // `isValid` doesn't check that the embedded public keys are on the
+        // curve; `getSpendAddress` does.
+        if (e instanceof hathorLib.errors.AddressError) {
+          return null;
+        }
+        throw e;
+      }
       return { queryAddress: spendAddress, spendAddress };
     }
     return { queryAddress: address, spendAddress: null };

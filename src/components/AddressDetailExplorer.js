@@ -334,8 +334,9 @@ function AddressDetailExplorer() {
 
   // Loads all data on screen once the initial validation is done and a loading flag is triggered
   useEffect(() => {
-    // This effect only runs once it's triggered by the "loadingTokens" flag
-    if (!loadingTokens) {
+    // This effect only runs once it's triggered by the "loadingTokens" flag,
+    // and never for an invalid address: it would clear the "Invalid address." error
+    if (!loadingTokens || !resolvedAddress) {
       return;
     }
 
@@ -360,7 +361,7 @@ function AddressDetailExplorer() {
     reloadTokensForAddress(address, newSelectedToken).catch(e =>
       console.error('Error reloading tokens for address on address change', e)
     );
-  }, [loadingTokens, address, reloadTokensForAddress]);
+  }, [loadingTokens, address, resolvedAddress, reloadTokensForAddress]);
 
   /**
    * Callback to be executed when user changes token on select input
