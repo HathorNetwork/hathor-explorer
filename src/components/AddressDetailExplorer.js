@@ -567,9 +567,12 @@ function AddressDetailExplorer() {
       return (
         <div>
           <p className="text-danger mt-3">{errorMessage}</p>
-          <button className="btn btn-hathor m-3" onClick={reloadPage}>
-            Reload
-          </button>
+          {/* Reloading can't fix an invalid address */}
+          {resolvedAddress && (
+            <button className="btn btn-hathor m-3" onClick={reloadPage}>
+              Reload
+            </button>
+          )}
         </div>
       );
     }
