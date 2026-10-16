@@ -25,9 +25,7 @@ class AddressSummary extends React.Component {
   };
 
   render() {
-    if (Object.keys(this.props.balance).length === 0) {
-      return null;
-    }
+    const hasBalance = Object.keys(this.props.balance).length > 0;
 
     const loadMainInfo = () => {
       return (
@@ -41,11 +39,16 @@ class AddressSummary extends React.Component {
                 <br />
               </>
             )}
-            Number of tokens: {Object.keys(this.props.balance).length}
+            {hasBalance && <>Number of tokens: {Object.keys(this.props.balance).length}</>}
           </div>
         </div>
       );
     };
+
+    if (!hasBalance) {
+      // A shielded address still shows which spend address it was searched under.
+      return this.props.spendAddress ? loadMainInfo() : null;
+    }
 
     // We show 'Loading' until all metadatas are loaded
     // to prevent switching from decimal to integer if one of the tokens is an NFT
