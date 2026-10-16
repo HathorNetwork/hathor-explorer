@@ -79,4 +79,12 @@ module.exports = {
       version: 'detect',
     },
   },
+  overrides: [
+    {
+      files: ['src/**/*.test.js'],
+      env: {
+        jest: true,
+      },
+    },
+  ],
 };

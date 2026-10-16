@@ -1,3 +1,7 @@
+.PHONY: install
+install:
+	npm ci
+
 .PHONY: build
 build:
 	./scripts/deploy.sh $(site) build $(aws_profile)

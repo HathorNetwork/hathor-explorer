@@ -43,9 +43,14 @@ class AddressDetailLegacy extends React.Component {
    * warningRefreshPage {boolean} If should show a warning to refresh the page to see newest data for the address
    * selectedTokenMetadata {Object} Metadata of the selected token
    * metadataLoaded {boolean} When the selected token metadata was loaded
+   * address {String} Address to query: the URL address, or its spend address if it's shielded
+   * urlAddress {String} Address from the URL
+   * spendAddress {String} Spend address of a shielded URL address, null otherwise
    */
   state = {
     address: null,
+    urlAddress: null,
+    spendAddress: null,
     balance: {},
     selectedToken: '',
     numberOfTransactions: 0,
@@ -150,10 +155,18 @@ class AddressDetailLegacy extends React.Component {
    */
   updateAddress = address => {
     this.setState({ queryParams: this.pagination.obtainQueryParams() }, () => {
-      const network = hathorLib.config.getNetwork();
-      const addressObj = new hathorLib.Address(address, { network });
-      if (addressObj.isValid()) {
-        this.setState({ address, loadingSummary: true, transactions: [], errorMessage: '' }, () => {
+      // A shielded address is queried under its spend address.
+      const resolved = helpers.resolveAddress(address);
+      if (resolved) {
+        const newState = {
+          address: resolved.queryAddress,
+          urlAddress: address,
+          spendAddress: resolved.spendAddress,
+          loadingSummary: true,
+          transactions: [],
+          errorMessage: '',
+        };
+        this.setState(newState, () => {
           const queryParams = this.pagination.obtainQueryParams();
           if (queryParams.token !== null) {
             // User already have a token selected on the URL
@@ -389,7 +402,8 @@ class AddressDetailLegacy extends React.Component {
         <div>
           {renderWarningAlert()}
           <AddressSummaryLegacy
-            address={this.state.address}
+            address={this.state.urlAddress}
+            spendAddress={this.state.spendAddress}
             balance={this.state.balance}
             selectedToken={this.state.selectedToken}
             numberOfTransactions={this.state.numberOfTransactions}

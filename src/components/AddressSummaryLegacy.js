@@ -25,9 +25,7 @@ class AddressSummary extends React.Component {
   };
 
   render() {
-    if (Object.keys(this.props.balance).length === 0) {
-      return null;
-    }
+    const hasBalance = Object.keys(this.props.balance).length > 0;
 
     const loadMainInfo = () => {
       return (
@@ -35,11 +33,22 @@ class AddressSummary extends React.Component {
           <div className="card-body">
             Address: {this.props.address}
             <br />
-            Number of tokens: {Object.keys(this.props.balance).length}
+            {this.props.spendAddress && (
+              <>
+                Spend address: {this.props.spendAddress}
+                <br />
+              </>
+            )}
+            {hasBalance && <>Number of tokens: {Object.keys(this.props.balance).length}</>}
           </div>
         </div>
       );
     };
+
+    if (!hasBalance) {
+      // A shielded address still shows which spend address it was searched under.
+      return this.props.spendAddress ? loadMainInfo() : null;
+    }
 
     // We show 'Loading' until all metadatas are loaded
     // to prevent switching from decimal to integer if one of the tokens is an NFT
@@ -126,6 +135,7 @@ class AddressSummary extends React.Component {
 
 /*
  * address: Address to show summary
+ * spendAddress: Spend address the data was queried under, when `address` is shielded
  * balance: Object with balance data of each token for the selected address {'uid': {name, symbol, received, spent}}
  * selectedToken: UID of the selected token to show history
  * numberOfTransactions: Number of transactions for the selected token and address
@@ -133,6 +143,7 @@ class AddressSummary extends React.Component {
  */
 AddressSummary.propTypes = {
   address: PropTypes.string.isRequired,
+  spendAddress: PropTypes.string,
   balance: PropTypes.object.isRequired,
   selectedToken: PropTypes.string.isRequired,
   numberOfTransactions: PropTypes.number.isRequired,

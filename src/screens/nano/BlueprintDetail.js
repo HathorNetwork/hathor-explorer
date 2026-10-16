@@ -182,7 +182,11 @@ function BlueprintDetail() {
       </div>
       <div className="blueprint-source-code">
         <div style={{ display: 'flex' }}>
-          <DropDetails title="Source Code" onToggle={e => onToggleShowCode(e)}>
+          <DropDetails
+            id="source-code-section"
+            title="Source Code"
+            onToggle={e => onToggleShowCode(e)}
+          >
             <div className={`source-code ${showCode ? 'show' : ''}`}>
               <pre>
                 <code ref={codeRef} className="language-python">
