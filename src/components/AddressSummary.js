@@ -46,8 +46,9 @@ class AddressSummary extends React.Component {
     );
 
     if (!hasTokens) {
-      // A shielded address still shows which spend address it was searched under.
-      return this.props.spendAddress ? (
+      // A shielded address still shows which spend address it was searched
+      // under, and an address with only confidential activity which address it is.
+      return this.props.spendAddress || this.props.hasConfidentialActivity ? (
         <div className="w-100">
           <div className="summary-main-info alter-background">{renderAddress()}</div>
         </div>

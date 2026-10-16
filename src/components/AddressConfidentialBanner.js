@@ -28,8 +28,8 @@ function AddressConfidentialBanner({ confidentialOnly }) {
         </div>
         <div className="address-confidential-banner__subtitle">
           {confidentialOnly
-            ? 'Its amounts and tokens are confidential, so there is no public balance or history to display.'
-            : 'Only public balances and tokens are displayed below. Additional confidential amounts exist on this address.'}
+            ? 'It has no public balance or history to display. Confidential amounts are not shown.'
+            : 'Only public balances and tokens are displayed below. Confidential amounts sent to or from this address are not included.'}
         </div>
       </div>
     </div>
