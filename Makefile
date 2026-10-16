@@ -3,7 +3,7 @@ install:
 	npm ci
 
 .PHONY: build
-build: install
+build:
 	./scripts/deploy.sh $(site) build $(aws_profile)
 
 .PHONY: sync
