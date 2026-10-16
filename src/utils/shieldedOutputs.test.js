@@ -5,75 +5,231 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { getConfidentialInvolvement, describeAddressValue } from './shieldedOutputs';
+import {
+  describeHistoryRow,
+  getConfidentialInvolvement,
+  hasPublicInvolvement,
+  isAuthorityOnly,
+  shieldedInputParentIds,
+} from './shieldedOutputs';
 
 const ADDR = 'HR7JvXSbg8mdvXopKtc97C64NR4TZmQE3T';
-const NONE = { received: false, sent: false };
+const OTHER = 'HOTHERxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+const HTR = '00';
+const TKA = '00aa';
+const TKB = '00bb';
+const opts = { token: HTR, nativeTokenUid: HTR };
+
+const fullShieldedOutput = (address = ADDR) => ({ mode: 2, decoded: { address } });
+const amountShieldedOutput = (tokenData, address = ADDR) => ({
+  mode: 1,
+  token_data: tokenData,
+  decoded: { address },
+});
+const shieldedInput = (fields, address = ADDR) => ({
+  type: 'shielded',
+  tx_id: 'parent',
+  decoded: { address },
+  ...fields,
+});
+const output = (tokenData, address = ADDR) => ({ token_data: tokenData, decoded: { address } });
 
 describe('getConfidentialInvolvement', () => {
   it('returns no involvement for an undefined tx', () => {
-    expect(getConfidentialInvolvement(undefined, ADDR)).toEqual(NONE);
+    expect(getConfidentialInvolvement(undefined, ADDR, opts)).toEqual({
+      received: false,
+      sent: false,
+      fullShielded: false,
+    });
   });
 
-  it('returns no involvement when there are no shielded outputs or inputs', () => {
-    const tx = { outputs: [{ decoded: { address: ADDR } }], inputs: [] };
-    expect(getConfidentialInvolvement(tx, ADDR)).toEqual(NONE);
+  it('ignores transparent outputs and inputs', () => {
+    const tx = { outputs: [output(0)], inputs: [{ type: 'transparent', ...output(0) }] };
+    expect(getConfidentialInvolvement(tx, ADDR, opts)).toMatchObject({
+      received: false,
+      sent: false,
+    });
   });
 
-  it('detects a shielded output for the address as received', () => {
-    const tx = { shielded_outputs: [{ commitment: 'aa', decoded: { address: ADDR } }] };
-    expect(getConfidentialInvolvement(tx, ADDR)).toEqual({ received: true, sent: false });
+  it('counts a FullShielded output for every token', () => {
+    const tx = { tokens: [{ uid: TKA }], shielded_outputs: [fullShieldedOutput()] };
+    for (const token of [HTR, TKA, TKB]) {
+      expect(getConfidentialInvolvement(tx, ADDR, { ...opts, token })).toEqual({
+        received: true,
+        sent: false,
+        fullShielded: true,
+      });
+    }
   });
 
-  it('ignores a shielded output for a different address', () => {
-    const tx = { shielded_outputs: [{ commitment: 'aa', decoded: { address: 'OTHER' } }] };
-    expect(getConfidentialInvolvement(tx, ADDR)).toEqual(NONE);
+  it('counts an AmountShielded output only for its own token', () => {
+    const tx = { tokens: [{ uid: TKA }], shielded_outputs: [amountShieldedOutput(1)] };
+    expect(getConfidentialInvolvement(tx, ADDR, { ...opts, token: TKA })).toEqual({
+      received: true,
+      sent: false,
+      fullShielded: false,
+    });
+    expect(getConfidentialInvolvement(tx, ADDR, opts).received).toBe(false);
   });
 
-  it('ignores a shielded output without a decoded address', () => {
-    const tx = { shielded_outputs: [{ commitment: 'aa' }] };
-    expect(getConfidentialInvolvement(tx, ADDR)).toEqual(NONE);
+  it('resolves an AmountShielded HTR output without the token list', () => {
+    const tx = { tokens: [], shielded_outputs: [amountShieldedOutput(0)] };
+    expect(getConfidentialInvolvement(tx, ADDR, opts).received).toBe(true);
+    expect(getConfidentialInvolvement(tx, ADDR, { ...opts, token: TKA }).received).toBe(false);
   });
 
-  it('detects a shielded input for the address as sent', () => {
-    const tx = { inputs: [{ type: 'shielded', decoded: { address: ADDR } }] };
-    expect(getConfidentialInvolvement(tx, ADDR)).toEqual({ received: false, sent: true });
+  it('ignores shielded outputs of other addresses and without a decoded address', () => {
+    const tx = { shielded_outputs: [fullShieldedOutput(OTHER), { mode: 2 }] };
+    expect(getConfidentialInvolvement(tx, ADDR, opts).received).toBe(false);
   });
 
-  it('detects a full unshield (shielded inputs, no shielded outputs) as sent', () => {
-    const tx = {
-      inputs: [{ type: 'shielded', decoded: { address: ADDR } }],
-      outputs: [{ decoded: { address: 'OTHER' } }],
-    };
-    expect(getConfidentialInvolvement(tx, ADDR)).toEqual({ received: false, sent: true });
+  it('resolves an AmountShielded input token from its parent tx', () => {
+    const tx = { tokens: [{ uid: TKB }], inputs: [shieldedInput({ mode: 1, token_data: 1 })] };
+    const getTx = id => (id === 'parent' ? { tokens: [{ uid: TKA }] } : undefined);
+    expect(getConfidentialInvolvement(tx, ADDR, { ...opts, token: TKA, getTx }).sent).toBe(true);
+    expect(getConfidentialInvolvement(tx, ADDR, { ...opts, token: TKB, getTx }).sent).toBe(false);
   });
 
-  it('reports both directions for a shielded spend with shielded change', () => {
-    const tx = {
-      inputs: [{ type: 'shielded', decoded: { address: ADDR } }],
-      shielded_outputs: [{ commitment: 'aa', decoded: { address: ADDR } }],
-    };
-    expect(getConfidentialInvolvement(tx, ADDR)).toEqual({ received: true, sent: true });
+  it('counts an AmountShielded input while its parent is unknown', () => {
+    const tx = { inputs: [shieldedInput({ mode: 1, token_data: 1 })] };
+    expect(getConfidentialInvolvement(tx, ADDR, { ...opts, token: TKA }).sent).toBe(true);
   });
 
-  it('ignores a transparent input for the address', () => {
-    const tx = { inputs: [{ type: 'p2pkh', decoded: { address: ADDR } }] };
-    expect(getConfidentialInvolvement(tx, ADDR)).toEqual(NONE);
+  it('counts a full unshield (shielded inputs, no shielded outputs) as sent', () => {
+    const tx = { inputs: [shieldedInput({ mode: 2 })], outputs: [output(0, OTHER)] };
+    expect(getConfidentialInvolvement(tx, ADDR, opts)).toEqual({
+      received: false,
+      sent: true,
+      fullShielded: true,
+    });
   });
 });
 
-describe('describeAddressValue', () => {
-  it('returns value-only when there is no confidential activity', () => {
-    expect(describeAddressValue({ balance: 100, hasConfidential: false })).toBe('value-only');
+describe('shieldedInputParentIds', () => {
+  it('lists parents of AmountShielded inputs of custom tokens for the address', () => {
+    const tx = {
+      inputs: [
+        shieldedInput({ mode: 1, token_data: 1, tx_id: 'custom' }),
+        shieldedInput({ mode: 1, token_data: 0, tx_id: 'htr' }),
+        shieldedInput({ mode: 2, tx_id: 'full' }),
+        shieldedInput({ mode: 1, token_data: 1, tx_id: 'other' }, OTHER),
+        { ...output(1), tx_id: 'transparent' },
+      ],
+    };
+    expect(shieldedInputParentIds(tx, ADDR)).toEqual(['custom']);
+  });
+});
+
+describe('hasPublicInvolvement', () => {
+  it('matches a transparent output or input of the token', () => {
+    const tx = { tokens: [{ uid: TKA }], outputs: [output(1)], inputs: [] };
+    expect(hasPublicInvolvement(tx, ADDR, TKA, HTR)).toBe(true);
+    expect(hasPublicInvolvement(tx, ADDR, HTR, HTR)).toBe(false);
   });
 
-  it('returns confidential-only when confidential and the public balance is zero', () => {
-    expect(describeAddressValue({ balance: 0, hasConfidential: true })).toBe('confidential-only');
+  it('ignores shielded inputs', () => {
+    const tx = { inputs: [shieldedInput({ mode: 1, token_data: 0 })] };
+    expect(hasPublicInvolvement(tx, ADDR, HTR, HTR)).toBe(false);
+  });
+});
+
+describe('isAuthorityOnly', () => {
+  it('needs at least one authority entry of the address', () => {
+    expect(isAuthorityOnly({ outputs: [], inputs: [] }, ADDR)).toBe(false);
+    expect(isAuthorityOnly({ outputs: [output(0b10000001)], inputs: [] }, ADDR)).toBe(true);
   });
 
-  it('returns value-and-confidential when confidential and the public balance is non-zero', () => {
-    expect(describeAddressValue({ balance: 120, hasConfidential: true })).toBe(
-      'value-and-confidential'
-    );
+  it('is false when the address also has a non-authority entry', () => {
+    const tx = { outputs: [output(0b10000001), output(1)], inputs: [] };
+    expect(isAuthorityOnly(tx, ADDR)).toBe(false);
+  });
+});
+
+describe('describeHistoryRow', () => {
+  const describe_ = params =>
+    describeHistoryRow({ address: ADDR, token: HTR, nativeTokenUid: HTR, ...params });
+
+  it('waits for the tx when no public value moved', () => {
+    expect(describe_({ balance: 0, tx: undefined }).value).toBe('loading');
+  });
+
+  it('shows a public balance right away while the tx loads', () => {
+    expect(describe_({ balance: 10, tx: undefined })).toMatchObject({
+      value: 'public',
+      direction: 'received',
+    });
+  });
+
+  it('falls back to the public balance when the tx fetch failed', () => {
+    expect(describe_({ balance: 0, tx: null })).toMatchObject({ value: 'public', direction: null });
+  });
+
+  it('shows only the badge for a shielded-only receive', () => {
+    const tx = { shielded_outputs: [fullShieldedOutput()], outputs: [], inputs: [] };
+    expect(describe_({ balance: 0, tx })).toEqual({
+      value: 'confidential',
+      direction: 'received',
+      amountOnly: false,
+      authority: false,
+    });
+  });
+
+  it('labels a shielded spend with shielded change as sent', () => {
+    const tx = {
+      shielded_outputs: [fullShieldedOutput()],
+      inputs: [shieldedInput({ mode: 2 })],
+      outputs: [],
+    };
+    expect(describe_({ balance: 0, tx }).direction).toBe('sent');
+  });
+
+  it('marks an AmountShielded-only row as amount-only', () => {
+    const tx = { tokens: [], shielded_outputs: [amountShieldedOutput(0)], outputs: [], inputs: [] };
+    expect(describe_({ balance: 0, tx }).amountOnly).toBe(true);
+  });
+
+  it('shows the public balance plus the badge for a mixed tx', () => {
+    const tx = { shielded_outputs: [fullShieldedOutput()], outputs: [output(0)], inputs: [] };
+    expect(describe_({ balance: -5, tx })).toMatchObject({
+      value: 'public-and-confidential',
+      direction: 'sent',
+    });
+  });
+
+  it('hides a balance the address has no transparent entry of the token for', () => {
+    const tx = { shielded_outputs: [fullShieldedOutput()], outputs: [], inputs: [] };
+    expect(describe_({ balance: 120, tx })).toMatchObject({
+      value: 'confidential',
+      direction: 'received',
+    });
+  });
+
+  it('ignores an AmountShielded output of another token', () => {
+    const tx = {
+      tokens: [{ uid: TKA }],
+      shielded_outputs: [amountShieldedOutput(1)],
+      outputs: [output(0)],
+      inputs: [],
+    };
+    expect(describe_({ balance: 10, tx }).value).toBe('public');
+  });
+
+  it('labels an authority-only tx as authority, even with a confidential entry', () => {
+    const authorityTx = { outputs: [output(0b10000001)], inputs: [] };
+    expect(describe_({ balance: 0, tx: authorityTx })).toMatchObject({
+      value: 'authority',
+      authority: true,
+    });
+    const tx = { ...authorityTx, shielded_outputs: [fullShieldedOutput()] };
+    expect(describe_({ balance: 0, tx })).toMatchObject({
+      value: 'confidential',
+      direction: null,
+      authority: true,
+    });
+  });
+
+  it('shows a zero balance without confidential entries as public', () => {
+    const tx = { outputs: [output(0)], inputs: [{ type: 'transparent', ...output(0) }] };
+    expect(describe_({ balance: 0, tx })).toMatchObject({ value: 'public', direction: null });
   });
 });

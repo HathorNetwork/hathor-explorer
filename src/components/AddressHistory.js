@@ -17,42 +17,13 @@ import { ReactComponent as RowBottomIcon } from '../assets/images/leading-icon.s
 import { ReactComponent as RowTopIcon } from '../assets/images/leading-top-icon.svg';
 import { COLORS } from '../constants';
 import ConfidentialBadge from './ConfidentialBadge';
-import { getConfidentialInvolvement, describeAddressValue } from '../utils/shieldedOutputs';
+import { describeHistoryRow } from '../utils/shieldedOutputs';
 
 const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
 });
 
 class AddressHistory extends SortableTable {
-  /**
-   * Check if the tx has only inputs and outputs that are authorities in the search address
-   *
-   * @param {Object} tx Transaction data
-   *
-   * @return {boolean} If the tx has only authority in the search address
-   */
-  isAllAuthority = tx => {
-    for (const txin of tx.inputs) {
-      if (
-        !hathorLib.transactionUtils.isAuthorityOutput(txin) &&
-        txin.decoded.address === this.props.address
-      ) {
-        return false;
-      }
-    }
-
-    for (const txout of tx.outputs) {
-      if (
-        !hathorLib.transactionUtils.isAuthorityOutput(txout) &&
-        txout.decoded.address === this.props.address
-      ) {
-        return false;
-      }
-    }
-
-    return true;
-  };
-
   renderTable(content) {
     return <table className=" table-stylized table-address">{content}</table>;
   }
@@ -81,114 +52,88 @@ class AddressHistory extends SortableTable {
   }
 
   /**
-   * Render the Value column for a row. When the tx carries confidential
-   * (shielded) outputs/inputs for this address, append a "Confidential" badge
-   * (or show it alone when there is no public value for the selected token).
+   * Render the Value column for a row, as described by `describeHistoryRow`.
    */
-  renderValueContent(tx, prettyValue, hasConfidential) {
-    const descriptor = describeAddressValue({
-      balance: tx.balance,
-      hasConfidential,
-    });
-
-    const valueSpan = (
-      <span style={{ color: tx.balance < 0 ? COLORS.danger : COLORS.success }}>{prettyValue}</span>
-    );
-
-    if (descriptor === 'confidential-only') {
-      return (
-        <span className="confidential-value">
-          <ConfidentialBadge />
-        </span>
-      );
+  renderValueContent(tx, row) {
+    if (row.value === 'loading') {
+      return 'Loading...';
+    }
+    if (row.value === 'authority') {
+      return '--';
     }
 
-    if (descriptor === 'value-and-confidential') {
+    const badge = <ConfidentialBadge amountOnly={row.amountOnly} />;
+    if (row.value === 'confidential') {
+      return <span className="confidential-value">{badge}</span>;
+    }
+
+    const valueSpan = (
+      <span style={{ color: tx.balance < 0 ? COLORS.danger : COLORS.success }}>
+        {this.renderValue(tx.balance)}
+      </span>
+    );
+    if (row.value === 'public-and-confidential') {
       return (
         <>
           {valueSpan}
-          <div className="confidential-value">
-            + <ConfidentialBadge />
-          </div>
+          <div className="confidential-value">+ {badge}</div>
         </>
       );
     }
-
     return valueSpan;
+  }
+
+  /**
+   * Render the status column for a row, as described by `describeHistoryRow`.
+   */
+  renderStatus(tx, row) {
+    if (row.authority) {
+      return <span>Authority</span>;
+    }
+
+    // Token creation/deposit only apply to the public value of the row
+    const isTokenCreation =
+      row.value !== 'confidential' && tx.version === hathorLib.constants.CREATE_TOKEN_TX_VERSION;
+    if (row.direction === 'received') {
+      return (
+        <span className="type-span span-green-tag">
+          <RowBottomIcon /> {isTokenCreation ? 'Token creation' : 'Received'}
+        </span>
+      );
+    }
+    if (row.direction === 'sent') {
+      return (
+        <span className="type-span span-red-tag">
+          <RowTopIcon /> {isTokenCreation ? 'Token deposit' : 'Sent'}
+        </span>
+      );
+    }
+    return '';
   }
 
   renderNewTableBodyUi(isMobile) {
     const ellipsisCount = isMobile ? 4 : 12;
     return this.props.data.map(tx => {
-      let statusElement = '';
+      // txCache holds undefined while a tx loads and null if its fetch failed
+      const row = describeHistoryRow({
+        balance: tx.balance,
+        tx: this.props.txCache[tx.tx_id],
+        address: this.props.address,
+        token: this.props.selectedToken,
+        nativeTokenUid: hathorLib.constants.NATIVE_TOKEN_UID,
+        getTx: txId => this.props.txCache[txId],
+      });
+
       let trClass = '';
-      let prettyValue = this.renderValue(tx.balance);
-      const confidential = getConfidentialInvolvement(
-        this.props.txCache[tx.tx_id],
-        this.props.address
-      );
-      const hasConfidential = confidential.received || confidential.sent;
-
-      if (tx.balance > 0) {
-        if (tx.version === hathorLib.constants.CREATE_TOKEN_TX_VERSION) {
-          statusElement = (
-            <span className="type-span span-green-tag">
-              <RowBottomIcon /> Token creation
-            </span>
-          );
-        } else {
-          statusElement = (
-            <span className="type-span span-green-tag">
-              <RowBottomIcon /> Received
-            </span>
-          );
-        }
-        trClass = 'output-tr';
-      } else if (tx.balance < 0) {
-        if (tx.version === hathorLib.constants.CREATE_TOKEN_TX_VERSION) {
-          statusElement = (
-            <span className="type-span span-red-tag">
-              <RowTopIcon /> Token deposit
-            </span>
-          );
-        } else {
-          statusElement = (
-            <span className="type-span span-red-tag">
-              <RowTopIcon /> Sent
-            </span>
-          );
-        }
-        trClass = 'input-tr';
-      } else if (hasConfidential) {
-        // No public value moved, so the direction comes from the shielded
-        // data. Spending a shielded output wins over a shielded change output
-        // back to the same address.
-        if (confidential.sent) {
-          statusElement = (
-            <span className="type-span span-red-tag">
-              <RowTopIcon /> Sent
-            </span>
-          );
-          trClass = 'input-tr';
-        } else {
-          statusElement = (
-            <span className="type-span span-green-tag">
-              <RowBottomIcon /> Received
-            </span>
-          );
-          trClass = 'output-tr';
-        }
-      } else if (this.props.txCache[tx.tx_id]) {
-        if (this.isAllAuthority(this.props.txCache[tx.tx_id])) {
-          statusElement = <span>Authority</span>;
-          prettyValue = '--';
-        }
-      }
-
-      if (!this.props.metadataLoaded) {
+      if (this.props.metadataLoaded && !row.authority) {
         // We don't show green/red info while metadata is not loaded
-        trClass = '';
+        if (row.direction === 'received') {
+          trClass = 'output-tr';
+        } else if (row.direction === 'sent') {
+          trClass = 'input-tr';
+        }
       }
+
       return (
         <tr key={tx.tx_id} className={trClass} onClick={_e => this.props.onRowClicked(tx.tx_id)}>
           <td className="pe-3">{hathorLib.transactionUtils.getTxType(tx)}</td>
@@ -198,10 +143,8 @@ class AddressHistory extends SortableTable {
           <td className="pe-3 td-mobile date-cell">
             {dateFormatter.parseTimestampNewUi(tx.timestamp)}
           </td>
-          <td className="state td-mobile">{statusElement}</td>
-          <td className="value td-mobile">
-            {this.renderValueContent(tx, prettyValue, hasConfidential)}
-          </td>
+          <td className="state td-mobile">{this.renderStatus(tx, row)}</td>
+          <td className="value td-mobile">{this.renderValueContent(tx, row)}</td>
         </tr>
       );
     });

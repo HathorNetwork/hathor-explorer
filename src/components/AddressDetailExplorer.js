@@ -22,6 +22,7 @@ import metadataApi from '../api/metadataApi';
 import addressApi from '../api/addressApi';
 import txApi from '../api/txApi';
 import helpers from '../utils/helpers';
+import { shieldedInputParentIds } from '../utils/shieldedOutputs';
 
 /**
  * Check if the searched address is on the inputs or outputs of the new tx
@@ -53,6 +54,28 @@ function shouldUpdate(tx, checkToken, queryToken, updateAddress) {
   }
 
   return false;
+}
+
+/**
+ * Fetch full-node transactions for the history cache.
+ *
+ * @param {string[]} txIds Transactions to fetch
+ *
+ * @return {Promise<Object>} Transactions indexed by id. A failed fetch is null,
+ *   so the history stops waiting for it; it's fetched again on the next page load.
+ */
+async function fetchTransactions(txIds) {
+  const results = await Promise.allSettled(txIds.map(txId => txApi.getTransaction(txId)));
+  const fetched = {};
+  results.forEach((result, i) => {
+    if (result.status === 'fulfilled') {
+      fetched[txIds[i]] = { ...result.value.tx, meta: result.value.meta };
+    } else {
+      console.error(`Error fetching transaction ${txIds[i]}`, result.reason);
+      fetched[txIds[i]] = null;
+    }
+  });
+  return fetched;
 }
 
 function AddressDetailExplorer() {
@@ -191,29 +214,23 @@ function AddressDetailExplorer() {
       setTransactions(responseHistory);
       setHasAfter(has_next);
 
-      // Fetching the data from each of the transactions in the received history and storing in cache
-      const txPromises = [];
-      for (const tx of responseHistory) {
-        if (!txCache[tx.tx_id]) {
-          /**
-           * The explorer-service address api does not retrieve all metadata of the transactions
-           * So there are some information that are not retrieved, e.g. whether the transaction only has authorities
-           * We fetch the transaction with all it's metadata to make this assertions.
-           */
-          txPromises.push(txApi.getTransaction(tx.tx_id));
-        }
-      }
+      /**
+       * The explorer-service address api does not retrieve all metadata of the transactions
+       * So there are some information that are not retrieved, e.g. whether the transaction only has authorities
+       * We fetch the transaction with all it's metadata to make this assertions.
+       */
+      const missingTxIds = responseHistory.map(tx => tx.tx_id).filter(txId => !txCache[txId]);
+      fetchTransactions(missingTxIds)
+        .then(fetched => {
+          setTxCache(oldCache => ({ ...oldCache, ...fetched }));
 
-      Promise.all(txPromises).then(txResults => {
-        setTxCache(oldCache => {
-          const newCache = { ...oldCache };
-          for (const txData of txResults) {
-            const tx = { ...txData.tx, meta: txData.meta };
-            newCache[tx.hash] = tx;
-          }
-          return newCache;
-        });
-      });
+          // An AmountShielded input's token_data indexes its parent's token list
+          const parentIds = Object.values(fetched)
+            .flatMap(tx => shieldedInputParentIds(tx, addressToFetch))
+            .filter(txId => !txCache[txId] && !fetched[txId]);
+          return fetchTransactions([...new Set(parentIds)]);
+        })
+        .then(parents => setTxCache(oldCache => ({ ...oldCache, ...parents })));
       setLoadingHistory(false);
 
       return undefined;
