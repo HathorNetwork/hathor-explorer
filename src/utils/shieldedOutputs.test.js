@@ -72,6 +72,17 @@ describe('getConfidentialInvolvement', () => {
     expect(getConfidentialInvolvement(tx, ADDR, opts).received).toBe(false);
   });
 
+  it('treats a shielded output of an unknown mode as hiding its token', () => {
+    const tx = {
+      tokens: [],
+      shielded_outputs: [{ mode: 3, token_data: 0, decoded: { address: ADDR } }],
+    };
+    expect(getConfidentialInvolvement(tx, ADDR, { ...opts, token: TKA })).toMatchObject({
+      received: true,
+      fullShielded: true,
+    });
+  });
+
   it('resolves an AmountShielded HTR output without the token list', () => {
     const tx = { tokens: [], shielded_outputs: [amountShieldedOutput(0)] };
     expect(getConfidentialInvolvement(tx, ADDR, opts).received).toBe(true);

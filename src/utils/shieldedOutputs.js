@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { FULL_SHIELDED_MODE } from './shieldedRewind';
+import { AMOUNT_SHIELDED_MODE } from './shieldedRewind';
 
 /**
  * Pure helpers to describe an address-history row from the full-node
@@ -26,18 +26,14 @@ const TOKEN_AUTHORITY_MASK = 0b10000000;
 const isShieldedInput = input => input?.type === 'shielded';
 
 /**
- * Token of an entry from the token list its `token_data` indexes.
+ * Token of a transparent entry from the token list its `token_data` indexes.
  *
- * @param {Object} entry Output, input or shielded entry
+ * @param {Object} entry Output or input
  * @param {Array<Object|string>} [tokens] Token list of the tx `token_data` refers to
  * @param {string} nativeTokenUid UID of the native token
- * @returns {string|null|undefined} The token uid, null when the chain hides it
- *   (FullShielded), undefined when the token list isn't known
+ * @returns {string|undefined} The token uid, undefined when the token list isn't known
  */
 function entryToken(entry, tokens, nativeTokenUid) {
-  if (entry?.mode === FULL_SHIELDED_MODE) {
-    return null;
-  }
   const index = (entry?.token_data ?? 0) & TOKEN_INDEX_MASK;
   if (index === 0) {
     return nativeTokenUid;
@@ -47,6 +43,23 @@ function entryToken(entry, tokens, nativeTokenUid) {
     return undefined;
   }
   return token.uid ?? token;
+}
+
+/**
+ * Token of a shielded entry. Only an AmountShielded entry shows it; any other
+ * mode (FullShielded) hides it.
+ *
+ * @param {Object} entry Shielded output or input
+ * @param {Array<Object|string>} [tokens] Token list of the tx `token_data` refers to
+ * @param {string} nativeTokenUid UID of the native token
+ * @returns {string|null|undefined} The token uid, null when the chain hides it,
+ *   undefined when the token list isn't known
+ */
+function shieldedEntryToken(entry, tokens, nativeTokenUid) {
+  if (entry?.mode !== AMOUNT_SHIELDED_MODE) {
+    return null;
+  }
+  return entryToken(entry, tokens, nativeTokenUid);
 }
 
 /**
@@ -89,7 +102,7 @@ export function getConfidentialInvolvement(
   for (const output of tx.shielded_outputs || []) {
     if (
       output?.decoded?.address === address &&
-      counts(entryToken(output, tx.tokens, nativeTokenUid))
+      counts(shieldedEntryToken(output, tx.tokens, nativeTokenUid))
     ) {
       involvement.received = true;
     }
@@ -98,7 +111,7 @@ export function getConfidentialInvolvement(
   for (const input of tx.inputs || []) {
     if (isShieldedInput(input) && input?.decoded?.address === address) {
       const parentTokens = getTx(input.tx_id)?.tokens;
-      if (counts(entryToken(input, parentTokens, nativeTokenUid))) {
+      if (counts(shieldedEntryToken(input, parentTokens, nativeTokenUid))) {
         involvement.sent = true;
       }
     }
@@ -121,7 +134,7 @@ export function shieldedInputParentIds(tx, address) {
       input =>
         isShieldedInput(input) &&
         input?.decoded?.address === address &&
-        input.mode !== FULL_SHIELDED_MODE &&
+        input.mode === AMOUNT_SHIELDED_MODE &&
         ((input.token_data ?? 0) & TOKEN_INDEX_MASK) !== 0
     )
     .map(input => input.tx_id);
