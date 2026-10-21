@@ -243,4 +243,82 @@ describe('describeHistoryRow', () => {
     const tx = { outputs: [output(0)], inputs: [{ type: 'transparent', ...output(0) }] };
     expect(describe_({ balance: 0, tx })).toMatchObject({ value: 'public', direction: null });
   });
+
+  it('shows a self-send next to a shielded output of another token as public', () => {
+    const tx = {
+      tokens: [{ uid: TKA }],
+      shielded_outputs: [amountShieldedOutput(1)],
+      outputs: [output(0)],
+      inputs: [{ type: 'transparent', ...output(0) }],
+    };
+    expect(describe_({ balance: 0, tx })).toMatchObject({ value: 'public', direction: null });
+  });
+
+  describe('on the confidential history', () => {
+    const hidden = params => describe_({ balance: null, token: null, ...params });
+
+    it('shows the badge without a direction while the tx loads or if its fetch failed', () => {
+      for (const tx of [undefined, null]) {
+        expect(hidden({ tx })).toEqual({
+          value: 'confidential',
+          direction: null,
+          amountOnly: false,
+          authority: false,
+        });
+      }
+    });
+
+    it('takes the direction from the FullShielded entries', () => {
+      const received = { shielded_outputs: [fullShieldedOutput()], outputs: [], inputs: [] };
+      expect(hidden({ tx: received })).toEqual({
+        value: 'confidential',
+        direction: 'received',
+        amountOnly: false,
+        authority: false,
+      });
+      const sent = { inputs: [shieldedInput({ mode: 2 })], outputs: [output(0, OTHER)] };
+      expect(hidden({ tx: sent }).direction).toBe('sent');
+    });
+
+    it('ignores AmountShielded and transparent entries', () => {
+      const tx = {
+        tokens: [],
+        shielded_outputs: [amountShieldedOutput(0), fullShieldedOutput(OTHER)],
+        outputs: [output(0)],
+        inputs: [],
+      };
+      expect(hidden({ tx })).toEqual({
+        value: 'confidential',
+        direction: null,
+        amountOnly: false,
+        authority: false,
+      });
+    });
+
+    it('ignores an AmountShielded input whose parent is unknown', () => {
+      const tx = {
+        tokens: [{ uid: TKA }],
+        shielded_outputs: [fullShieldedOutput()],
+        inputs: [shieldedInput({ mode: 1, token_data: 1 })],
+        outputs: [],
+      };
+      for (const getTx of [() => undefined, () => null]) {
+        expect(hidden({ tx, getTx }).direction).toBe('received');
+      }
+    });
+
+    it('labels an authority-only tx as authority', () => {
+      const tx = {
+        shielded_outputs: [fullShieldedOutput()],
+        outputs: [output(0b10000001)],
+        inputs: [],
+      };
+      expect(hidden({ tx })).toEqual({
+        value: 'confidential',
+        direction: null,
+        amountOnly: false,
+        authority: true,
+      });
+    });
+  });
 });

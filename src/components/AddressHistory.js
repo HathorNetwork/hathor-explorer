@@ -159,7 +159,7 @@ class AddressHistory extends SortableTable {
  * address: Address to show summary
  * onRowClicked: Function executed when user clicks on the table row (receives tx_id)
  * pagination: Instance of pagination class that handles the URL parameters
- * selectedToken: UID of the selected token to show history
+ * selectedToken: UID of the selected token to show history, null on the confidential history
  * transactions: Array of transaction balances to show in the history
  * numTransactions: total number of transactions
  * txCache: An object with the original txs in the transactions array
@@ -169,8 +169,8 @@ AddressHistory.propTypes = {
   address: PropTypes.string.isRequired,
   onRowClicked: PropTypes.func.isRequired,
   pagination: PropTypes.instanceOf(PaginationURL).isRequired,
-  selectedToken: PropTypes.string.isRequired,
-  numTransactions: PropTypes.number.isRequired,
+  selectedToken: PropTypes.string,
+  numTransactions: PropTypes.number,
   txCache: PropTypes.object.isRequired,
   isMobile: PropTypes.bool.isRequired,
 };

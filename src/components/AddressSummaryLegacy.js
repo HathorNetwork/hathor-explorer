@@ -8,7 +8,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { numberUtils } from '@hathor/wallet-lib';
+import { constants as hathorConstants, numberUtils } from '@hathor/wallet-lib';
 
 const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
@@ -57,6 +57,9 @@ class AddressSummary extends React.Component {
         return 'Loading...';
       }
 
+      if (this.props.selectedToken === hathorConstants.NATIVE_TOKEN_UID) {
+        return 'Native token';
+      }
       if (this.props.isNFT) {
         return 'NFT';
       }

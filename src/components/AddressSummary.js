@@ -7,9 +7,10 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { numberUtils } from '@hathor/wallet-lib';
+import { constants as hathorConstants, numberUtils } from '@hathor/wallet-lib';
 import { connect } from 'react-redux';
 import HathorSelect from './HathorSelect';
+import { CONFIDENTIAL_TOKENS_KEY } from '../constants';
 
 const mapStateToProps = state => ({
   decimalPlaces: state.serverInfo.decimal_places,
@@ -26,7 +27,17 @@ class AddressSummary extends React.Component {
   };
 
   render() {
-    const hasTokens = Object.keys(this.props.tokens).length > 0;
+    const tokenOptions = Object.keys(this.props.tokens).map(uid => {
+      const token = this.props.tokens[uid];
+      return {
+        key: uid,
+        name: `${token.name} (${token.symbol})`,
+      };
+    });
+    if (this.props.hasHiddenTokenActivity) {
+      tokenOptions.push({ key: CONFIDENTIAL_TOKENS_KEY, name: 'Confidential tokens' });
+    }
+    const hasTokens = tokenOptions.length > 0;
 
     const renderAddress = () => (
       <>
@@ -57,6 +68,7 @@ class AddressSummary extends React.Component {
 
     // Confidential activity means the indexer only sees public values; label
     // the public-only fields so the number isn't mistaken for the full amount.
+    // The number of transactions includes the shielded-only ones, so it isn't labeled.
     const publicLabel = name => (this.props.hasConfidentialActivity ? `${name} (public)` : name);
 
     const newLoadMainInfo = () => {
@@ -84,6 +96,9 @@ class AddressSummary extends React.Component {
         return 'Loading...';
       }
 
+      if (this.props.selectedToken === hathorConstants.NATIVE_TOKEN_UID) {
+        return 'Native token';
+      }
       if (this.props.isNFT) {
         return 'NFT';
       }
@@ -99,6 +114,22 @@ class AddressSummary extends React.Component {
     };
 
     const newLoadBalanceInfo = () => {
+      if (this.props.selectedToken === CONFIDENTIAL_TOKENS_KEY) {
+        // FullShielded entries hide their token and amount, so there is no balance
+        return (
+          <div className="summary-balance-info">
+            <div className="summary-balance-info-container">
+              <div className="address-container-title">Token</div>
+              <div>Confidential tokens</div>
+            </div>
+            <div className="summary-balance-info-container">
+              <div className="address-container-title">Type</div>
+              <div>Token and amount hidden</div>
+            </div>
+          </div>
+        );
+      }
+
       const token = this.props.tokens[this.props.selectedToken];
       return (
         <div className="summary-balance-info">
@@ -111,7 +142,7 @@ class AddressSummary extends React.Component {
             <div>{renderType()}</div>
           </div>
           <div className="summary-balance-info-container">
-            <div className="address-container-title">{publicLabel('Number of transactions')}</div>
+            <div className="address-container-title">Number of transactions</div>
             <div>{this.props.balance.transactions}</div>
           </div>
           <div className="summary-balance-info-container">
@@ -140,47 +171,20 @@ class AddressSummary extends React.Component {
       );
     };
 
-    const SelectToken = () => {
-      const uid = Object.keys(this.props.tokens).find(key => key === this.props.selectedToken);
-
-      if (uid) {
-        const token = this.props.tokens[uid];
-
-        return {
-          key: uid,
-          name: `${token.name} (${token.symbol})`,
-        };
-      }
-
-      return null;
-    };
+    const SelectToken = () =>
+      tokenOptions.find(option => option.key === this.props.selectedToken) || null;
 
     const newRenderTokenData = () => {
-      if (Object.keys(this.props.tokens).length === 1) {
-        const token = this.props.tokens[this.props.selectedToken];
-        return (
-          <span>
-            {token.name} ({token.symbol})
-          </span>
-        );
+      if (tokenOptions.length === 1) {
+        return <span>{tokenOptions[0].name}</span>;
       }
       return (
         <HathorSelect
           value={SelectToken()}
-          options={newRenderTokenOptions()}
+          options={tokenOptions}
           onSelect={e => this.props.tokenSelectChanged(e)}
         />
       );
-    };
-
-    const newRenderTokenOptions = () => {
-      return Object.keys(this.props.tokens).map(uid => {
-        const token = this.props.tokens[uid];
-        return {
-          key: uid,
-          name: `${token.name} (${token.symbol})`,
-        };
-      });
     };
 
     const newLoadSummary = () => {
@@ -201,8 +205,10 @@ class AddressSummary extends React.Component {
  * spendAddress: Spend address the data was queried under, when `address` is shielded
  * tokens: Object with tokens the address has a history with.
  * balance: Object with balance data of each token for the selected address {'uid': {name, symbol, received, spent}}
- * selectedToken: UID of the selected token to show history
+ * selectedToken: UID of the selected token to show history, or CONFIDENTIAL_TOKENS_KEY
  * tokenSelectChanged: Callback to be executed when user changes token
+ * hasConfidentialActivity: If the address has any shielded output or input
+ * hasHiddenTokenActivity: If the address has a confidential history to select
  */
 AddressSummary.propTypes = {
   address: PropTypes.string.isRequired,
@@ -212,10 +218,12 @@ AddressSummary.propTypes = {
   selectedToken: PropTypes.string.isRequired,
   tokenSelectChanged: PropTypes.func.isRequired,
   hasConfidentialActivity: PropTypes.bool,
+  hasHiddenTokenActivity: PropTypes.bool,
 };
 
 AddressSummary.defaultProps = {
   hasConfidentialActivity: false,
+  hasHiddenTokenActivity: false,
 };
 
 export default connect(mapStateToProps)(AddressSummary);

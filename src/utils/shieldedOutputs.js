@@ -72,10 +72,13 @@ function shieldedEntryToken(entry, tokens, nativeTokenUid) {
  * tx (the node sends the spent output), so the parent is looked up with
  * `getTx`. While the parent isn't known the entry counts, like a hidden token.
  *
+ * With a null `token` (the confidential history) only entries that hide their
+ * token count.
+ *
  * @param {Object} [tx] Full-node transaction (from txCache)
  * @param {string} address Address being viewed
  * @param {Object} options
- * @param {string} options.token Selected token uid
+ * @param {string|null} options.token Selected token uid, null on the confidential history
  * @param {string} options.nativeTokenUid UID of the native token
  * @param {function(string): Object|undefined} [options.getTx] Cached tx by id
  * @returns {{ received: boolean, sent: boolean, fullShielded: boolean }}
@@ -96,7 +99,7 @@ export function getConfidentialInvolvement(
       involvement.fullShielded = true;
       return true;
     }
-    return entryTokenUid === undefined || entryTokenUid === token;
+    return token !== null && (entryTokenUid === undefined || entryTokenUid === token);
   };
 
   for (const output of tx.shielded_outputs || []) {
@@ -202,11 +205,16 @@ export function isAuthorityOnly(tx, address) {
  * entries and no public value moved; the row is labeled "Authority" even if
  * it also has confidential entries.
  *
+ * A row of the confidential history (null `balance` and `token`) is always
+ * 'confidential', even before the tx loads: the explorer-service lists it for
+ * its FullShielded entries. Its direction comes from those entries only.
+ *
  * @param {Object} params
- * @param {number|bigint} params.balance Public net balance of the row for the selected token
+ * @param {number|bigint|null} params.balance Public net balance of the row for the selected
+ *   token, null on the confidential history
  * @param {Object|null|undefined} params.tx Full-node tx: undefined while loading, null if the fetch failed
  * @param {string} params.address Address being viewed
- * @param {string} params.token Selected token uid
+ * @param {string|null} params.token Selected token uid, null on the confidential history
  * @param {string} params.nativeTokenUid UID of the native token
  * @param {function(string): Object|undefined} [params.getTx] Cached tx by id
  * @returns {{ value: string, direction: 'received'|'sent'|null, amountOnly: boolean, authority: boolean }}
@@ -221,6 +229,11 @@ export function describeHistoryRow({ balance, tx, address, token, nativeTokenUid
     authority,
   });
 
+  const hidden = balance === null;
+
+  if (hidden && !tx) {
+    return row('confidential', null);
+  }
   if (tx === undefined) {
     return publicDirection ? row('public', publicDirection) : row('loading', null);
   }
@@ -229,16 +242,17 @@ export function describeHistoryRow({ balance, tx, address, token, nativeTokenUid
   }
 
   const involvement = getConfidentialInvolvement(tx, address, { token, nativeTokenUid, getTx });
-  const confidential = involvement.received || involvement.sent;
+  const confidential = hidden || involvement.received || involvement.sent;
   const authority = !publicDirection && isAuthorityOnly(tx, address);
 
   if (!confidential) {
     return authority ? row('authority', null, true) : row('public', publicDirection);
   }
 
-  const amountOnly = !involvement.fullShielded;
+  const amountOnly = !hidden && !involvement.fullShielded;
   if (!publicDirection || !hasPublicInvolvement(tx, address, token, nativeTokenUid)) {
-    const shieldedDirection = involvement.sent ? 'sent' : 'received';
+    const shieldedDirection =
+      (involvement.sent && 'sent') || (involvement.received && 'received') || null;
     return {
       value: 'confidential',
       direction: authority ? null : shieldedDirection,
