@@ -150,6 +150,16 @@ function AddressDetailExplorer() {
   const [showReloadTokenButton, setShowReloadTokenButton] = useState(false);
   const [pageSearchAfter, setPageSearchAfter] = useState(FIRST_PAGE_SEARCH_AFTER);
 
+  // Every load of the screen's data (tokens, a token's summary and history, a
+  // history page) gets a new id. A response is only applied while its load is
+  // the latest, so a slow response can't overwrite a newer selection or page.
+  const latestLoad = useRef(0);
+  const startLoad = useCallback(() => {
+    latestLoad.current += 1;
+    const load = latestLoad.current;
+    return () => load === latestLoad.current;
+  }, []);
+
   /**
    * Called when 'network' ws message arrives
    * If it's a new tx message update data, in case is necessary
@@ -200,15 +210,20 @@ function AddressDetailExplorer() {
    *
    * @param addressToFetch
    * @param tokenToFetch
-   * @param [lastTx]
-   * @param [lastTs]
+   * @param lastTx Last tx of the previous page, null for the first page
+   * @param lastTs Last timestamp of the previous page, null for the first page
+   * @param {function(): boolean} isCurrent Whether the load is still the latest, from `startLoad`
    */
   const getHistoryData = useCallback(
-    async (addressToFetch, tokenToFetch, lastTx, lastTs) => {
+    async (addressToFetch, tokenToFetch, lastTx, lastTs, isCurrent) => {
       const response =
         tokenToFetch === CONFIDENTIAL_TOKENS_KEY
           ? await addressApi.getConfidentialHistory(addressToFetch, TX_COUNT, lastTx, lastTs)
           : await addressApi.getHistory(addressToFetch, tokenToFetch, TX_COUNT, lastTx, lastTs);
+
+      if (!isCurrent()) {
+        return undefined;
+      }
 
       if (!response) {
         // An error happened with the API call
@@ -249,7 +264,7 @@ function AddressDetailExplorer() {
    * Will discard any errors and always set the metadataLoaded to true, even without any data.
    * @type {(function(*): Promise<void>)|*}
    */
-  const getSelectedTokenMetadata = useCallback(async tokenToFetch => {
+  const getSelectedTokenMetadata = useCallback(async (tokenToFetch, isCurrent) => {
     if (
       tokenToFetch === hathorLib.constants.NATIVE_TOKEN_UID ||
       tokenToFetch === CONFIDENTIAL_TOKENS_KEY
@@ -265,6 +280,9 @@ function AddressDetailExplorer() {
     }
 
     const dagData = await metadataApi.getDagMetadata(tokenToFetch);
+    if (!isCurrent()) {
+      return;
+    }
     if (dagData) {
       setSelectedTokenMetadata(dagData);
     }
@@ -272,13 +290,14 @@ function AddressDetailExplorer() {
   }, []);
 
   const reloadTokenSummaryAndHistory = useCallback(
-    async (addressToReload, tokenToReload) => {
+    async (addressToReload, tokenToReload, isCurrent) => {
       setLoadingSummary(true);
       setLoadingHistory(true);
       // The history starts over at its first page
       setPage(0);
       setHasBefore(false);
       setPageSearchAfter(FIRST_PAGE_SEARCH_AFTER);
+      setLoadingPagination(false);
 
       try {
         // The confidential history has no balance
@@ -286,6 +305,9 @@ function AddressDetailExplorer() {
           tokenToReload === CONFIDENTIAL_TOKENS_KEY
             ? {}
             : await addressApi.getBalance(addressToReload, tokenToReload);
+        if (!isCurrent()) {
+          return undefined;
+        }
         if (!balanceData) {
           // An error happened with the API call
           setShowReloadTokenButton(true);
@@ -293,12 +315,16 @@ function AddressDetailExplorer() {
         }
         setBalance(balanceData);
 
-        await getHistoryData(addressToReload, tokenToReload);
-        await getSelectedTokenMetadata(tokenToReload);
+        await getHistoryData(addressToReload, tokenToReload, null, null, isCurrent);
+        await getSelectedTokenMetadata(tokenToReload, isCurrent);
       } catch (error) {
-        setErrorMessage(error);
+        if (isCurrent()) {
+          setErrorMessage(error);
+        }
       }
-      setLoadingSummary(false);
+      if (isCurrent()) {
+        setLoadingSummary(false);
+      }
       return undefined;
     },
     [getHistoryData, getSelectedTokenMetadata]
@@ -307,10 +333,14 @@ function AddressDetailExplorer() {
   // Reloads Tokens for the address. Then, update the balance/summary and history
   const reloadTokensForAddress = useCallback(
     async (urlAddress, urlSelectedToken) => {
+      const isCurrent = startLoad();
       setLoadingTokens(true);
 
       try {
         const tokensResponse = await addressApi.getTokens(urlAddress, TOKEN_COUNT);
+        if (!isCurrent()) {
+          return undefined;
+        }
         if (!tokensResponse) {
           // An error happened with the API call
           setShowReloadDataButton(true);
@@ -368,15 +398,17 @@ function AddressDetailExplorer() {
         setSelectedToken(newSelectedToken);
 
         // Once all the tokens for this address are loaded, load the balance and history for the current token
-        await reloadTokenSummaryAndHistory(urlAddress, newSelectedToken);
+        await reloadTokenSummaryAndHistory(urlAddress, newSelectedToken, isCurrent);
       } catch (error) {
-        setLoadingTokens(false);
-        setErrorMessage(error.message || error.toString());
+        if (isCurrent()) {
+          setLoadingTokens(false);
+          setErrorMessage(error.message || error.toString());
+        }
       }
 
       return undefined;
     },
-    [reloadTokenSummaryAndHistory]
+    [reloadTokenSummaryAndHistory, startLoad]
   );
 
   // Loads all data on screen once the initial validation is done and a loading flag is triggered
@@ -426,7 +458,7 @@ function AddressDetailExplorer() {
     setTransactions([]);
 
     updateTokenURL(tokenUid);
-    await reloadTokenSummaryAndHistory(address, tokenUid);
+    await reloadTokenSummaryAndHistory(address, tokenUid, startLoad());
     return undefined;
   };
 
@@ -461,7 +493,7 @@ function AddressDetailExplorer() {
     e.preventDefault();
     setShowReloadTokenButton(false);
 
-    reloadTokenSummaryAndHistory(address, selectedToken).catch(err =>
+    reloadTokenSummaryAndHistory(address, selectedToken, startLoad()).catch(err =>
       console.error('Error on handleRefreshTokenButton', err)
     );
   };
@@ -492,6 +524,7 @@ function AddressDetailExplorer() {
   };
 
   const onNextPageClicked = async () => {
+    const isCurrent = startLoad();
     setLoadingPagination(true);
 
     const { timestamp, tx_id } = transactions.at(transactions.length - 1);
@@ -515,7 +548,11 @@ function AddressDetailExplorer() {
       },
     ];
 
-    await getHistoryData(address, selectedToken, searchAfter.lastTx, searchAfter.lastTs);
+    await getHistoryData(address, selectedToken, searchAfter.lastTx, searchAfter.lastTs, isCurrent);
+    if (!isCurrent()) {
+      // A newer load owns the paging state
+      return;
+    }
 
     setPageSearchAfter(newPageSearchAfter);
     setHasBefore(true);
@@ -524,12 +561,17 @@ function AddressDetailExplorer() {
   };
 
   const onPreviousPageClicked = async () => {
+    const isCurrent = startLoad();
     setLoadingPagination(true);
 
     const nextPage = page - 1;
     const { searchAfter } = find(pageSearchAfter, { page: nextPage });
 
-    await getHistoryData(address, selectedToken, searchAfter.lastTx, searchAfter.lastTs);
+    await getHistoryData(address, selectedToken, searchAfter.lastTx, searchAfter.lastTs, isCurrent);
+    if (!isCurrent()) {
+      // A newer load owns the paging state
+      return;
+    }
 
     setHasBefore(nextPage > 0);
     setPage(nextPage);
