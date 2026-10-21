@@ -12,6 +12,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useIsMobile } from '../hooks';
 import AddressSummary from './AddressSummary';
 import AddressHistory from './AddressHistory';
+import AddressConfidentialBanner from './AddressConfidentialBanner';
 import Loading from './Loading';
 import ErrorMessageWithIcon from './error/ErrorMessageWithIcon';
 import PaginationURL from '../utils/pagination';
@@ -21,6 +22,7 @@ import metadataApi from '../api/metadataApi';
 import addressApi from '../api/addressApi';
 import txApi from '../api/txApi';
 import helpers from '../utils/helpers';
+import { shieldedInputParentIds } from '../utils/shieldedOutputs';
 
 /**
  * Check if the searched address is on the inputs or outputs of the new tx
@@ -35,7 +37,7 @@ import helpers from '../utils/helpers';
  * @return {boolean} True if should update the list, false otherwise
  */
 function shouldUpdate(tx, checkToken, queryToken, updateAddress) {
-  const arr = [...tx.outputs, ...tx.inputs];
+  const arr = [...tx.outputs, ...(tx.shielded_outputs || []), ...tx.inputs];
 
   for (const element of arr) {
     if (element?.decoded?.address === updateAddress) {
@@ -52,6 +54,28 @@ function shouldUpdate(tx, checkToken, queryToken, updateAddress) {
   }
 
   return false;
+}
+
+/**
+ * Fetch full-node transactions for the history cache.
+ *
+ * @param {string[]} txIds Transactions to fetch
+ *
+ * @return {Promise<Object>} Transactions indexed by id. A failed fetch is null,
+ *   so the history stops waiting for it; it's fetched again on the next page load.
+ */
+async function fetchTransactions(txIds) {
+  const results = await Promise.allSettled(txIds.map(txId => txApi.getTransaction(txId)));
+  const fetched = {};
+  results.forEach((result, i) => {
+    if (result.status === 'fulfilled') {
+      fetched[txIds[i]] = { ...result.value.tx, meta: result.value.meta };
+    } else {
+      console.error(`Error fetching transaction ${txIds[i]}`, result.reason);
+      fetched[txIds[i]] = null;
+    }
+  });
+  return fetched;
 }
 
 function AddressDetailExplorer() {
@@ -100,6 +124,7 @@ function AddressDetailExplorer() {
   const [errorMessage, setErrorMessage] = useState('');
   const [warningRefreshPage, setWarningRefreshPage] = useState(false);
   const [warnMissingTokens, setWarnMissingTokens] = useState(0);
+  const [hasConfidentialActivity, setHasConfidentialActivity] = useState(false);
   const [selectedTokenMetadata, setSelectedTokenMetadata] = useState(null);
   const [metadataLoaded, setMetadataLoaded] = useState(false);
   const [addressTokens, setAddressTokens] = useState({});
@@ -189,29 +214,23 @@ function AddressDetailExplorer() {
       setTransactions(responseHistory);
       setHasAfter(has_next);
 
-      // Fetching the data from each of the transactions in the received history and storing in cache
-      const txPromises = [];
-      for (const tx of responseHistory) {
-        if (!txCache[tx.tx_id]) {
-          /**
-           * The explorer-service address api does not retrieve all metadata of the transactions
-           * So there are some information that are not retrieved, e.g. whether the transaction only has authorities
-           * We fetch the transaction with all it's metadata to make this assertions.
-           */
-          txPromises.push(txApi.getTransaction(tx.tx_id));
-        }
-      }
+      /**
+       * The explorer-service address api does not retrieve all metadata of the transactions
+       * So there are some information that are not retrieved, e.g. whether the transaction only has authorities
+       * We fetch the transaction with all it's metadata to make this assertions.
+       */
+      const missingTxIds = responseHistory.map(tx => tx.tx_id).filter(txId => !txCache[txId]);
+      fetchTransactions(missingTxIds)
+        .then(fetched => {
+          setTxCache(oldCache => ({ ...oldCache, ...fetched }));
 
-      Promise.all(txPromises).then(txResults => {
-        setTxCache(oldCache => {
-          const newCache = { ...oldCache };
-          for (const txData of txResults) {
-            const tx = { ...txData.tx, meta: txData.meta };
-            newCache[tx.hash] = tx;
-          }
-          return newCache;
-        });
-      });
+          // An AmountShielded input's token_data indexes its parent's token list
+          const parentIds = Object.values(fetched)
+            .flatMap(tx => shieldedInputParentIds(tx, addressToFetch))
+            .filter(txId => !txCache[txId] && !fetched[txId]);
+          return fetchTransactions([...new Set(parentIds)]);
+        })
+        .then(parents => setTxCache(oldCache => ({ ...oldCache, ...parents })));
       setLoadingHistory(false);
 
       return undefined;
@@ -285,6 +304,7 @@ function AddressDetailExplorer() {
 
         const tokens = tokensResponse.tokens || {};
         const total = tokensResponse.total || 0;
+        setHasConfidentialActivity(Boolean(tokensResponse.has_confidential_activity));
 
         if (total > Object.keys(tokens).length) {
           // There were unfetched tokens
@@ -345,6 +365,7 @@ function AddressDetailExplorer() {
     setTransactions([]);
     setBalance({});
     setErrorMessage('');
+    setHasConfidentialActivity(false);
 
     // User may already have a token selected on the URL
     const refQueryParams = pagination.current.obtainQueryParams();
@@ -546,9 +567,12 @@ function AddressDetailExplorer() {
       return (
         <div>
           <p className="text-danger mt-3">{errorMessage}</p>
-          <button className="btn btn-hathor m-3" onClick={reloadPage}>
-            Reload
-          </button>
+          {/* Reloading can't fix an invalid address */}
+          {resolvedAddress && (
+            <button className="btn btn-hathor m-3" onClick={reloadPage}>
+              Reload
+            </button>
+          )}
         </div>
       );
     }
@@ -568,10 +592,17 @@ function AddressDetailExplorer() {
       return <Loading />;
     }
 
+    // Without public tokens there is no summary or history to show: the
+    // banner says so instead of an empty history.
+    const confidentialOnly = hasConfidentialActivity && Object.keys(addressTokens).length === 0;
+
     return (
       <div>
         {renderWarningAlert()}
         {renderMissingTokensAlert()}
+        {hasConfidentialActivity && (
+          <AddressConfidentialBanner confidentialOnly={confidentialOnly} />
+        )}
         <AddressSummary
           address={routeAddress}
           spendAddress={resolvedAddress?.spendAddress}
@@ -581,25 +612,28 @@ function AddressDetailExplorer() {
           tokenSelectChanged={onTokenSelectChanged}
           isNFT={isNFT()}
           metadataLoaded={metadataLoaded}
+          hasConfidentialActivity={hasConfidentialActivity}
         />
-        <AddressHistory
-          address={address}
-          onRowClicked={onRowClicked}
-          pagination={pagination.current}
-          selectedToken={selectedToken}
-          onNextPageClicked={onNextPageClicked}
-          onPreviousPageClicked={onPreviousPageClicked}
-          hasAfter={hasAfter}
-          hasBefore={hasBefore}
-          data={transactions}
-          numTransactions={balance.transactions}
-          txCache={txCache}
-          isNFT={isNFT()}
-          metadataLoaded={metadataLoaded}
-          calculatingPage={loadingPagination}
-          loading={loadingHistory}
-          isMobile={isMobile}
-        />
+        {!confidentialOnly && (
+          <AddressHistory
+            address={address}
+            onRowClicked={onRowClicked}
+            pagination={pagination.current}
+            selectedToken={selectedToken}
+            onNextPageClicked={onNextPageClicked}
+            onPreviousPageClicked={onPreviousPageClicked}
+            hasAfter={hasAfter}
+            hasBefore={hasBefore}
+            data={transactions}
+            numTransactions={balance.transactions}
+            txCache={txCache}
+            isNFT={isNFT()}
+            metadataLoaded={metadataLoaded}
+            calculatingPage={loadingPagination}
+            loading={loadingHistory}
+            isMobile={isMobile}
+          />
+        )}
       </div>
     );
   };
