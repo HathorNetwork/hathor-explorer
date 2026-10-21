@@ -7,7 +7,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { numberUtils } from '@hathor/wallet-lib';
+import { constants as hathorConstants, numberUtils } from '@hathor/wallet-lib';
 import { connect } from 'react-redux';
 import HathorSelect from './HathorSelect';
 import { CONFIDENTIAL_TOKENS_KEY } from '../constants';
@@ -96,6 +96,9 @@ class AddressSummary extends React.Component {
         return 'Loading...';
       }
 
+      if (this.props.selectedToken === hathorConstants.NATIVE_TOKEN_UID) {
+        return 'Native token';
+      }
       if (this.props.isNFT) {
         return 'NFT';
       }
