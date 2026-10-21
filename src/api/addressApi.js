@@ -7,6 +7,28 @@
 
 import requestExplorerServiceV1 from './axiosInstance';
 
+function requestHistory(params, limit, lastTx, lastTs) {
+  const data = { ...params };
+  if (limit) {
+    data.limit = limit;
+  }
+
+  if (lastTx) {
+    data.last_tx = lastTx;
+  }
+
+  if (lastTs) {
+    data.last_ts = lastTs;
+  }
+
+  return requestExplorerServiceV1.get(`address/history`, { params: data }).then(res => {
+    if (res && res.data) {
+      return res.data;
+    }
+    return undefined;
+  });
+}
+
 const addressApi = {
   getTokens(address, limit, offset) {
     /*
@@ -50,26 +72,20 @@ const addressApi = {
      lastTx (optional): str -> last tx of the page, so we can retrieve the next page
      lastTs (optional): int -> last timestamp of the page, so we can retrieve the next page
     */
+    return requestHistory({ address, token }, limit, lastTx, lastTs);
+  },
 
-    const data = { address, token };
-    if (limit) {
-      data.limit = limit;
-    }
+  getConfidentialHistory(address, limit, lastTx, lastTs) {
+    /*
+     Txs where the address has a FullShielded output or input. Their token and
+     amount are hidden, so every entry has token_id and balance set to null.
 
-    if (lastTx) {
-      data.last_tx = lastTx;
-    }
-
-    if (lastTs) {
-      data.last_ts = lastTs;
-    }
-
-    return requestExplorerServiceV1.get(`address/history`, { params: data }).then(res => {
-      if (res && res.data) {
-        return res.data;
-      }
-      return undefined;
-    });
+     address: address to search
+     limit (optional): int -> how many objects we want
+     lastTx (optional): str -> last tx of the page, so we can retrieve the next page
+     lastTs (optional): int -> last timestamp of the page, so we can retrieve the next page
+    */
+    return requestHistory({ address, confidential: true }, limit, lastTx, lastTs);
   },
 };
 

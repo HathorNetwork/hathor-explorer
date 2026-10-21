@@ -38,6 +38,10 @@ export const FEATURE_COUNT = 10;
 // Maximum number of tokens to fetch when searching for tokens of an address
 export const TOKEN_COUNT = 50;
 
+// Token selector key of an address's confidential (FullShielded) history. Not
+// hex, so it never matches a token uid.
+export const CONFIDENTIAL_TOKENS_KEY = 'confidential';
+
 export const DASHBOARD_BLOCKS_COUNT = 6;
 
 export const DASHBOARD_TX_COUNT = 6;

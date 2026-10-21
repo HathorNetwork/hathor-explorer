@@ -14,9 +14,24 @@ import { ShieldIcon } from './ConfidentialBadge';
  * confidential (shielded) activity. Copy mirrors the CTX Figma.
  *
  * With `confidentialOnly` the address has no public tokens at all, so there
- * is no summary or history below to refer to.
+ * is no public summary or history below to refer to. With
+ * `hasHiddenTokenActivity` the transactions that hide their token are listed
+ * under "Confidential tokens".
  */
-function AddressConfidentialBanner({ confidentialOnly }) {
+function subtitle(confidentialOnly, hasHiddenTokenActivity) {
+  if (confidentialOnly) {
+    return hasHiddenTokenActivity
+      ? 'Its transactions hide their tokens and amounts, so only the transactions are listed below.'
+      : 'It has no public balance or history to display. Confidential amounts are not shown.';
+  }
+  const publicOnly =
+    'Only public balances and tokens are displayed below. Confidential amounts sent to or from this address are not included.';
+  return hasHiddenTokenActivity
+    ? `${publicOnly} Transactions that hide their token are listed under Confidential tokens.`
+    : publicOnly;
+}
+
+function AddressConfidentialBanner({ confidentialOnly, hasHiddenTokenActivity }) {
   return (
     <div className="address-confidential-banner" role="note">
       <ShieldIcon className="address-confidential-banner__icon" />
@@ -27,9 +42,7 @@ function AddressConfidentialBanner({ confidentialOnly }) {
             : 'This address has confidential activity'}
         </div>
         <div className="address-confidential-banner__subtitle">
-          {confidentialOnly
-            ? 'It has no public balance or history to display. Confidential amounts are not shown.'
-            : 'Only public balances and tokens are displayed below. Confidential amounts sent to or from this address are not included.'}
+          {subtitle(confidentialOnly, hasHiddenTokenActivity)}
         </div>
       </div>
     </div>
@@ -38,10 +51,12 @@ function AddressConfidentialBanner({ confidentialOnly }) {
 
 AddressConfidentialBanner.propTypes = {
   confidentialOnly: PropTypes.bool,
+  hasHiddenTokenActivity: PropTypes.bool,
 };
 
 AddressConfidentialBanner.defaultProps = {
   confidentialOnly: false,
+  hasHiddenTokenActivity: false,
 };
 
 export default AddressConfidentialBanner;

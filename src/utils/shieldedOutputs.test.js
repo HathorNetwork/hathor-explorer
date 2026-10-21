@@ -243,4 +243,58 @@ describe('describeHistoryRow', () => {
     const tx = { outputs: [output(0)], inputs: [{ type: 'transparent', ...output(0) }] };
     expect(describe_({ balance: 0, tx })).toMatchObject({ value: 'public', direction: null });
   });
+
+  it('shows a self-send next to a shielded output of another token as public', () => {
+    const tx = {
+      tokens: [{ uid: TKA }],
+      shielded_outputs: [amountShieldedOutput(1)],
+      outputs: [output(0)],
+      inputs: [{ type: 'transparent', ...output(0) }],
+    };
+    expect(describe_({ balance: 0, tx })).toMatchObject({ value: 'public', direction: null });
+  });
+
+  describe('on the confidential history', () => {
+    const hidden = params => describe_({ balance: null, token: null, ...params });
+
+    it('waits for the tx', () => {
+      expect(hidden({ tx: undefined }).value).toBe('loading');
+    });
+
+    it('shows the badge without a direction when the tx fetch failed', () => {
+      expect(hidden({ tx: null })).toEqual({
+        value: 'confidential',
+        direction: null,
+        amountOnly: false,
+        authority: false,
+      });
+    });
+
+    it('takes the direction from the FullShielded entries', () => {
+      const received = { shielded_outputs: [fullShieldedOutput()], outputs: [], inputs: [] };
+      expect(hidden({ tx: received })).toEqual({
+        value: 'confidential',
+        direction: 'received',
+        amountOnly: false,
+        authority: false,
+      });
+      const sent = { inputs: [shieldedInput({ mode: 2 })], outputs: [output(0, OTHER)] };
+      expect(hidden({ tx: sent }).direction).toBe('sent');
+    });
+
+    it('ignores AmountShielded and transparent entries', () => {
+      const tx = {
+        tokens: [],
+        shielded_outputs: [amountShieldedOutput(0), fullShieldedOutput(OTHER)],
+        outputs: [output(0)],
+        inputs: [],
+      };
+      expect(hidden({ tx })).toEqual({
+        value: 'confidential',
+        direction: null,
+        amountOnly: false,
+        authority: false,
+      });
+    });
+  });
 });
