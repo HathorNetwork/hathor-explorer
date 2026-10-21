@@ -72,10 +72,13 @@ function shieldedEntryToken(entry, tokens, nativeTokenUid) {
  * tx (the node sends the spent output), so the parent is looked up with
  * `getTx`. While the parent isn't known the entry counts, like a hidden token.
  *
+ * With a null `token` (the confidential history) only entries that hide their
+ * token count.
+ *
  * @param {Object} [tx] Full-node transaction (from txCache)
  * @param {string} address Address being viewed
  * @param {Object} options
- * @param {string} options.token Selected token uid
+ * @param {string|null} options.token Selected token uid, null on the confidential history
  * @param {string} options.nativeTokenUid UID of the native token
  * @param {function(string): Object|undefined} [options.getTx] Cached tx by id
  * @returns {{ received: boolean, sent: boolean, fullShielded: boolean }}
@@ -96,7 +99,7 @@ export function getConfidentialInvolvement(
       involvement.fullShielded = true;
       return true;
     }
-    return entryTokenUid === undefined || entryTokenUid === token;
+    return token !== null && (entryTokenUid === undefined || entryTokenUid === token);
   };
 
   for (const output of tx.shielded_outputs || []) {
@@ -203,7 +206,8 @@ export function isAuthorityOnly(tx, address) {
  * it also has confidential entries.
  *
  * A row of the confidential history (null `balance` and `token`) is always
- * 'confidential': the explorer-service lists it for its FullShielded entries.
+ * 'confidential', even before the tx loads: the explorer-service lists it for
+ * its FullShielded entries. Its direction comes from those entries only.
  *
  * @param {Object} params
  * @param {number|bigint|null} params.balance Public net balance of the row for the selected
@@ -227,11 +231,14 @@ export function describeHistoryRow({ balance, tx, address, token, nativeTokenUid
 
   const hidden = balance === null;
 
+  if (hidden && !tx) {
+    return row('confidential', null);
+  }
   if (tx === undefined) {
     return publicDirection ? row('public', publicDirection) : row('loading', null);
   }
   if (tx === null) {
-    return row(hidden ? 'confidential' : 'public', publicDirection);
+    return row('public', publicDirection);
   }
 
   const involvement = getConfidentialInvolvement(tx, address, { token, nativeTokenUid, getTx });

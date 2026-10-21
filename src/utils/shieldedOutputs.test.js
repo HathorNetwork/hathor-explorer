@@ -257,17 +257,15 @@ describe('describeHistoryRow', () => {
   describe('on the confidential history', () => {
     const hidden = params => describe_({ balance: null, token: null, ...params });
 
-    it('waits for the tx', () => {
-      expect(hidden({ tx: undefined }).value).toBe('loading');
-    });
-
-    it('shows the badge without a direction when the tx fetch failed', () => {
-      expect(hidden({ tx: null })).toEqual({
-        value: 'confidential',
-        direction: null,
-        amountOnly: false,
-        authority: false,
-      });
+    it('shows the badge without a direction while the tx loads or if its fetch failed', () => {
+      for (const tx of [undefined, null]) {
+        expect(hidden({ tx })).toEqual({
+          value: 'confidential',
+          direction: null,
+          amountOnly: false,
+          authority: false,
+        });
+      }
     });
 
     it('takes the direction from the FullShielded entries', () => {
@@ -294,6 +292,32 @@ describe('describeHistoryRow', () => {
         direction: null,
         amountOnly: false,
         authority: false,
+      });
+    });
+
+    it('ignores an AmountShielded input whose parent is unknown', () => {
+      const tx = {
+        tokens: [{ uid: TKA }],
+        shielded_outputs: [fullShieldedOutput()],
+        inputs: [shieldedInput({ mode: 1, token_data: 1 })],
+        outputs: [],
+      };
+      for (const getTx of [() => undefined, () => null]) {
+        expect(hidden({ tx, getTx }).direction).toBe('received');
+      }
+    });
+
+    it('labels an authority-only tx as authority', () => {
+      const tx = {
+        shielded_outputs: [fullShieldedOutput()],
+        outputs: [output(0b10000001)],
+        inputs: [],
+      };
+      expect(hidden({ tx })).toEqual({
+        value: 'confidential',
+        direction: null,
+        amountOnly: false,
+        authority: true,
       });
     });
   });
