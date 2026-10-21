@@ -78,6 +78,17 @@ async function fetchTransactions(txIds) {
   return fetched;
 }
 
+// Cursor of the history's first page
+const FIRST_PAGE_SEARCH_AFTER = [
+  {
+    page: 0,
+    searchAfter: {
+      lastTx: null,
+      lastTs: null,
+    },
+  },
+];
+
 function AddressDetailExplorer() {
   const pagination = useRef(
     new PaginationURL({
@@ -137,15 +148,7 @@ function AddressDetailExplorer() {
   const [txCache, setTxCache] = useState({});
   const [showReloadDataButton, setShowReloadDataButton] = useState(false);
   const [showReloadTokenButton, setShowReloadTokenButton] = useState(false);
-  const [pageSearchAfter, setPageSearchAfter] = useState([
-    {
-      page: 0,
-      searchAfter: {
-        lastTx: null,
-        lastTs: null,
-      },
-    },
-  ]);
+  const [pageSearchAfter, setPageSearchAfter] = useState(FIRST_PAGE_SEARCH_AFTER);
 
   /**
    * Called when 'network' ws message arrives
@@ -272,6 +275,10 @@ function AddressDetailExplorer() {
     async (addressToReload, tokenToReload) => {
       setLoadingSummary(true);
       setLoadingHistory(true);
+      // The history starts over at its first page
+      setPage(0);
+      setHasBefore(false);
+      setPageSearchAfter(FIRST_PAGE_SEARCH_AFTER);
 
       try {
         // The confidential history has no balance
